@@ -1,36 +1,85 @@
 # Retraite à comptes notionnels — modèle français rétroactif
 
-Modélisation d'un système de retraite français **en comptes notionnels**,
-appliqué rétroactivement depuis l'origine de la répartition, avec trois
-scénarios comparables pour n'importe quelle carrière — actif ou retraité.
+**Ce dépôt répond à une question : que verserait la retraite française si elle
+avait toujours été calculée en comptes notionnels, c'est-à-dire au franc le
+franc des cotisations réellement versées ?**
+
+Un compte notionnel est un compte virtuel — aucun capital n'est placé, la
+répartition reste la répartition. Ce qui change, c'est le calcul du droit :
+
+1. **accumulation** — chaque année, la cotisation retraite effectivement versée
+   est inscrite au compte ;
+2. **revalorisation** — le solde est revalorisé chaque année selon une règle
+   collective ;
+3. **liquidation** — `pension = capital notionnel ÷ espérance de vie restante`
+   à l'âge de départ.
+
+Il n'y a donc ni minimum, ni majoration, ni trimestre gratuit : ce qui n'a pas
+été cotisé n'existe pas, et partir tôt coûte deux fois — moins de cotisations
+accumulées, et une rente à servir plus longtemps.
+
+Le modèle calcule **trois scénarios pour une même carrière**, afin qu'ils soient
+comparables :
+
+| | Scénario | Ce qu'il mesure |
+|---|---|---|
+| **1** | Système actuel | Le droit en vigueur, minima et majorations compris. C'est la référence. |
+| **2** | Notionnel **rétroactif** depuis 1941 | Contrefactuel : toute la carrière recalculée sur les seules cotisations, comme si la règle avait toujours existé. |
+| **3** | Notionnel **à compter de 2026** | Réforme prospective : les droits déjà acquis sont conservés, les règles notionnelles s'appliquent ensuite. |
 
 ```
+Agent de conduite SNCF né en 1955, parti à 50 ans (quinze ans avant l'âge de référence)
+
 Scénario                                      Courants   Constants   Mensuel    Écart
 ------------------------------------------------------------------------------------
 1. Système actuel                              19,873€     27,810€    2,317€     réf.
 2. Notionnel rétroactif (depuis l'origine)      1,212€      1,696€      141€   -93.9%
 3. Notionnel à compter de 2026                 19,873€     27,810€    2,317€    +0.0%
 ```
-*Agent de conduite SNCF né en 1955, parti à 50 ans : quinze ans d'anticipation
-sur l'âge de référence.*
+
+> **Le scénario 2 n'est pas une proposition de réforme**, et l'écart qu'il
+> affiche ne mesure pas l'effet des comptes notionnels. Il vient pour
+> l'essentiel de la règle d'indexation retenue — voir
+> [« La règle d'indexation domine tout le reste »](#1-la-règle-dindexation-domine-tout-le-reste)
+> plus bas. Le modèle permet de séparer les deux effets ; c'est même son
+> principal résultat.
 
 ---
 
-## Démarrer
+## Ouvrir le simulateur dans un navigateur
 
-Aucune dépendance hors PyYAML.
+C'est le chemin le plus court pour voir ce que fait le modèle : un formulaire,
+cinq informations, les trois scénarios côte à côte.
+
+```bash
+pip install -e ".[web]"
+retraite-notionnelle web            # puis http://127.0.0.1:8000
+```
+
+Quatre pages : **Simuler** (une carrière, avec le détail du calcul et la
+décomposition de l'écart règle par règle), **Cas types** (la grille 12 carrières
+× 7 générations), **Méthode**, **Données** (l'état de fiabilité des séries).
+
+L'adresse d'une simulation contient tous ses paramètres : elle peut être citée
+ou partagée telle quelle. Les mêmes résultats sont disponibles en JSON sur
+`/api/simuler`, avec la même syntaxe de paramètres, et la documentation OpenAPI
+sur `/api/docs`.
+
+## En ligne de commande
+
+Sans l'interface web, la seule dépendance est PyYAML.
 
 ```bash
 pip install -e .
 
-# Simuler une carrière
+# Simuler une carrière : cinq informations suffisent
 retraite-notionnelle simuler --naissance 1960 --statut salarie_prive_non_cadre \
                              --debut 20 --liquidation 62
 
 # Le cas général : grille cas type × génération
 retraite-notionnelle cas-types
 
-# Voir les statuts et les 35 régimes du catalogue
+# Les 22 statuts et les 35 régimes du catalogue
 retraite-notionnelle regimes
 
 # La série d'indexation, année par année
@@ -43,7 +92,7 @@ retraite-notionnelle fusion
 retraite-notionnelle donnees
 ```
 
-En bibliothèque :
+## En bibliothèque
 
 ```python
 from retraite_notionnelle import Parametres
@@ -99,7 +148,8 @@ d'indexation, pas du passage aux comptes notionnels**.
 
 C'est la règle telle qu'énoncée, appliquée sans correctif. Pour séparer les deux
 effets : `--indexation triple_lock_inverse_nominal` (règle homogène, toujours
-austère) ou `--indexation prix` (effet propre des comptes notionnels).
+austère) ou `--indexation prix` (effet propre des comptes notionnels). Chaque
+simulation web affiche cette décomposition d'office.
 
 ### 2. La fusion augmente les cotisations des indépendants
 
@@ -160,17 +210,21 @@ src/retraite_notionnelle/
   simulateur.py                 façade et restitution
   castypes.py                   cas général
   cli.py                        ligne de commande
+  web/                          interface web et API JSON (dépendances optionnelles)
 
 docs/
   methodologie.md               ce que le modèle calcule, et pourquoi ainsi
   limites.md                    ce qu'il ne calcule pas, et ce qui reste à certifier
 
-tests/                          64 tests
+tests/                          95 tests
 ```
 
 ---
 
 ## Principales options
+
+Elles valent pour toutes les commandes, et se retrouvent dans le formulaire web
+sous « Options de modélisation ».
 
 ```bash
 --indexation      triple_lock_inverse | triple_lock_inverse_nominal | prix | salaires
@@ -191,9 +245,11 @@ tests/                          64 tests
 python -m pytest tests
 ```
 
-64 tests couvrant le chargement et la fiabilité des données, la calibration des
+95 tests couvrant le chargement et la fiabilité des données, la calibration des
 tables de mortalité, les propriétés du moteur (monotonie du diviseur, cliquet de
-l'âge de référence, règles de fusion) et le comportement des scénarios.
+l'âge de référence, règles de fusion), le comportement des scénarios et
+l'interface web. Les tests web sont ignorés si les dépendances optionnelles ne
+sont pas installées.
 
 ---
 

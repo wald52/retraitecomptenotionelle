@@ -7,6 +7,7 @@
     retraite-notionnelle indexation --de 1960 --a 2025
     retraite-notionnelle fusion
     retraite-notionnelle donnees
+    retraite-notionnelle web
 """
 
 from __future__ import annotations
@@ -217,6 +218,26 @@ def commande_donnees(arguments: argparse.Namespace) -> int:
     return 0
 
 
+def commande_web(arguments: argparse.Namespace) -> int:
+    """Sert l'interface web. Dépendances optionnelles : pip install -e ".[web]"."""
+    try:
+        import uvicorn
+    except ModuleNotFoundError:
+        print(
+            "L'interface web demande deux dépendances supplémentaires. "
+            'Les installer avec :\n\n    pip install -e ".[web]"\n',
+            file=sys.stderr,
+        )
+        return 4
+
+    from .web import creer_application
+
+    application = creer_application(_parametres(arguments))
+    print(f"Simulateur disponible sur http://{arguments.hote}:{arguments.port}")
+    uvicorn.run(application, host=arguments.hote, port=arguments.port, log_level="warning")
+    return 0
+
+
 # -- assemblage --------------------------------------------------------------
 
 
@@ -320,6 +341,12 @@ def construire_analyseur() -> argparse.ArgumentParser:
     donnees = sous.add_parser("donnees", help="rapport de fiabilité des données")
     _ajouter_options_communes(donnees)
     donnees.set_defaults(fonction=commande_donnees)
+
+    web = sous.add_parser("web", help="servir l'interface web sur un navigateur")
+    web.add_argument("--hote", default="127.0.0.1", help="adresse d'écoute")
+    web.add_argument("--port", type=int, default=8000)
+    _ajouter_options_communes(web)
+    web.set_defaults(fonction=commande_web)
 
     return analyseur
 

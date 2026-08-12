@@ -1,0 +1,777 @@
+"""Application web : formulaire de simulation, cas types, API JSON."""
+
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from html import escape
+from urllib.parse import urlencode
+
+from fastapi import FastAPI, Request
+from fastapi.responses import HTMLResponse, JSONResponse
+
+from ..castypes import CAS_TYPES, GENERATIONS, calculer_cas_types
+from ..config import (
+    ModeAgeReference,
+    ModeIndexation,
+    Parametres,
+    TableConversion,
+)
+from ..donnees.chargement import DonneeInsuffisante
+from ..simulateur import Comparaison, Simulateur
+from . import gabarit as g
+
+PROFILS = [
+    ("plat", "Plat — le salaire suit le salaire moyen"),
+    ("ascendant", "Ascendant — profil employé/ouvrier"),
+    ("fortement_ascendant", "Fortement ascendant — profil cadre"),
+]
+
+INDEXATIONS = [
+    ("triple_lock_inverse", "Triple lock inversé (règle demandée)"),
+    ("triple_lock_inverse_nominal", "Triple lock inversé, tout en nominal"),
+    ("prix", "Prix"),
+    ("salaires", "Salaire moyen"),
+]
+
+AGES_REFERENCE = [
+    ("cliquet_legal", "Cliquet légal (défaut)"),
+    ("cliquet_puis_esperance_vie", "Cliquet puis espérance de vie"),
+    ("legal_sans_cliquet", "Âge légal, sans cliquet"),
+]
+
+TABLES = [("unisexe", "Unisexe (défaut)"), ("par_sexe", "Par sexe")]
+
+PROJECTIONS = [
+    ("cor_central", "COR central"),
+    ("cor_favorable", "COR favorable"),
+    ("cor_defavorable", "COR défavorable"),
+    ("stagnation", "Stagnation"),
+]
+
+
+class ErreurSaisie(ValueError):
+    """Saisie inexploitable, à afficher telle quelle à l'utilisateur."""
+
+
+@dataclass
+class Saisie:
+    """Paramètres d'une simulation, tels que l'utilisateur les a saisis."""
+
+    naissance: int = 1975
+    sexe: str = "H"
+    statut: str = "salarie_prive_non_cadre"
+    debut: float = 21
+    liquidation: float = 64
+    salaire: float = 1.0
+    profil: str = "ascendant"
+    primes: float = 0.0
+    enfants: int = 0
+    interruptions: str = ""
+    indexation: str = "triple_lock_inverse"
+    age_reference: str = "cliquet_legal"
+    table: str = "unisexe"
+    projection: str = "cor_central"
+    bascule: int = 2026
+    euros: int = 2026
+    #: Vrai si la requête portait des paramètres, donc s'il faut calculer.
+    demandee: bool = False
+
+    @classmethod
+    def depuis_requete(cls, parametres: dict[str, str]) -> "Saisie":
+        defauts = cls()
+        saisie = cls(
+            naissance=_entier(parametres, "naissance", defauts.naissance),
+            sexe="F" if parametres.get("sexe") == "F" else "H",
+            statut=parametres.get("statut") or defauts.statut,
+            debut=_reel(parametres, "debut", defauts.debut),
+            liquidation=_reel(parametres, "liquidation", defauts.liquidation),
+            salaire=_reel(parametres, "salaire", defauts.salaire),
+            profil=_parmi(parametres, "profil", PROFILS, defauts.profil),
+            primes=_reel(parametres, "primes", defauts.primes),
+            enfants=_entier(parametres, "enfants", defauts.enfants),
+            interruptions=(parametres.get("interruptions") or "").strip(),
+            indexation=_parmi(parametres, "indexation", INDEXATIONS, defauts.indexation),
+            age_reference=_parmi(
+                parametres, "age_reference", AGES_REFERENCE, defauts.age_reference
+            ),
+            table=_parmi(parametres, "table", TABLES, defauts.table),
+            projection=_parmi(parametres, "projection", PROJECTIONS, defauts.projection),
+            bascule=_entier(parametres, "bascule", defauts.bascule),
+            euros=_entier(parametres, "euros", defauts.euros),
+            demandee=bool(parametres),
+        )
+        saisie.verifier()
+        return saisie
+
+    def verifier(self) -> None:
+        if not 1900 <= self.naissance <= 2020:
+            raise ErreurSaisie(
+                f"Année de naissance hors du champ du modèle : {self.naissance}. "
+                "Attendu entre 1900 et 2020."
+            )
+        if not 14 <= self.debut <= 40:
+            raise ErreurSaisie("Âge de début d'activité attendu entre 14 et 40 ans.")
+        if not 40 <= self.liquidation <= 75:
+            raise ErreurSaisie("Âge de liquidation attendu entre 40 et 75 ans.")
+        if self.liquidation <= self.debut:
+            raise ErreurSaisie(
+                "L'âge de liquidation doit être postérieur à l'âge de début d'activité."
+            )
+        if not 0.1 <= self.salaire <= 10:
+            raise ErreurSaisie(
+                "Niveau de revenu attendu entre 0,1 et 10 fois le salaire moyen."
+            )
+        if not 0 <= self.primes <= 0.6:
+            raise ErreurSaisie("Part de primes attendue entre 0 et 0,6.")
+
+    def parametres(self, base: Parametres) -> Parametres:
+        return base.avec(
+            mode_indexation=ModeIndexation(self.indexation),
+            mode_age_reference=ModeAgeReference(self.age_reference),
+            table_conversion=TableConversion(self.table),
+            scenario_projection=self.projection,
+            annee_bascule=self.bascule,
+            annee_euros_constants=self.euros,
+        )
+
+    def interruptions_analysees(self) -> dict[int, str]:
+        """« 1995:1999:education_enfant, 2003:2004:chomage_indemnise » -> dict."""
+        plages: dict[int, str] = {}
+        for morceau in self.interruptions.replace("\n", ",").split(","):
+            morceau = morceau.strip()
+            if not morceau:
+                continue
+            try:
+                debut, fin, motif = morceau.split(":")
+                for annee in range(int(debut), int(fin) + 1):
+                    plages[annee] = motif.strip()
+            except ValueError:
+                raise ErreurSaisie(
+                    f"Interruption mal formée : « {morceau} ». Attendu "
+                    "« année_début:année_fin:motif », par exemple "
+                    "1995:1999:education_enfant."
+                ) from None
+        return plages
+
+    def requete(self, **remplacements) -> str:
+        champs = {
+            "naissance": self.naissance, "sexe": self.sexe, "statut": self.statut,
+            "debut": _nombre(self.debut), "liquidation": _nombre(self.liquidation),
+            "salaire": _nombre(self.salaire), "profil": self.profil,
+            "primes": _nombre(self.primes), "enfants": self.enfants,
+            "interruptions": self.interruptions, "indexation": self.indexation,
+            "age_reference": self.age_reference, "table": self.table,
+            "projection": self.projection, "bascule": self.bascule, "euros": self.euros,
+        }
+        champs.update(remplacements)
+        return urlencode(champs)
+
+
+def _entier(parametres: dict[str, str], nom: str, defaut: int) -> int:
+    valeur = parametres.get(nom)
+    if valeur in (None, ""):
+        return defaut
+    try:
+        return int(float(valeur))
+    except ValueError:
+        raise ErreurSaisie(f"« {nom} » doit être un nombre entier (reçu : {valeur}).") from None
+
+
+def _reel(parametres: dict[str, str], nom: str, defaut: float) -> float:
+    valeur = parametres.get(nom)
+    if valeur in (None, ""):
+        return defaut
+    try:
+        return float(str(valeur).replace(",", "."))
+    except ValueError:
+        raise ErreurSaisie(f"« {nom} » doit être un nombre (reçu : {valeur}).") from None
+
+
+def _parmi(parametres: dict[str, str], nom: str,
+           options: list[tuple[str, str]], defaut: str) -> str:
+    valeur = parametres.get(nom)
+    codes = {code for code, _ in options}
+    return valeur if valeur in codes else defaut
+
+
+def _nombre(valeur: float) -> str:
+    """Valeur telle qu'elle est réinjectée dans un champ de formulaire."""
+    return f"{valeur:g}"
+
+
+def _age(valeur: float) -> str:
+    """Âge à la française : « 64 », « 65,75 »."""
+    return g.nombre(valeur, 2).rstrip("0").rstrip(",")
+
+
+# -- fabrique ----------------------------------------------------------------
+
+
+@dataclass
+class Contexte:
+    """Simulateurs mémorisés par jeu de paramètres.
+
+    Le chargement des données coûte quelques dixièmes de seconde ; une
+    simulation en coûte dix millisecondes. On garde donc une instance par jeu
+    de paramètres rencontré.
+    """
+
+    base: Parametres = field(default_factory=Parametres)
+    _instances: dict[Parametres, Simulateur] = field(default_factory=dict)
+
+    def simulateur(self, parametres: Parametres | None = None) -> Simulateur:
+        parametres = parametres or self.base
+        if parametres not in self._instances:
+            self._instances[parametres] = Simulateur(parametres)
+        return self._instances[parametres]
+
+    def simuler(self, saisie: Saisie) -> Comparaison:
+        simulateur = self.simulateur(saisie.parametres(self.base))
+        if saisie.statut not in simulateur.affiliations:
+            raise ErreurSaisie(f"Statut d'affiliation inconnu : « {saisie.statut} ».")
+        carriere = simulateur.carriere_simple(
+            annee_naissance=saisie.naissance,
+            sexe=saisie.sexe,
+            affiliation=saisie.statut,
+            age_debut=saisie.debut,
+            age_liquidation=saisie.liquidation,
+            niveau_salaire=saisie.salaire,
+            profil_carriere=saisie.profil,
+            interruptions=saisie.interruptions_analysees(),
+            nombre_enfants=saisie.enfants,
+            part_primes=saisie.primes,
+            identifiant="assuré",
+        )
+        return simulateur.simuler(carriere)
+
+
+def creer_application(parametres: Parametres | None = None) -> FastAPI:
+    """Construit l'application. Les données sont chargées à la première requête."""
+    contexte = Contexte(base=parametres or Parametres())
+    application = FastAPI(
+        title="Retraite à comptes notionnels",
+        description=(
+            "Simulateur d'un système de retraite français en comptes notionnels, "
+            "appliqué rétroactivement depuis l'origine de la répartition."
+        ),
+        docs_url="/api/docs",
+        openapi_url="/api/openapi.json",
+    )
+
+    @application.get("/", response_class=HTMLResponse)
+    def accueil(request: Request) -> HTMLResponse:
+        parametres_requete = dict(request.query_params)
+        try:
+            saisie = Saisie.depuis_requete(parametres_requete)
+        except ErreurSaisie as erreur:
+            saisie = Saisie(demandee=False)
+            return HTMLResponse(
+                g.page("Simuler", _presentation() + _erreur(str(erreur))
+                       + _formulaire(saisie, contexte), "/")
+            )
+
+        corps = _presentation() + _formulaire(saisie, contexte)
+        if saisie.demandee:
+            try:
+                corps += _resultats(contexte, saisie)
+            except (ErreurSaisie, DonneeInsuffisante, KeyError, ValueError) as erreur:
+                corps += _erreur(str(erreur))
+        return HTMLResponse(g.page("Simuler", corps, "/"))
+
+    @application.get("/cas-types", response_class=HTMLResponse)
+    def page_cas_types() -> HTMLResponse:
+        return HTMLResponse(g.page("Cas types", _cas_types(contexte), "/cas-types"))
+
+    @application.get("/methode", response_class=HTMLResponse)
+    def page_methode() -> HTMLResponse:
+        return HTMLResponse(g.page("Méthode", _methode(contexte), "/methode"))
+
+    @application.get("/donnees", response_class=HTMLResponse)
+    def page_donnees() -> HTMLResponse:
+        return HTMLResponse(g.page("Données", _donnees(contexte), "/donnees"))
+
+    # -- API ----------------------------------------------------------------
+
+    @application.get("/api/statuts")
+    def api_statuts() -> JSONResponse:
+        affiliations = contexte.simulateur().affiliations
+        return JSONResponse(
+            [{"code": code, "libelle": affiliations.libelle(code)}
+             for code in affiliations.codes]
+        )
+
+    @application.get("/api/simuler")
+    def api_simuler(request: Request) -> JSONResponse:
+        try:
+            saisie = Saisie.depuis_requete(dict(request.query_params))
+            return JSONResponse(contexte.simuler(saisie).dictionnaire())
+        except ErreurSaisie as erreur:
+            return JSONResponse({"erreur": str(erreur)}, status_code=422)
+        except DonneeInsuffisante as erreur:
+            return JSONResponse({"erreur": str(erreur)}, status_code=409)
+        except (KeyError, ValueError) as erreur:
+            return JSONResponse({"erreur": str(erreur)}, status_code=400)
+
+    @application.get("/api/cas-types")
+    def api_cas_types() -> JSONResponse:
+        resultat = calculer_cas_types(contexte.simulateur())
+        return JSONResponse(resultat.dictionnaire())
+
+    return application
+
+
+# -- pages -------------------------------------------------------------------
+
+
+def _erreur(message: str) -> str:
+    return f'<div class="erreur"><strong>Saisie refusée.</strong> {escape(message)}</div>'
+
+
+def _presentation() -> str:
+    return """
+<p class="chapeau">Ce simulateur calcule, pour une même carrière, ce que verse le
+système de retraite français tel qu'il est, et ce que verserait un système
+en <strong>comptes notionnels</strong> — pension strictement proportionnelle aux
+cotisations versées, divisée par l'espérance de vie restante à la liquidation —
+appliqué de deux façons : <strong>rétroactivement</strong> depuis 1941, ou
+seulement <strong>à compter de 2026</strong>.</p>
+
+<div class="note"><strong>À lire avant les chiffres.</strong> Le scénario
+rétroactif n'est pas une proposition de réforme : c'est un contrefactuel, qui
+mesure ce qu'aurait produit une règle purement contributive appliquée depuis
+l'origine de la répartition. L'essentiel de l'écart qu'il affiche vient de la
+<a href="/methode#indexation">règle d'indexation</a>, pas du passage aux comptes
+notionnels — le simulateur permet de séparer les deux effets.</div>
+"""
+
+
+def _formulaire(saisie: Saisie, contexte: Contexte) -> str:
+    affiliations = contexte.simulateur().affiliations
+    statuts = [(code, affiliations.libelle(code)) for code in affiliations.codes]
+
+    principal = "".join([
+        g.champ("naissance", "Année de naissance", saisie.naissance,
+                type_="number", min="1900", max="2020", step="1"),
+        g.liste("sexe", "Sexe", [("H", "Homme"), ("F", "Femme")], saisie.sexe,
+                "table de mortalité unisexe par défaut"),
+        g.liste("statut", "Statut d'affiliation", statuts, saisie.statut),
+        g.champ("debut", "Âge de début d'activité", _nombre(saisie.debut),
+                type_="number", min="14", max="40", step="0.5"),
+        g.champ("liquidation", "Âge de départ à la retraite", _nombre(saisie.liquidation),
+                "effectif si retraité, souhaité si actif",
+                type_="number", min="40", max="75", step="0.5"),
+        g.champ("salaire", "Niveau de revenu", _nombre(saisie.salaire),
+                "en multiples du salaire moyen : 0,55 ≈ SMIC, 1 = salaire moyen",
+                type_="number", min="0.1", max="10", step="0.05"),
+    ])
+
+    avance = "".join([
+        g.liste("profil", "Profil de carrière", PROFILS, saisie.profil,
+                "déformation du salaire relatif au fil de la carrière"),
+        g.champ("primes", "Part de primes", _nombre(saisie.primes),
+                "fonction publique : assiette du RAFP", type_="number",
+                min="0", max="0.6", step="0.01"),
+        g.champ("enfants", "Nombre d'enfants", saisie.enfants,
+                "sans effet notionnel : les majorations sont supprimées",
+                type_="number", min="0", max="12", step="1"),
+        g.champ("interruptions", "Interruptions", saisie.interruptions,
+                "« 1995:1999:education_enfant », séparées par des virgules"),
+        g.liste("indexation", "Règle d'indexation", INDEXATIONS, saisie.indexation,
+                "revalorisation des comptes et des pensions"),
+        g.liste("age_reference", "Âge de référence", AGES_REFERENCE, saisie.age_reference),
+        g.liste("table", "Table de conversion", TABLES, saisie.table),
+        g.liste("projection", "Scénario macroéconomique", PROJECTIONS, saisie.projection,
+                "au-delà de la dernière observation"),
+        g.champ("bascule", "Année de bascule", saisie.bascule,
+                "passage au régime unique", type_="number", min="1941", max="2070"),
+        g.champ("euros", "Euros constants de", saisie.euros,
+                type_="number", min="1941", max="2070"),
+    ])
+
+    return f"""
+<form class="carte" method="get" action="/">
+  <h2 style="margin-top:0">Simuler une carrière</h2>
+  <div class="grille">{principal}</div>
+  <details>
+    <summary>Options de modélisation (profil, indexation, âge de référence, projection)</summary>
+    <div class="grille">{avance}</div>
+  </details>
+  <p style="margin-top:1.4rem"><button type="submit">Calculer les trois scénarios</button></p>
+</form>
+"""
+
+
+def _resultats(contexte: Contexte, saisie: Saisie) -> str:
+    comparaison = contexte.simuler(saisie)
+    carriere = comparaison.carriere
+    retro = comparaison.notionnel_retroactif
+    ecart = retro.ecart_age
+    conversion = retro.conversion
+
+    constants = {
+        "actuel": comparaison.en_euros_constants(comparaison.actuel.pension_annuelle),
+        "retroactif": comparaison.en_euros_constants(retro.pension_annuelle),
+        "prospectif": comparaison.en_euros_constants(
+            comparaison.notionnel_prospectif.pension_annuelle
+        ),
+    }
+    reference = max(constants.values()) or 1.0
+
+    def bloc(cle: str, titre: str, glose: str, variation: float | None,
+             taux_remplacement: float) -> str:
+        montant = constants[cle]
+        variation_html = (
+            '<span class="discret">référence</span>' if variation is None
+            else f"<strong>{g.pourcentage(variation, signe=True)}</strong>"
+        )
+        return f"""
+<div class="scenario">
+  <div class="entete">
+    <span class="titre">{escape(titre)}</span>
+    <span class="montant">
+      <span class="mensuel">{g.euros(montant / 12)}</span>
+      <span class="discret">/ mois</span>
+      <span class="annuel"> — {g.euros(montant)} par an</span>
+    </span>
+  </div>
+  <div class="barre {cle}"><span style="width:{montant / reference * 100:.1f}%"></span></div>
+  <div class="glose">{glose} · taux de remplacement
+    {g.pourcentage(taux_remplacement)} · écart au système actuel : {variation_html}</div>
+</div>"""
+
+    scenarios = (
+        bloc("actuel", "1. Système actuel",
+             "droit en vigueur, minima et majorations compris",
+             None, comparaison.taux_remplacement_actuel)
+        + bloc("retroactif", "2. Comptes notionnels, rétroactifs depuis 1941",
+               "toute la carrière recalculée sur les seules cotisations",
+               comparaison.variation("notionnel_retroactif"),
+               comparaison.taux_remplacement_retroactif)
+        + bloc("prospectif", f"3. Comptes notionnels à compter de {saisie.bascule}",
+               "droits acquis conservés, règles notionnelles ensuite",
+               comparaison.variation("notionnel_prospectif"),
+               comparaison.taux_remplacement_prospectif)
+    )
+
+    anticipation = (
+        f"départ {g.nombre(abs(ecart.ecart), 2).rstrip('0').rstrip(',')} ans "
+        + ("plus tôt" if ecart.anticipe else "plus tard")
+    )
+    fiches = "".join([
+        g.fiche("années cotisées", str(len(carriere.annees_cotisees))),
+        g.fiche("liquidation", f"{_age(carriere.age_liquidation)} ans "
+                f'<span class="discret">en {carriere.annee_liquidation}</span>'),
+        g.fiche(f"âge de référence — {anticipation}",
+                f"{_age(ecart.age_reference)} ans"),
+        g.fiche("coefficient de conversion", g.nombre(conversion.diviseur, 1)),
+        g.fiche("capital notionnel rétroactif", g.euros(retro.capital_notionnel)),
+    ])
+
+    capitalisation = ""
+    if retro.rente_capitalisation_annuelle > 0:
+        montant = comparaison.en_euros_constants(retro.rente_capitalisation_annuelle)
+        capitalisation = (
+            f'<p class="discret">Compartiment de capitalisation servi à part '
+            f"(RAFP) : {g.euros(montant / 12)} par mois. Il n'est jamais converti "
+            "en capital notionnel.</p>"
+        )
+
+    minimum = ""
+    if comparaison.actuel.minimum_applique:
+        minimum = (
+            '<p class="discret">Le minimum contributif s\'applique dans le '
+            "scénario 1 ; il est supprimé dans les scénarios 2 et 3.</p>"
+        )
+
+    return f"""
+<h2>Résultats</h2>
+<div class="carte">
+  <div class="fiches">{fiches}</div>
+</div>
+<div class="carte">
+  {scenarios}
+  <p class="discret" style="margin-top:1.5rem">Montants bruts mensuels, en euros
+  constants de {saisie.euros} — seule unité qui permette de comparer des
+  liquidations d'années différentes. Fiabilité du résultat :
+  <span class="etiquette-fiabilite">{escape(str(comparaison.fiabilite))}</span></p>
+  {capitalisation}
+  {minimum}
+</div>
+{_decomposition(contexte, saisie, comparaison)}
+{_detail(contexte, comparaison, saisie)}
+"""
+
+
+def _decomposition(contexte: Contexte, saisie: Saisie,
+                   comparaison: Comparaison) -> str:
+    """Sépare l'effet de la règle d'indexation de celui des comptes notionnels."""
+    if saisie.indexation != "triple_lock_inverse":
+        return ""
+
+    lignes = []
+    for code, libelle in INDEXATIONS:
+        try:
+            variante = (comparaison if code == saisie.indexation
+                        else contexte.simuler(Saisie(**{**saisie.__dict__,
+                                                        "indexation": code})))
+        except (ErreurSaisie, DonneeInsuffisante, KeyError, ValueError):
+            continue
+        mensuel = variante.en_euros_constants(
+            variante.notionnel_retroactif.pension_annuelle
+        ) / 12
+        lignes.append([
+            escape(libelle),
+            "×" + g.nombre(variante.notionnel_retroactif.compte.rendement_cumule, 2),
+            g.euros(mensuel),
+            g.pourcentage(variante.variation("notionnel_retroactif"), signe=True),
+        ])
+
+    return f"""
+<h2>D'où vient l'écart</h2>
+<p>La même carrière, le même calcul notionnel rétroactif, avec quatre règles de
+revalorisation des comptes. La colonne « rendement » est le facteur par lequel les
+cotisations ont été multipliées entre leur versement et la liquidation.</p>
+{g.tableau(
+    ["Règle d'indexation", "Rendement cumulé", "Pension mensuelle", "Écart au système actuel"],
+    lignes,
+    ["", "nombre", "nombre", "nombre"],
+)}
+<p class="discret">Le triple lock inversé compare deux taux nominaux (inflation,
+salaire moyen) à un taux réel (productivité) : dès que l'inflation dépasse la
+productivité — soit presque toute la période 1945-1985 — c'est la productivité
+qui l'emporte, et la valeur réelle des comptes s'effondre. L'écart entre la
+première ligne et la ligne « Prix » mesure l'effet de la règle d'indexation ;
+l'écart entre la ligne « Prix » et le système actuel mesure l'effet propre des
+comptes notionnels.</p>
+"""
+
+
+def _detail(contexte: Contexte, comparaison: Comparaison, saisie: Saisie) -> str:
+    retro = comparaison.notionnel_retroactif
+    catalogue = contexte.simulateur().catalogue
+    pensions = comparaison.actuel.pensions_par_regime
+
+    def nom_regime(code: str) -> str:
+        try:
+            return catalogue[code].nom
+        except KeyError:
+            return code
+
+    regimes = g.tableau(
+        ["Régime", "Pension annuelle", "Calcul"],
+        [[escape(nom_regime(pension.regime)), g.euros(pension.montant),
+          g.franciser(escape(pension.detail))]
+         for pension in pensions],
+        ["", "nombre", ""],
+    ) if pensions else "<p>Aucun droit liquidé dans le système actuel.</p>"
+
+    compte = g.tableau(
+        ["Poste", "Montant"],
+        [
+            ["Cotisations effectivement versées, en euros courants",
+             g.euros(retro.compte.cotisations_versees)],
+            ["Rendement cumulé appliqué à ces cotisations",
+             "×" + g.nombre(retro.compte.rendement_cumule, 2)],
+            ["Capital notionnel à la liquidation", g.euros(retro.capital_notionnel)],
+            ["Divisé par le coefficient de conversion",
+             g.nombre(retro.conversion.diviseur, 2)
+             + f" ({escape(retro.conversion.table)})"],
+            ["Pension annuelle en euros courants", g.euros(retro.pension_annuelle)],
+        ],
+        ["", "nombre"],
+    )
+
+    return f"""
+<h2>Le détail du calcul</h2>
+<h3>Scénario 1 — pensions par régime dans le système actuel</h3>
+{regimes}
+<h3>Scénario 2 — construction du compte notionnel rétroactif</h3>
+{compte}
+<p class="discret">Ces mêmes résultats en JSON :
+<a href="/api/simuler?{escape(saisie.requete())}">/api/simuler</a>.
+L'adresse de cette page contient tous les paramètres : elle peut être citée ou partagée.</p>
+"""
+
+
+def _cas_types(contexte: Contexte) -> str:
+    resultat = calculer_cas_types(contexte.simulateur())
+
+    def grille(scenario: str) -> str:
+        lignes = []
+        for cas in CAS_TYPES:
+            cellules: list[str | g.Cellule] = [
+                f'<span title="{escape(cas.commentaire)}">{escape(cas.libelle)}</span>'
+            ]
+            for generation in GENERATIONS:
+                comparaison = resultat.resultats.get((cas.code, generation))
+                if comparaison is None:
+                    cellules.append("—")
+                    continue
+                variation = comparaison.variation(scenario)
+                cellules.append(g.Cellule(
+                    g.pourcentage(variation, signe=True, decimales=0),
+                    intensite=variation,
+                ))
+            lignes.append(cellules)
+        return g.tableau(
+            ["Cas type"] + [str(generation) for generation in GENERATIONS],
+            lignes,
+            [""] + ["nombre"] * len(GENERATIONS),
+        )
+
+    echecs = ""
+    if resultat.echecs:
+        elements = "".join(
+            f"<li>{escape(code)} / {generation} : {escape(motif)}</li>"
+            for (code, generation), motif in sorted(resultat.echecs.items())
+        )
+        echecs = f"<h3>Combinaisons non calculées</h3><ul class='serree'>{elements}</ul>"
+
+    return f"""
+<h2 style="margin-top:0">Le cas général</h2>
+<p class="chapeau">Douze carrières représentatives × sept générations. Chaque
+cellule est l'écart de pension par rapport au système actuel, à carrière
+identique : négatif = pension plus faible qu'aujourd'hui.</p>
+
+<h3>Scénario 2 — comptes notionnels rétroactifs depuis 1941</h3>
+{grille("notionnel_retroactif")}
+<p class="discret">Les générations anciennes sont les plus touchées : leurs
+cotisations, versées quand l'inflation dépassait la productivité, ont été
+revalorisées à un taux très inférieur à la hausse des prix.</p>
+
+<h3>Scénario 3 — comptes notionnels à compter de la bascule</h3>
+{grille("notionnel_prospectif")}
+<p class="discret">Les générations déjà retraitées sont inchangées : leurs droits
+sont intégralement acquis avant la bascule. Les indépendants et professions
+libérales progressent parce que le régime unique relève leur taux de cotisation
+et déplafonne leur assiette — un effort contributif accru, pas un avantage
+accordé.</p>
+{echecs}
+"""
+
+
+def _methode(contexte: Contexte) -> str:
+    fusionne = contexte.simulateur().regime_fusionne
+    return f"""
+<h2 style="margin-top:0">Ce que le modèle calcule</h2>
+
+<h3>Le compte notionnel</h3>
+<p>Un compte notionnel est un compte <em>virtuel</em> : aucun capital n'est
+placé, les cotisations de l'année financent les pensions de l'année, comme dans
+toute répartition. Ce qui change, c'est le calcul du droit.</p>
+<ol>
+  <li><strong>Accumulation</strong> — la cotisation retraite effectivement
+  versée chaque année est inscrite au compte ;</li>
+  <li><strong>Revalorisation</strong> — le solde est revalorisé chaque année au
+  taux fixé par la règle collective ;</li>
+  <li><strong>Liquidation</strong> — pension annuelle = capital notionnel ÷
+  espérance de vie résiduelle à l'âge de départ, lue sur une table de
+  génération.</li>
+</ol>
+<p>Trois conséquences : la pension est strictement proportionnelle aux
+cotisations ; partir tôt coûte deux fois (moins de cotisations, rente servie
+plus longtemps) ; aucun droit non financé par une cotisation n'existe.</p>
+
+<h3 id="indexation">La règle d'indexation, et pourquoi elle domine tout</h3>
+<p>La règle retenue par défaut est le <strong>triple lock inversé</strong> :
+<code>min(inflation, croissance du salaire moyen, productivité réelle)</code>,
+appliqué aux comptes <em>et</em> aux pensions déjà liquidées. Prise à la lettre,
+elle compare deux taux nominaux à un taux réel.</p>
+{g.tableau(
+    ["Règle appliquée 1941-2025", "Comptes", "Prix", "Pouvoir d'achat conservé"],
+    [
+        ["Triple lock inversé, littéral", "×4,9", "×318,6", "<strong>1,5 %</strong>"],
+        ["Triple lock inversé, tout en nominal", "×243,7", "×318,6", "76,5 %"],
+        ["Indexation sur les prix", "×318,6", "×318,6", "100 %"],
+    ],
+    ["", "nombre", "nombre", "nombre"],
+)}
+<p>Une cotisation de 1950 ne conserve donc que 1,5 % de sa valeur réelle. C'est
+la règle telle qu'énoncée, appliquée sans correctif — et c'est de là que vient
+l'essentiel de la baisse affichée par le scénario rétroactif, non du passage aux
+comptes notionnels. Le tableau « D'où vient l'écart » de chaque simulation
+sépare les deux effets.</p>
+
+<h3>Ce qui est supprimé dans les scénarios notionnels</h3>
+<p>Le principe « seules les cotisations comptent » est appliqué sans exception :
+ni minimum contributif, ni minimum garanti, ni ASPA, ni majoration pour enfants,
+ni majoration de durée d'assurance, ni AVPF, ni bonifications, ni catégorie
+active, ni périodes assimilées, ni réversion, ni décote ni surcote. Le scénario
+1 les conserve tous, puisqu'il décrit le droit en vigueur.</p>
+
+<h3>La fusion des régimes</h3>
+<p>À compter de l'année de bascule, les 35 régimes du catalogue sont remplacés
+par un régime unique dont chaque paramètre est le plus défavorable de
+l'ensemble : ouverture à {_age(fusionne.age_ouverture)} ans, taux plein à
+{_age(fusionne.age_taux_plein)} ans, {fusionne.duree_requise_trimestres} trimestres
+requis, cotisation de {g.pourcentage(fusionne.taux_cotisation_retraite, decimales=2)}
+sur assiette déplafonnée.</p>
+
+<h3>Périmètre</h3>
+<p>Origine 1941 (allocation aux vieux travailleurs salariés), premier dispositif
+où les cotisations des actifs financent les prestations des retraités. Les
+assurances sociales de 1930, en capitalisation individuelle, et le RAFP sont
+isolés dans un compartiment séparé, jamais converti.</p>
+
+<p><a href="{g.DEPOT}/blob/main/docs/methodologie.md">Méthodologie complète</a> ·
+<a href="{g.DEPOT}/blob/main/docs/limites.md">Limites connues</a></p>
+"""
+
+
+def _donnees(contexte: Contexte) -> str:
+    simulateur = contexte.simulateur()
+    macro = simulateur.macro
+
+    periodes = []
+    for debut in range(1940, 2030, 10):
+        fin = debut + 9
+        periodes.append([
+            f"{debut}-{fin}",
+            escape(str(macro.inflation.fiabilite_minimale_sur(debut, fin))),
+            escape(str(macro.salaire_moyen.fiabilite_minimale_sur(debut, fin))),
+            escape(str(macro.productivite.fiabilite_minimale_sur(debut, fin))),
+            f"<strong>{escape(str(macro.fiabilite_sur(debut, fin)))}</strong>",
+        ])
+
+    par_niveau: dict[str, list[str]] = {}
+    for regime in simulateur.catalogue:
+        par_niveau.setdefault(str(regime.fiabilite), []).append(regime.code)
+    regimes = [
+        [niveau, str(len(par_niveau[niveau])),
+         escape(", ".join(sorted(par_niveau[niveau])))]
+        for niveau in ("certifiee", "haute", "moyenne", "estimee")
+        if niveau in par_niveau
+    ]
+
+    return f"""
+<h2 style="margin-top:0">Ce que valent les chiffres</h2>
+<div class="note avertissement"><strong>Aucune série n'est aujourd'hui au niveau
+« certifiée ».</strong> Les séries longues (avant 1990) ont été saisies, pas
+extraites automatiquement : les portails de diffusion ne les exposent pas en API.
+Les <em>niveaux</em> de pension sont donc indicatifs ; les <em>écarts entre
+scénarios</em>, qui sont l'objet du modèle, sont beaucoup plus robustes.</div>
+
+<h3>Fiabilité des séries macroéconomiques, par décennie</h3>
+{g.tableau(
+    ["Période", "Inflation", "Salaire moyen", "Productivité", "Ensemble"],
+    periodes,
+    ["", "", "", "", ""],
+)}
+<p class="discret">Une projection ne se fait jamais passer pour une observation :
+au-delà de la dernière année observée, la fiabilité retombe à « estimée ».</p>
+
+<h3>Fiabilité des 35 régimes</h3>
+{g.tableau(["Niveau", "Nombre", "Régimes"], regimes, ["", "nombre", ""])}
+
+<h3>Sources</h3>
+<p>Dix-neuf institutions sont recensées dans
+<a href="{g.DEPOT}/blob/main/data/sources.yaml">data/sources.yaml</a> : INSEE,
+COR, Comité de suivi des retraites, DREES, CNAV, Service des retraites de l'État,
+Caisse des dépôts, Direction de la Sécurité sociale, Cour des comptes,
+Agirc-Arrco, Union Retraite, CCMSA, CNAVPL, CNBF, DGAFP, Direction du Budget,
+ERAFP, Ircantec, caisses des régimes spéciaux, Urssaf.</p>
+<p>Chaque valeur porte son niveau de fiabilité — <code>certifiee</code>,
+<code>haute</code>, <code>moyenne</code>, <code>estimee</code> — et la fiabilité
+d'un résultat est celle de son maillon le plus faible.</p>
+<p><a href="{g.DEPOT}/blob/main/docs/limites.md">Limites détaillées</a></p>
+"""
