@@ -1,0 +1,337 @@
+# Régimes des travailleurs non salariés : artisans, commerçants, libéraux,
+# avocats, exploitants et salariés agricoles.
+regimes:
+
+  - code: cancava
+    nom: Caisse autonome nationale de compensation de l'assurance vieillesse artisanale
+    famille: non_salarie
+    source_id: cor_panorama_regimes
+    fiabilite: estimee
+    creation: 1949
+    fermeture: 2006
+    extinction: 2006
+    succede_a: []
+    integre_dans: rsi
+    population: Artisans.
+    hors_repartition: false
+    periodes:
+      - debut: 1949
+        fin: 1972
+        type_calcul: points
+        age_ouverture: 65
+        age_taux_plein: 65
+        duree_requise_trimestres: null
+        taux_plein: 1.0
+        salaire_reference: carriere_entiere
+        assiette: plafonnee
+        taux_cotisation_retraite: 0.085
+        decote_par_trimestre: null
+        surcote_par_trimestre: null
+        avantages_non_contributifs: [minimum_vieillesse, reversion]
+        notes: >-
+          Loi du 17 janvier 1948 créant les régimes autonomes des non-salariés.
+          Régime en points jusqu'à l'alignement de 1973.
+      - debut: 1973
+        fin: 2006
+        type_calcul: annuites
+        age_ouverture: 60
+        age_taux_plein: 65
+        duree_requise_trimestres: 160
+        taux_plein: 0.50
+        salaire_reference: 25_meilleures_annees
+        assiette: plafonnee
+        taux_cotisation_retraite: 0.1655
+        decote_par_trimestre: 0.0125
+        surcote_par_trimestre: null
+        avantages_non_contributifs: [minimum_contributif, minimum_vieillesse, reversion]
+        notes: >-
+          Loi du 3 juillet 1972 : ALIGNEMENT du régime de base des artisans sur
+          le régime général à compter du 1er janvier 1973. Les points acquis
+          avant 1973 sont conservés et convertis (« droits en points »).
+
+  - code: organic
+    nom: Organisation autonome nationale de l'industrie et du commerce
+    famille: non_salarie
+    source_id: cor_panorama_regimes
+    fiabilite: estimee
+    creation: 1949
+    fermeture: 2006
+    extinction: 2006
+    succede_a: []
+    integre_dans: rsi
+    population: Commerçants et industriels.
+    hors_repartition: false
+    periodes:
+      - debut: 1949
+        fin: 1972
+        type_calcul: points
+        age_ouverture: 65
+        age_taux_plein: 65
+        duree_requise_trimestres: null
+        taux_plein: 1.0
+        salaire_reference: carriere_entiere
+        assiette: plafonnee
+        taux_cotisation_retraite: 0.085
+        decote_par_trimestre: null
+        surcote_par_trimestre: null
+        avantages_non_contributifs: [minimum_vieillesse, reversion]
+        notes: Régime en points, symétrique de la CANCAVA.
+      - debut: 1973
+        fin: 2006
+        type_calcul: annuites
+        age_ouverture: 60
+        age_taux_plein: 65
+        duree_requise_trimestres: 160
+        taux_plein: 0.50
+        salaire_reference: 25_meilleures_annees
+        assiette: plafonnee
+        taux_cotisation_retraite: 0.1655
+        decote_par_trimestre: 0.0125
+        surcote_par_trimestre: null
+        avantages_non_contributifs: [minimum_contributif, minimum_vieillesse, reversion]
+        notes: Aligné sur le régime général en 1973.
+
+  - code: rsi
+    nom: Régime social des indépendants
+    famille: non_salarie
+    source_id: cor_panorama_regimes
+    fiabilite: moyenne
+    creation: 2006
+    fermeture: 2018
+    extinction: 2020
+    succede_a: [cancava, organic]
+    integre_dans: regime_general
+    population: Artisans, commerçants et industriels.
+    hors_repartition: false
+    periodes:
+      - debut: 2006
+        fin: 2018
+        type_calcul: annuites
+        age_ouverture: 62
+        age_taux_plein: 67
+        duree_requise_trimestres: 172
+        taux_plein: 0.50
+        salaire_reference: 25_meilleures_annees
+        assiette: plafonnee
+        taux_cotisation_retraite: 0.1775
+        decote_par_trimestre: 0.0125
+        surcote_par_trimestre: 0.0125
+        avantages_non_contributifs: [minimum_contributif, minimum_vieillesse, reversion]
+        notes: >-
+          Fusion CANCAVA + ORGANIC + AMPI. Supprimé au 1er janvier 2018
+          (« suppression du RSI »), adossement au régime général achevé en 2020
+          sous le nom de Sécurité sociale des indépendants puis intégration
+          complète à la CNAV.
+
+  - code: rci
+    nom: Régime complémentaire des indépendants
+    famille: non_salarie
+    source_id: cor_panorama_regimes
+    fiabilite: moyenne
+    creation: 2013
+    fermeture: null
+    extinction: null
+    succede_a: [rco_artisans, nric]
+    integre_dans: null
+    population: Artisans, commerçants et industriels.
+    hors_repartition: false
+    periodes:
+      - debut: 2013
+        fin: null
+        type_calcul: points
+        age_ouverture: 62
+        age_taux_plein: 67
+        duree_requise_trimestres: 172
+        taux_plein: 1.0
+        salaire_reference: carriere_entiere
+        assiette: plafonnee
+        taux_cotisation_retraite: 0.07
+        decote_par_trimestre: 0.0125
+        surcote_par_trimestre: null
+        avantages_non_contributifs: [reversion]
+        notes: >-
+          Fusion au 1er janvier 2013 du régime complémentaire des artisans
+          (créé en 1979) et du Nouveau régime complémentaire des industriels
+          et commerçants (NRCI, 2004). 7 % sous plafond, 8 % au-delà.
+
+  - code: cnavpl
+    nom: Régime de base des professions libérales (CNAVPL)
+    famille: liberal
+    source_id: cnavpl_parametres
+    fiabilite: moyenne
+    creation: 1949
+    fermeture: null
+    extinction: null
+    succede_a: []
+    integre_dans: null
+    population: >-
+      Professions libérales réparties en dix sections professionnelles
+      (CARMF, CARPIMKO, CARCDSF, CAVP, CAVEC, CAVAMAC, CAVOM, CIPAV, CRN, CAVA).
+    hors_repartition: false
+    periodes:
+      - debut: 1949
+        fin: 2003
+        type_calcul: points
+        age_ouverture: 65
+        age_taux_plein: 65
+        duree_requise_trimestres: null
+        taux_plein: 1.0
+        salaire_reference: carriere_entiere
+        assiette: forfaitaire
+        taux_cotisation_retraite: 0.085
+        decote_par_trimestre: null
+        surcote_par_trimestre: null
+        avantages_non_contributifs: [minimum_vieillesse, reversion]
+        notes: >-
+          Régime de base en points assis sur des CLASSES DE COTISATION
+          forfaitaires jusqu'à la réforme de 2004 : la reconstitution du compte
+          notionnel exige la grille des classes par année et par section
+          (non encore intégrée — voir data/reference/regimes/TODO_liberaux.md).
+      - debut: 2004
+        fin: null
+        type_calcul: points
+        age_ouverture: 62
+        age_taux_plein: 67
+        duree_requise_trimestres: 172
+        taux_plein: 1.0
+        salaire_reference: carriere_entiere
+        assiette: plafonnee
+        taux_cotisation_retraite: 0.1015
+        decote_par_trimestre: 0.0125
+        surcote_par_trimestre: 0.0075
+        avantages_non_contributifs: [minimum_vieillesse, reversion]
+        notes: >-
+          Réforme du 21 août 2003 : régime de base unique en points,
+          proportionnel au revenu. 8,23 % jusqu'à 0,85 PASS et 1,87 % jusqu'à
+          5 PASS. Chaque section gère en outre un régime complémentaire
+          obligatoire aux paramètres propres.
+
+  - code: cnbf
+    nom: Caisse nationale des barreaux français
+    famille: liberal
+    source_id: cnbf_parametres
+    fiabilite: moyenne
+    creation: 1948
+    fermeture: null
+    extinction: null
+    succede_a: []
+    integre_dans: null
+    population: Avocats.
+    hors_repartition: false
+    periodes:
+      - debut: 1948
+        fin: 2003
+        type_calcul: forfaitaire
+        age_ouverture: 65
+        age_taux_plein: 65
+        duree_requise_trimestres: 160
+        taux_plein: 1.0
+        salaire_reference: sans_objet
+        assiette: forfaitaire
+        taux_cotisation_retraite: 0.09
+        decote_par_trimestre: null
+        surcote_par_trimestre: null
+        avantages_non_contributifs: [reversion]
+        notes: >-
+          Régime de base FORFAITAIRE : la pension ne dépend pas du revenu mais
+          de la durée. Dans un compte notionnel, cette déconnexion disparaît
+          entièrement — c'est l'un des régimes les plus transformés par la
+          réforme simulée.
+      - debut: 2004
+        fin: null
+        type_calcul: mixte
+        age_ouverture: 62
+        age_taux_plein: 67
+        duree_requise_trimestres: 172
+        taux_plein: 1.0
+        salaire_reference: sans_objet
+        assiette: deplafonnee
+        taux_cotisation_retraite: 0.1140
+        decote_par_trimestre: 0.0125
+        surcote_par_trimestre: 0.0075
+        avantages_non_contributifs: [reversion]
+        notes: >-
+          Cotisation forfaitaire par tranche d'ancienneté + cotisation
+          proportionnelle de 3,10 % sur le revenu, plus le régime
+          complémentaire obligatoire par classes.
+
+  - code: msa_salaries
+    nom: Régime des salariés agricoles (MSA)
+    famille: agricole
+    source_id: msa_parametres
+    fiabilite: moyenne
+    creation: 1930
+    fermeture: null
+    extinction: null
+    succede_a: []
+    integre_dans: null
+    population: Salariés de l'agriculture.
+    hors_repartition: false
+    periodes:
+      - debut: 1930
+        fin: null
+        type_calcul: annuites
+        age_ouverture: 64
+        age_taux_plein: 67
+        duree_requise_trimestres: 172
+        taux_plein: 0.50
+        salaire_reference: 25_meilleures_annees
+        assiette: plafonnee
+        taux_cotisation_retraite: 0.1787
+        decote_par_trimestre: 0.0125
+        surcote_par_trimestre: 0.0125
+        avantages_non_contributifs:
+          [minimum_contributif, majoration_enfants, mda, reversion, periodes_assimilees]
+        notes: >-
+          Régime ALIGNÉ sur le régime général depuis l'origine (mêmes règles de
+          calcul, gestion distincte). Complémentaire : Agirc-Arrco.
+
+  - code: msa_non_salaries
+    nom: Régime des non-salariés agricoles (MSA — exploitants)
+    famille: agricole
+    source_id: msa_parametres
+    fiabilite: moyenne
+    creation: 1952
+    fermeture: null
+    extinction: null
+    succede_a: []
+    integre_dans: null
+    population: Chefs d'exploitation, conjoints collaborateurs, aides familiaux.
+    hors_repartition: false
+    periodes:
+      - debut: 1952
+        fin: 2002
+        type_calcul: mixte
+        age_ouverture: 65
+        age_taux_plein: 65
+        duree_requise_trimestres: 150
+        taux_plein: 1.0
+        salaire_reference: carriere_entiere
+        assiette: forfaitaire
+        taux_cotisation_retraite: 0.085
+        decote_par_trimestre: null
+        surcote_par_trimestre: null
+        avantages_non_contributifs: [minimum_vieillesse, reversion]
+        notes: >-
+          Loi du 10 juillet 1952 créant l'assurance vieillesse agricole (AVA).
+          Retraite en deux parts : forfaitaire (indépendante du revenu) et
+          proportionnelle en points. La part forfaitaire est un droit quasi
+          non contributif : elle disparaît dans les scénarios notionnels.
+      - debut: 2003
+        fin: null
+        type_calcul: mixte
+        age_ouverture: 64
+        age_taux_plein: 67
+        duree_requise_trimestres: 172
+        taux_plein: 1.0
+        salaire_reference: carriere_entiere
+        assiette: plafonnee
+        taux_cotisation_retraite: 0.1737
+        decote_par_trimestre: 0.0125
+        surcote_par_trimestre: 0.0125
+        avantages_non_contributifs:
+          [minimum_vieillesse, pension_majoree_reference, reversion]
+        notes: >-
+          Loi du 4 mars 2002 créant la retraite complémentaire obligatoire (RCO)
+          des non-salariés agricoles, en points. Garantie « 85 % du SMIC » :
+          droit non contributif, neutralisé dans les scénarios notionnels.

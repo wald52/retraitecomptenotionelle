@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.venv/
+venv/
+
+# Téléchargements bruts : volumineux, régénérables par scripts/fetch/
+data/brut/*
+!data/brut/.gitkeep

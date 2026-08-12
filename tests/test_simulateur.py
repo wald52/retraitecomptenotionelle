@@ -1,0 +1,245 @@
+"""Tests des scénarios et du simulateur, au niveau du comportement attendu."""
+
+from __future__ import annotations
+
+import pytest
+
+from retraite_notionnelle.carriere import AnneeCarriere, Carriere
+from retraite_notionnelle.config import ModeIndexation, Neutralisations, Parametres
+from retraite_notionnelle.simulateur import Simulateur
+
+
+@pytest.fixture(scope="module")
+def simulateur() -> Simulateur:
+    return Simulateur(Parametres())
+
+
+@pytest.fixture(scope="module")
+def salarie_moyen(simulateur) -> Carriere:
+    return simulateur.carriere_simple(
+        annee_naissance=1960, sexe="H", affiliation="salarie_prive_non_cadre",
+        age_debut=21, age_liquidation=62, identifiant="salarié moyen",
+    )
+
+
+# -- construction de carrière ------------------------------------------------
+
+
+def test_carriere_couvre_les_bonnes_annees(salarie_moyen):
+    assert salarie_moyen.premiere_annee == 1981
+    assert salarie_moyen.derniere_annee == 2021
+    assert salarie_moyen.annee_liquidation == 2022
+
+
+def test_interruptions_ne_produisent_aucune_cotisation(simulateur):
+    carriere = simulateur.carriere_simple(
+        annee_naissance=1970, sexe="F", affiliation="salarie_prive_non_cadre",
+        age_debut=22, age_liquidation=64,
+        interruptions={annee: "education_enfant" for annee in range(2000, 2005)},
+    )
+    for annee in range(2000, 2005):
+        ligne = carriere.ligne(annee)
+        assert ligne is not None and not ligne.cotise and ligne.revenu == 0.0
+
+
+def test_affiliation_inconnue_est_rejetee(simulateur):
+    with pytest.raises(KeyError, match="affiliation inconnue"):
+        simulateur.carriere_simple(1970, "H", "boulanger_lunaire", 20, 64)
+
+
+def test_liquidation_avant_debut_est_rejetee(simulateur):
+    with pytest.raises(ValueError, match="antérieur"):
+        simulateur.carriere_simple(1970, "H", "salarie_prive_non_cadre", 40, 30)
+
+
+def test_carriere_sans_age_de_liquidation_est_signalee():
+    carriere = Carriere(
+        annee_naissance=1960, sexe="H",
+        lignes=[AnneeCarriere(1990, 20000.0, "salarie_prive_non_cadre")],
+    )
+    with pytest.raises(ValueError, match="âge de liquidation"):
+        _ = carriere.annee_liquidation
+
+
+# -- les trois scénarios -----------------------------------------------------
+
+
+def test_les_trois_scenarios_sont_calcules(simulateur, salarie_moyen):
+    comparaison = simulateur.simuler(salarie_moyen)
+    assert comparaison.actuel.pension_annuelle > 0
+    assert comparaison.notionnel_retroactif.pension_annuelle > 0
+    assert comparaison.notionnel_prospectif.pension_annuelle > 0
+
+
+def test_retraite_deja_liquidee_est_inchangee_dans_le_scenario_prospectif(simulateur):
+    """Un retraité de 2005 ne peut pas voir ses droits recalculés en 2026."""
+    carriere = simulateur.carriere_simple(
+        annee_naissance=1945, sexe="H", affiliation="salarie_prive_non_cadre",
+        age_debut=20, age_liquidation=60,
+    )
+    comparaison = simulateur.simuler(carriere)
+    assert comparaison.notionnel_prospectif.pension_annuelle == pytest.approx(
+        comparaison.actuel.pension_annuelle
+    )
+    assert comparaison.variation("notionnel_prospectif") == pytest.approx(0.0)
+
+
+def test_un_depart_plus_tardif_ameliore_la_pension_notionnelle(simulateur):
+    """Double effet : plus de cotisations, et un diviseur plus faible."""
+    pensions = []
+    for age in (60, 62, 64, 67):
+        carriere = simulateur.carriere_simple(
+            annee_naissance=1975, sexe="H", affiliation="salarie_prive_non_cadre",
+            age_debut=22, age_liquidation=age,
+        )
+        pensions.append(
+            simulateur.simuler(carriere).notionnel_retroactif.pension_annuelle
+        )
+    assert pensions == sorted(pensions)
+
+
+def test_carriere_interrompue_perd_davantage_en_notionnel(simulateur):
+    """Les périodes non cotisées n'ouvrent aucun droit : c'est le principe."""
+    commun = dict(annee_naissance=1975, sexe="F",
+                  affiliation="salarie_prive_non_cadre", age_debut=22,
+                  age_liquidation=64)
+    complete = simulateur.simuler(simulateur.carriere_simple(**commun))
+    interrompue = simulateur.simuler(simulateur.carriere_simple(
+        **commun, interruptions={annee: "education_enfant" for annee in range(2005, 2013)}
+    ))
+    assert (interrompue.notionnel_retroactif.pension_annuelle
+            < complete.notionnel_retroactif.pension_annuelle)
+
+
+def test_regime_special_a_depart_precoce_est_le_plus_touche(simulateur):
+    """Le cas emblématique : quinze ans d'anticipation."""
+    sncf = simulateur.simuler(simulateur.carriere_simple(
+        annee_naissance=1955, sexe="H", affiliation="agent_sncf",
+        age_debut=20, age_liquidation=50,
+    ))
+    prive = simulateur.simuler(simulateur.carriere_simple(
+        annee_naissance=1955, sexe="H", affiliation="salarie_prive_non_cadre",
+        age_debut=20, age_liquidation=62,
+    ))
+    assert sncf.notionnel_retroactif.ecart_age.ecart == pytest.approx(15.0)
+    assert (sncf.variation("notionnel_retroactif")
+            < prive.variation("notionnel_retroactif"))
+
+
+def test_sans_cotisation_aucun_droit_notionnel(simulateur):
+    """Suppression des minima : peu cotisé, peu de retraite, sans plancher."""
+    carriere = simulateur.carriere_simple(
+        annee_naissance=1975, sexe="H", affiliation="salarie_prive_non_cadre",
+        age_debut=22, age_liquidation=64, niveau_salaire=0.3,
+    )
+    riche = simulateur.carriere_simple(
+        annee_naissance=1975, sexe="H", affiliation="salarie_prive_non_cadre",
+        age_debut=22, age_liquidation=64, niveau_salaire=3.0,
+    )
+    faible = simulateur.simuler(carriere).notionnel_retroactif.pension_annuelle
+    forte = simulateur.simuler(riche).notionnel_retroactif.pension_annuelle
+    # Strictement proportionnel au salaire tant que le plafond n'est pas atteint :
+    # aucun effet de seuil ne subsiste.
+    assert forte > faible * 5
+
+
+def test_capitalisation_reste_dans_un_compartiment_separe(simulateur):
+    """Les droits RAFP ne rejoignent jamais le capital notionnel."""
+    carriere = simulateur.carriere_simple(
+        annee_naissance=1980, sexe="F", affiliation="fonctionnaire_etat",
+        age_debut=25, age_liquidation=64, part_primes=0.20,
+    )
+    resultat = simulateur.simuler(carriere).notionnel_retroactif
+    assert resultat.capital_capitalisation > 0
+    assert resultat.rente_capitalisation_annuelle > 0
+    assert resultat.rente_capitalisation_annuelle not in (resultat.pension_annuelle,)
+
+
+# -- neutralisations ---------------------------------------------------------
+
+
+def test_les_avantages_familiaux_ne_jouent_que_dans_le_systeme_actuel(simulateur):
+    commun = dict(annee_naissance=1975, sexe="F",
+                  affiliation="salarie_prive_non_cadre",
+                  age_debut=22, age_liquidation=64)
+    sans = simulateur.simuler(simulateur.carriere_simple(**commun, nombre_enfants=0))
+    avec = simulateur.simuler(simulateur.carriere_simple(**commun, nombre_enfants=3))
+    assert (avec.notionnel_retroactif.pension_annuelle
+            == pytest.approx(sans.notionnel_retroactif.pension_annuelle))
+
+
+def test_desactiver_une_neutralisation_change_le_systeme_actuel():
+    """Contrôle : la majoration pour trois enfants existe bien dans le scénario 1."""
+    avec_majoration = Parametres(
+        neutralisations=Neutralisations(majoration_enfants=False)
+    )
+    reference = Simulateur(Parametres())
+    variante = Simulateur(avec_majoration)
+    commun = dict(annee_naissance=1975, sexe="F",
+                  affiliation="salarie_prive_non_cadre",
+                  age_debut=22, age_liquidation=64, nombre_enfants=3)
+    sans = reference.simuler(reference.carriere_simple(**commun)).actuel.pension_annuelle
+    avec = variante.simuler(variante.carriere_simple(**commun)).actuel.pension_annuelle
+    assert avec == pytest.approx(sans * 1.10)
+
+
+# -- restitution -------------------------------------------------------------
+
+
+def test_le_tableau_mentionne_l_ecart_d_age(simulateur, salarie_moyen):
+    texte = simulateur.simuler(salarie_moyen).tableau()
+    assert "Âge de référence à cliquet" in texte
+    assert "anticipation" in texte
+
+
+def test_dictionnaire_est_serialisable(simulateur, salarie_moyen):
+    import json
+
+    donnees = simulateur.simuler(salarie_moyen).dictionnaire()
+    json.dumps(donnees, ensure_ascii=False)
+    assert set(donnees["scenarios"]) == {
+        "actuel", "notionnel_retroactif", "notionnel_prospectif"
+    }
+    assert donnees["unite"]["euros_constants_de"] == 2026
+
+
+def test_euros_constants_rendent_les_generations_comparables(simulateur):
+    """Deux liquidations éloignées doivent être ramenées à la même unité."""
+    ancienne = simulateur.simuler(simulateur.carriere_simple(
+        annee_naissance=1940, sexe="H", affiliation="salarie_prive_non_cadre",
+        age_debut=20, age_liquidation=62,
+    ))
+    recente = simulateur.simuler(simulateur.carriere_simple(
+        annee_naissance=1990, sexe="H", affiliation="salarie_prive_non_cadre",
+        age_debut=20, age_liquidation=62,
+    ))
+    assert ancienne.coefficient_euros_constants > 1.0   # euros de 2002 -> 2026
+    assert recente.coefficient_euros_constants < 1.0    # euros de 2052 -> 2026
+
+
+def test_l_ecart_entre_regles_d_indexation_croit_avec_l_anciennete_de_la_carriere():
+    """L'effet du mélange réel/nominal se concentre sur les décennies inflationnistes.
+
+    Pour une carrière liquidée dans les années 2010, l'essentiel du capital a
+    été constitué après 1990, période où les deux règles se rejoignent : l'écart
+    reste modeste. Pour une carrière des années 1950-1980, il devient massif.
+    C'est pourquoi le choix de la règle pèse surtout sur le scénario rétroactif
+    appliqué aux générations anciennes.
+    """
+    litteral = Simulateur(Parametres())
+    nominal = Simulateur(Parametres(
+        mode_indexation=ModeIndexation.TRIPLE_LOCK_INVERSE_NOMINAL
+    ))
+
+    def rapport(annee_naissance: int) -> float:
+        commun = dict(annee_naissance=annee_naissance, sexe="H",
+                      affiliation="salarie_prive_non_cadre",
+                      age_debut=20, age_liquidation=62)
+        a = litteral.simuler(litteral.carriere_simple(**commun))
+        b = nominal.simuler(nominal.carriere_simple(**commun))
+        return (b.notionnel_retroactif.pension_annuelle
+                / a.notionnel_retroactif.pension_annuelle)
+
+    ancienne = rapport(1925)   # carrière 1945-1986
+    recente = rapport(1970)    # carrière 1990-2031
+    assert ancienne > recente > 1.0

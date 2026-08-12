@@ -1,0 +1,332 @@
+# Méthodologie
+
+Ce document décrit ce que le modèle calcule, et pourquoi il le calcule ainsi.
+Chaque décision contestable y est nommée, justifiée, et rattachée au paramètre
+qui permet d'en changer.
+
+---
+
+## 1. Ce qu'est un compte notionnel
+
+Un compte notionnel est un compte **virtuel**. Aucun capital n'est placé : les
+cotisations de l'année financent les pensions de l'année, comme dans toute
+répartition. Ce qui change, c'est la façon de calculer le droit.
+
+Pour chaque assuré :
+
+1. **Accumulation** — chaque année, la cotisation retraite effectivement versée
+   est inscrite au compte ;
+2. **Revalorisation** — le solde est revalorisé chaque année à un taux
+   d'indexation défini par la règle collective ;
+3. **Liquidation** — la pension annuelle vaut
+
+   ```
+   pension = capital notionnel / coefficient de conversion
+   ```
+
+Le coefficient de conversion est l'espérance de vie résiduelle à l'âge de
+liquidation, lue sur une table de génération.
+
+Trois propriétés en découlent, et ce sont elles qui répondent au cahier des
+charges :
+
+- **la pension est strictement proportionnelle aux cotisations** — aucun effet
+  de seuil, aucun palier, aucun minimum ;
+- **partir plus tôt coûte deux fois** — moins de cotisations accumulées, et une
+  rente à servir plus longtemps ;
+- **rien n'est gratuit** — un droit non financé par une cotisation n'existe pas.
+
+---
+
+## 2. Périmètre temporel
+
+L'origine par défaut est **1941**, date de l'allocation aux vieux travailleurs
+salariés : premier dispositif français où les cotisations des actifs financent
+directement les prestations des retraités. Le paramètre
+`annee_debut_repartition` accepte 1945 (ordonnances créant la Sécurité sociale)
+pour qui préfère cette borne.
+
+Les régimes antérieurs figurent au catalogue mais sont traités à part :
+
+- les **assurances sociales de 1930** étaient en capitalisation individuelle —
+  leur ruine par l'inflation des années 1940 est précisément ce qui a motivé le
+  passage à la répartition. Elles sont marquées `hors_repartition` ;
+- les **pensions civiles de 1853** étaient versées sur crédits budgétaires
+  courants, donc fonctionnellement en répartition : elles sont incluses.
+
+---
+
+## 3. L'indexation : le triple lock inversé
+
+### La règle
+
+À chaque année *t* :
+
+```
+taux d'indexation = min( inflation , croissance du salaire moyen , productivité réelle )
+```
+
+Elle s'applique **à la fois** à la revalorisation des comptes en cours de
+constitution et à la revalorisation des pensions déjà liquidées, depuis 1941.
+
+### Ce qu'elle produit, et pourquoi il faut le savoir
+
+Deux des trois termes sont nominaux, le troisième est réel. Dès que l'inflation
+dépasse la croissance de la productivité — c'est-à-dire pendant la quasi-totalité
+de la période 1945-1985 — c'est la productivité réelle qui l'emporte, et le
+compte est revalorisé de 1 à 5 % quand les prix montent de 10 à 50 %.
+
+Mesure sur la période complète (`retraite-notionnelle indexation --de 1941 --a 2025`) :
+
+| Règle | Revalorisation cumulée 1941-2025 | Prix | Pouvoir d'achat conservé |
+|---|---|---|---|
+| Triple lock inversé, littéral | ×4,9 | ×318,6 | **1,5 %** |
+| Triple lock inversé, tout en nominal | ×243,7 | ×318,6 | 76,5 % |
+| Indexation sur les prix | ×318,6 | ×318,6 | 100 % |
+
+Autrement dit, sous la règle littérale, **une cotisation versée en 1950 ne vaut
+presque plus rien à la liquidation**. Le scénario rétroactif mesure alors
+davantage l'effet de la règle d'indexation que celui du passage aux comptes
+notionnels.
+
+C'est un résultat, pas un défaut : la règle a été appliquée telle qu'énoncée.
+Mais l'interprétation doit en tenir compte. Deux moyens de faire la part des
+choses :
+
+- `--indexation triple_lock_inverse_nominal` ramène la productivité en termes
+  nominaux avant de prendre le minimum : la règle reste austère, mais homogène ;
+- `--indexation prix` isole l'effet propre des comptes notionnels, indexation
+  neutralisée.
+
+Aucun plancher n'est appliqué par défaut : le taux peut être négatif, ce qui est
+la conséquence logique de la règle (`plancher_indexation`).
+
+### Au-delà de 2025
+
+Les séries observées s'arrêtent en 2025. Geler la dernière valeur serait une
+hypothèse implicite et fausse. Le modèle projette donc explicitement, selon des
+scénarios inspirés de ceux du Conseil d'orientation des retraites
+(`data/reference/macro/hypotheses_projection.yaml`) : inflation 1,75 %,
+productivité réelle 0,7 % / 1,0 % / 1,3 % selon la variante. Toute année
+projetée porte la fiabilité la plus basse, qui se propage jusqu'au résultat.
+
+---
+
+## 4. L'âge de référence à cliquet
+
+### La construction
+
+L'âge de référence est l'âge auquel une liquidation est réputée « à l'heure ».
+Il est bâti **à cliquet** : c'est le maximum de tous les âges de taux plein
+observés jusqu'à l'année considérée. Il ne redescend jamais.
+
+| Période | Âge du taux plein en droit | Âge de référence retenu |
+|---|---|---|
+| 1945-1981 | 65 ans | 65 ans |
+| 1982-2010 | **60 ans** (ordonnance du 26 mars 1982) | **65 ans** — le cliquet tient |
+| 2011-2016 | montée en charge 65 → 67 | 65 → 67 ans |
+| 2017- | 67 ans | 67 ans |
+
+Conséquences directes, conformes à la demande :
+
+- une liquidation à 60 ans en 1990 est une **anticipation de 5 ans** ;
+- un agent de conduite parti à 50 ans en 1990 anticipe de **15 ans** ;
+- un danseur de l'Opéra parti à 40 ans anticipe de **25 ans**.
+
+### Comment l'écart pèse sur la pension
+
+Il ne faut **pas** ajouter une décote par-dessus, et le modèle ne le fait pas
+par défaut. L'anticipation est déjà sanctionnée deux fois, mécaniquement :
+
+1. les années non travaillées n'ont produit aucune cotisation ;
+2. la rente est servie plus longtemps, donc le diviseur est plus élevé.
+
+Ordre de grandeur du second effet seul : cinq ans d'anticipation à 64 ans en
+2026 augmentent le diviseur d'environ 4 années d'espérance de vie, soit une
+pension annuelle inférieure d'environ 15 %. En ajoutant les cinq années de
+cotisations manquantes sur une carrière de 42 ans, la perte totale approche 25 %.
+
+Une décote explicite supplémentaire reste disponible
+(`ModeCoefficientEcart.EXPLICITE`), mais c'est alors une double peine assumée.
+
+### Variantes
+
+- `cliquet_legal` (défaut) — la règle décrite ci-dessus ;
+- `cliquet_puis_esperance_vie` — après la bascule, l'âge de référence suit
+  l'espérance de vie de façon à stabiliser le rapport durée de retraite / durée
+  de carrière ;
+- `legal_sans_cliquet` — contrefactuel reproduisant le droit positif.
+
+---
+
+## 5. Le coefficient de conversion
+
+```
+G(a, L) = Σ_t  (probabilité de survie t années après la liquidation) × (1+ν)^(-t)
+```
+
+- **Table de génération**, pas table du moment. À chaque année vécue est
+  appliquée la mortalité de l'année civile correspondante. Une table du moment
+  sous-estimerait la longévité des générations récentes de 1,5 à 3 ans, et
+  surestimerait donc leur pension d'autant.
+- **Table unisexe** par défaut. C'est la pratique des systèmes notionnels suédois
+  et italien. Une table sexuée est actuariellement exacte mais réduirait la
+  pension des femmes de 5 à 10 % à capital identique, et serait contraire au
+  principe de non-discrimination. `--table par_sexe` permet de mesurer l'écart.
+- **ν = 0** par défaut. La rente est actualisée au taux auquel elle sera ensuite
+  revalorisée ; les deux étant identiques, ils se compensent et le diviseur se
+  réduit à l'espérance de vie résiduelle. Le résultat est directement lisible.
+- **Pas de réversion**, donc pas de rente sur deux têtes : la demande est
+  explicite sur ce point.
+
+Les tables elles-mêmes sont décrites au §9.
+
+---
+
+## 6. Les neutralisations
+
+Sont **supprimés** dans les scénarios notionnels — tous activés par défaut dans
+`Neutralisations` :
+
+| Supprimé | Raison invoquée dans la demande |
+|---|---|
+| minimum contributif, minimum garanti, ASPA, PMR | supprimer les effets de seuil |
+| majoration pour trois enfants et plus | avantage sans cotisation |
+| majoration de durée d'assurance, AVPF | l'aide doit être versée au moment de la difficulté |
+| pension de réversion | seules les cotisations comptent |
+| bonifications, catégorie active | avantage sans cotisation |
+| périodes assimilées (chômage, maladie, service militaire) | pas de cotisation, pas de droit |
+| garantie minimale de points (Agirc) | droit gratuit |
+| carrières longues | dispositif d'âge, remplacé par l'actuariel |
+| décote et surcote | remplacées par le coefficient de conversion |
+
+Le scénario 1 les conserve **toutes** : c'est le droit positif, il sert d'étalon.
+
+Le critère retenu pour une période non cotisée est **le versement effectif de
+cotisations**, pas la nature de la période. Une période de chômage indemnisé
+pour laquelle l'UNEDIC a versé des cotisations retraite ouvre donc des droits ;
+une période de chômage non indemnisé n'en ouvre aucun.
+
+---
+
+## 7. La fusion des régimes
+
+À compter de l'année de bascule (2026 par défaut), les régimes disparaissent au
+profit d'un régime unique construit **au cas le plus défavorable** :
+
+| Paramètre | Règle | Valeur 2026 |
+|---|---|---|
+| âge d'ouverture | le plus élevé | 64 ans |
+| âge du taux plein | le plus élevé | 67 ans |
+| durée requise | la plus longue | 172 trimestres |
+| salaire de référence | le moins avantageux | carrière entière |
+| assiette | la plus large | déplafonnée |
+| avantages non contributifs | aucun | — |
+
+**Le taux de cotisation fait exception, et c'est le seul.** Le retenir « au plus
+défavorable » n'aurait pas de sens : un taux plus faible réduit les droits, mais
+réduit tout autant les prélèvements. Retenir le maximum n'est pas meilleur : ce
+maximum est le taux de tranche 2 de l'Agirc-Arrco (21,59 %), qui ne s'applique
+aujourd'hui qu'au-dessus du plafond. Le régime fusionné retient donc la **somme
+des taux d'un statut pivot** — régime général 17,87 % + Agirc-Arrco 7,87 % =
+**25,74 %** — c'est-à-dire l'effort contributif réel d'un salarié pour une
+retraite complète. Modifiable par `RegleFusion.critere_taux`.
+
+**Conséquence à connaître.** Ce taux appliqué à une assiette déplafonnée
+augmente fortement les cotisations des indépendants et des professions
+libérales, qui cotisent aujourd'hui à taux plus faible et sur assiette plafonnée.
+Leur pension notionnelle monte en proportion : c'est pour eux la seule ligne du
+tableau des cas types qui progresse. Le résultat est correct, il faut seulement
+savoir qu'il traduit une hausse de prélèvement, pas un cadeau.
+
+---
+
+## 8. Les trois scénarios
+
+### Scénario 1 — le système actuel
+
+Étalon en droit constant. Approximation documentée, pas un simulateur officiel
+(voir `docs/limites.md` §3).
+
+### Scénario 2 — comptes notionnels rétroactifs
+
+Compte ouvert à l'entrée dans la vie active, ou en 1941 si la carrière a commencé
+avant. Toute la carrière est recalculée. C'est le scénario qui répond à
+« qu'aurait été ma retraite si le système avait toujours été notionnel ».
+
+### Scénario 3 — comptes notionnels à compter d'aujourd'hui
+
+Les droits acquis à la bascule sont figés selon les règles actuelles, convertis
+en capital notionnel d'ouverture, puis le compte fonctionne en notionnel au-delà.
+
+La conversion des droits acquis inverse la formule de liquidation :
+
+```
+capital d'ouverture = pension de droits figés × G(âge de référence, année de bascule)
+```
+
+Deux précisions importantes :
+
+- les droits figés sont calculés **sans décote ni surcote d'âge** : on mesure des
+  droits déjà ouverts, pas une liquidation anticipée. La sanction d'âge
+  s'applique une seule fois, à la liquidation réelle, par le diviseur ;
+- pour un assuré **déjà retraité** à la bascule, ce scénario renvoie sa pension
+  actuelle inchangée. Ses droits sont intégralement acquis ; tout autre résultat
+  serait dépourvu de sens.
+
+---
+
+## 9. Les données
+
+### Sources
+
+`data/sources.yaml` recense les jeux de données des dix-neuf institutions
+demandées, avec pour chacun l'URL, le mode d'accès et l'état d'intégration.
+
+### Fiabilité
+
+Aucune valeur ne circule dans le modèle sans son niveau de fiabilité :
+
+| Niveau | Sens |
+|---|---|
+| `certifiee` | recontrôlée automatiquement contre la source |
+| `haute` | valeur publiée, recopiée, non recontrôlée |
+| `moyenne` | valeur publiée mais champ ou base incertains |
+| `estimee` | reconstitution, ou projection |
+
+La fiabilité d'un résultat est celle de **son maillon le plus faible**.
+`Parametres.fiabilite_minimale` fait échouer la simulation plutôt que de
+produire un chiffre trompeur. `retraite-notionnelle donnees` en dresse l'état.
+
+**Aucune série n'est aujourd'hui au niveau `certifiee`** : voir `docs/limites.md`.
+
+### Tables de mortalité
+
+Deux sources possibles, par ordre de priorité :
+
+1. `data/reference/mortalite/quotients_periode.csv` — les tables INSEE
+   (`annee,sexe,age,qx`), dès qu'elles sont déposées ;
+2. à défaut, une table paramétrique de **Gompertz-Makeham**
+   `μ(x) = A + B·exp(k(x−60))`, dont *B* et *k* sont ajustés par bissection pour
+   reproduire **exactement** les espérances de vie publiées à 60 et 65 ans.
+
+La calibration est vérifiée par les tests à 0,05 an près. Elle donne la bonne
+espérance de vie aux âges qui pilotent le diviseur ; elle ne prétend pas décrire
+la mortalité aux âges jeunes, qui n'entrent pas dans le calcul. Le passage aux
+vraies tables ne demande aucune modification du moteur.
+
+### Unité de compte
+
+Tous les montants sont produits en euros courants de l'année de liquidation
+**et** en euros constants de 2026 (`annee_euros_constants`). Sans cette
+conversion, comparer une pension liquidée en 1975 à une pension de 2064 n'a
+aucun sens : l'écart de niveau des prix dépasse largement l'effet de la réforme
+simulée.
+
+### Ancrage des rémunérations
+
+Les comptes nationaux ne publient que des taux de croissance du salaire moyen.
+Le modèle les cumule à partir d'un point d'ancrage — 40 000 € bruts annuels en
+2024 — documenté dans `carriere.py`. Ce point déplace proportionnellement tous
+les revenus reconstitués, donc toutes les pensions, mais il est **sans effet sur
+les rapports entre scénarios**, qui sont l'objet du modèle.

@@ -1,0 +1,47 @@
+# Âge de référence normatif — série « à cliquet »
+# ---------------------------------------------------
+# source_id: legifrance_textes, cor_panorama_regimes
+#
+# DÉFINITION RETENUE (choix de modélisation, cf. docs/methodologie.md §4)
+# L'âge de référence est l'âge auquel une liquidation est réputée « à l'heure ».
+# Il est construit à CLIQUET : il ne redescend jamais. Chaque fois que le
+# législateur a ABAISSÉ l'âge effectif de départ, l'âge de référence est resté
+# à son niveau antérieur, si bien qu'une liquidation à l'âge abaissé est
+# comptée comme une liquidation anticipée de l'écart correspondant.
+#
+# age_taux_plein_legal : âge d'obtention du taux plein sans condition de durée
+#                        dans le régime général, tel qu'en vigueur cette année-là
+# age_ouverture_legal  : âge d'ouverture des droits du régime général
+# age_reference        : série à cliquet = max des age_taux_plein_legal observés
+#                        jusqu'à l'année considérée
+#
+# Repères législatifs :
+#   1945 ordonnances des 4 et 19 octobre  -> taux plein à 65 ans
+#   1971 loi Boulin du 31 décembre        -> 50 % à 65 ans, 37,5 annuités
+#   1982 ordonnance du 26 mars            -> taux plein ABAISSÉ à 60 ans
+#   1993 réforme Balladur                 -> durée 37,5 -> 40 ans, 25 meilleures années
+#   2003 loi Fillon                       -> durée 40 -> 41 ans, décote/surcote
+#   2010 loi du 9 novembre                -> ouverture 60 -> 62, taux plein 65 -> 67
+#   2014 loi Touraine                     -> durée -> 43 ans (génération 1973)
+#   2023 loi du 14 avril                  -> ouverture 62 -> 64, durée 43 ans dès 1965
+annee,age_ouverture_legal,age_taux_plein_legal,age_reference,commentaire
+1945,60,65,65,creation_securite_sociale
+1971,60,65,65,loi_boulin
+1982,60,60,65,abaissement_a_60_ans_cliquet_maintenu_a_65
+1993,60,60,65,reforme_balladur_duree_et_salaire_de_reference
+2003,60,60,65,loi_fillon
+2011,60.25,65,65,montee_en_charge_loi_2010
+2012,60.75,65.75,65.75,montee_en_charge_loi_2010
+2013,61.17,66.17,66.17,montee_en_charge_loi_2010
+2014,61.42,66.42,66.42,montee_en_charge_loi_2010
+2015,61.58,66.58,66.58,montee_en_charge_loi_2010
+2016,61.75,66.75,66.75,montee_en_charge_loi_2010
+2017,62,67,67,cible_loi_2010_atteinte
+2023,62.25,67,67,loi_du_14_avril_2023
+2024,62.5,67,67,loi_du_14_avril_2023
+2025,62.75,67,67,loi_du_14_avril_2023
+2026,63,67,67,loi_du_14_avril_2023
+2027,63.25,67,67,loi_du_14_avril_2023
+2028,63.5,67,67,loi_du_14_avril_2023
+2029,63.75,67,67,loi_du_14_avril_2023
+2030,64,67,67,cible_loi_2023_atteinte

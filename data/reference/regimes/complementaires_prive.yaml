@@ -1,0 +1,278 @@
+# Régimes complémentaires des salariés, 1947 -> aujourd'hui
+regimes:
+
+  - code: agirc
+    nom: Association générale des institutions de retraite des cadres
+    famille: complementaire_prive
+    source_id: agirc_arrco_points
+    fiabilite: moyenne
+    creation: 1947
+    fermeture: 2018
+    extinction: 2018
+    succede_a: []
+    integre_dans: agirc_arrco
+    population: Cadres et assimilés, sur la part de rémunération au-dessus du plafond.
+    hors_repartition: false
+    periodes:
+      - debut: 1947
+        fin: 1993
+        type_calcul: points
+        age_ouverture: 60
+        age_taux_plein: 65
+        duree_requise_trimestres: null
+        taux_plein: 1.0
+        salaire_reference: carriere_entiere
+        assiette: tranche_b
+        taux_cotisation_retraite: 0.08
+        decote_par_trimestre: 0.01
+        surcote_par_trimestre: null
+        avantages_non_contributifs: [majoration_enfants, reversion, garantie_minimale_points]
+        notes: >-
+          Convention collective nationale du 14 mars 1947. Régime par points sur
+          les tranches B et C. Taux contractuel monté progressivement de 8 % à
+          16 % ; la garantie minimale de points (GMP) est un droit gratuit,
+          neutralisé dans les scénarios notionnels.
+      - debut: 1994
+        fin: 2018
+        type_calcul: points
+        age_ouverture: 60
+        age_taux_plein: 65
+        duree_requise_trimestres: 160
+        taux_plein: 1.0
+        salaire_reference: carriere_entiere
+        assiette: tranche_b
+        taux_cotisation_retraite: 0.2043
+        decote_par_trimestre: 0.01
+        surcote_par_trimestre: null
+        avantages_non_contributifs: [majoration_enfants, reversion, garantie_minimale_points]
+        notes: >-
+          Taux contractuel 16,44 % + taux d'appel 125 % = 20,55 % de cotisation
+          effective sur T B/C, pour 16,44 % de points acquis. L'écart taux
+          d'appel / taux de calcul est une cotisation de solidarité sans
+          contrepartie de droits : elle est traitée comme une cotisation
+          effective dans le compte notionnel (paramètre `taux_appel_ouvre_droits`).
+
+  - code: arrco
+    nom: Association pour le régime de retraite complémentaire des salariés
+    famille: complementaire_prive
+    source_id: agirc_arrco_points
+    fiabilite: moyenne
+    creation: 1961
+    fermeture: 2018
+    extinction: 2018
+    succede_a: [unirs]
+    integre_dans: agirc_arrco
+    population: >-
+      Tous les salariés du privé (non-cadres pour la totalité du salaire,
+      cadres pour la tranche sous plafond).
+    hors_repartition: false
+    periodes:
+      - debut: 1961
+        fin: 1995
+        type_calcul: points
+        age_ouverture: 60
+        age_taux_plein: 65
+        duree_requise_trimestres: null
+        taux_plein: 1.0
+        salaire_reference: carriere_entiere
+        assiette: tranche_1
+        taux_cotisation_retraite: 0.04
+        decote_par_trimestre: 0.01
+        surcote_par_trimestre: null
+        avantages_non_contributifs: [majoration_enfants, reversion]
+        notes: >-
+          Accord du 8 décembre 1961 généralisant la retraite complémentaire.
+          Taux contractuel minimal de 4 % monté par étapes.
+      - debut: 1996
+        fin: 2018
+        type_calcul: points
+        age_ouverture: 60
+        age_taux_plein: 65
+        duree_requise_trimestres: 160
+        taux_plein: 1.0
+        salaire_reference: carriere_entiere
+        assiette: tranche_1
+        taux_cotisation_retraite: 0.0750
+        decote_par_trimestre: 0.01
+        surcote_par_trimestre: null
+        avantages_non_contributifs: [majoration_enfants, reversion]
+        notes: >-
+          Taux contractuel 6 % sur T1 et 16 % sur T2, taux d'appel 125 %.
+
+  - code: agirc_arrco
+    nom: Régime unifié Agirc-Arrco
+    famille: complementaire_prive
+    source_id: agirc_arrco_points
+    fiabilite: haute
+    creation: 2019
+    fermeture: null
+    extinction: null
+    succede_a: [agirc, arrco]
+    integre_dans: null
+    population: Ensemble des salariés du secteur privé.
+    hors_repartition: false
+    periodes:
+      - debut: 2019
+        fin: null
+        type_calcul: points
+        age_ouverture: 62
+        age_taux_plein: 67
+        duree_requise_trimestres: 172
+        taux_plein: 1.0
+        salaire_reference: carriere_entiere
+        assiette: tranche_1
+        taux_cotisation_retraite: 0.0787
+        decote_par_trimestre: null
+        surcote_par_trimestre: null
+        avantages_non_contributifs: [majoration_enfants, reversion, coefficient_solidarite]
+        notes: >-
+          Accord national interprofessionnel du 17 novembre 2017.
+          Tranche 1 (0 -> 1 PASS) : taux d'appel 7,87 %, taux de calcul des
+          points 6,20 %. Tranche 2 (1 -> 8 PASS) : taux d'appel 21,59 %,
+          taux de calcul 17,00 % (voir `tranche_2` ci-dessous).
+          Le coefficient de solidarité (malus 10 % pendant 3 ans) et le
+          coefficient majorant sont des dispositifs d'incitation d'âge :
+          ils sont remplacés par le coefficient de conversion actuariel dans
+          les scénarios notionnels.
+      - debut: 2019
+        fin: null
+        type_calcul: points
+        age_ouverture: 62
+        age_taux_plein: 67
+        duree_requise_trimestres: 172
+        taux_plein: 1.0
+        salaire_reference: carriere_entiere
+        assiette: tranche_2
+        taux_cotisation_retraite: 0.2159
+        decote_par_trimestre: null
+        surcote_par_trimestre: null
+        avantages_non_contributifs: [majoration_enfants, reversion, coefficient_solidarite]
+        notes: Tranche 2, de 1 à 8 plafonds de la Sécurité sociale.
+
+  - code: ircantec
+    nom: Institution de retraite complémentaire des agents non titulaires de l'État et des collectivités
+    famille: complementaire_prive
+    source_id: ircantec_points
+    fiabilite: moyenne
+    creation: 1971
+    fermeture: null
+    extinction: null
+    succede_a: [ipacte, igrante]
+    integre_dans: null
+    population: Agents non titulaires des trois fonctions publiques, élus locaux.
+    hors_repartition: false
+    periodes:
+      - debut: 1971
+        fin: 2008
+        type_calcul: points
+        age_ouverture: 60
+        age_taux_plein: 65
+        duree_requise_trimestres: null
+        taux_plein: 1.0
+        salaire_reference: carriere_entiere
+        assiette: tranche_1
+        taux_cotisation_retraite: 0.0575
+        decote_par_trimestre: 0.0055
+        surcote_par_trimestre: null
+        avantages_non_contributifs: [majoration_enfants, reversion]
+        notes: Décret du 23 décembre 1970. Succède à l'IPACTE (1959) et l'IGRANTE (1959).
+      - debut: 2009
+        fin: null
+        type_calcul: points
+        age_ouverture: 62
+        age_taux_plein: 67
+        duree_requise_trimestres: 172
+        taux_plein: 1.0
+        salaire_reference: carriere_entiere
+        assiette: tranche_1
+        taux_cotisation_retraite: 0.0703
+        decote_par_trimestre: 0.0055
+        surcote_par_trimestre: null
+        avantages_non_contributifs: [majoration_enfants, reversion]
+        notes: >-
+          Réforme de 2008 : hausse progressive des taux jusqu'en 2017
+          (T A 7,03 %, T B 20,44 % en cible), baisse du rendement.
+
+  - code: ipacte
+    nom: Institution de prévoyance des agents contractuels et temporaires de l'État
+    famille: complementaire_prive
+    source_id: ircantec_points
+    fiabilite: estimee
+    creation: 1959
+    fermeture: 1970
+    extinction: 1971
+    succede_a: []
+    integre_dans: ircantec
+    population: Agents contractuels de l'État.
+    hors_repartition: false
+    periodes:
+      - debut: 1959
+        fin: 1970
+        type_calcul: points
+        age_ouverture: 60
+        age_taux_plein: 65
+        duree_requise_trimestres: null
+        taux_plein: 1.0
+        salaire_reference: carriere_entiere
+        assiette: tranche_1
+        taux_cotisation_retraite: 0.04
+        decote_par_trimestre: null
+        surcote_par_trimestre: null
+        avantages_non_contributifs: [reversion]
+        notes: Paramètres à certifier auprès de la Caisse des dépôts.
+
+  - code: igrante
+    nom: Institution générale de retraite des agents non titulaires de l'État
+    famille: complementaire_prive
+    source_id: ircantec_points
+    fiabilite: estimee
+    creation: 1959
+    fermeture: 1970
+    extinction: 1971
+    succede_a: []
+    integre_dans: ircantec
+    population: Agents non titulaires de l'État hors IPACTE.
+    hors_repartition: false
+    periodes:
+      - debut: 1959
+        fin: 1970
+        type_calcul: points
+        age_ouverture: 60
+        age_taux_plein: 65
+        duree_requise_trimestres: null
+        taux_plein: 1.0
+        salaire_reference: carriere_entiere
+        assiette: tranche_1
+        taux_cotisation_retraite: 0.04
+        decote_par_trimestre: null
+        surcote_par_trimestre: null
+        avantages_non_contributifs: [reversion]
+        notes: Paramètres à certifier auprès de la Caisse des dépôts.
+
+  - code: unirs
+    nom: Union nationale des institutions de retraite des salariés
+    famille: complementaire_prive
+    source_id: agirc_arrco_points
+    fiabilite: estimee
+    creation: 1957
+    fermeture: 1961
+    extinction: 1962
+    succede_a: []
+    integre_dans: arrco
+    population: Salariés non cadres, avant la généralisation de 1961.
+    hors_repartition: false
+    periodes:
+      - debut: 1957
+        fin: 1961
+        type_calcul: points
+        age_ouverture: 65
+        age_taux_plein: 65
+        duree_requise_trimestres: null
+        taux_plein: 1.0
+        salaire_reference: carriere_entiere
+        assiette: tranche_1
+        taux_cotisation_retraite: 0.04
+        decote_par_trimestre: null
+        surcote_par_trimestre: null
+        avantages_non_contributifs: [reversion]
+        notes: Régime précurseur, paramètres à certifier.

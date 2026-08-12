@@ -1,0 +1,164 @@
+# Profils d'affiliation : quels régimes s'appliquent à qui, et quand
+# ------------------------------------------------------------------
+# Un assuré ne choisit pas ses régimes : il déclare un STATUT (salarié du privé,
+# fonctionnaire d'État, agent SNCF…), et le modèle en déduit l'ensemble des
+# régimes — de base et complémentaires — auxquels il a cotisé chaque année.
+# C'est ce qui permet à quelqu'un qui ignore tout de la mécanique des caisses de
+# faire une simulation juste.
+#
+# Chaque affiliation liste des tranches temporelles ; pour chaque tranche, les
+# régimes actifs. Les régimes marqués `hors_repartition` dans le catalogue sont
+# automatiquement isolés dans le compartiment de capitalisation.
+
+affiliations:
+
+  salarie_prive_non_cadre:
+    libelle: Salarié du secteur privé, non cadre
+    periodes:
+      - {debut: 1930, fin: 1944, regimes: [assurances_sociales]}
+      - {debut: 1945, fin: 1956, regimes: [regime_general]}
+      - {debut: 1957, fin: 1960, regimes: [regime_general, unirs]}
+      - {debut: 1961, fin: 2018, regimes: [regime_general, arrco]}
+      - {debut: 2019, fin: null, regimes: [regime_general, agirc_arrco]}
+
+  salarie_prive_cadre:
+    libelle: Salarié du secteur privé, cadre
+    periodes:
+      - {debut: 1930, fin: 1944, regimes: [assurances_sociales]}
+      - {debut: 1945, fin: 1946, regimes: [regime_general]}
+      - {debut: 1947, fin: 1960, regimes: [regime_general, agirc]}
+      - {debut: 1961, fin: 2018, regimes: [regime_general, arrco, agirc]}
+      - {debut: 2019, fin: null, regimes: [regime_general, agirc_arrco]}
+
+  fonctionnaire_etat:
+    libelle: Fonctionnaire titulaire de l'État (civil ou militaire)
+    periodes:
+      - {debut: 1930, fin: 1947, regimes: [pensions_civiles_1853]}
+      - {debut: 1948, fin: 2004, regimes: [fonction_publique_etat]}
+      - {debut: 2005, fin: null, regimes: [fonction_publique_etat, rafp]}
+
+  fonctionnaire_territorial_hospitalier:
+    libelle: Fonctionnaire territorial ou hospitalier
+    periodes:
+      - {debut: 1945, fin: 2004, regimes: [cnracl]}
+      - {debut: 2005, fin: null, regimes: [cnracl, rafp]}
+
+  ouvrier_etat:
+    libelle: Ouvrier des établissements industriels de l'État
+    periodes:
+      - {debut: 1930, fin: 2004, regimes: [fspoeie]}
+      - {debut: 2005, fin: null, regimes: [fspoeie, rafp]}
+
+  contractuel_public:
+    libelle: Agent non titulaire de la fonction publique
+    periodes:
+      - {debut: 1945, fin: 1958, regimes: [regime_general]}
+      - {debut: 1959, fin: 1970, regimes: [regime_general, ipacte]}
+      - {debut: 1971, fin: null, regimes: [regime_general, ircantec]}
+
+  artisan:
+    libelle: Artisan
+    periodes:
+      - {debut: 1949, fin: 1978, regimes: [cancava]}
+      - {debut: 1979, fin: 2005, regimes: [cancava, rci]}
+      - {debut: 2006, fin: 2012, regimes: [rsi]}
+      - {debut: 2013, fin: 2017, regimes: [rsi, rci]}
+      - {debut: 2018, fin: null, regimes: [regime_general, rci]}
+
+  commercant:
+    libelle: Commerçant ou industriel
+    periodes:
+      - {debut: 1949, fin: 2003, regimes: [organic]}
+      - {debut: 2004, fin: 2005, regimes: [organic, rci]}
+      - {debut: 2006, fin: 2012, regimes: [rsi]}
+      - {debut: 2013, fin: 2017, regimes: [rsi, rci]}
+      - {debut: 2018, fin: null, regimes: [regime_general, rci]}
+
+  profession_liberale:
+    libelle: Profession libérale (régime de base CNAVPL)
+    periodes:
+      - {debut: 1949, fin: null, regimes: [cnavpl]}
+    note: >-
+      Le régime complémentaire obligatoire dépend de la section (CARMF,
+      CARPIMKO, CIPAV…) et n'est pas encore paramétré : la simulation d'un
+      libéral est donc incomplète côté complémentaire.
+
+  avocat:
+    libelle: Avocat
+    periodes:
+      - {debut: 1948, fin: null, regimes: [cnbf]}
+
+  salarie_agricole:
+    libelle: Salarié agricole
+    periodes:
+      - {debut: 1930, fin: 1960, regimes: [msa_salaries]}
+      - {debut: 1961, fin: 2018, regimes: [msa_salaries, arrco]}
+      - {debut: 2019, fin: null, regimes: [msa_salaries, agirc_arrco]}
+
+  exploitant_agricole:
+    libelle: Chef d'exploitation ou d'entreprise agricole
+    periodes:
+      - {debut: 1952, fin: null, regimes: [msa_non_salaries]}
+
+  agent_sncf:
+    libelle: Agent du cadre permanent de la SNCF
+    periodes:
+      - {debut: 1930, fin: 2019, regimes: [sncf]}
+      - {debut: 2020, fin: null, regimes: [regime_general, agirc_arrco]}
+    note: Régime fermé aux agents recrutés depuis le 1er janvier 2020.
+
+  agent_ratp:
+    libelle: Agent statutaire de la RATP
+    periodes:
+      - {debut: 1930, fin: 2022, regimes: [ratp]}
+      - {debut: 2023, fin: null, regimes: [regime_general, agirc_arrco]}
+    note: Régime fermé aux agents recrutés depuis le 1er septembre 2023.
+
+  agent_ieg:
+    libelle: Agent des industries électriques et gazières
+    periodes:
+      - {debut: 1946, fin: 2022, regimes: [ieg]}
+      - {debut: 2023, fin: null, regimes: [regime_general, agirc_arrco]}
+
+  marin:
+    libelle: Marin professionnel
+    periodes:
+      - {debut: 1930, fin: null, regimes: [marins]}
+
+  mineur:
+    libelle: Mineur
+    periodes:
+      - {debut: 1930, fin: 2010, regimes: [mines]}
+      - {debut: 2011, fin: null, regimes: [regime_general, agirc_arrco]}
+
+  clerc_de_notaire:
+    libelle: Clerc ou employé de notaire
+    periodes:
+      - {debut: 1937, fin: null, regimes: [crpcen]}
+
+  agent_banque_de_france:
+    libelle: Agent titulaire de la Banque de France
+    periodes:
+      - {debut: 1930, fin: null, regimes: [banque_de_france]}
+
+  personnel_opera:
+    libelle: Personnel de l'Opéra national de Paris
+    periodes:
+      - {debut: 1930, fin: 2022, regimes: [opera_de_paris]}
+      - {debut: 2023, fin: null, regimes: [regime_general, agirc_arrco]}
+
+  personnel_comedie_francaise:
+    libelle: Personnel de la Comédie-Française
+    periodes:
+      - {debut: 1930, fin: 2022, regimes: [comedie_francaise]}
+      - {debut: 2023, fin: null, regimes: [regime_general, agirc_arrco]}
+
+  sans_activite:
+    libelle: Sans activité professionnelle
+    periodes:
+      - {debut: 1930, fin: null, regimes: []}
+    note: >-
+      Aucune cotisation, donc aucun droit dans un système notionnel pur.
+      Le système actuel accorde au contraire des trimestres au titre de
+      l'AVPF, du chômage ou de la maladie : c'est l'un des écarts les plus
+      importants entre les scénarios.

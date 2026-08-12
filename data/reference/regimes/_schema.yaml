@@ -1,0 +1,71 @@
+# Schéma commun des fiches de régime
+# ===================================
+# Chaque fichier regimes/*.yaml (hors celui-ci) contient une clé `regimes`
+# qui est une liste de fiches conformes à ce schéma. Le chargeur
+# src/retraite_notionnelle/donnees/regimes.py valide contre ce schéma.
+
+schema_version: 1
+
+champs_regime:
+  code:        "identifiant court, stable, en minuscules (clé primaire)"
+  nom:         "libellé complet"
+  famille:     "base_prive | complementaire_prive | fonction_publique | special | non_salarie | agricole | liberal | additionnel_capitalise"
+  source_id:   "identifiant du jeu de données dans data/sources.yaml"
+  fiabilite:   "haute | moyenne | estimee — niveau de certification des paramètres"
+  creation:    "année de création du régime"
+  fermeture:   "année de fermeture aux nouveaux entrants (null si ouvert)"
+  extinction:  "année de disparition totale du régime (null si vivant)"
+  succede_a:   "liste de codes de régimes auxquels celui-ci succède"
+  integre_dans: "code du régime absorbant, le cas échéant"
+  population:  "description de la population couverte"
+  hors_repartition: "true si le régime est en capitalisation (exclu des comptes notionnels)"
+  periodes:    "liste de fiches de paramètres, cf. champs_periode"
+
+champs_periode:
+  debut: "première année d'application (incluse)"
+  fin:   "dernière année d'application (incluse), null si toujours en vigueur"
+
+  type_calcul:
+    description: "mode de liquidation en vigueur"
+    valeurs:
+      annuites:     "taux × salaire de référence × (durée validée / durée requise)"
+      points:       "nombre de points × valeur de service du point"
+      forfaitaire:  "montant forfaitaire, éventuellement proratisé"
+      mixte:        "part forfaitaire + part proportionnelle (ex. agricoles)"
+
+  age_ouverture:  "âge minimal de liquidation (années, décimales admises)"
+  age_taux_plein: "âge d'annulation de la décote / du taux plein d'office"
+  duree_requise_trimestres: "durée d'assurance requise pour le taux plein (null si sans objet)"
+  taux_plein: "taux de liquidation maximal (0.50 = 50 %)"
+
+  salaire_reference:
+    description: "assiette de calcul du salaire de référence"
+    valeurs: ["dernier_salaire", "derniers_6_mois", "10_meilleures_annees",
+              "25_meilleures_annees", "carriere_entiere", "sans_objet"]
+
+  assiette:
+    description: "borne d'assiette des cotisations"
+    valeurs: ["plafonnee", "deplafonnee", "tranche_1", "tranche_2", "tranche_a",
+              "tranche_b", "tranche_c", "hors_primes", "primes_uniquement", "forfaitaire"]
+
+  taux_cotisation_retraite:
+    description: >-
+      Taux TOTAL de cotisation retraite (part salarié + part employeur, ou part
+      personnelle pour les non-salariés) affecté à ce régime sur cette assiette.
+      C'est la grandeur utilisée pour alimenter le compte notionnel lorsque le
+      paramètre `source_cotisations = taux_historiques`.
+    unite: "fraction de l'assiette"
+
+  decote_par_trimestre: "abattement par trimestre manquant (fraction, null si aucun)"
+  surcote_par_trimestre: "majoration par trimestre supplémentaire (fraction, null si aucune)"
+
+  avantages_non_contributifs:
+    description: >-
+      Liste des droits gratuits en vigueur sur la période. Tous sont NEUTRALISÉS
+      dans les scénarios notionnels ; ils ne sont conservés que pour la
+      reconstitution du scénario « système actuel ».
+    valeurs_usuelles: ["minimum_contributif", "minimum_garanti", "aspa",
+                       "majoration_enfants", "mda", "avpf", "bonifications",
+                       "periodes_assimilees", "categorie_active", "reversion"]
+
+  notes: "texte libre — précisions, ruptures, renvois aux textes"

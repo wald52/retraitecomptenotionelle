@@ -1,0 +1,236 @@
+# Régimes de base des salariés du secteur privé, 1930 -> aujourd'hui
+# Conforme à regimes/_schema.yaml
+regimes:
+
+  - code: assurances_sociales
+    nom: Assurances sociales (lois du 5 avril 1928 et du 30 avril 1930)
+    famille: base_prive
+    source_id: legifrance_textes
+    fiabilite: estimee
+    creation: 1930
+    fermeture: 1945
+    extinction: 1945
+    succede_a: []
+    integre_dans: regime_general
+    population: >-
+      Salariés de l'industrie et du commerce sous plafond de salaire.
+      Régime en CAPITALISATION individuelle, ruiné par l'inflation des
+      années 1940 : c'est précisément son échec qui motive le passage à la
+      répartition.
+    hors_repartition: true
+    periodes:
+      - debut: 1930
+        fin: 1945
+        type_calcul: points
+        age_ouverture: 60
+        age_taux_plein: 60
+        duree_requise_trimestres: null
+        taux_plein: null
+        salaire_reference: sans_objet
+        assiette: plafonnee
+        taux_cotisation_retraite: 0.08
+        decote_par_trimestre: null
+        surcote_par_trimestre: null
+        avantages_non_contributifs: []
+        notes: >-
+          Cotisation 4 % salarié + 4 % employeur, dont une fraction seulement
+          affectée à la vieillesse. Les droits acquis ont été repris par le
+          régime général en 1945 sous forme de « rentes des assurances
+          sociales ». Régime capitalisé : hors périmètre notionnel, mais
+          conservé au catalogue pour dater le point de départ des carrières.
+
+  - code: avts
+    nom: Allocation aux vieux travailleurs salariés (loi du 14 mars 1941)
+    famille: base_prive
+    source_id: legifrance_textes
+    fiabilite: estimee
+    creation: 1941
+    fermeture: 1945
+    extinction: 1945
+    succede_a: [assurances_sociales]
+    integre_dans: regime_general
+    population: Salariés âgés sans ressources suffisantes.
+    hors_repartition: false
+    periodes:
+      - debut: 1941
+        fin: 1945
+        type_calcul: forfaitaire
+        age_ouverture: 65
+        age_taux_plein: 65
+        duree_requise_trimestres: null
+        taux_plein: null
+        salaire_reference: sans_objet
+        assiette: plafonnee
+        taux_cotisation_retraite: 0.08
+        decote_par_trimestre: null
+        surcote_par_trimestre: null
+        avantages_non_contributifs: [minimum_vieillesse]
+        notes: >-
+          PREMIER MÉCANISME EN RÉPARTITION : les cotisations des actifs
+          financent immédiatement les allocations des retraités. C'est la date
+          retenue par défaut comme origine du système par répartition
+          (paramètre `annee_debut_repartition`, modifiable à 1945).
+          Prestation forfaitaire sous condition de ressources : intégralement
+          non contributive, donc neutralisée dans les scénarios notionnels.
+
+  - code: regime_general
+    nom: Régime général d'assurance vieillesse (CNAV)
+    famille: base_prive
+    source_id: cnav_baremes
+    fiabilite: moyenne
+    creation: 1945
+    fermeture: null
+    extinction: null
+    succede_a: [assurances_sociales, avts]
+    integre_dans: null
+    population: >-
+      Salariés du secteur privé, et depuis 2018 les travailleurs indépendants
+      (ex-RSI) pour leur retraite de base.
+    hors_repartition: false
+    periodes:
+
+      - debut: 1945
+        fin: 1971
+        type_calcul: annuites
+        age_ouverture: 60
+        age_taux_plein: 65
+        duree_requise_trimestres: 120
+        taux_plein: 0.40
+        salaire_reference: 10_meilleures_annees
+        assiette: plafonnee
+        taux_cotisation_retraite: 0.085
+        decote_par_trimestre: null
+        surcote_par_trimestre: null
+        avantages_non_contributifs: [minimum_vieillesse, majoration_enfants, reversion]
+        notes: >-
+          Ordonnances des 4 et 19 octobre 1945. Taux de 20 % à 60 ans porté à
+          40 % à 65 ans par majorations d'ajournement (4 points par année
+          différée). Durée maximale de 30 ans. Le taux de cotisation vieillesse
+          évolue de 8 % (1946) à environ 8,75 % (1971) : la valeur portée ici
+          est une moyenne de période, à affiner à partir des Comptes de la
+          Sécurité sociale.
+
+      - debut: 1972
+        fin: 1982
+        type_calcul: annuites
+        age_ouverture: 60
+        age_taux_plein: 65
+        duree_requise_trimestres: 150
+        taux_plein: 0.50
+        salaire_reference: 10_meilleures_annees
+        assiette: plafonnee
+        taux_cotisation_retraite: 0.104
+        decote_par_trimestre: 0.05
+        surcote_par_trimestre: null
+        avantages_non_contributifs:
+          [minimum_vieillesse, majoration_enfants, mda, reversion, periodes_assimilees]
+        notes: >-
+          Loi Boulin du 31 décembre 1971 : taux plein porté à 50 %, durée
+          requise à 150 trimestres (37,5 ans), salaire de référence sur les
+          10 meilleures années. Abattement de 5 points par année d'anticipation
+          avant 65 ans.
+
+      - debut: 1983
+        fin: 1993
+        type_calcul: annuites
+        age_ouverture: 60
+        age_taux_plein: 65
+        duree_requise_trimestres: 150
+        taux_plein: 0.50
+        salaire_reference: 10_meilleures_annees
+        assiette: plafonnee
+        taux_cotisation_retraite: 0.1445
+        decote_par_trimestre: 0.0125
+        surcote_par_trimestre: null
+        avantages_non_contributifs:
+          [minimum_contributif, minimum_vieillesse, majoration_enfants, mda,
+           avpf, reversion, periodes_assimilees]
+        notes: >-
+          ORDONNANCE DU 26 MARS 1982 : taux plein ouvert dès 60 ans pour
+          150 trimestres. C'est l'abaissement d'âge de 65 à 60 ans que le
+          modèle traite comme une anticipation de 5 ans (cf. cliquet dans
+          legislation/ages_reference.csv).
+
+      - debut: 1994
+        fin: 2003
+        type_calcul: annuites
+        age_ouverture: 60
+        age_taux_plein: 65
+        duree_requise_trimestres: 160
+        taux_plein: 0.50
+        salaire_reference: 25_meilleures_annees
+        assiette: plafonnee
+        taux_cotisation_retraite: 0.1615
+        decote_par_trimestre: 0.0125
+        surcote_par_trimestre: null
+        avantages_non_contributifs:
+          [minimum_contributif, minimum_vieillesse, majoration_enfants, mda,
+           avpf, reversion, periodes_assimilees]
+        notes: >-
+          Réforme Balladur (loi du 22 juillet 1993) : montée en charge de 150 à
+          160 trimestres et de 10 à 25 meilleures années entre 1994 et 2008
+          selon la génération ; indexation des salaires portés au compte et des
+          pensions sur les prix. La durée indiquée est la cible ; la montée en
+          charge par génération est portée par legislation/duree_requise.csv.
+
+      - debut: 2004
+        fin: 2010
+        type_calcul: annuites
+        age_ouverture: 60
+        age_taux_plein: 65
+        duree_requise_trimestres: 164
+        taux_plein: 0.50
+        salaire_reference: 25_meilleures_annees
+        assiette: plafonnee
+        taux_cotisation_retraite: 0.1645
+        decote_par_trimestre: 0.0125
+        surcote_par_trimestre: 0.0075
+        avantages_non_contributifs:
+          [minimum_contributif, minimum_vieillesse, majoration_enfants, mda,
+           avpf, reversion, periodes_assimilees, carriere_longue]
+        notes: >-
+          Loi Fillon du 21 août 2003 : création de la surcote, décote allégée,
+          dispositif « carrières longues », durée indexée sur l'espérance de vie.
+
+      - debut: 2011
+        fin: 2022
+        type_calcul: annuites
+        age_ouverture: 62
+        age_taux_plein: 67
+        duree_requise_trimestres: 172
+        taux_plein: 0.50
+        salaire_reference: 25_meilleures_annees
+        assiette: plafonnee
+        taux_cotisation_retraite: 0.1735
+        decote_par_trimestre: 0.0125
+        surcote_par_trimestre: 0.0125
+        avantages_non_contributifs:
+          [minimum_contributif, minimum_vieillesse, majoration_enfants, mda,
+           avpf, reversion, periodes_assimilees, carriere_longue, penibilite]
+        notes: >-
+          Loi du 9 novembre 2010 (âges 60->62 et 65->67, montée en charge
+          2011-2017) puis loi du 20 janvier 2014 (durée 43 ans pour la
+          génération 1973). Les âges affichés sont les cibles.
+
+      - debut: 2023
+        fin: null
+        type_calcul: annuites
+        age_ouverture: 64
+        age_taux_plein: 67
+        duree_requise_trimestres: 172
+        taux_plein: 0.50
+        salaire_reference: 25_meilleures_annees
+        assiette: plafonnee
+        taux_cotisation_retraite: 0.1787
+        decote_par_trimestre: 0.0125
+        surcote_par_trimestre: 0.0125
+        avantages_non_contributifs:
+          [minimum_contributif, minimum_vieillesse, majoration_enfants, mda,
+           avpf, reversion, periodes_assimilees, carriere_longue, penibilite]
+        notes: >-
+          Loi du 14 avril 2023 : âge d'ouverture 62 -> 64 ans (générations
+          1961 T3 à 1968), accélération Touraine (172 trimestres dès la
+          génération 1965). Taux de cotisation vieillesse 2025 :
+          plafonnée 6,90 % salarié + 8,55 % employeur ; déplafonnée
+          0,40 % + 2,02 %. Le taux porté ici agrège plafonnée et déplafonnée
+          rapportées à l'assiette plafonnée pour un salaire au plafond.

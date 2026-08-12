@@ -1,0 +1,107 @@
+# Indice des prix à la consommation — variation annuelle moyenne, France
+# source_id: insee_ipc_long  (cf. data/sources.yaml)
+# unite: taux de variation annuel moyen, en fraction (0.052 = +5,2 %)
+# fiabilite: certifiee | haute | moyenne | estimee
+#   haute    = valeur publiée INSEE, recopiée, à recontrôler par scripts/verifier_donnees.py
+#   moyenne  = valeur publiée mais champ/base susceptible de rupture (changements de base,
+#              passage France métropolitaine -> France entière)
+#   estimee  = reconstitution historique (période 1930-1949, ruptures monétaires)
+# ATTENTION : tant que scripts/verifier_donnees.py n'a pas apposé le statut
+# `certifiee`, ces valeurs doivent être considérées comme provisoires.
+annee,variation,fiabilite
+1930,-0.025,estimee
+1931,-0.047,estimee
+1932,-0.086,estimee
+1933,-0.042,estimee
+1934,-0.057,estimee
+1935,-0.080,estimee
+1936,0.089,estimee
+1937,0.257,estimee
+1938,0.136,estimee
+1939,0.070,estimee
+1940,0.177,estimee
+1941,0.215,estimee
+1942,0.202,estimee
+1943,0.266,estimee
+1944,0.215,estimee
+1945,0.483,estimee
+1946,0.519,estimee
+1947,0.492,estimee
+1948,0.587,estimee
+1949,0.132,estimee
+1950,0.101,moyenne
+1951,0.162,moyenne
+1952,0.119,moyenne
+1953,-0.018,moyenne
+1954,0.004,moyenne
+1955,0.010,moyenne
+1956,0.020,moyenne
+1957,0.035,moyenne
+1958,0.151,moyenne
+1959,0.062,moyenne
+1960,0.035,moyenne
+1961,0.033,moyenne
+1962,0.048,moyenne
+1963,0.048,moyenne
+1964,0.034,moyenne
+1965,0.026,moyenne
+1966,0.027,moyenne
+1967,0.027,moyenne
+1968,0.045,moyenne
+1969,0.064,moyenne
+1970,0.052,haute
+1971,0.055,haute
+1972,0.062,haute
+1973,0.073,haute
+1974,0.137,haute
+1975,0.118,haute
+1976,0.096,haute
+1977,0.094,haute
+1978,0.091,haute
+1979,0.108,haute
+1980,0.136,haute
+1981,0.134,haute
+1982,0.118,haute
+1983,0.096,haute
+1984,0.074,haute
+1985,0.058,haute
+1986,0.027,haute
+1987,0.031,haute
+1988,0.027,haute
+1989,0.036,haute
+1990,0.034,haute
+1991,0.032,haute
+1992,0.024,haute
+1993,0.021,haute
+1994,0.017,haute
+1995,0.018,haute
+1996,0.020,haute
+1997,0.012,haute
+1998,0.007,haute
+1999,0.005,haute
+2000,0.017,haute
+2001,0.017,haute
+2002,0.019,haute
+2003,0.021,haute
+2004,0.021,haute
+2005,0.018,haute
+2006,0.016,haute
+2007,0.015,haute
+2008,0.028,haute
+2009,0.001,haute
+2010,0.015,haute
+2011,0.021,haute
+2012,0.020,haute
+2013,0.009,haute
+2014,0.005,haute
+2015,0.000,haute
+2016,0.002,haute
+2017,0.010,haute
+2018,0.018,haute
+2019,0.011,haute
+2020,0.005,haute
+2021,0.016,haute
+2022,0.052,haute
+2023,0.049,haute
+2024,0.020,haute
+2025,0.010,estimee

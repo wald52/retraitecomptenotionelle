@@ -1,0 +1,110 @@
+# Productivité réelle du travail — variation annuelle, France
+# source_id: insee_productivite (valeur ajoutée en volume par personne employée)
+# unite: taux de variation annuel EN TERMES RÉELS, en fraction
+# fiabilite: haute | moyenne | estimee
+#
+# AVERTISSEMENT DE FIABILITÉ
+# --------------------------
+# Série reconstituée. La productivité par tête et la productivité horaire
+# divergent fortement en France à partir de 1982 (réduction du temps de travail,
+# puis 35 heures) : le choix de l'indicateur change matériellement le résultat
+# de l'indexation. Le concept retenu ici est la productivité PAR TÊTE.
+# Le paramètre `indicateur_productivite` permet de basculer sur l'horaire dès
+# que la série correspondante est intégrée.
+annee,variation_reelle,fiabilite
+1930,-0.030,estimee
+1931,-0.040,estimee
+1932,-0.020,estimee
+1933,0.030,estimee
+1934,0.000,estimee
+1935,-0.010,estimee
+1936,0.020,estimee
+1937,0.040,estimee
+1938,0.010,estimee
+1939,0.030,estimee
+1940,-0.080,estimee
+1941,-0.050,estimee
+1942,-0.030,estimee
+1943,-0.020,estimee
+1944,-0.100,estimee
+1945,0.060,estimee
+1946,0.140,estimee
+1947,0.080,estimee
+1948,0.070,estimee
+1949,0.090,estimee
+1950,0.060,estimee
+1951,0.050,estimee
+1952,0.030,estimee
+1953,0.035,estimee
+1954,0.045,estimee
+1955,0.050,estimee
+1956,0.040,estimee
+1957,0.050,estimee
+1958,0.030,estimee
+1959,0.035,estimee
+1960,0.060,estimee
+1961,0.050,estimee
+1962,0.055,estimee
+1963,0.045,estimee
+1964,0.050,estimee
+1965,0.045,estimee
+1966,0.050,estimee
+1967,0.045,estimee
+1968,0.045,moyenne
+1969,0.060,moyenne
+1970,0.050,moyenne
+1971,0.045,moyenne
+1972,0.045,moyenne
+1973,0.040,moyenne
+1974,0.025,moyenne
+1975,0.010,moyenne
+1976,0.040,moyenne
+1977,0.025,moyenne
+1978,0.030,moyenne
+1979,0.028,moyenne
+1980,0.010,moyenne
+1981,0.012,moyenne
+1982,0.022,moyenne
+1983,0.018,moyenne
+1984,0.023,moyenne
+1985,0.022,moyenne
+1986,0.020,moyenne
+1987,0.021,moyenne
+1988,0.033,moyenne
+1989,0.025,moyenne
+1990,0.017,haute
+1991,0.012,haute
+1992,0.017,haute
+1993,0.003,haute
+1994,0.019,haute
+1995,0.011,haute
+1996,0.006,haute
+1997,0.017,haute
+1998,0.017,haute
+1999,0.013,haute
+2000,0.013,haute
+2001,0.003,haute
+2002,0.010,haute
+2003,0.009,haute
+2004,0.017,haute
+2005,0.011,haute
+2006,0.014,haute
+2007,0.006,haute
+2008,-0.006,haute
+2009,-0.014,haute
+2010,0.017,haute
+2011,0.011,haute
+2012,0.000,haute
+2013,0.007,haute
+2014,0.005,haute
+2015,0.010,haute
+2016,0.004,haute
+2017,0.010,haute
+2018,0.007,haute
+2019,0.004,haute
+2020,-0.015,haute
+2021,0.020,haute
+2022,-0.011,haute
+2023,-0.005,haute
+2024,0.002,haute
+2025,0.003,estimee

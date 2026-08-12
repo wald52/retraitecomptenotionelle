@@ -1,0 +1,391 @@
+# Manifeste des sources institutionnelles
+# ---------------------------------------
+# Chaque jeu de données du dépôt référence une entrée de ce manifeste via son
+# champ `source_id`. Le manifeste est la seule autorité sur « d'où vient ce
+# chiffre ». Aucune donnée ne doit entrer dans data/reference/ sans y figurer.
+#
+# Champ `acces` :
+#   api      -> récupérable automatiquement (voir scripts/fetch/)
+#   fichier  -> fichier téléchargeable (xls/csv/pdf) à déposer dans data/brut/
+#   document -> publication (rapport, JO, décret) à saisir manuellement
+#
+# Champ `statut_integration` :
+#   automatise -> data/reference/ est régénéré par un script
+#   saisi      -> valeurs saisies à la main depuis la source, à certifier
+#   a_faire    -> source identifiée, données pas encore intégrées
+
+version_manifeste: "2026-08-12"
+
+institutions:
+
+  insee:
+    nom: Institut national de la statistique et des études économiques
+    role: >-
+      Indice des prix à la consommation, salaire moyen par tête, productivité,
+      comptes nationaux, tables de mortalité et projections démographiques.
+    jeux:
+      - id: insee_ipc_long
+        titre: Indice des prix à la consommation, série annuelle depuis 1901
+        url: https://www.insee.fr/fr/statistiques/serie/001763852
+        complement_url: https://www.insee.fr/fr/information/2417794
+        acces: fichier
+        statut_integration: saisi
+        cible: data/reference/macro/ipc_annuel.csv
+        note: >-
+          L'API Melodi (DS_IPC_PRINC) ne remonte pas avant les années 1990 ;
+          la série longue provient du tableau « L'indice des prix à la
+          consommation depuis 1901 » et du convertisseur franc/euro.
+
+      - id: insee_ipc_melodi
+        titre: Indice des prix à la consommation (jeu principal)
+        url: https://api.insee.fr/melodi/data/DS_IPC_PRINC
+        acces: api
+        statut_integration: automatise
+        cible: data/brut/insee_ipc_melodi.json
+        note: Utilisé pour vérifier la partie récente de la série longue.
+
+      - id: insee_smpt
+        titre: Salaire moyen par tête (SMPT), comptes nationaux annuels
+        url: https://www.insee.fr/fr/statistiques/serie/010548500
+        acces: fichier
+        statut_integration: saisi
+        cible: data/reference/macro/salaire_moyen.csv
+
+      - id: insee_productivite
+        titre: Productivité du travail (valeur ajoutée par tête et par heure)
+        url: https://www.insee.fr/fr/statistiques/serie/010565708
+        acces: fichier
+        statut_integration: saisi
+        cible: data/reference/macro/productivite.csv
+
+      - id: insee_deces_mortalite
+        titre: Décès et mortalité — séries longues
+        url: https://api.insee.fr/melodi/data/DS_DECES_MORTALITE_SERIES
+        acces: api
+        statut_integration: automatise
+        cible: data/brut/insee_mortalite_series.json
+
+      - id: insee_tables_mortalite
+        titre: Tables de mortalité du moment (TD/TV) et tables par génération
+        url: https://www.insee.fr/fr/statistiques/5390366
+        complement_url: https://www.insee.fr/fr/statistiques/fichier/2416631/
+        acces: fichier
+        statut_integration: saisi
+        cible: data/reference/mortalite/quotients_periode.csv
+
+      - id: insee_projections
+        titre: Projections de population 2021-2070
+        url: https://www.insee.fr/fr/statistiques/6652873
+        acces: fichier
+        statut_integration: saisi
+        cible: data/reference/mortalite/gains_esperance_vie.csv
+
+  cor:
+    nom: Conseil d'orientation des retraites
+    role: >-
+      Projections du système de retraite, cas types, paramètres historiques
+      par régime, taux de remplacement, rendements.
+    jeux:
+      - id: cor_rapport_annuel
+        titre: Rapport annuel du COR — évolutions et perspectives des retraites
+        url: https://www.cor-retraites.fr/documents-rapports
+        acces: document
+        statut_integration: saisi
+        cible: data/reference/regimes/*.yaml
+      - id: cor_cas_types
+        titre: Cas types du COR (carrières de référence)
+        url: https://www.cor-retraites.fr/simulateurs
+        acces: document
+        statut_integration: saisi
+        cible: data/reference/legislation/cas_types.yaml
+      - id: cor_panorama_regimes
+        titre: Panorama des régimes de retraite français (fiches thématiques)
+        url: https://www.cor-retraites.fr/fiches-reperes
+        acces: document
+        statut_integration: saisi
+
+  csr:
+    nom: Comité de suivi des retraites
+    role: Avis annuels sur le pilotage, indicateurs de suivi.
+    jeux:
+      - id: csr_avis_annuel
+        titre: Avis annuel du Comité de suivi des retraites
+        url: https://www.strategie.gouv.fr/comite-de-suivi-des-retraites
+        acces: document
+        statut_integration: a_faire
+
+  drees:
+    nom: Direction de la recherche, des études, de l'évaluation et des statistiques
+    role: >-
+      Panorama « Les retraités et les retraites », EIR/EIC, modèle TRAJECTOiRE,
+      effectifs et montants de pensions par régime.
+    jeux:
+      - id: drees_panorama_retraites
+        titre: Les retraités et les retraites (édition annuelle)
+        url: https://drees.solidarites-sante.gouv.fr/publications-communique-de-presse/panoramas-de-la-drees/les-retraites-et-les-retraites
+        acces: fichier
+        statut_integration: saisi
+        cible: data/reference/regimes/effectifs_retraites.csv
+      - id: drees_open_data
+        titre: Portail open data DREES
+        url: https://data.drees.solidarites-sante.gouv.fr/
+        acces: api
+        statut_integration: a_faire
+      - id: drees_eic
+        titre: Échantillon interrégimes de cotisants (EIC)
+        url: https://drees.solidarites-sante.gouv.fr/sources-outils-et-enquetes/lechantillon-interregimes-de-cotisants-eic
+        acces: document
+        statut_integration: a_faire
+        note: >-
+          Source de référence pour les carrières individuelles rétrospectives.
+          Accès sous convention (CASD) — non redistribuable dans ce dépôt.
+
+  cnav:
+    nom: Caisse nationale d'assurance vieillesse
+    role: Régime général — paramètres, barèmes, statistiques.
+    jeux:
+      - id: cnav_baremes
+        titre: Barèmes et paramètres du régime général (circulaires)
+        url: https://www.legislation.cnav.fr/
+        acces: document
+        statut_integration: saisi
+        cible: data/reference/regimes/regime_general.yaml
+      - id: cnav_statistiques
+        titre: Statistiques et open data CNAV
+        url: https://www.statistiques-recherches.cnav.fr/
+        acces: fichier
+        statut_integration: a_faire
+
+  sre:
+    nom: Service des retraites de l'État
+    role: Fonction publique d'État — pensions civiles et militaires.
+    jeux:
+      - id: sre_rapport_annuel
+        titre: Rapport annuel du Service des retraites de l'État
+        url: https://retraitesdeletat.gouv.fr/
+        acces: document
+        statut_integration: saisi
+        cible: data/reference/regimes/fonction_publique_etat.yaml
+
+  caisse_des_depots:
+    nom: Caisse des dépôts (gestionnaire CNRACL, Ircantec, RAFP, FSPOEIE)
+    role: Régimes de la fonction publique territoriale et hospitalière, régimes gérés.
+    jeux:
+      - id: cdc_cnracl
+        titre: Paramètres et statistiques CNRACL
+        url: https://www.cnracl.retraites.fr/
+        acces: document
+        statut_integration: saisi
+        cible: data/reference/regimes/cnracl.yaml
+      - id: cdc_open_data
+        titre: Open data de la Caisse des dépôts — retraites
+        url: https://www.caissedesdepots.fr/
+        acces: fichier
+        statut_integration: a_faire
+
+  dss:
+    nom: Direction de la Sécurité sociale
+    role: >-
+      Comptes de la Sécurité sociale, taux de cotisation historiques,
+      annexes PLFSS.
+    jeux:
+      - id: dss_comptes_secu
+        titre: Rapports de la Commission des comptes de la Sécurité sociale
+        url: https://www.securite-sociale.fr/accueil/rapports-et-statistiques
+        acces: document
+        statut_integration: saisi
+        cible: data/reference/regimes/taux_cotisation.csv
+
+  cour_des_comptes:
+    nom: Cour des comptes
+    role: Rapports sur les régimes de retraite, régimes spéciaux, équilibre financier.
+    jeux:
+      - id: cdc_rapports_retraites
+        titre: Rapports publics thématiques sur les retraites
+        url: https://www.ccomptes.fr/fr/recherche?search=retraites
+        acces: document
+        statut_integration: saisi
+
+  agirc_arrco:
+    nom: Agirc-Arrco
+    role: >-
+      Retraite complémentaire des salariés du privé — valeurs d'achat et de
+      service du point, taux d'appel, historique Agirc / Arrco / Ircantec.
+    jeux:
+      - id: agirc_arrco_points
+        titre: Historique des valeurs du point Agirc, Arrco et Agirc-Arrco
+        url: https://www.agirc-arrco.fr/
+        acces: document
+        statut_integration: saisi
+        cible: data/reference/regimes/agirc_arrco_points.csv
+
+  union_retraite:
+    nom: Union Retraite / Info-Retraite
+    role: >-
+      Référentiel interrégimes, relevé de carrière unique, EIG. Point d'entrée
+      pour l'alimentation d'une simulation individuelle.
+    jeux:
+      - id: info_retraite_referentiel
+        titre: Répertoire général des carrières uniques (RGCU) — documentation
+        url: https://www.info-retraite.fr/
+        acces: document
+        statut_integration: a_faire
+        note: >-
+          Le RGCU n'est pas ouvert au public. L'import individuel se fait via
+          le relevé de carrière que l'usager télécharge lui-même
+          (voir scripts/import_releve_carriere.py).
+
+  msa:
+    nom: Caisse centrale de la Mutualité sociale agricole (CCMSA)
+    role: Régimes des non-salariés et salariés agricoles.
+    jeux:
+      - id: msa_parametres
+        titre: Paramètres des régimes agricoles (RCO, points, AVA)
+        url: https://www.msa.fr/
+        acces: document
+        statut_integration: saisi
+        cible: data/reference/regimes/msa_non_salaries.yaml
+
+  cnavpl:
+    nom: Caisse nationale d'assurance vieillesse des professions libérales
+    role: Régime de base des libéraux (en points) et sections professionnelles.
+    jeux:
+      - id: cnavpl_parametres
+        titre: Valeurs du point du régime de base CNAVPL
+        url: https://www.cnavpl.fr/
+        acces: document
+        statut_integration: saisi
+        cible: data/reference/regimes/cnavpl.yaml
+
+  cnbf:
+    nom: Caisse nationale des barreaux français
+    role: Régime de retraite des avocats.
+    jeux:
+      - id: cnbf_parametres
+        titre: Paramètres du régime de base et complémentaire des avocats
+        url: https://www.cnbf.fr/
+        acces: document
+        statut_integration: saisi
+        cible: data/reference/regimes/cnbf.yaml
+
+  dgafp:
+    nom: Direction générale de l'administration et de la fonction publique
+    role: Rapport annuel sur l'état de la fonction publique, rémunérations.
+    jeux:
+      - id: dgafp_rapport_annuel
+        titre: Rapport annuel sur l'état de la fonction publique
+        url: https://www.fonction-publique.gouv.fr/
+        acces: fichier
+        statut_integration: a_faire
+
+  direction_budget:
+    nom: Direction du Budget
+    role: Compte d'affectation spéciale « Pensions », programmes budgétaires.
+    jeux:
+      - id: db_cas_pensions
+        titre: Compte d'affectation spéciale Pensions — documents budgétaires
+        url: https://www.budget.gouv.fr/
+        acces: document
+        statut_integration: a_faire
+
+  erafp:
+    nom: Établissement de retraite additionnelle de la fonction publique
+    role: >-
+      RAFP — régime par points obligatoire assis sur les primes.
+      Traité hors comptes notionnels (compartiment capitalisation).
+    jeux:
+      - id: erafp_parametres
+        titre: Valeurs d'acquisition et de service du point RAFP
+        url: https://www.rafp.fr/
+        acces: document
+        statut_integration: saisi
+        cible: data/reference/regimes/rafp.yaml
+
+  ircantec:
+    nom: Ircantec
+    role: Retraite complémentaire des agents non titulaires du public.
+    jeux:
+      - id: ircantec_points
+        titre: Historique des valeurs du point Ircantec
+        url: https://www.ircantec.retraites.fr/
+        acces: document
+        statut_integration: saisi
+        cible: data/reference/regimes/ircantec.yaml
+
+  regimes_speciaux:
+    nom: Caisses des régimes spéciaux (CPRPSNCF, CRPRATP, CNIEG, ENIM, CRPCEN, Banque de France, Opéra, Comédie-Française…)
+    role: Paramètres propres à chaque régime spécial, y compris régimes fermés.
+    jeux:
+      - id: rs_cprpsncf
+        titre: Règlement du régime spécial SNCF
+        url: https://www.cprpsncf.fr/
+        acces: document
+        statut_integration: saisi
+        cible: data/reference/regimes/sncf.yaml
+      - id: rs_crpratp
+        titre: Règlement du régime spécial RATP
+        url: https://www.crpratp.fr/
+        acces: document
+        statut_integration: saisi
+        cible: data/reference/regimes/ratp.yaml
+      - id: rs_cnieg
+        titre: Régime des industries électriques et gazières
+        url: https://www.cnieg.fr/
+        acces: document
+        statut_integration: saisi
+        cible: data/reference/regimes/ieg.yaml
+      - id: rs_enim
+        titre: Établissement national des invalides de la marine
+        url: https://www.enim.eu/
+        acces: document
+        statut_integration: saisi
+        cible: data/reference/regimes/marins.yaml
+
+  urssaf:
+    nom: Urssaf Caisse nationale
+    role: >-
+      Plafond de la Sécurité sociale, taux de cotisation en vigueur,
+      séries historiques d'assiettes.
+    jeux:
+      - id: urssaf_pss
+        titre: Plafond annuel de la Sécurité sociale — série historique
+        url: https://www.urssaf.fr/accueil/outils-documentation/taux-baremes/plafonds-securite-sociale.html
+        acces: fichier
+        statut_integration: saisi
+        cible: data/reference/macro/plafond_securite_sociale.csv
+      - id: urssaf_taux
+        titre: Taux de cotisations du régime général
+        url: https://www.urssaf.fr/accueil/outils-documentation/taux-baremes.html
+        acces: fichier
+        statut_integration: saisi
+        cible: data/reference/regimes/taux_cotisation.csv
+      - id: urssaf_open_data
+        titre: Open data Urssaf
+        url: https://open.urssaf.fr/
+        acces: api
+        statut_integration: a_faire
+
+  legifrance:
+    nom: Légifrance / Journal officiel
+    role: >-
+      Texte des lois et décrets fondateurs et modificatifs (1930, 1941, 1945,
+      1971, 1982, 1993, 2003, 2010, 2014, 2023…). Source primaire des
+      paramètres législatifs historiques.
+    jeux:
+      - id: legifrance_textes
+        titre: Textes fondateurs et réformes des retraites
+        url: https://www.legifrance.gouv.fr/
+        acces: document
+        statut_integration: saisi
+        cible: data/reference/legislation/reformes.yaml
+
+  eurostat:
+    nom: Eurostat
+    role: Contrôle de cohérence sur l'inflation harmonisée et la productivité.
+    jeux:
+      - id: eurostat_hicp
+        titre: HICP — annual data
+        url: https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/prc_hicp_aind
+        acces: api
+        statut_integration: automatise
+        cible: data/brut/eurostat_hicp.json

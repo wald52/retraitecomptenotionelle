@@ -1,0 +1,61 @@
+# Espérances de vie observées et projetées, France
+# source_id: insee_deces_mortalite, insee_tables_mortalite, insee_projections
+# unite: années
+# sexe: H | F
+# fiabilite: haute (1946-2024 observé) | projetee (2025-2070, scénario central INSEE)
+#
+# USAGE DANS LE MODÈLE
+# --------------------
+# Ces espérances servent à CALIBRER une table de mortalité paramétrique de
+# Gompertz-Makeham (cf. src/retraite_notionnelle/moteur/mortalite.py) : pour
+# chaque couple (année, sexe) les paramètres b et c sont ajustés de manière à
+# reproduire e60 et e65, et a est fixé au niveau de mortalité accidentelle.
+# La table ainsi obtenue est une APPROXIMATION assumée, pas la table INSEE.
+# Elle est immédiatement remplaçable : dès qu'un fichier
+# mortalite/quotients_periode.csv (annee,sexe,age,qx) est présent, il prime
+# sur la calibration paramétrique.
+#
+# Les années intermédiaires sont interpolées linéairement par le chargeur.
+annee,sexe,e0,e60,e65,fiabilite
+1946,H,59.9,14.6,11.6,moyenne
+1946,F,65.2,17.4,13.9,moyenne
+1950,H,63.4,15.4,12.2,moyenne
+1950,F,69.2,18.4,14.6,moyenne
+1960,H,66.9,15.7,12.5,haute
+1960,F,73.6,19.5,15.6,haute
+1970,H,68.4,16.2,13.0,haute
+1970,F,75.9,20.8,16.8,haute
+1980,H,70.2,17.3,13.6,haute
+1980,F,78.4,22.4,18.2,haute
+1990,H,72.7,19.0,15.1,haute
+1990,F,81.0,24.2,19.8,haute
+2000,H,75.3,20.4,16.3,haute
+2000,F,82.8,25.6,21.0,haute
+2010,H,78.0,22.4,18.2,haute
+2010,F,84.7,27.2,22.6,haute
+2015,H,79.0,23.0,18.9,haute
+2015,F,85.1,27.4,22.8,haute
+2019,H,79.8,23.4,19.6,haute
+2019,F,85.6,27.8,23.6,haute
+2020,H,79.2,22.9,19.1,haute
+2020,F,85.2,27.4,23.2,haute
+2021,H,79.3,23.0,19.2,haute
+2021,F,85.4,27.5,23.3,haute
+2022,H,79.3,22.9,19.1,haute
+2022,F,85.2,27.3,23.1,haute
+2023,H,80.0,23.5,19.7,haute
+2023,F,85.7,27.8,23.6,haute
+2024,H,80.0,23.6,19.8,haute
+2024,F,85.6,27.8,23.6,haute
+2030,H,81.4,24.5,20.6,projetee
+2030,F,86.6,28.5,24.3,projetee
+2040,H,83.0,25.7,21.7,projetee
+2040,F,87.7,29.4,25.2,projetee
+2050,H,84.5,26.8,22.8,projetee
+2050,F,88.6,30.2,25.9,projetee
+2060,H,86.0,27.9,23.8,projetee
+2060,F,89.4,30.9,26.6,projetee
+2070,H,87.5,29.0,24.8,projetee
+2070,F,90.0,31.5,27.2,projetee
+2080,H,88.6,29.8,25.6,projetee
+2080,F,90.9,32.2,27.9,projetee

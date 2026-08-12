@@ -1,0 +1,99 @@
+# Plafond annuel de la Sécurité sociale (PASS)
+# source_id: urssaf_pss
+# unite: euros courants de l'année. Les valeurs antérieures à 2002 sont les
+#        plafonds en francs convertis au taux officiel 6,55957 FRF/EUR
+#        (conversion arithmétique, sans revalorisation ni déflation).
+# fiabilite:
+#   haute   (2002-2025) : valeurs publiées Urssaf
+#   moyenne (1968-2001) : plafonds en francs convertis, à recontrôler
+#   estimee (1945-1967) : RECONSTITUTION. Ces valeurs ne sont pas des plafonds
+#           publiés : elles sont rétropolées en indexant le plafond 1968 sur la
+#           série de salaire moyen (data/reference/macro/salaire_moyen.csv).
+#           À remplacer par les valeurs du JO avant tout usage officiel.
+#
+# Le plafond borne l'assiette du régime général et sépare les tranches des
+# régimes complémentaires : une erreur de plafond déplace mécaniquement la
+# frontière entre droits de base et droits complémentaires.
+annee,pass_eur,fiabilite
+1945,73,estimee
+1946,91,estimee
+1947,128,estimee
+1948,201,estimee
+1949,293,estimee
+1950,366,estimee
+1951,457,estimee
+1952,549,estimee
+1953,585,estimee
+1954,622,estimee
+1955,659,estimee
+1956,732,estimee
+1957,823,estimee
+1958,915,estimee
+1959,1006,estimee
+1960,1098,estimee
+1961,1189,estimee
+1962,1281,estimee
+1963,1372,estimee
+1964,1500,estimee
+1965,1610,estimee
+1966,1738,estimee
+1967,1866,estimee
+1968,2012,moyenne
+1969,2195,moyenne
+1970,2470,moyenne
+1971,2744,moyenne
+1972,3055,moyenne
+1973,3403,moyenne
+1974,3915,moyenne
+1975,4610,moyenne
+1976,5269,moyenne
+1977,6000,moyenne
+1978,6805,moyenne
+1979,7611,moyenne
+1980,8525,moyenne
+1981,9714,moyenne
+1982,11342,moyenne
+1983,12806,moyenne
+1984,14086,moyenne
+1985,15111,moyenne
+1986,16025,moyenne
+1987,16849,moyenne
+1988,17580,moyenne
+1989,18477,moyenne
+1990,19574,moyenne
+1991,20526,moyenne
+1992,21532,moyenne
+1993,22383,moyenne
+1994,22840,moyenne
+1995,23554,moyenne
+1996,24157,moyenne
+1997,24651,moyenne
+1998,25099,moyenne
+1999,25776,moyenne
+2000,26343,moyenne
+2001,26892,moyenne
+2002,28224,haute
+2003,29184,haute
+2004,29712,haute
+2005,30192,haute
+2006,31068,haute
+2007,32184,haute
+2008,33276,haute
+2009,34308,haute
+2010,34620,haute
+2011,35352,haute
+2012,36372,haute
+2013,37032,haute
+2014,37548,haute
+2015,38040,haute
+2016,38616,haute
+2017,39228,haute
+2018,39732,haute
+2019,40524,haute
+2020,41136,haute
+2021,41136,haute
+2022,41136,haute
+2023,43992,haute
+2024,46368,haute
+2025,47100,haute
+2026,48060,estimee

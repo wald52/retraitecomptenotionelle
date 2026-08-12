@@ -1,0 +1,109 @@
+# Salaire moyen par tête (SMPT) — variation annuelle nominale, ensemble de l'économie
+# source_id: insee_smpt (comptes nationaux annuels, base 2020)
+# unite: taux de variation annuel nominal, en fraction
+# fiabilite: haute | moyenne | estimee
+#
+# AVERTISSEMENT DE FIABILITÉ
+# --------------------------
+# Les comptes nationaux INSEE ne publient le SMPT en série continue que depuis
+# 1949 (base rétropolée). Avant 1949 la série est une reconstitution.
+# Sur 1949-1969 le champ (salariés du secteur marchand non agricole) diffère du
+# champ actuel : rupture de série. Ces valeurs doivent être remplacées par un
+# export certifié avant tout usage officiel (voir scripts/fetch/insee_smpt.py).
+annee,variation_nominale,fiabilite
+1930,-0.020,estimee
+1931,-0.030,estimee
+1932,-0.070,estimee
+1933,-0.040,estimee
+1934,-0.060,estimee
+1935,-0.075,estimee
+1936,0.150,estimee
+1937,0.290,estimee
+1938,0.140,estimee
+1939,0.080,estimee
+1940,0.150,estimee
+1941,0.180,estimee
+1942,0.190,estimee
+1943,0.240,estimee
+1944,0.230,estimee
+1945,0.560,estimee
+1946,0.610,estimee
+1947,0.480,estimee
+1948,0.610,estimee
+1949,0.180,estimee
+1950,0.150,estimee
+1951,0.210,estimee
+1952,0.170,estimee
+1953,0.030,estimee
+1954,0.050,estimee
+1955,0.070,estimee
+1956,0.090,estimee
+1957,0.090,estimee
+1958,0.180,estimee
+1959,0.080,estimee
+1960,0.080,estimee
+1961,0.085,estimee
+1962,0.100,estimee
+1963,0.100,estimee
+1964,0.085,estimee
+1965,0.075,estimee
+1966,0.070,estimee
+1967,0.075,estimee
+1968,0.115,moyenne
+1969,0.110,moyenne
+1970,0.105,moyenne
+1971,0.108,moyenne
+1972,0.108,moyenne
+1973,0.130,moyenne
+1974,0.181,moyenne
+1975,0.174,moyenne
+1976,0.144,moyenne
+1977,0.127,moyenne
+1978,0.126,moyenne
+1979,0.130,moyenne
+1980,0.155,moyenne
+1981,0.155,moyenne
+1982,0.145,moyenne
+1983,0.102,moyenne
+1984,0.075,moyenne
+1985,0.062,moyenne
+1986,0.041,moyenne
+1987,0.032,moyenne
+1988,0.038,moyenne
+1989,0.044,moyenne
+1990,0.049,haute
+1991,0.044,haute
+1992,0.040,haute
+1993,0.027,haute
+1994,0.019,haute
+1995,0.028,haute
+1996,0.026,haute
+1997,0.021,haute
+1998,0.019,haute
+1999,0.023,haute
+2000,0.025,haute
+2001,0.028,haute
+2002,0.030,haute
+2003,0.025,haute
+2004,0.030,haute
+2005,0.031,haute
+2006,0.031,haute
+2007,0.030,haute
+2008,0.028,haute
+2009,0.012,haute
+2010,0.024,haute
+2011,0.026,haute
+2012,0.021,haute
+2013,0.016,haute
+2014,0.014,haute
+2015,0.011,haute
+2016,0.012,haute
+2017,0.018,haute
+2018,0.020,haute
+2019,0.022,haute
+2020,-0.006,haute
+2021,0.045,haute
+2022,0.050,haute
+2023,0.043,haute
+2024,0.028,haute
+2025,0.021,estimee

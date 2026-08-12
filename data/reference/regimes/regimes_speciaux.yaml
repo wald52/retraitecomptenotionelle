@@ -1,0 +1,460 @@
+# Régimes spéciaux, vivants et éteints
+#
+# Ces régimes concentrent les âges d'ouverture les plus précoces du système
+# (50 à 55 ans, 40 ans pour les danseurs de l'Opéra). Ce sont eux qui
+# produisent les écarts à l'âge de référence les plus élevés, et donc les
+# révisions à la baisse les plus fortes dans les scénarios notionnels.
+regimes:
+
+  - code: sncf
+    nom: Régime spécial de retraite du personnel de la SNCF (CPRPSNCF)
+    famille: special
+    source_id: rs_cprpsncf
+    fiabilite: moyenne
+    creation: 1909
+    fermeture: 2020
+    extinction: null
+    succede_a: []
+    integre_dans: null
+    population: >-
+      Agents du cadre permanent de la SNCF. Régime fermé aux agents recrutés
+      à compter du 1er janvier 2020 (loi du 27 juin 2018) : les nouveaux
+      entrants relèvent du régime général et de l'Agirc-Arrco.
+    hors_repartition: false
+    periodes:
+      - debut: 1930
+        fin: 2008
+        type_calcul: annuites
+        age_ouverture: 50
+        age_taux_plein: 50
+        duree_requise_trimestres: 150
+        taux_plein: 0.75
+        salaire_reference: derniers_6_mois
+        assiette: hors_primes
+        taux_cotisation_retraite: 0.079
+        decote_par_trimestre: null
+        surcote_par_trimestre: null
+        avantages_non_contributifs: [bonifications, categorie_active, majoration_enfants, reversion]
+        notes: >-
+          Ouverture à 50 ans pour les agents de conduite, 55 ans pour les autres
+          agents du cadre permanent. Aucune décote avant 2008 : un départ à
+          50 ans avec 150 trimestres donnait 75 % du dernier traitement.
+          C'est le cas où l'écart à l'âge de référence atteint 15 ans.
+      - debut: 2009
+        fin: 2017
+        type_calcul: annuites
+        age_ouverture: 50
+        age_taux_plein: 55
+        duree_requise_trimestres: 160
+        taux_plein: 0.75
+        salaire_reference: derniers_6_mois
+        assiette: hors_primes
+        taux_cotisation_retraite: 0.0892
+        decote_par_trimestre: 0.0125
+        surcote_par_trimestre: 0.0075
+        avantages_non_contributifs: [bonifications, categorie_active, majoration_enfants, reversion]
+        notes: "Réforme des régimes spéciaux de 2008 : décote, durée alignée progressivement."
+      - debut: 2018
+        fin: null
+        type_calcul: annuites
+        age_ouverture: 52
+        age_taux_plein: 57
+        duree_requise_trimestres: 172
+        taux_plein: 0.75
+        salaire_reference: derniers_6_mois
+        assiette: hors_primes
+        taux_cotisation_retraite: 0.1085
+        decote_par_trimestre: 0.0125
+        surcote_par_trimestre: 0.0125
+        avantages_non_contributifs: [bonifications, categorie_active, majoration_enfants, reversion]
+        notes: Report d'âge de 2 ans puis extinction progressive du régime (clause du grand-père).
+
+  - code: ratp
+    nom: Caisse de retraites du personnel de la RATP (CRPRATP)
+    famille: special
+    source_id: rs_crpratp
+    fiabilite: moyenne
+    creation: 1900
+    fermeture: 2023
+    extinction: null
+    succede_a: []
+    integre_dans: null
+    population: >-
+      Agents statutaires de la RATP. Fermé aux agents recrutés à compter du
+      1er septembre 2023 (loi du 14 avril 2023).
+    hors_repartition: false
+    periodes:
+      - debut: 1930
+        fin: 2008
+        type_calcul: annuites
+        age_ouverture: 50
+        age_taux_plein: 50
+        duree_requise_trimestres: 150
+        taux_plein: 0.75
+        salaire_reference: derniers_6_mois
+        assiette: hors_primes
+        taux_cotisation_retraite: 0.0785
+        decote_par_trimestre: null
+        surcote_par_trimestre: null
+        avantages_non_contributifs: [bonifications, categorie_active, majoration_enfants, reversion]
+        notes: 50 ans pour les tables de roulement, 55 ans pour les autres agents.
+      - debut: 2009
+        fin: null
+        type_calcul: annuites
+        age_ouverture: 52
+        age_taux_plein: 57
+        duree_requise_trimestres: 172
+        taux_plein: 0.75
+        salaire_reference: derniers_6_mois
+        assiette: hors_primes
+        taux_cotisation_retraite: 0.1229
+        decote_par_trimestre: 0.0125
+        surcote_par_trimestre: 0.0125
+        avantages_non_contributifs: [bonifications, categorie_active, majoration_enfants, reversion]
+        notes: Réformes 2008 puis 2023.
+
+  - code: ieg
+    nom: Régime des industries électriques et gazières (CNIEG)
+    famille: special
+    source_id: rs_cnieg
+    fiabilite: moyenne
+    creation: 1946
+    fermeture: 2023
+    extinction: null
+    succede_a: []
+    integre_dans: null
+    population: >-
+      Agents statutaires d'EDF, GDF et des entreprises de la branche.
+      Fermé aux embauches à compter du 1er septembre 2023.
+    hors_repartition: false
+    periodes:
+      - debut: 1946
+        fin: 2008
+        type_calcul: annuites
+        age_ouverture: 55
+        age_taux_plein: 55
+        duree_requise_trimestres: 150
+        taux_plein: 0.75
+        salaire_reference: derniers_6_mois
+        assiette: hors_primes
+        taux_cotisation_retraite: 0.0785
+        decote_par_trimestre: null
+        surcote_par_trimestre: null
+        avantages_non_contributifs: [bonifications, categorie_active, majoration_enfants, reversion]
+        notes: >-
+          Statut national du personnel des IEG (décret du 22 juin 1946).
+          Ouverture à 55 ans, 50 ans pour les services actifs et insalubres.
+      - debut: 2009
+        fin: null
+        type_calcul: annuites
+        age_ouverture: 57
+        age_taux_plein: 62
+        duree_requise_trimestres: 172
+        taux_plein: 0.75
+        salaire_reference: derniers_6_mois
+        assiette: hors_primes
+        taux_cotisation_retraite: 0.1229
+        decote_par_trimestre: 0.0125
+        surcote_par_trimestre: 0.0125
+        avantages_non_contributifs: [bonifications, categorie_active, majoration_enfants, reversion]
+        notes: Réformes 2008 puis 2023.
+
+  - code: marins
+    nom: Établissement national des invalides de la marine (ENIM)
+    famille: special
+    source_id: rs_enim
+    fiabilite: estimee
+    creation: 1673
+    fermeture: null
+    extinction: null
+    succede_a: []
+    integre_dans: null
+    population: Marins du commerce, de la pêche et de la plaisance professionnelle.
+    hors_repartition: false
+    periodes:
+      - debut: 1930
+        fin: null
+        type_calcul: annuites
+        age_ouverture: 55
+        age_taux_plein: 55
+        duree_requise_trimestres: 150
+        taux_plein: 0.75
+        salaire_reference: sans_objet
+        assiette: forfaitaire
+        taux_cotisation_retraite: 0.1085
+        decote_par_trimestre: null
+        surcote_par_trimestre: null
+        avantages_non_contributifs: [bonifications, categorie_active, reversion]
+        notes: >-
+          Le plus ancien régime de retraite français (Colbert, 1673).
+          Cotisations et pensions assises sur des SALAIRES FORFAITAIRES par
+          catégorie, non sur la rémunération réelle : la reconstitution du
+          compte notionnel exige la grille des salaires forfaitaires par année
+          (paramètre `assiette_forfaitaire`, non encore intégrée).
+          Ouverture dès 50 ans sous conditions de services embarqués.
+
+  - code: mines
+    nom: Régime spécial des mines (CANSSM)
+    famille: special
+    source_id: cor_panorama_regimes
+    fiabilite: estimee
+    creation: 1894
+    fermeture: 2010
+    extinction: null
+    succede_a: []
+    integre_dans: null
+    population: >-
+      Mineurs et assimilés. Fermé aux nouveaux entrants au 1er septembre 2010 ;
+      régime en extinction, gestion transférée à la CDC puis à la CNAV.
+    hors_repartition: false
+    periodes:
+      - debut: 1930
+        fin: 2010
+        type_calcul: annuites
+        age_ouverture: 50
+        age_taux_plein: 55
+        duree_requise_trimestres: 120
+        taux_plein: 0.75
+        salaire_reference: dernier_salaire
+        assiette: plafonnee
+        taux_cotisation_retraite: 0.0805
+        decote_par_trimestre: null
+        surcote_par_trimestre: null
+        avantages_non_contributifs: [bonifications, categorie_active, reversion]
+        notes: >-
+          Loi du 29 juin 1894. Départ possible à 50 ans avec 30 ans de services
+          au fond. Régime emblématique de l'écart maximal à l'âge de référence.
+
+  - code: crpcen
+    nom: Caisse de retraite et de prévoyance des clercs et employés de notaires
+    famille: special
+    source_id: cor_panorama_regimes
+    fiabilite: estimee
+    creation: 1937
+    fermeture: null
+    extinction: null
+    succede_a: []
+    integre_dans: null
+    population: Clercs et employés de notaires.
+    hors_repartition: false
+    periodes:
+      - debut: 1937
+        fin: 2008
+        type_calcul: annuites
+        age_ouverture: 55
+        age_taux_plein: 60
+        duree_requise_trimestres: 150
+        taux_plein: 0.75
+        salaire_reference: derniers_6_mois
+        assiette: deplafonnee
+        taux_cotisation_retraite: 0.11
+        decote_par_trimestre: null
+        surcote_par_trimestre: null
+        avantages_non_contributifs: [majoration_enfants, reversion]
+        notes: Loi du 12 juillet 1937.
+      - debut: 2009
+        fin: null
+        type_calcul: annuites
+        age_ouverture: 62
+        age_taux_plein: 67
+        duree_requise_trimestres: 172
+        taux_plein: 0.75
+        salaire_reference: derniers_6_mois
+        assiette: deplafonnee
+        taux_cotisation_retraite: 0.1360
+        decote_par_trimestre: 0.0125
+        surcote_par_trimestre: 0.0125
+        avantages_non_contributifs: [majoration_enfants, reversion]
+        notes: Réforme des régimes spéciaux.
+
+  - code: banque_de_france
+    nom: Caisse de réserve des employés de la Banque de France
+    famille: special
+    source_id: cor_panorama_regimes
+    fiabilite: estimee
+    creation: 1806
+    fermeture: 2007
+    extinction: null
+    succede_a: []
+    integre_dans: null
+    population: Agents titulaires de la Banque de France.
+    hors_repartition: false
+    periodes:
+      - debut: 1930
+        fin: 2007
+        type_calcul: annuites
+        age_ouverture: 55
+        age_taux_plein: 55
+        duree_requise_trimestres: 150
+        taux_plein: 0.75
+        salaire_reference: derniers_6_mois
+        assiette: hors_primes
+        taux_cotisation_retraite: 0.0785
+        decote_par_trimestre: null
+        surcote_par_trimestre: null
+        avantages_non_contributifs: [bonifications, majoration_enfants, reversion]
+        notes: Aligné sur le code des pensions civiles à compter de 2007.
+      - debut: 2008
+        fin: null
+        type_calcul: annuites
+        age_ouverture: 64
+        age_taux_plein: 67
+        duree_requise_trimestres: 172
+        taux_plein: 0.75
+        salaire_reference: derniers_6_mois
+        assiette: hors_primes
+        taux_cotisation_retraite: 0.1110
+        decote_par_trimestre: 0.0125
+        surcote_par_trimestre: 0.0125
+        avantages_non_contributifs: [majoration_enfants, reversion]
+        notes: Alignement sur la fonction publique d'État.
+
+  - code: opera_de_paris
+    nom: Caisse de retraites des personnels de l'Opéra national de Paris
+    famille: special
+    source_id: cor_panorama_regimes
+    fiabilite: estimee
+    creation: 1698
+    fermeture: 2023
+    extinction: null
+    succede_a: []
+    integre_dans: null
+    population: Personnels de l'Opéra national de Paris.
+    hors_repartition: false
+    periodes:
+      - debut: 1930
+        fin: null
+        type_calcul: annuites
+        age_ouverture: 40
+        age_taux_plein: 40
+        duree_requise_trimestres: 100
+        taux_plein: 0.75
+        salaire_reference: derniers_6_mois
+        assiette: hors_primes
+        taux_cotisation_retraite: 0.1085
+        decote_par_trimestre: null
+        surcote_par_trimestre: null
+        avantages_non_contributifs: [bonifications, categorie_active, reversion]
+        notes: >-
+          Âge d'ouverture de 40 ans pour les artistes du ballet (limite d'âge
+          statutaire), 60-62 ans pour les autres personnels. CAS EXTRÊME de
+          l'écart à l'âge de référence : 27 ans d'anticipation par rapport à
+          l'âge de référence 2026. Régime fermé aux recrutements depuis le
+          1er septembre 2023.
+
+  - code: comedie_francaise
+    nom: Caisse de retraites des personnels de la Comédie-Française
+    famille: special
+    source_id: cor_panorama_regimes
+    fiabilite: estimee
+    creation: 1812
+    fermeture: 2023
+    extinction: null
+    succede_a: []
+    integre_dans: null
+    population: Personnels de la Comédie-Française.
+    hors_repartition: false
+    periodes:
+      - debut: 1930
+        fin: null
+        type_calcul: annuites
+        age_ouverture: 60
+        age_taux_plein: 60
+        duree_requise_trimestres: 100
+        taux_plein: 0.75
+        salaire_reference: derniers_6_mois
+        assiette: hors_primes
+        taux_cotisation_retraite: 0.1085
+        decote_par_trimestre: null
+        surcote_par_trimestre: null
+        avantages_non_contributifs: [bonifications, reversion]
+        notes: Fermé aux recrutements depuis le 1er septembre 2023.
+
+  - code: port_strasbourg
+    nom: Régime de retraite du Port autonome de Strasbourg
+    famille: special
+    source_id: cor_panorama_regimes
+    fiabilite: estimee
+    creation: 1926
+    fermeture: 2023
+    extinction: null
+    succede_a: []
+    integre_dans: null
+    population: Agents du Port autonome de Strasbourg.
+    hors_repartition: false
+    periodes:
+      - debut: 1930
+        fin: null
+        type_calcul: annuites
+        age_ouverture: 60
+        age_taux_plein: 60
+        duree_requise_trimestres: 150
+        taux_plein: 0.75
+        salaire_reference: derniers_6_mois
+        assiette: hors_primes
+        taux_cotisation_retraite: 0.1085
+        decote_par_trimestre: null
+        surcote_par_trimestre: null
+        avantages_non_contributifs: [bonifications, reversion]
+        notes: Fermé aux recrutements depuis le 1er septembre 2023.
+
+  - code: seita
+    nom: Régime de retraite du personnel de la SEITA
+    famille: special
+    source_id: cor_panorama_regimes
+    fiabilite: estimee
+    creation: 1935
+    fermeture: 1981
+    extinction: null
+    succede_a: []
+    integre_dans: null
+    population: >-
+      Personnel de la Société d'exploitation industrielle des tabacs et
+      allumettes. Régime fermé, en extinction, financé par l'État.
+    hors_repartition: false
+    periodes:
+      - debut: 1935
+        fin: 1981
+        type_calcul: annuites
+        age_ouverture: 55
+        age_taux_plein: 60
+        duree_requise_trimestres: 150
+        taux_plein: 0.75
+        salaire_reference: derniers_6_mois
+        assiette: hors_primes
+        taux_cotisation_retraite: 0.07
+        decote_par_trimestre: null
+        surcote_par_trimestre: null
+        avantages_non_contributifs: [bonifications, reversion]
+        notes: >-
+          Exemple de régime ÉTEINT dont les pensions restent servies :
+          intégré au catalogue pour permettre la simulation rétroactive des
+          carrières concernées.
+
+  - code: chemins_fer_secondaires
+    nom: Régimes des chemins de fer secondaires d'intérêt général
+    famille: special
+    source_id: cor_panorama_regimes
+    fiabilite: estimee
+    creation: 1922
+    fermeture: 1954
+    extinction: null
+    succede_a: []
+    integre_dans: null
+    population: Agents des réseaux ferroviaires secondaires, régime en extinction.
+    hors_repartition: false
+    periodes:
+      - debut: 1930
+        fin: 1954
+        type_calcul: annuites
+        age_ouverture: 55
+        age_taux_plein: 55
+        duree_requise_trimestres: 150
+        taux_plein: 0.75
+        salaire_reference: derniers_6_mois
+        assiette: hors_primes
+        taux_cotisation_retraite: 0.07
+        decote_par_trimestre: null
+        surcote_par_trimestre: null
+        avantages_non_contributifs: [bonifications, reversion]
+        notes: Paramètres à certifier ; régime résiduel.

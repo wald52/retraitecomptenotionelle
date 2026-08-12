@@ -1,0 +1,51 @@
+# Hypothèses de projection macroéconomique au-delà de la dernière année observée
+# ------------------------------------------------------------------------------
+# source_id: cor_rapport_annuel
+#
+# Au-delà de 2025, aucune série n'est observée. Geler la dernière valeur connue
+# serait une hypothèse implicite et fausse : elle figerait l'inflation à 1,0 %
+# et la productivité à 0,3 %, valeurs conjoncturelles qui écraseraient tout le
+# calcul sur quarante ans. On explicite donc les hypothèses.
+#
+# Les variantes reprennent la structure des scénarios du Conseil d'orientation
+# des retraites, qui font varier la croissance de la productivité du travail à
+# long terme. La cible d'inflation est celle de la Banque centrale européenne.
+#
+# Convention : croissance nominale du salaire moyen = productivité réelle
+# + inflation. À long terme le partage de la valeur ajoutée est supposé stable,
+# donc les salaires réels progressent au rythme de la productivité.
+
+annee_derniere_observation: 2025
+annee_fin_projection: 2100
+
+scenario_par_defaut: cor_central
+
+scenarios:
+
+  cor_central:
+    libelle: Scénario central — productivité 1,0 % par an
+    inflation: 0.0175
+    productivite_reelle: 0.010
+    salaire_moyen_nominal: 0.0275
+
+  cor_favorable:
+    libelle: Scénario favorable — productivité 1,3 % par an
+    inflation: 0.0175
+    productivite_reelle: 0.013
+    salaire_moyen_nominal: 0.0305
+
+  cor_defavorable:
+    libelle: Scénario défavorable — productivité 0,7 % par an
+    inflation: 0.0175
+    productivite_reelle: 0.007
+    salaire_moyen_nominal: 0.0245
+
+  stagnation:
+    libelle: Stagnation durable — productivité 0,3 % par an
+    inflation: 0.0175
+    productivite_reelle: 0.003
+    salaire_moyen_nominal: 0.0205
+
+# Le plafond de la Sécurité sociale suit la croissance du salaire moyen, ce qui
+# est la règle en vigueur (article L. 241-3 du code de la sécurité sociale).
+plafond_suit_salaire_moyen: true
