@@ -169,6 +169,20 @@ pre.json {
   100% { transform: translateX(333%); }
 }
 body.calcul-en-cours main { opacity: 0.45; transition: opacity 0.2s; }
+
+/* Téléphone : le montant passe sous l'intitulé du scénario plutôt que de se
+   serrer contre lui, et la page respire un peu moins large. */
+@media (max-width: 34rem) {
+  body { font-size: 16px; }
+  main { padding: 0 1rem 4rem; }
+  .carte { padding: 1rem 1.1rem; }
+  header.bandeau .interieur { gap: 0.4rem 1rem; }
+  nav a { margin: 0 1.1rem 0 0; }
+  .scenario .entete { flex-direction: column; gap: 0.15rem; }
+  .scenario .montant { white-space: normal; }
+  .fiches { grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr)); }
+  form .grille { gap: 0.9rem; }
+}
 """
 
 DEPOT = "https://github.com/wald52/retraitecomptenotionelle"
