@@ -1,31 +1,46 @@
-"""Tests de l'interface web.
+"""Tests de l'interface web, dans ses deux modes.
 
-Les dépendances web sont optionnelles : le module entier est ignoré si elles
-ne sont pas installées (``pip install -e ".[web]"``).
+Le contenu des pages (:mod:`retraite_notionnelle.web.pages`) ne dépend que de la
+bibliothèque standard : il est testé sans condition. Les tests du serveur
+FastAPI sont ignorés si les dépendances optionnelles sont absentes
+(``pip install -e ".[web]"``).
 """
 
 from __future__ import annotations
 
 import pytest
 
-fastapi = pytest.importorskip("fastapi", reason="dépendances web absentes")
-pytest.importorskip("httpx", reason="client de test absent")
-
-from fastapi.testclient import TestClient  # noqa: E402
-
-from retraite_notionnelle.web import creer_application  # noqa: E402
-from retraite_notionnelle.web.application import ErreurSaisie, Saisie  # noqa: E402
-from retraite_notionnelle.web.gabarit import (  # noqa: E402
+from retraite_notionnelle.web import gabarit as g
+from retraite_notionnelle.web.gabarit import (
     Cellule,
     euros,
     franciser,
     pourcentage,
     tableau,
 )
+from retraite_notionnelle.web.pages import (
+    Contexte,
+    ErreurSaisie,
+    Saisie,
+    rendre,
+    statuts,
+)
 
 
 @pytest.fixture(scope="module")
-def client() -> TestClient:
+def contexte() -> Contexte:
+    return Contexte()
+
+
+@pytest.fixture(scope="module")
+def client():
+    fastapi = pytest.importorskip("fastapi", reason="dépendances web absentes")
+    pytest.importorskip("httpx", reason="client de test absent")
+    from fastapi.testclient import TestClient
+
+    from retraite_notionnelle.web import creer_application
+
+    assert fastapi
     return TestClient(creer_application())
 
 
@@ -220,3 +235,140 @@ def test_cellule_teintee_selon_la_valeur():
     assert Cellule("+0 %", intensite=0.0).style() == ""
     rendu = tableau(["a"], [[Cellule("x", intensite=-0.5)]], ["nombre"])
     assert "rgba(162, 71, 46" in rendu
+
+
+# -- rendu commun aux deux modes ---------------------------------------------
+
+
+@pytest.mark.parametrize("chemin", ["/", "/cas-types", "/methode", "/donnees"])
+def test_rendre_produit_un_corps_pour_chaque_page(contexte, chemin):
+    titre, corps = rendre(contexte, chemin)
+    assert titre
+    assert len(corps) > 500
+
+
+def test_rendre_ignore_un_chemin_inconnu(contexte):
+    titre, _ = rendre(contexte, "/n-importe-quoi")
+    assert titre == "Simuler"
+
+
+def test_rendre_ne_leve_jamais_sur_une_saisie_invalide(contexte):
+    _, corps = rendre(contexte, "/", {"naissance": "1700"})
+    assert "Saisie refusée" in corps
+
+
+def test_statuts(contexte):
+    codes = {entree["code"] for entree in statuts(contexte)}
+    assert "salarie_prive_non_cadre" in codes
+
+
+# -- mode navigateur ---------------------------------------------------------
+
+
+@pytest.fixture
+def mode_navigateur():
+    """Bascule le rendu en mode navigateur, et le remet en place ensuite."""
+    precedent = g.MODE
+    g.MODE = "navigateur"
+    yield
+    g.MODE = precedent
+
+
+def test_les_liens_passent_par_l_ancre_dans_le_navigateur(mode_navigateur, contexte):
+    """Sur GitHub Pages le site est servi dans un sous-chemin : pas de lien absolu."""
+    _, corps = rendre(contexte, "/")
+    entete = g.entete("/")
+    assert 'href="#/cas-types"' in entete
+    assert 'href="/cas-types"' not in entete
+    assert 'action="#/"' in corps
+
+
+def test_pas_de_renvoi_vers_l_api_dans_le_navigateur(mode_navigateur, contexte):
+    """Il n'y a pas de serveur : proposer une adresse d'API serait un lien mort."""
+    _, corps = rendre(contexte, "/", {"naissance": "1960",
+                                      "statut": "salarie_prive_non_cadre",
+                                      "debut": "20", "liquidation": "62"})
+    assert "/api/simuler" not in corps
+    assert "Les résultats complets en JSON" in corps
+
+
+def test_le_pont_du_navigateur_rend_du_json(mode_navigateur):
+    import json
+
+    from retraite_notionnelle.config import RACINE_DONNEES
+    from retraite_notionnelle.web import navigateur
+
+    navigateur.demarrer(str(RACINE_DONNEES))
+    page = json.loads(navigateur.rendre_page("/cas-types", "{}"))
+    assert page["titre"] == "Cas types"
+    assert "Le cas général" in page["corps"]
+    assert 'href="#/"' in page["entete"]
+    assert navigateur.feuille_de_style().startswith("\n:root")
+
+
+# -- paquet embarqué dans la page --------------------------------------------
+
+
+def _construction():
+    import importlib.util
+    from pathlib import Path
+
+    chemin = Path(__file__).resolve().parents[1] / "scripts" / "construire_site.py"
+    specification = importlib.util.spec_from_file_location("construire_site", chemin)
+    module = importlib.util.module_from_spec(specification)
+    specification.loader.exec_module(module)
+    return module
+
+
+def test_le_paquet_est_a_jour():
+    """Le paquet servi au navigateur doit refléter le code du dépôt.
+
+    S'il échoue : ``python scripts/construire_site.py``.
+    """
+    construction = _construction()
+    assert construction.PAQUET.exists(), "docs/simulateur.zip est absent"
+    assert construction.PAQUET.read_bytes() == construction.construire(), (
+        "docs/simulateur.zip est périmé — lancer python scripts/construire_site.py"
+    )
+
+
+def test_le_paquet_contient_le_moteur_et_les_donnees():
+    import zipfile
+
+    construction = _construction()
+    with zipfile.ZipFile(construction.PAQUET) as archive:
+        noms = set(archive.namelist())
+    assert "retraite_notionnelle/simulateur.py" in noms
+    assert "retraite_notionnelle/web/navigateur.py" in noms
+    assert "data/sources.yaml" in noms
+    assert any(nom.startswith("data/reference/macro/") for nom in noms)
+
+
+def test_la_page_ne_depend_d_aucun_service_exterieur():
+    """« Tout doit déjà être là » : aucune requête vers un tiers au chargement."""
+    from pathlib import Path
+
+    page = (Path(__file__).resolve().parents[1] / "docs" / "index.html").read_text()
+    assert 'src="pyodide/pyodide.js"' in page
+    assert "cdn.jsdelivr.net" not in page
+
+    #: Seules adresses tolérées : le dépôt lui-même (liens que le lecteur suit
+    #: s'il le veut) et l'espace de noms SVG, qui n'est jamais requêté.
+    autorisees = ("https://github.com/wald52/", "http://www.w3.org/2000/svg")
+    for hote in ("http://", "https://"):
+        for morceau in page.split(hote)[1:]:
+            adresse = hote + morceau.split('"')[0]
+            assert adresse.startswith(autorisees), (
+                f"adresse extérieure dans la page : {adresse}"
+            )
+
+
+def test_le_moteur_pyodide_est_versionne():
+    from pathlib import Path
+
+    pyodide = Path(__file__).resolve().parents[1] / "docs" / "pyodide"
+    attendus = {"pyodide.js", "pyodide.asm.mjs", "pyodide.asm.wasm",
+                "python_stdlib.zip", "pyodide-lock.json"}
+    presents = {chemin.name for chemin in pyodide.iterdir()}
+    assert attendus <= presents, f"manquant : {attendus - presents}"
+    assert any(nom.startswith("pyyaml-") for nom in presents)

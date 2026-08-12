@@ -46,24 +46,53 @@ Scénario                                      Courants   Constants   Mensuel   
 
 ---
 
-## Ouvrir le simulateur dans un navigateur
+## Ouvrir le simulateur
 
-C'est le chemin le plus court pour voir ce que fait le modèle : un formulaire,
-cinq informations, les trois scénarios côte à côte.
+### 👉 [wald52.github.io/retraitecomptenotionelle](https://wald52.github.io/retraitecomptenotionelle/)
 
-```bash
-pip install -e ".[web]"
-retraite-notionnelle web            # puis http://127.0.0.1:8000
-```
+Rien à installer, rien à lancer : une adresse à ouvrir. Le modèle — le code
+Python de ce dépôt et ses données de référence — s'exécute **dans votre
+navigateur**, en WebAssembly. Aucune donnée saisie ne quitte votre machine,
+puisqu'il n'y a pas de serveur de calcul. Le premier chargement prend environ
+trois secondes, les suivants sont immédiats.
 
 Quatre pages : **Simuler** (une carrière, avec le détail du calcul et la
 décomposition de l'écart règle par règle), **Cas types** (la grille 12 carrières
 × 7 générations), **Méthode**, **Données** (l'état de fiabilité des séries).
 
-L'adresse d'une simulation contient tous ses paramètres : elle peut être citée
-ou partagée telle quelle. Les mêmes résultats sont disponibles en JSON sur
-`/api/simuler`, avec la même syntaxe de paramètres, et la documentation OpenAPI
-sur `/api/docs`.
+L'adresse d'une simulation contient tous ses paramètres — elle peut être citée
+ou partagée telle quelle — et chaque résultat est consultable en JSON au bas de
+la page.
+
+<details>
+<summary>Comment la page fonctionne, et pourquoi ce choix</summary>
+
+`docs/index.html` charge [Pyodide](https://pyodide.org) — CPython compilé en
+WebAssembly, versionné dans `docs/pyodide/` (14 Mo) — puis décompresse
+`docs/simulateur.zip` (103 Ko : le moteur et les données) dans son système de
+fichiers virtuel, et appelle le module `retraite_notionnelle.web.navigateur`.
+
+C'est **le même code Python** que la ligne de commande, à la ligne près : pas de
+portage en JavaScript qui divergerait du modèle, pas de résultats précalculés
+qui figeraient les hypothèses. Rien n'est chargé depuis un CDN ou un service
+tiers, ce qu'un test vérifie : le site fonctionne derrière un réseau fermé, et
+survivra à la disparition de n'importe quel hébergeur.
+
+Le paquet `simulateur.zip` est reconstruit par `python scripts/construire_site.py`
+après toute modification du code ou des données ; le test `test_le_paquet_est_a_jour`
+échoue s'il a été oublié.
+
+</details>
+
+## En local, avec un serveur
+
+Utile pour développer, ou pour disposer de l'API JSON (`/api/simuler`,
+`/api/cas-types`, `/api/statuts`, documentation OpenAPI sur `/api/docs`).
+
+```bash
+pip install -e ".[web]"
+retraite-notionnelle web            # puis http://127.0.0.1:8000
+```
 
 ## En ligne de commande
 
@@ -124,6 +153,7 @@ print(simulateur.simuler(carriere).tableau())
 | Suppression des minima | Ni minimum contributif, ni minimum garanti, ni ASPA : peu cotisé, peu de retraite |
 | Suppression des avantages | Ni majorations enfants, ni MDA, ni AVPF, ni bonifications, ni réversion, ni trimestres gratuits |
 | Tout le monde peut simuler | 22 statuts d'affiliation, cinq informations suffisent |
+| Utilisable sans rien installer | Le modèle s'exécute dans le navigateur, sur une simple adresse |
 
 ---
 
@@ -210,13 +240,20 @@ src/retraite_notionnelle/
   simulateur.py                 façade et restitution
   castypes.py                   cas général
   cli.py                        ligne de commande
-  web/                          interface web et API JSON (dépendances optionnelles)
+  web/
+    pages.py                    contenu des pages — sans autre dépendance que le moteur
+    gabarit.py                  rendu HTML et feuille de style
+    application.py              serveur FastAPI et API JSON (dépendances optionnelles)
+    navigateur.py               pont vers la page qui s'exécute dans le navigateur
 
-docs/
+docs/                           le site publié, tel qu'il est servi
+  index.html                    la page : charge Pyodide, puis le simulateur
+  pyodide/                      CPython compilé en WebAssembly (14 Mo, versionné)
+  simulateur.zip                le moteur et les données (103 Ko, reconstruit par script)
   methodologie.md               ce que le modèle calcule, et pourquoi ainsi
   limites.md                    ce qu'il ne calcule pas, et ce qui reste à certifier
 
-tests/                          95 tests
+tests/                          109 tests
 ```
 
 ---
@@ -245,11 +282,12 @@ sous « Options de modélisation ».
 python -m pytest tests
 ```
 
-95 tests couvrant le chargement et la fiabilité des données, la calibration des
+109 tests couvrant le chargement et la fiabilité des données, la calibration des
 tables de mortalité, les propriétés du moteur (monotonie du diviseur, cliquet de
-l'âge de référence, règles de fusion), le comportement des scénarios et
-l'interface web. Les tests web sont ignorés si les dépendances optionnelles ne
-sont pas installées.
+l'âge de référence, règles de fusion), le comportement des scénarios, le rendu
+des pages dans les deux modes et la fraîcheur du paquet embarqué dans le site.
+Les tests du serveur sont ignorés si ses dépendances optionnelles ne sont pas
+installées.
 
 ---
 

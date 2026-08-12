@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Retraite à comptes notionnels — simulateur</title>
+<meta name="description" content="Simulateur d'un système de retraite français en comptes notionnels, appliqué rétroactivement depuis 1941. Le calcul s'exécute dans votre navigateur.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>📈</text></svg>">
+
+<!-- Style d'amorçage, le temps que le moteur se charge. La feuille de style
+     complète est produite par le module Python, pour n'exister qu'en un seul
+     endroit. -->
+<style>
+  :root { color-scheme: light dark; --fond: #fbfaf7; --texte: #1b1a17;
+          --texte-doux: #5c574d; --accent: #7a2e1e; --trait: #ddd7cb;
+          --fond-appui: #f2efe9; }
+  @media (prefers-color-scheme: dark) {
+    :root { --fond: #16151a; --texte: #ece9e3; --texte-doux: #a5a099;
+            --accent: #e08b6f; --trait: #35333c; --fond-appui: #26252c; }
+  }
+  body { margin: 0; background: var(--fond); color: var(--texte);
+         font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+         font-size: 17px; line-height: 1.6; }
+  #amorce { max-width: 34rem; margin: 0 auto; padding: 5rem 1.5rem; text-align: center; }
+  #amorce h1 { font-size: 1.4rem; font-weight: 600; margin: 0 0 0.75rem; }
+  #amorce p { color: var(--texte-doux); font-size: 0.98rem; }
+  #etape { font-size: 0.92rem; margin-top: 1.75rem; }
+  .jauge { height: 6px; width: min(24rem, 80%); margin: 0.9rem auto 0;
+           background: var(--fond-appui); border-radius: 3px; overflow: hidden; }
+  .jauge > span { display: block; height: 100%; width: 30%; background: var(--accent);
+                  animation: glisse 1.4s ease-in-out infinite; }
+  @keyframes glisse { 0% { transform: translateX(-100%); } 100% { transform: translateX(333%); } }
+  #amorce.echec .jauge { display: none; }
+  #amorce code { background: var(--fond-appui); padding: 0.1rem 0.35rem;
+                 border-radius: 3px; font-size: 0.88rem; }
+  .replique { text-align: left; border-left: 3px solid var(--accent);
+              background: var(--fond-appui); padding: 0.9rem 1.1rem; margin-top: 1.5rem;
+              font-size: 0.92rem; }
+</style>
+<style id="style-simulateur"></style>
+</head>
+<body>
+
+<div id="amorce">
+  <h1>Retraite à comptes notionnels</h1>
+  <p>Le simulateur se prépare. Le modèle — code Python et données de référence —
+  s'exécute dans votre navigateur : rien n'est envoyé à un serveur, et il n'y a
+  rien à installer. Le premier chargement prend quelques secondes, les suivants
+  sont immédiats.</p>
+  <div id="etape">Démarrage…</div>
+  <div class="jauge"><span></span></div>
+  <noscript>
+    <div class="replique">Ce simulateur a besoin de JavaScript : le calcul se fait
+    dans votre navigateur, il n'y a pas de serveur pour le faire à sa place.</div>
+  </noscript>
+</div>
+
+<script src="pyodide/pyodide.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  // Tout est servi depuis ce dépôt : l'environnement Python comme le modèle.
+  // Aucune requête vers un tiers, rien à installer, rien à autoriser.
+  const INDEX_PYODIDE = "pyodide/";
+  const RACINE = "/simulateur";
+  const amorce = document.getElementById("amorce");
+  let moteur = null;      // module Python retraite_notionnelle.web.navigateur
+  let rendu = null;       // fonction (chemin, parametres) -> {titre, corps, ...}
+
+  function etape(texte) {
+    document.getElementById("etape").textContent = texte;
+  }
+
+  function echec(titre, detail) {
+    amorce.classList.add("echec");
+    amorce.innerHTML =
+      "<h1>" + titre + "</h1>" +
+      '<div class="replique">' + detail + "</div>";
+  }
+
+  // -- démarrage -------------------------------------------------------------
+
+  async function preparer() {
+    if (typeof loadPyodide !== "function") {
+      throw new Error("environnement introuvable");
+    }
+    etape("Chargement de Python (environ 12 Mo, mis en cache ensuite)…");
+    const pyodide = await loadPyodide({ indexURL: INDEX_PYODIDE });
+
+    etape("Chargement de la bibliothèque de lecture des données…");
+    await pyodide.loadPackage("pyyaml");
+
+    etape("Chargement du modèle et des séries de référence…");
+    const reponse = await fetch("simulateur.zip", { cache: "force-cache" });
+    if (!reponse.ok) {
+      throw new Error("simulateur.zip introuvable (" + reponse.status + ")");
+    }
+    const paquet = await reponse.arrayBuffer();
+    pyodide.FS.mkdirTree(RACINE);
+    await pyodide.unpackArchive(paquet, "zip", { extractDir: RACINE });
+    pyodide.runPython("import sys; sys.path.insert(0, " + JSON.stringify(RACINE) + ")");
+
+    etape("Calibration des tables de mortalité…");
+    moteur = pyodide.pyimport("retraite_notionnelle.web.navigateur");
+    document.getElementById("style-simulateur").textContent = moteur.feuille_de_style();
+    moteur.demarrer(RACINE + "/data");
+
+    rendu = function (chemin, parametres) {
+      return JSON.parse(moteur.rendre_page(chemin, JSON.stringify(parametres)));
+    };
+  }
+
+  // -- rendu -----------------------------------------------------------------
+
+  function coquille() {
+    amorce.remove();
+    document.body.insertAdjacentHTML("beforeend",
+      '<div id="entete"></div><main id="contenu"></main>');
+  }
+
+  function chargement(message) {
+    return '<div class="chargement">' + message +
+           '<div class="jauge"><span></span></div></div>';
+  }
+
+  function adresse() {
+    const brut = location.hash.replace(/^#/, "") || "/";
+    const separation = brut.indexOf("?");
+    const chemin = separation === -1 ? brut : brut.slice(0, separation);
+    const requete = separation === -1 ? "" : brut.slice(separation + 1);
+    const parametres = {};
+    new URLSearchParams(requete).forEach(function (valeur, cle) {
+      parametres[cle] = valeur;
+    });
+    return { chemin: chemin || "/", parametres: parametres };
+  }
+
+  // Les options de modélisation restent ouvertes d'une simulation à l'autre :
+  // qui les a dépliées une fois y revient.
+  let optionsDepliees = false;
+
+  async function afficher() {
+    const cible = adresse();
+    const contenu = document.getElementById("contenu");
+    const details = contenu.querySelector("form details");
+    if (details) { optionsDepliees = details.open; }
+
+    document.body.classList.add("calcul-en-cours");
+    contenu.innerHTML = chargement(
+      cible.chemin === "/cas-types"
+        ? "Calcul des 12 cas types sur 7 générations…"
+        : "Calcul en cours…"
+    );
+    // Laisse le navigateur peindre l'attente avant de bloquer sur le calcul.
+    await new Promise(function (suite) { setTimeout(suite, 20); });
+
+    let page;
+    try {
+      page = rendu(cible.chemin, cible.parametres);
+    } catch (erreur) {
+      document.body.classList.remove("calcul-en-cours");
+      contenu.innerHTML =
+        '<div class="erreur"><strong>Le calcul a échoué.</strong> ' +
+        String(erreur).replace(/[<>&]/g, "") + "</div>";
+      return;
+    }
+
+    document.getElementById("entete").innerHTML = page.entete;
+    contenu.innerHTML = page.corps + page.pied;
+    document.title = page.titre + " — Retraite en comptes notionnels";
+    document.body.classList.remove("calcul-en-cours");
+
+    const nouveauDetails = contenu.querySelector("form details");
+    if (nouveauDetails && optionsDepliees) { nouveauDetails.open = true; }
+    window.scrollTo({ top: 0 });
+  }
+
+  // -- navigation ------------------------------------------------------------
+
+  document.addEventListener("submit", function (evenement) {
+    const formulaire = evenement.target.closest("form");
+    if (!formulaire) { return; }
+    evenement.preventDefault();
+
+    const parametres = new URLSearchParams();
+    new FormData(formulaire).forEach(function (valeur, cle) {
+      if (String(valeur).trim() !== "") { parametres.set(cle, valeur); }
+    });
+    const cible = "#/?" + parametres.toString();
+    if (location.hash === cible) { afficher(); } else { location.hash = cible; }
+  });
+
+  window.addEventListener("hashchange", afficher);
+
+  preparer().then(function () {
+    coquille();
+    return afficher();
+  }).catch(function (erreur) {
+    echec(
+      "Le simulateur n'a pas pu se charger",
+      "<p>" + String(erreur) + "</p>" +
+      "<p>Le calcul s'exécute dans le navigateur, au moyen de WebAssembly. " +
+      "Un navigateur ancien, ou un mode de navigation qui bloque WebAssembly, " +
+      "peut l'en empêcher. Réessayer après rechargement de la page suffit " +
+      "souvent ; sinon, un navigateur à jour (Firefox, Chrome, Safari, Edge) " +
+      "règle le problème.</p>" +
+      '<p><a href="https://github.com/wald52/retraitecomptenotionelle">' +
+      "Le dépôt du projet</a></p>"
+    );
+  });
+})();
+</script>
+</body>
+</html>

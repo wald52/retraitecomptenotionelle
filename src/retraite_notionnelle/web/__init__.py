@@ -1,14 +1,23 @@
-"""Interface web du simulateur.
+"""Interface web du simulateur, servie de deux façons.
 
-Une page unique pour saisir une carrière et lire les trois scénarios, plus une
-API JSON. Dépendances optionnelles : ``pip install -e ".[web]"``.
+* **Dans le navigateur, sans rien installer** — ``docs/index.html`` exécute le
+  moteur Python dans la page elle-même (Pyodide). C'est la version publiée sur
+  GitHub Pages : une adresse à ouvrir, rien d'autre.
+* **En local, avec un serveur** — ``retraite-notionnelle web`` sert les mêmes
+  pages via FastAPI et expose en plus une API JSON. Dépendances optionnelles :
+  ``pip install -e ".[web]"``.
 
-    retraite-notionnelle web
-    # puis http://127.0.0.1:8000
+Les deux affichent exactement la même chose : le contenu est produit par
+:mod:`.pages`, qui ne dépend que de la bibliothèque standard.
 """
 
 from __future__ import annotations
 
-from .application import creer_application
-
 __all__ = ["creer_application"]
+
+
+def creer_application(parametres=None):
+    """Application FastAPI. Importée à la demande : FastAPI est optionnel."""
+    from .application import creer_application as fabrique
+
+    return fabrique(parametres)

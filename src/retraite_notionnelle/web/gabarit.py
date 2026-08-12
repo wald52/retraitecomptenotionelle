@@ -149,11 +149,37 @@ footer {
   border-left: 3px solid var(--retroactif); background: var(--fond-appui);
   padding: 0.85rem 1.1rem; margin: 1.5rem 0;
 }
+pre.json {
+  background: var(--fond-appui); border: 1px solid var(--trait); border-radius: 4px;
+  padding: 0.9rem 1.1rem; overflow-x: auto; max-height: 26rem; overflow-y: auto;
+  font-size: 0.82rem; line-height: 1.45;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+.chargement { text-align: center; padding: 4rem 1rem; color: var(--texte-doux); }
+.chargement .jauge {
+  height: 6px; width: min(24rem, 80%); margin: 1.5rem auto 0;
+  background: var(--fond-appui); border-radius: 3px; overflow: hidden;
+}
+.chargement .jauge > span {
+  display: block; height: 100%; width: 30%; background: var(--accent);
+  animation: glisse 1.4s ease-in-out infinite;
+}
+@keyframes glisse {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(333%); }
+}
+body.calcul-en-cours main { opacity: 0.45; transition: opacity 0.2s; }
 """
 
 DEPOT = "https://github.com/wald52/retraitecomptenotionelle"
 
-_LIENS = (
+#: « serveur » : les pages sont servies par FastAPI, une adresse par page.
+#: « navigateur » : tout tourne dans le navigateur, la navigation se fait par
+#: l'ancre de l'adresse (``#/cas-types``). Le rendu est identique dans les deux
+#: cas ; seuls les liens changent.
+MODE = "serveur"
+
+LIENS = (
     ("/", "Simuler"),
     ("/cas-types", "Cas types"),
     ("/methode", "Méthode"),
@@ -161,14 +187,44 @@ _LIENS = (
 )
 
 
-def page(titre: str, corps: str, chemin_actif: str = "/") -> str:
-    """Enveloppe complète d'une page."""
-    navigation = "".join(
-        f'<a href="{chemin}"'
+def dans_le_navigateur() -> bool:
+    return MODE == "navigateur"
+
+
+def lien(chemin: str, ancre: str = "") -> str:
+    """Adresse d'une page interne, selon le mode de service."""
+    if dans_le_navigateur():
+        return "#" + chemin
+    return chemin + (f"#{ancre}" if ancre else "")
+
+
+def navigation(chemin_actif: str = "/") -> str:
+    return "".join(
+        f'<a href="{lien(chemin)}"'
         + (' aria-current="page"' if chemin == chemin_actif else "")
         + f">{escape(libelle)}</a>"
-        for chemin, libelle in _LIENS
+        for chemin, libelle in LIENS
     )
+
+
+def entete(chemin_actif: str = "/") -> str:
+    return f"""<header class="bandeau"><div class="interieur">
+  <h1><a href="{lien('/')}">Retraite à comptes notionnels</a></h1>
+  <nav>{navigation(chemin_actif)}</nav>
+</div></header>"""
+
+
+def pied() -> str:
+    return f"""<footer>
+  <p>Modèle ouvert, code et données sur <a href="{DEPOT}">GitHub</a> (licence MIT).
+  Les montants sont bruts, exprimés en euros constants de l'année de référence.
+  Aucune série n'est encore au niveau de fiabilité « certifiée » :
+  <a href="{DEPOT}/blob/main/docs/limites.md">lire les limites</a> avant de citer un chiffre.</p>
+</footer>"""
+
+
+def page(titre: str, corps: str, chemin_actif: str = "/") -> str:
+    """Document complet — utilisé par le serveur ; le navigateur n'en prend que le corps."""
     return f"""<!doctype html>
 <html lang="fr">
 <head>
@@ -178,18 +234,10 @@ def page(titre: str, corps: str, chemin_actif: str = "/") -> str:
 <style>{FEUILLE_DE_STYLE}</style>
 </head>
 <body>
-<header class="bandeau"><div class="interieur">
-  <h1><a href="/">Retraite à comptes notionnels</a></h1>
-  <nav>{navigation}</nav>
-</div></header>
+{entete(chemin_actif)}
 <main>
 {corps}
-<footer>
-  <p>Modèle ouvert, code et données sur <a href="{DEPOT}">GitHub</a> (licence MIT).
-  Les montants sont bruts, exprimés en euros constants de l'année de référence.
-  Aucune série n'est encore au niveau de fiabilité « certifiée » :
-  <a href="{DEPOT}/blob/main/docs/limites.md">lire les limites</a> avant de citer un chiffre.</p>
-</footer>
+{pied()}
 </main>
 </body>
 </html>"""
