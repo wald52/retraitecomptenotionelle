@@ -67,10 +67,14 @@ la page.
 <details>
 <summary>Comment la page fonctionne, et pourquoi ce choix</summary>
 
-`docs/index.html` charge [Pyodide](https://pyodide.org) — CPython compilé en
-WebAssembly, versionné dans `docs/pyodide/` (14 Mo) — puis décompresse
-`docs/simulateur.zip` (103 Ko : le moteur et les données) dans son système de
+`index.html` charge [Pyodide](https://pyodide.org) — CPython compilé en
+WebAssembly, versionné dans `moteur/pyodide/` (14 Mo) — puis décompresse
+`moteur/simulateur.zip` (104 Ko : le modèle et les données) dans son système de
 fichiers virtuel, et appelle le module `retraite_notionnelle.web.navigateur`.
+
+Le site est servi depuis la racine du dépôt, telle quelle : c'est ce que GitHub
+Pages publie sans aucun réglage, et `.nojekyll` demande que les fichiers soient
+servis sans transformation.
 
 C'est **le même code Python** que la ligne de commande, à la ligne près : pas de
 portage en JavaScript qui divergerait du modèle, pas de résultats précalculés
@@ -78,7 +82,7 @@ qui figeraient les hypothèses. Rien n'est chargé depuis un CDN ou un service
 tiers, ce qu'un test vérifie : le site fonctionne derrière un réseau fermé, et
 survivra à la disparition de n'importe quel hébergeur.
 
-Le paquet `simulateur.zip` est reconstruit par `python scripts/construire_site.py`
+Le paquet `moteur/simulateur.zip` est reconstruit par `python scripts/construire_site.py`
 après toute modification du code ou des données ; le test `test_le_paquet_est_a_jour`
 échoue s'il a été oublié.
 
@@ -246,10 +250,13 @@ src/retraite_notionnelle/
     application.py              serveur FastAPI et API JSON (dépendances optionnelles)
     navigateur.py               pont vers la page qui s'exécute dans le navigateur
 
-docs/                           le site publié, tel qu'il est servi
-  index.html                    la page : charge Pyodide, puis le simulateur
+index.html                      le site : charge Pyodide, puis le simulateur
+.nojekyll                       servir les fichiers sans transformation
+moteur/
   pyodide/                      CPython compilé en WebAssembly (14 Mo, versionné)
-  simulateur.zip                le moteur et les données (103 Ko, reconstruit par script)
+  simulateur.zip                le modèle et les données (104 Ko, reconstruit par script)
+
+docs/
   methodologie.md               ce que le modèle calcule, et pourquoi ainsi
   limites.md                    ce qu'il ne calcule pas, et ce qui reste à certifier
 

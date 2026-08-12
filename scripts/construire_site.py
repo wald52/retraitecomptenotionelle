@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
 """Fabrique le paquet que la page web charge dans le navigateur.
 
-``docs/simulateur.zip`` contient le moteur et les données de référence. La page
-``docs/index.html`` le décompresse dans le système de fichiers virtuel de
+``moteur/simulateur.zip`` contient le modèle et les données de référence. La
+page ``index.html`` le décompresse dans le système de fichiers virtuel de
 Pyodide, puis importe le paquet : c'est le même code que sur un poste de
 travail, à la ligne près.
+
+Le site est servi depuis la racine du dépôt — c'est ce que GitHub Pages publie
+sans réglage — d'où ``index.html`` à la racine et les fichiers lourds rangés
+dans ``moteur/``.
 
     python scripts/construire_site.py            # reconstruit le paquet
     python scripts/construire_site.py --verifier # échoue s'il est périmé
@@ -25,7 +29,7 @@ import zipfile
 from pathlib import Path
 
 RACINE = Path(__file__).resolve().parents[1]
-PAQUET = RACINE / "docs" / "simulateur.zip"
+PAQUET = RACINE / "moteur" / "simulateur.zip"
 
 #: Répertoires embarqués, avec leur chemin d'arrivée dans le paquet.
 CONTENU = (

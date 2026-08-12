@@ -55,14 +55,14 @@
   </noscript>
 </div>
 
-<script src="pyodide/pyodide.js"></script>
+<script src="moteur/pyodide/pyodide.js"></script>
 <script>
 (function () {
   "use strict";
 
   // Tout est servi depuis ce dépôt : l'environnement Python comme le modèle.
   // Aucune requête vers un tiers, rien à installer, rien à autoriser.
-  const INDEX_PYODIDE = "pyodide/";
+  const INDEX_PYODIDE = "moteur/pyodide/";
   const RACINE = "/simulateur";
   const amorce = document.getElementById("amorce");
   let moteur = null;      // module Python retraite_notionnelle.web.navigateur
@@ -92,9 +92,9 @@
     await pyodide.loadPackage("pyyaml");
 
     etape("Chargement du modèle et des séries de référence…");
-    const reponse = await fetch("simulateur.zip", { cache: "force-cache" });
+    const reponse = await fetch("moteur/simulateur.zip", { cache: "force-cache" });
     if (!reponse.ok) {
-      throw new Error("simulateur.zip introuvable (" + reponse.status + ")");
+      throw new Error("moteur/simulateur.zip introuvable (" + reponse.status + ")");
     }
     const paquet = await reponse.arrayBuffer();
     pyodide.FS.mkdirTree(RACINE);

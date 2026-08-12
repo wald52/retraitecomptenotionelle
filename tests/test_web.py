@@ -326,9 +326,9 @@ def test_le_paquet_est_a_jour():
     S'il échoue : ``python scripts/construire_site.py``.
     """
     construction = _construction()
-    assert construction.PAQUET.exists(), "docs/simulateur.zip est absent"
+    assert construction.PAQUET.exists(), "moteur/simulateur.zip est absent"
     assert construction.PAQUET.read_bytes() == construction.construire(), (
-        "docs/simulateur.zip est périmé — lancer python scripts/construire_site.py"
+        "moteur/simulateur.zip est périmé — lancer python scripts/construire_site.py"
     )
 
 
@@ -348,8 +348,8 @@ def test_la_page_ne_depend_d_aucun_service_exterieur():
     """« Tout doit déjà être là » : aucune requête vers un tiers au chargement."""
     from pathlib import Path
 
-    page = (Path(__file__).resolve().parents[1] / "docs" / "index.html").read_text()
-    assert 'src="pyodide/pyodide.js"' in page
+    page = (Path(__file__).resolve().parents[1] / "index.html").read_text()
+    assert 'src="moteur/pyodide/pyodide.js"' in page
     assert "cdn.jsdelivr.net" not in page
 
     #: Seules adresses tolérées : le dépôt lui-même (liens que le lecteur suit
@@ -366,7 +366,7 @@ def test_la_page_ne_depend_d_aucun_service_exterieur():
 def test_le_moteur_pyodide_est_versionne():
     from pathlib import Path
 
-    pyodide = Path(__file__).resolve().parents[1] / "docs" / "pyodide"
+    pyodide = Path(__file__).resolve().parents[1] / "moteur" / "pyodide"
     attendus = {"pyodide.js", "pyodide.asm.mjs", "pyodide.asm.wasm",
                 "python_stdlib.zip", "pyodide-lock.json"}
     presents = {chemin.name for chemin in pyodide.iterdir()}
