@@ -36,7 +36,8 @@ qu'aucun résultat ne soit cité sans savoir sur quoi il repose.
 | Valeurs du point, Arrco avant 1999 | 1949-1998 | moyenne | UNIRS, la plus grosse caisse Arrco |
 | Valeurs du point, complémentaire des avocats | 2017-2026 | **certifiée** | CNBF, ses barèmes annuels |
 | Valeur du point et taux, base des professions libérales | 2021-2025 | **certifiée** | CNAVPL, ses recueils statistiques |
-| Rendement des autres régimes en points | MSA | estimée | reconstitué faute de barème exploitable |
+| Valeur de service du point, complémentaire agricole | 2005-2024 | **certifiée** | DILA, base LEGI, code rural `D. 732-166` |
+| Valeur du point, base agricole et valeurs d'achat RCO | — | absentes | hors du code ; voir plus bas |
 
 **Comment la certification fonctionne.** Une valeur n'est `certifiee` que si
 elle a été confrontée à un fichier téléchargé depuis le producteur. Le circuit
@@ -52,6 +53,7 @@ python scripts/fetch/openfisca_points.py       # valeurs du point, depuis 1947
 python scripts/fetch/cdc_ircantec.py           # barèmes Ircantec, par son gestionnaire
 python scripts/fetch/cnbf_baremes.py           # valeurs du point des avocats
 python scripts/fetch/cnavpl_recueils.py        # valeur du point des professions libérales
+python scripts/fetch/dila_legi_msa.py          # point de la complémentaire agricole (lent : 1,1 Go)
 python scripts/fetch/eurostat_hicp.py          # contrôle croisé de l'inflation
 
 python scripts/verifier_donnees.py             # confronte, sans rien écrire
@@ -133,65 +135,83 @@ qui a été cherché, pour éviter de le rechercher deux fois.
 * *Taux de cotisation d'avant octobre 1967 et des régimes autres que le régime
   général* — aucune transcription machine n'existe. Ils viennent des
   ordonnances de 1945 et de leurs modificatifs, saisis à la main.
-* *Valeur du point de la MSA* — la dernière caisse en points dont aucune série
-  exploitable ne sort. Ont été essayés sans succès : OpenFisca-France-Pension
-  (ne modélise pas ce régime), les barèmes IPP (même périmètre — c'est la source
-  amont d'OpenFisca, ses quarante-cinq feuilles couvrent l'Arrco, l'Agirc,
-  l'UNIRS, PRO-BTP, l'Ircantec, la CANCAVA et l'ORGANIC), l'open data de la
-  DREES (cinquante et un jeux « retraite », tous des résultats statistiques), le
-  portail open data de la Caisse des dépôts (effectifs seulement), data.gouv.fr
-  (les jeux de la MSA sont des effectifs de retraités et d'exploitants), le
-  portail statistiques.msa.fr, la BDM de l'INSEE — qui porte le point de l'Agirc
-  et de l'Arrco mais aucun point agricole — et le site de la caisse, dont les
-  pages de barèmes sont construites en JavaScript.
+* *Valeur du point de la MSA* — **trouvée, après huit sources infructueuses.**
+  Ont été essayés sans succès : OpenFisca-France-Pension (ne modélise pas ce
+  régime), les barèmes IPP (même périmètre — c'est la source amont d'OpenFisca,
+  ses quarante-cinq feuilles couvrent l'Arrco, l'Agirc, l'UNIRS, PRO-BTP,
+  l'Ircantec, la CANCAVA et l'ORGANIC), l'open data de la DREES (cinquante et un
+  jeux « retraite », tous des résultats statistiques), le portail open data de la
+  Caisse des dépôts (effectifs seulement), data.gouv.fr (les jeux de la MSA sont
+  des effectifs de retraités et d'exploitants), la BDM de l'INSEE — qui porte le
+  point de l'Agirc et de l'Arrco mais aucun point agricole — les « Chiffres
+  utiles » de la MSA, publiés chaque année depuis 2005 mais qui sont un annuaire
+  d'effectifs et non un barème, et le site de la caisse, dont les pages de
+  barèmes sont construites en JavaScript.
 
-  **Ce qui manque n'est pas ce qu'on croyait.** Les paramètres, eux, ont fini
-  par se laisser établir, et ils disent où est le vrai obstacle :
+  Elle était pourtant écrite, chaque année depuis 2005, dans le **code rural**,
+  à l'article `D. 732-166` :
 
-  * le régime **complémentaire** (RCO) n'a pas de prix d'achat du point, et ne
-    peut pas en avoir : l'article D. 732-165 du code rural attribue les points
-    par une formule, `points = revenus × 100 ÷ (1 820 × SMIC horaire)`, avec un
-    plancher de 100 points à l'assiette minimale. Sa valeur de service est à
-    l'article D. 732-166, à 0,3919 € pour 2025 ;
-  * le régime de **base** comporte une part forfaitaire et une **retraite
-    proportionnelle en points**, dont le COR donne la valeur — 4,264 € en 2023.
-    Mais ces points ne s'achètent pas davantage : ils sont attribués par un
-    barème annuel par tranche de revenu, de 23 à 113 points selon la tranche.
+  > « La valeur de service du point de retraite complémentaire obligatoire
+  > mentionnée à l'article L. 732-60 est fixée pour l'année 2013 à
+  > 0,336 2 euros. »
 
-  L'obstacle est donc ce barème annuel par tranche, que ni la caisse ni le
-  ministère ne publient en série — et non un prix d'acquisition manquant, comme
-  cette page l'a d'abord écrit. S'y ajoute que le modèle traite la MSA comme un
-  régime unique quand il y a deux étages, et que la RCO attribue des points
-  gratuits autant que cotisés (66 par an aux conjoints et aides familiaux avant
-  2011, dans la limite de 17 années). Ce régime reste au rendement instantané
-  reconstitué, et la confrontation des autres à leurs vraies valeurs a montré
-  que ces reconstitutions peuvent se tromper du simple au double : à prendre
-  avec la même méfiance.
+  Ce qui manquait n'était pas la donnée mais un **chemin reproductible** vers
+  elle : Légifrance sert cet article mais refuse les requêtes automatisées — 403
+  sur toute requête non navigateur — et son API demande une clé. La base **LEGI**
+  de la DILA, elle, est en accès libre et garde chaque version datée de chaque
+  article codifié. `scripts/fetch/dila_legi_msa.py` la lit en flux, sans écriture
+  disque, et n'en retient que les dix-neuf versions de cet article. La série
+  couvre **2005-2024**, sans trou, et le niveau est celui du producteur : c'est
+  la publication officielle, non une transcription.
 
-  *Légifrance porte bien ces articles, mais refuse les requêtes automatisées*
-  (403 sur toute requête non navigateur), et son API demande une clé. Les
-  valeurs ci-dessus ont donc été relevées à la lecture, et ne peuvent pas être
-  certifiées par un script : c'est pourquoi elles restent dans ce document et
-  dans les fiches de régime, pas dans une série.
+  Trois pièges de lecture, notés pour qui reprendra le fil : le *Journal
+  officiel* aère les décimales par groupes de trois (« 0,336 2 », parfois même
+  « 0, 311 9 ») ; la rédaction change trois fois de forme en vingt ans ; et un
+  même décret peut fixer deux années d'un coup — c'est ainsi que 2019 et 2021
+  entrent dans la série, aucun texte ne leur étant propre. L'année 2022 a reçu
+  deux valeurs successives, revalorisée en cours d'année : la convention du
+  dépôt retenant le 31 décembre, c'est la seconde qui compte.
 
-  **La voie légale a été suivie jusqu'au bout, et elle ne mène pas où il
-  faudrait.** Les bases ouvertes de la DILA ont été dépouillées en flux, sans
-  écriture disque : 12,4 Go de JORF puis 9,1 Go de LEGI, deux fois — une passe
-  ciblée, puis une passe large gardant tout article codifié portant une valeur
-  de point, pour ne pas manquer un renvoi du type « la valeur mentionnée à
-  l'article L. 643-1 ». Ce qu'on y trouve, et qui vaut d'être noté pour ne pas
-  refaire le trajet :
+  **Ce qui reste ouvert, et une correction.** Cette page a d'abord écrit que la
+  RCO ne pouvait pas avoir de prix d'achat, ses points étant attribués par la
+  formule `revenus × 100 ÷ (1 820 × SMIC)`. C'est faux : l'article `L. 732-60`
+  dispose que « le nombre annuel de points est déterminé en fonction de
+  l'assiette […] et des **valeurs d'achat** fixées par l'arrêté mentionné à
+  l'article L. 732-60-1 ». La formule était la règle ancienne ; depuis la loi
+  d'avenir agricole de 2014, un plan triennal fixe conjointement valeurs de
+  service, valeurs d'achat et taux de cotisation. Ces valeurs d'achat ne sont pas
+  dans le code — l'arrêté ne le modifie pas — et restent à trouver.
+
+  Le régime de **base** reste lui aussi sans série. Sa retraite proportionnelle
+  est en points, dont la valeur n'est entrée dans le code qu'en 2025
+  (`R. 732-66`, 4,589 € au 1er janvier 2025 ; le COR donne 4,264 € pour 2023),
+  et ses points sont attribués par un barème annuel par tranche de revenu — de
+  23 à 113 points — que personne ne publie en série.
+
+  Le moteur n'utilise donc pas encore ces valeurs, et la raison est celle de la
+  CNBF : la fiche `msa_non_salaries` agrège les deux étages, la base à deux
+  parts et la RCO créée en 2003. Les valeurs sont rangées sous le code
+  `msa_rco`, que le catalogue ne connaît pas, et le régime reste au rendement
+  instantané. S'y ajoute que la RCO attribue des points **gratuits** autant que
+  cotisés — 66 par an aux conjoints et aides familiaux pour les périodes
+  antérieures à 2011, dans la limite de 17 années.
+
+  **La voie légale mène quelque part, mais pas partout.** Les bases ouvertes
+  de la DILA ont été dépouillées en flux, sans écriture disque : 12,4 Go de JORF
+  puis 9,1 Go de LEGI, quatre passes en tout — deux ciblées, deux larges gardant
+  tout article codifié portant une valeur de point, pour ne pas manquer un renvoi
+  du type « la valeur mentionnée à l'article L. 643-1 ». Une cinquième passe,
+  cette fois indexée non sur le texte mais sur le **numéro d'article**, a fini
+  par livrer la série agricole : c'est ce que fait aujourd'hui
+  `scripts/fetch/dila_legi_msa.py`. Le bilan, pour ne pas refaire le trajet :
 
   * la valeur de service du point de la **retraite complémentaire obligatoire
-    agricole** est portée par un article codifié, `D. 732-166` du code rural,
-    dont LEGI garde les versions successives datées — 0,3023 € en 2006,
-    0,3188 € en 2010, 0,3642 € en 2023, 0,3835 € en 2025. C'est une vraie série,
-    mais incomplète et surtout inexploitable telle quelle : le modèle traite la
-    MSA comme un régime unique, alors que la RCO n'en est que la part
-    complémentaire, créée en 2003, et qu'elle attribue des points
-    **forfaitaires** autant que cotisés. Il manque le prix d'acquisition, qui
-    n'existe pas sous cette forme. L'intégrer à moitié serait pire que
-    l'approximation assumée d'aujourd'hui ;
+    agricole** est portée par l'article `D. 732-166` du code rural, dont LEGI
+    garde les dix-neuf versions datées. C'est une série complète de 2005 à 2024,
+    désormais dans le dépôt et certifiée. Chercher le *texte* ne suffisait pas —
+    les premières passes n'en avaient tiré que quatre valeurs éparses ; chercher
+    le *numéro d'article* les donne toutes, parce que LEGI est organisée par
+    version d'article et non par thème ;
   * la **CNAVPL** n'apparaît dans aucun article codifié portant une valeur de
     point, et la passe large n'en trouve pas davantage : la législation
     consolidée ne contient, sous ce libellé, que le point d'indice des pensions
@@ -201,6 +221,10 @@ qui a été cherché, pour éviter de le rechercher deux fois.
     recherche ait été trop étroite, mais que la donnée cherchée n'y est pas :
     **le décret annuel fixe un coefficient de revalorisation, non un montant.**
     La valeur qui en résulte n'est publiée que par la caisse.
+
+  La leçon vaut d'être retenue : *une base peut contenir la donnée sans que le
+  mot cherché y figure*. Ce qui a débloqué la MSA n'est pas une source nouvelle,
+  c'est un changement de clé d'entrée.
 
   *La CNBF et la CNAVPL ont fini par livrer les leurs* — non par la loi, mais
   l'une par ses barèmes annuels, l'autre par ses recueils statistiques. Voir les
@@ -295,8 +319,9 @@ l'Institut des politiques publiques (PENSIPP). Écarts connus :
   l'historique réel des valeurs d'achat et de service (Agirc depuis 1947, Arrco
   depuis 1949, Ircantec depuis 1949), avec conversion des points aux fusions.
   Restent au rendement instantané la CNAVPL, la MSA, la CNBF, le RCI et le
-  RAFP — pour la MSA faute de barème exploitable, pour les autres faute d'une
-  fiche assez fine pour recevoir celui qu'on a ;
+  RAFP. Pour le RCI et le RAFP faute d'un prix d'achat publié ; pour les trois
+  autres, la valeur du point est désormais dans le dépôt mais la fiche de régime
+  agrège des étages qu'il faudrait scinder d'abord ;
 - **montée en charge des réformes** — les paramètres sont ceux de l'année de
   liquidation, sans le détail génération par génération des lois Balladur (1993)
   et Touraine (2014) ;
@@ -319,7 +344,7 @@ Un écart de quelques pour cent avec la pension réelle est attendu.
 | Marins (ENIM) | grille des salaires forfaitaires par catégorie et par année |
 | Avocats (CNBF) | barème forfaitaire par tranche d'ancienneté |
 | Régimes spéciaux résiduels | paramètres saisis au niveau `estimee`, à certifier auprès de chaque caisse |
-| Non-salariés agricoles | part forfaitaire et points RCO traités de façon agrégée |
+| Non-salariés agricoles | fiche à scinder en base et RCO ; barème de points du régime de base, et valeurs d'achat du point de RCO |
 
 Le catalogue compte **35 régimes**, actuels et disparus. Il est structurellement
 extensible : ajouter un régime consiste à écrire une fiche YAML conforme à
@@ -357,7 +382,7 @@ extensible : ajouter un régime consiste à écrire une fiche YAML conforme à
   `data/derive/calibrations_mortalite.json`, régénérable en supprimant le fichier.
 - La certification des séries est tracée dans `data/derive/certification.json`,
   régénérable par `scripts/verifier_donnees.py --appliquer`.
-- 144 tests couvrent le chargement, la fiabilité, la règle de certification, la
+- 145 tests couvrent le chargement, la fiabilité, la règle de certification, la
   concordance des tables de mortalité observées avec les espérances publiées, les
   propriétés du moteur et le comportement des scénarios : `python -m pytest tests`.
   Aucun test n'accède au réseau : les sources sont simulées.

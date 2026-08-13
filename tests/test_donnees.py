@@ -206,6 +206,7 @@ def test_journal_de_certification_decrit_les_series_certifiees():
         "valeurs_point_cnbf": "regimes/valeurs_point.csv",
         "valeurs_point_cnavpl": "regimes/valeurs_point.csv",
         "valeurs_point_insee": "regimes/valeurs_point.csv",
+        "valeurs_point_msa": "regimes/valeurs_point.csv",
         "valeurs_point_unirs": "regimes/valeurs_point.csv",
         "valeurs_point_texte": "regimes/valeurs_point.csv",
     }

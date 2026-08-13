@@ -92,10 +92,10 @@
    "valeurs": 18
   },
   "valeurs_point_insee": {
-   "ajoutees": 1,
+   "ajoutees": 0,
    "corrigees": 0,
    "empreinte": "18296415a374565e",
-   "identiques": 0,
+   "identiques": 1,
    "niveau": "haute",
    "source": "INSEE BDM, idbanks 000849395, 000822495 et 010593202",
    "valeurs": 1
@@ -108,6 +108,15 @@
    "niveau": "certifiee",
    "source": "Caisse des dépôts, barèmes Ircantec (IRC_BAR_01 et IRC_BAR_02)",
    "valeurs": 153
+  },
+  "valeurs_point_msa": {
+   "ajoutees": 20,
+   "corrigees": 0,
+   "empreinte": "fcfafd64be80c849",
+   "identiques": 0,
+   "niveau": "certifiee",
+   "source": "DILA, base LEGI, code rural D. 732-166",
+   "valeurs": 20
   },
   "valeurs_point_texte": {
    "ajoutees": 0,

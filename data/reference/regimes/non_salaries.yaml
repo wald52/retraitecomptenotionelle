@@ -347,15 +347,20 @@ regimes:
           Loi du 4 mars 2002 créant la retraite complémentaire obligatoire (RCO)
           des non-salariés agricoles, en points. Garantie « 85 % du SMIC » :
           droit non contributif, neutralisé dans les scénarios notionnels.
-          Les deux étages sont en points sans prix d'achat, ce qui explique que
-          le régime reste calculé au rendement instantané. Base : part
-          forfaitaire plus retraite proportionnelle, dont le point vaut 4,264 €
-          en 2023 (COR, fiche MSA-NSA de juillet 2024), les points étant
-          attribués par un barème annuel par tranche de revenu — de 23 à 113
-          points — que personne ne publie en série. RCO : valeur de service
-          0,3919 € pour 2025 (code rural, D. 732-166) et acquisition par
-          formule, points = revenus × 100 ÷ (1 820 × SMIC horaire), avec un
-          plancher de 100 points à l'assiette minimale (D. 732-165). S'y
+          La valeur de service du point de RCO est désormais sourcée et
+          certifiée de 2005 à 2024, depuis l'article D. 732-166 du code rural
+          (base LEGI de la DILA) : elle est rangée sous le code msa_rco, que le
+          catalogue ne connaît pas, parce que cette fiche agrège les deux
+          étages et que tout verser dans le complémentaire ferait disparaître la
+          base. Le régime reste donc calculé au rendement instantané, faute des
+          deux pièces qui manquent encore. La première est la valeur d'ACHAT du
+          point de RCO : contrairement à ce qui a d'abord été écrit ici, elle
+          existe — l'article L. 732-60 la mentionne expressément — mais elle est
+          fixée par arrêté triennal, qui ne modifie pas le code. La seconde est
+          le barème du régime de base, dont la retraite proportionnelle attribue
+          de 23 à 113 points par tranche de revenu, sans série publiée ; la
+          valeur de son point n'est entrée dans le code qu'en 2025 (R. 732-66,
+          4,589 € au 1er janvier 2025 ; le COR donne 4,264 € pour 2023). S'y
           ajoutent des points gratuits — 66 par an aux conjoints et aides
           familiaux pour les périodes antérieures à 2011, dans la limite de
           17 années. Voir docs/limites.md §1.

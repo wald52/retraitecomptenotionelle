@@ -344,6 +344,21 @@ def source_valeurs_point_cnavpl() -> dict[tuple, float]:
     }
 
 
+def source_valeurs_point_msa() -> dict[tuple, float]:
+    """Valeur de service du point de la complémentaire agricole, dans le code rural.
+
+    Fixée chaque année par décret, à l'article D. 732-166, dont la base LEGI de
+    la DILA garde toutes les versions datées. C'est la publication officielle,
+    non une transcription : le niveau est donc celui du producteur.
+    """
+    return {
+        tuple(cle.split("|")): valeur
+        for cle, valeur in sorted(
+            _serie_json("dila_legi_msa.json", "scripts/fetch/dila_legi_msa.py").items()
+        )
+    }
+
+
 def _point_insee() -> dict[str, dict[int, float]]:
     """Valeur de service du point Agirc, Arrco et Agirc-Arrco, au 31 décembre.
 
@@ -648,6 +663,16 @@ CERTIFICATIONS = (
         colonne="valeur",
         source=source_valeurs_point_cnavpl,
         origine="CNAVPL, recueils statistiques annuels",
+        decimales=6,
+        tolerance=5e-7,
+    ),
+    Certification(
+        nom="valeurs_point_msa",
+        chemin=REFERENCE / "regimes" / "valeurs_point.csv",
+        cles=("regime", "annee", "mesure"),
+        colonne="valeur",
+        source=source_valeurs_point_msa,
+        origine="DILA, base LEGI, code rural D. 732-166",
         decimales=6,
         tolerance=5e-7,
     ),

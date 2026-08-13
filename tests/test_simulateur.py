@@ -495,3 +495,48 @@ def test_valeur_du_point_agirc_arrco_est_recoupee_par_l_insee(simulateur):
         annees = sorted(a for a in par_regime[regime] if a >= 2001)
         valeurs = [par_regime[regime][a] for a in annees]
         assert all(apres >= avant for avant, apres in zip(valeurs, valeurs[1:]))
+
+
+def test_valeur_du_point_de_la_complementaire_agricole_est_sourcee(simulateur):
+    """La dernière caisse en points sans série a fini par en avoir une.
+
+    Elle ne vient ni de la MSA ni de son service statistique — les « Chiffres
+    utiles » sont un annuaire d'effectifs — mais du code rural lui-même, dont
+    l'article D. 732-166 fixe la valeur chaque année depuis 2005. La base LEGI
+    de la DILA en garde toutes les versions datées ; c'est la publication
+    officielle, d'où le niveau du producteur.
+
+    Les valeurs sont rangées sous ``msa_rco``, un code que le catalogue ignore :
+    la fiche ``msa_non_salaries`` agrège le régime de base et son étage
+    complémentaire, et tout verser dans le second ferait disparaître le premier.
+    Ce test garde cette séparation autant que les valeurs.
+    """
+    import csv
+
+    from retraite_notionnelle.donnees import CatalogueRegimes
+
+    chemin = (simulateur.parametres.racine_donnees / "reference" / "regimes"
+              / "valeurs_point.csv")
+    with chemin.open(encoding="utf-8") as flux:
+        lignes = [l for l in csv.DictReader(
+            x for x in flux if not x.lstrip().startswith("#"))
+            if l["regime"] == "msa_rco"]
+
+    valeurs = {int(l["annee"]): float(l["valeur"]) for l in lignes}
+    assert {l["fiabilite"] for l in lignes} == {"certifiee"}
+    assert {l["mesure"] for l in lignes} == {"valeur_service"}
+
+    # Bornes de la série, et l'année 2019 — que seul un décret fixant deux
+    # années d'un coup fait entrer : aucun texte ne lui est propre.
+    assert valeurs[2005] == pytest.approx(0.2972)
+    assert valeurs[2019] == pytest.approx(0.3392)
+    assert valeurs[2024] == pytest.approx(0.3835)
+
+    annees = sorted(valeurs)
+    assert annees == list(range(annees[0], annees[-1] + 1)), "la série a un trou"
+    assert all(valeurs[b] >= valeurs[a] for a, b in zip(annees, annees[1:]))
+
+    # Le code reste hors catalogue tant que la fiche n'est pas scindée.
+    catalogue = CatalogueRegimes(simulateur.parametres.racine_donnees)
+    assert "msa_rco" not in catalogue
+    assert "msa_non_salaries" in catalogue
