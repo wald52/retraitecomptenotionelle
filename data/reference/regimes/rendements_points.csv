@@ -1,45 +1,52 @@
-# Rendement instantané des régimes en points
-# source_id: agirc_arrco_points, ircantec_points, cnavpl_parametres
+# Rendement instantané des régimes en points — filet de sécurité
+# source_id: openfisca_points (régimes couverts), agirc_arrco_points,
+#            ircantec_points, cnavpl_parametres (les autres)
 # unite: pension annuelle brute obtenue par euro de cotisation effectivement
 #        versée (part salarié + part employeur), à l'âge du taux plein
-# fiabilite: haute | moyenne | estimee
 #
-# POURQUOI CETTE SÉRIE
-# --------------------
-# Le scénario « système actuel » doit reproduire la retraite complémentaire.
-# Le calcul exact exige l'historique complet des valeurs d'achat et de service
-# du point, caisse par caisse, depuis 1947 — série non intégrée à ce jour.
-# On passe donc par le rendement instantané, qui est le rapport
-# valeur de service / valeur d'achat, corrigé du taux d'appel :
+# CE FICHIER N'EST PLUS LA SOURCE PRINCIPALE
+# ------------------------------------------
+# Depuis l'intégration de regimes/valeurs_point.csv, le moteur accumule des
+# POINTS année par année pour tout régime dont il connaît le prix d'achat :
+# cotisation / (taux d'appel × salaire de référence), converti en rente à la
+# liquidation par la valeur de service. L'approximation par rendement ne sert
+# plus que là où cette série ne va pas — CNAVPL, MSA, CNBF, RCI, CANCAVA,
+# ORGANIC, RAFP — et de filet de sécurité si le fichier des valeurs du point
+# venait à manquer.
 #
-#   rendement effectif = (valeur_service / valeur_achat) / taux_appel
+# Le rendement instantané est le rapport
 #
-# Repère certifiable : Agirc-Arrco 2025, valeur d'achat 20,1899 €,
-# valeur de service 1,4386 €, taux d'appel 127 % ->
-#   (1,4386 / 20,1899) / 1,27 = 5,61 %.
+#   rendement effectif = valeur_service / (taux_appel × salaire_reference)
 #
-# Les valeurs antérieures décrivent la décrue continue du rendement des
-# complémentaires : de l'ordre de 12 à 15 % dans les années 1960, quand les
-# régimes étaient jeunes et servaient peu de pensions, à 5,6 % aujourd'hui.
-# Elles sont RECONSTITUÉES et doivent être remplacées par le calcul exact.
+# Repère : Agirc-Arrco 2025, salaire de référence 20,1877 €, valeur de service
+# 1,4386 €, taux d'appel 127 % -> (1,4386 / 20,1877) / 1,27 = 5,61 %.
+#
+# fiabilite:
+#   haute   : moyenne des rendements calculés sur les valeurs du point publiées
+#   estimee : reconstitution, pour les régimes dont le point n'est pas intégré.
+#             La confrontation aux valeurs réelles a montré que ces
+#             reconstitutions pouvaient se tromper largement — l'Ircantec des
+#             années 1970 était estimé à 11 % quand ses barèmes en donnent 22,8 %.
+#             Les régimes qui restent à ce niveau sont donc à prendre avec la
+#             même méfiance.
 regime,debut,fin,rendement,fiabilite
-agirc,1947,1969,0.140,estimee
-agirc,1970,1979,0.120,estimee
-agirc,1980,1989,0.098,estimee
-agirc,1990,1999,0.077,estimee
-agirc,2000,2009,0.066,estimee
-agirc,2010,2018,0.060,estimee
-arrco,1961,1969,0.150,estimee
-arrco,1970,1979,0.125,estimee
-arrco,1980,1989,0.100,estimee
-arrco,1990,1999,0.078,estimee
-arrco,2000,2009,0.067,estimee
-arrco,2010,2018,0.061,estimee
-unirs,1957,1961,0.150,estimee
-agirc_arrco,2019,2100,0.0561,haute
-ircantec,1971,1989,0.110,estimee
-ircantec,1990,2008,0.075,estimee
-ircantec,2009,2100,0.0555,estimee
+agirc,1947,1969,0.1577,haute
+agirc,1970,1979,0.1367,haute
+agirc,1980,1989,0.1177,haute
+agirc,1990,1999,0.0919,haute
+agirc,2000,2009,0.0706,haute
+agirc,2010,2018,0.0647,haute
+arrco,1961,1969,0.1358,haute
+arrco,1970,1979,0.1173,haute
+arrco,1980,1989,0.1073,haute
+arrco,1990,1999,0.0861,haute
+arrco,2000,2009,0.0694,haute
+arrco,2010,2018,0.0645,haute
+unirs,1957,1961,0.1136,haute
+agirc_arrco,2019,2100,0.0581,haute
+ircantec,1971,1989,0.2281,haute
+ircantec,1990,2008,0.1225,haute
+ircantec,2009,2100,0.0852,haute
 rci,2013,2100,0.0570,estimee
 cnavpl,1949,2003,0.080,estimee
 cnavpl,2004,2100,0.0620,estimee

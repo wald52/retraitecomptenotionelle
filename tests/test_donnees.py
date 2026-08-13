@@ -201,6 +201,9 @@ def test_journal_de_certification_decrit_les_series_certifiees():
         "plafond_ancien": "macro/plafond_securite_sociale.csv",
         "esperances_vie": "mortalite/esperances_vie.csv",
         "quotients_mortalite": "mortalite/quotients_periode.csv",
+        "valeurs_point": "regimes/valeurs_point.csv",
+        "valeurs_point_unirs": "regimes/valeurs_point.csv",
+        "valeurs_point_texte": "regimes/valeurs_point.csv",
     }
     assert set(journal["series"]) == set(fichiers)
 

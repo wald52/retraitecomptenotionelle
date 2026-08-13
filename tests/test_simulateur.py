@@ -243,3 +243,77 @@ def test_l_ecart_entre_regles_d_indexation_croit_avec_l_anciennete_de_la_carrier
     ancienne = rapport(1925)   # carrière 1945-1986
     recente = rapport(1970)    # carrière 1990-2031
     assert ancienne > recente > 1.0
+
+
+# -- régimes en points -------------------------------------------------------
+
+
+def test_les_complementaires_sont_calculees_en_points(simulateur, salarie_moyen):
+    """La retraite complémentaire ne passe plus par un rendement estimé.
+
+    Depuis l'intégration des valeurs d'achat et de service du point, la pension
+    Arrco est le produit de points réellement acquis par la valeur de service
+    de l'année de liquidation. Le libellé le dit, et c'est ce libellé qui
+    distingue les deux modes de calcul.
+    """
+    pensions = {p.regime: p for p in simulateur.simuler(salarie_moyen).actuel.pensions_par_regime}
+    assert "arrco" in pensions
+    assert "points × valeur de service" in pensions["arrco"].detail
+    assert pensions["arrco"].montant > 0
+
+
+def test_les_points_d_un_regime_fusionne_sont_convertis(simulateur):
+    """Un régime fermé ne sert plus ses points : son successeur les sert.
+
+    Arrco a fermé en 2018, Agirc-Arrco a repris ses points au rapport des deux
+    valeurs de service. Une pension Arrco liquidée après 2019 doit donc être
+    valorisée au-dessus de la dernière valeur du point Arrco — sans quoi la
+    conversion a été oubliée.
+    """
+    from retraite_notionnelle.scenarios.actuel import ValeursPoint
+
+    valeurs = ValeursPoint(simulateur.parametres.racine_donnees)
+    scenario = simulateur.scenario_actuel
+    derniere_arrco = valeurs.derniere_annee_servie("arrco")
+    assert derniere_arrco == 2018
+
+    avant, _ = valeurs.service("arrco", derniere_arrco)
+    apres, _ = scenario.valeur_du_point("arrco", 2022)
+    assert apres > avant, "les points Arrco n'ont pas suivi la fusion de 2019"
+
+    # La conversion doit être exactement le rapport des valeurs de service au
+    # moment de la reprise : c'est elle qui laisse les pensions inchangées.
+    service_2019, _ = valeurs.service("agirc_arrco", 2019)
+    service_2022, _ = valeurs.service("agirc_arrco", 2022)
+    assert apres == pytest.approx(avant / service_2019 * service_2022)
+
+
+def test_rendement_instantane_reproduit_le_repere_publie(simulateur):
+    """Agirc-Arrco 2025 : le régime publie un rendement de 5,61 %.
+
+    C'est le seul chiffre que la caisse communique directement, et il enchaîne
+    les trois grandeurs du fichier. S'il tombe juste, elles sont cohérentes.
+    """
+    from retraite_notionnelle.scenarios.actuel import ValeursPoint
+
+    valeurs = ValeursPoint(simulateur.parametres.racine_donnees)
+    reference, taux_appel, _ = valeurs.achat("agirc_arrco", 2025)
+    service, _ = valeurs.service("agirc_arrco", 2025)
+    assert service / (reference * taux_appel) == pytest.approx(0.0561, abs=0.0002)
+
+
+def test_un_regime_sans_valeur_de_point_garde_le_rendement(simulateur):
+    """La bascule est régime par régime, pas globale.
+
+    La CNAVPL, la MSA ou la CNBF n'ont pas de série de valeurs du point dans le
+    dépôt : elles doivent continuer d'être calculées au rendement instantané,
+    sans que rien ne casse.
+    """
+    carriere = simulateur.carriere_simple(
+        annee_naissance=1960, sexe="F", affiliation="profession_liberale",
+        age_debut=25, age_liquidation=64,
+    )
+    pensions = {p.regime: p for p in simulateur.simuler(carriere).actuel.pensions_par_regime}
+    assert "cnavpl" in pensions
+    assert "rendement" in pensions["cnavpl"].detail
+    assert pensions["cnavpl"].montant > 0

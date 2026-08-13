@@ -69,7 +69,7 @@ la page.
 
 `index.html` charge [Pyodide](https://pyodide.org) — CPython compilé en
 WebAssembly, versionné dans `moteur/pyodide/` (14 Mo) — puis décompresse
-`moteur/simulateur.zip` (142 Ko : le modèle et les données) dans son système de
+`moteur/simulateur.zip` (150 Ko : le modèle et les données) dans son système de
 fichiers virtuel, et appelle le module `retraite_notionnelle.web.navigateur`.
 
 Le site est servi depuis la racine du dépôt, telle quelle : c'est ce que GitHub
@@ -221,12 +221,19 @@ sourcée et reprise automatiquement, plafonne à `haute`.
 | Quotients de mortalité par âge | 1986-2024 | Eurostat |
 | Plafond de la Sécurité sociale | 2002-2025 | INSEE |
 
+Deux séries de plus sont reprises automatiquement d'**OpenFisca-France**, le
+modèle socio-fiscal de l'administration — le plafond de la Sécurité sociale
+depuis 1931 et les valeurs d'achat et de service du point depuis 1947. Ce sont
+des transcriptions du *Journal officiel* et des circulaires, pas des sources
+primaires : elles plafonnent au niveau `haute`.
+
 ```bash
 python scripts/fetch/insee_bdm.py               # séries longues INSEE (BDM)
 python scripts/fetch/oecd_esperance_vie.py      # espérance de vie à 65 ans
 python scripts/fetch/eurostat_mortalite.py      # tables de mortalité par âge
 python scripts/fetch/openfisca_plafond.py       # plafond ancien
 python scripts/fetch/openfisca_cotisations.py   # taux de cotisation du RG
+python scripts/fetch/openfisca_points.py        # valeurs du point, depuis 1947
 python scripts/fetch/eurostat_hicp.py           # contrôle croisé de l'inflation
 
 python scripts/verifier_donnees.py              # confronte, sans rien écrire
@@ -235,9 +242,9 @@ python scripts/verifier_donnees.py --appliquer  # aligne sur la source et certif
 
 > **Ce qui reste saisi à la main :** les séries d'avant 1950, l'espérance de vie
 > à 65 ans d'avant 1960, les quotients de mortalité d'avant 1986, les taux de
-> cotisation d'avant 1967, et les paramètres propres à chaque régime — âges,
-> durées, valeurs de point — qui viennent de règlements et non de séries
-> statistiques. `docs/limites.md` recense aussi les sources essayées sans
+> cotisation d'avant 1967, les valeurs du point des régimes d'indépendants, et
+> les âges et durées propres à chaque régime, qui viennent de lois et non de
+> séries statistiques. `docs/limites.md` recense aussi les sources essayées sans
 > succès, pour éviter de les rechercher deux fois.
 > Lire [`docs/limites.md`](docs/limites.md) avant de citer un chiffre.
 
@@ -251,7 +258,7 @@ data/
   reference/
     macro/                      inflation, salaire moyen, productivité, plafond, projections
     mortalite/                  espérances de vie et quotients par âge observés
-    regimes/                    35 fiches de régime + schéma + rendements des points
+    regimes/                    35 fiches de régime + schéma + valeurs du point
     legislation/                âges de référence à cliquet, profils d'affiliation
   brut/                         téléchargements bruts, non versionnés
   derive/                       calibrations et journal de certification
@@ -275,13 +282,13 @@ index.html                      le site : charge Pyodide, puis le simulateur
 .nojekyll                       servir les fichiers sans transformation
 moteur/
   pyodide/                      CPython compilé en WebAssembly (14 Mo, versionné)
-  simulateur.zip                le modèle et les données (142 Ko, reconstruit par script)
+  simulateur.zip                le modèle et les données (150 Ko, reconstruit par script)
 
 docs/
   methodologie.md               ce que le modèle calcule, et pourquoi ainsi
   limites.md                    ce qu'il ne calcule pas, et ce qui reste à certifier
 
-tests/                          134 tests
+tests/                          138 tests
 ```
 
 ---
@@ -310,7 +317,7 @@ sous « Options de modélisation ».
 python -m pytest tests
 ```
 
-134 tests couvrant le chargement et la fiabilité des données, la règle de
+138 tests couvrant le chargement et la fiabilité des données, la règle de
 certification, la calibration des tables de mortalité et sa concordance avec les
 tables observées, les propriétés du moteur
 (monotonie du diviseur, cliquet de l'âge de référence, règles de fusion), le

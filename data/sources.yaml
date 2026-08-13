@@ -20,7 +20,7 @@
 # macroéconomiques de l'INSEE, interrogeable sans clé d'accès à l'adresse
 # https://api.insee.fr/series/BDM/V1/data/SERIES_BDM/<idbank>
 
-version_manifeste: "2026-08-13b"
+version_manifeste: "2026-08-13c"
 
 institutions:
 
@@ -263,7 +263,11 @@ institutions:
         url: https://www.agirc-arrco.fr/
         acces: document
         statut_integration: saisi
-        cible: data/reference/regimes/agirc_arrco_points.csv
+        cible: data/reference/regimes/valeurs_point.csv
+        note: >-
+          Source primaire, publiée en circulaires et en pages web, jamais en
+          série exploitable. La transcription machine est celle d'OpenFisca
+          (openfisca_points), reprise au niveau `haute`.
 
   union_retraite:
     nom: Union Retraite / Info-Retraite
@@ -512,6 +516,20 @@ institutions:
           Renseigne les années 1931-2001, que ni l'INSEE ni l'Urssaf ne
           diffusent. Au-delà de 2001, l'INSEE l'emporte et OpenFisca sert de
           contrôle croisé.
+
+      - id: openfisca_points
+        titre: Valeurs d'achat et de service du point, 1947-2025
+        url: https://github.com/openfisca/openfisca-france-pension/tree/master/openfisca_france_pension/parameters/retraites
+        acces: api
+        statut_integration: automatise
+        cible: data/reference/regimes/valeurs_point.csv
+        recuperation: scripts/fetch/openfisca_points.py
+        note: >-
+          Salaire de référence, valeur de service et taux d'appel de l'Agirc
+          (1947), de l'Arrco (1949 via l'UNIRS, unifié en 1999), de l'Agirc-Arrco
+          (2019) et de l'Ircantec avec ses prédécesseurs IPACTE et IGRANTE.
+          Recoupé à chaque exécution contre le rendement instantané que
+          l'Agirc-Arrco publie pour l'année en cours : 5,61 % en 2025.
 
       - id: openfisca_cotisations
         titre: Taux de cotisation vieillesse du régime général, 1967-2026

@@ -760,8 +760,9 @@ puis <code>scripts/verifier_donnees.py --appliquer</code>.</div>"""
 fichier téléchargé depuis le <em>producteur</em> de la donnée. Une transcription
 tierce, même sourcée et reprise automatiquement, plafonne à « haute ». Hors de
 cette liste : les séries d'avant 1950, l'espérance de vie à 65 ans d'avant 1960,
-les quotients de mortalité d'avant 1986, les taux de cotisation d'avant 1967, et
-les paramètres propres à chaque régime.</p>
+les quotients de mortalité d'avant 1986, les taux de cotisation d'avant 1967, les
+valeurs du point des régimes d'indépendants, et les âges et durées propres à
+chaque régime.</p>
 
 <h3>Fiabilité des séries macroéconomiques, par décennie</h3>
 {g.tableau(

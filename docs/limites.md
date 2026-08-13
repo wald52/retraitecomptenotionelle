@@ -31,7 +31,9 @@ qu'aucun résultat ne soit cité sans savoir sur quoi il repose.
 | Plafond Sécurité sociale | 1931-2001 | haute | OpenFisca-France, daté décret par décret |
 | Taux de cotisation, régime général | 1967-2026 | moyenne | OpenFisca-France, recoupé à chaque exécution |
 | Taux de cotisation, autres régimes | tous | moyenne / estimée | Comptes de la Sécurité sociale |
-| Rendement des régimes en points | avant 2019 | **estimée** | historique des valeurs du point |
+| Valeurs d'achat et de service du point | Agirc 1947-2018, Arrco 1949-2018, Agirc-Arrco 2019-2025, Ircantec 1949-2022 | haute | OpenFisca-France-Pension |
+| Valeurs du point, Arrco avant 1999 | 1949-1998 | moyenne | UNIRS, la plus grosse caisse Arrco |
+| Rendement des autres régimes en points | CNAVPL, MSA, CNBF, RCI, RAFP | **estimée** | reconstitution |
 
 **Comment la certification fonctionne.** Une valeur n'est `certifiee` que si
 elle a été confrontée à un fichier téléchargé depuis le producteur. Le circuit
@@ -43,6 +45,7 @@ python scripts/fetch/oecd_esperance_vie.py     # espérance de vie à 65 ans
 python scripts/fetch/eurostat_mortalite.py     # tables de mortalité par âge
 python scripts/fetch/openfisca_plafond.py      # plafond ancien
 python scripts/fetch/openfisca_cotisations.py  # taux de cotisation du RG
+python scripts/fetch/openfisca_points.py       # valeurs du point, depuis 1947
 python scripts/fetch/eurostat_hicp.py          # contrôle croisé de l'inflation
 
 python scripts/verifier_donnees.py             # confronte, sans rien écrire
@@ -82,6 +85,12 @@ d'entre eux ne se compense pas : elle se transmet telle quelle au résultat.
   plus fausse (10,40 % au lieu de 11,19 %). Le taux de cotisation est ce qui
   alimente le compte notionnel : un écart de cette taille sur onze ans se lit
   directement dans le capital accumulé.
+* *Les rendements des régimes en points étaient estimés très en dessous du
+  réel*, l'Ircantec des années 1970 à 11 % quand ses barèmes en donnent 22,8 %,
+  l'Agirc des années 1980 à 9,8 % contre 11,8 %. Le scénario « système actuel »
+  servant de référence aux deux autres, il les sous-estimait tous les trois :
+  la retraite complémentaire d'un salarié du privé à carrière complète monte
+  d'environ un tiers.
 
 **Ce qui reste hors de portée, et pourquoi.** La liste vaut recensement de ce
 qui a été cherché, pour éviter de le rechercher deux fois.
@@ -104,9 +113,12 @@ qui a été cherché, pour éviter de le rechercher deux fois.
 * *Taux de cotisation d'avant octobre 1967 et des régimes autres que le régime
   général* — aucune transcription machine n'existe. Ils viennent des
   ordonnances de 1945 et de leurs modificatifs, saisis à la main.
-* *Valeurs d'achat et de service du point* (Agirc, Arrco, Ircantec, CNAVPL) —
-  publiées en pages web et en circulaires, jamais en série. C'est la limite qui
-  résiste le mieux, et celle qui pèse sur le scénario « système actuel ».
+* *Valeurs du point des régimes d'indépendants et de la fonction publique*
+  (CNAVPL, MSA, CNBF, RCI, RAFP) — OpenFisca-France-Pension transcrit les
+  régimes complémentaires de salariés, pas ceux-là. Ils restent calculés au
+  rendement instantané, et la confrontation des autres régimes à leurs vraies
+  valeurs a montré que ces reconstitutions peuvent se tromper du simple au
+  double : à prendre avec la même méfiance.
 * *Âges, durées requises, décotes* — ils viennent de lois, pas de séries
   statistiques. Légifrance expose une API, mais elle demande une clé et renvoie
   du texte juridique, non des paramètres.
@@ -153,8 +165,11 @@ Reproduire exactement le droit positif de tous les régimes depuis 1930 suppose
 un moteur législatif complet, du type de ceux de la DREES (TRAJECTOiRE) ou de
 l'Institut des politiques publiques (PENSIPP). Écarts connus :
 
-- **régimes en points** — la pension est reconstituée à partir d'un rendement
-  instantané, pas de l'historique des valeurs d'achat et de service du point ;
+- **régimes en points** — la pension est désormais calculée en points, sur
+  l'historique réel des valeurs d'achat et de service (Agirc depuis 1947, Arrco
+  depuis 1949, Ircantec depuis 1949), avec conversion des points aux fusions.
+  Restent au rendement instantané, faute de barèmes intégrés, la CNAVPL, la MSA,
+  la CNBF, le RCI et le RAFP ;
 - **montée en charge des réformes** — les paramètres sont ceux de l'année de
   liquidation, sans le détail génération par génération des lois Balladur (1993)
   et Touraine (2014) ;
@@ -215,7 +230,7 @@ extensible : ajouter un régime consiste à écrire une fiche YAML conforme à
   `data/derive/calibrations_mortalite.json`, régénérable en supprimant le fichier.
 - La certification des séries est tracée dans `data/derive/certification.json`,
   régénérable par `scripts/verifier_donnees.py --appliquer`.
-- 134 tests couvrent le chargement, la fiabilité, la règle de certification, la
+- 138 tests couvrent le chargement, la fiabilité, la règle de certification, la
   concordance des tables de mortalité observées avec les espérances publiées, les
   propriétés du moteur et le comportement des scénarios : `python -m pytest tests`.
   Aucun test n'accède au réseau : les sources sont simulées.

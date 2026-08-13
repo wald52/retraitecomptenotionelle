@@ -13,9 +13,14 @@ est une **approximation documentée**, pas un simulateur officiel :
 
 * régimes en annuités — formule ``taux × salaire de référence × durée / durée
   requise``, avec décote et surcote de la période ;
-* régimes en points — la pension est reconstituée à partir du rendement
-  instantané du régime (``regimes/rendements_points.csv``) plutôt qu'à partir de
-  l'historique des valeurs d'achat et de service, qui n'est pas encore intégré ;
+* régimes en points — la pension est calculée **en points** : la cotisation de
+  chaque année est divisée par le prix d'achat du point de cette année-là, et le
+  total est converti en rente par la valeur de service de l'année de
+  liquidation (``regimes/valeurs_point.csv``). Les points d'un régime fermé sont
+  convertis dans son successeur au rapport des deux valeurs de service, comme
+  l'ont fait l'unification Arrco de 1999 et la fusion Agirc-Arrco de 2019. Les
+  régimes dont le dépôt n'a pas les barèmes — CNAVPL, MSA, CNBF, RCI, RAFP —
+  restent calculés au rendement instantané (``regimes/rendements_points.csv``) ;
 * montée en charge des réformes — les paramètres sont ceux de l'année de
   liquidation, sans le détail génération par génération de la loi Balladur ni de
   la loi Touraine.
@@ -86,6 +91,69 @@ class Rendements:
         return 0.0, Fiabilite.ESTIMEE
 
 
+class ValeursPoint:
+    """Prix d'achat et valeur de service du point, régime par régime et année.
+
+    Trois grandeurs suffisent à reconstituer exactement une pension en points :
+
+    * le **salaire de référence**, prix d'achat du point l'année de la cotisation ;
+    * le **taux d'appel**, qui dit quelle part de la cotisation ouvre des droits —
+      depuis 1995, cotiser 125 € n'en acquiert que 100 ;
+    * la **valeur de service**, qui convertit les points en rente à la liquidation.
+
+    Les régimes que ce fichier ne couvre pas retombent sur le rendement
+    instantané de :class:`Rendements`, qui reste l'approximation d'origine.
+    """
+
+    def __init__(self, racine: Path) -> None:
+        self._table: dict[tuple[str, str], dict[int, tuple[float, Fiabilite]]] = {}
+        chemin = racine / "reference" / "regimes" / "valeurs_point.csv"
+        if not chemin.exists():
+            return
+        with chemin.open(encoding="utf-8") as flux:
+            lignes = (l for l in flux if not l.lstrip().startswith("#"))
+            for ligne in csv.DictReader(lignes):
+                cle = (ligne["regime"], ligne["mesure"])
+                self._table.setdefault(cle, {})[int(ligne["annee"])] = (
+                    float(ligne["valeur"]),
+                    Fiabilite.depuis_texte(ligne["fiabilite"]),
+                )
+
+    def _en_vigueur(self, regime: str, mesure: str,
+                    annee: int) -> tuple[float, Fiabilite] | None:
+        """Dernière valeur publiée à l'année demandée, ou avant elle.
+
+        Une valeur reste en vigueur jusqu'à sa modification : c'est la règle de
+        lecture d'un barème, et la seule qui ait un sens ici. Rien n'est renvoyé
+        pour les années antérieures à la première publication.
+        """
+        valeurs = self._table.get((regime, mesure))
+        if not valeurs:
+            return None
+        anterieures = [a for a in valeurs if a <= annee]
+        return valeurs[max(anterieures)] if anterieures else None
+
+    def achat(self, regime: str, annee: int) -> tuple[float, float, Fiabilite] | None:
+        """Prix d'achat effectif d'un point : (salaire de référence, taux d'appel)."""
+        reference = self._en_vigueur(regime, "salaire_reference", annee)
+        if reference is None or reference[0] <= 0:
+            return None
+        appel = self._en_vigueur(regime, "taux_appel", annee)
+        taux, fiabilite_appel = appel if appel else (1.0, Fiabilite.MOYENNE)
+        return reference[0], taux, min(reference[1], fiabilite_appel)
+
+    def derniere_annee_servie(self, regime: str) -> int | None:
+        valeurs = self._table.get((regime, "valeur_service"))
+        return max(valeurs) if valeurs else None
+
+    def premiere_annee_servie(self, regime: str) -> int | None:
+        valeurs = self._table.get((regime, "valeur_service"))
+        return min(valeurs) if valeurs else None
+
+    def service(self, regime: str, annee: int) -> tuple[float, Fiabilite] | None:
+        return self._en_vigueur(regime, "valeur_service", annee)
+
+
 class ScenarioActuel:
     """Calcule la pension servie par le système en vigueur."""
 
@@ -96,6 +164,55 @@ class ScenarioActuel:
         self.affiliations = affiliations
         self.parametres = parametres
         self.rendements = Rendements(parametres.racine_donnees)
+        self.valeurs_point = ValeursPoint(parametres.racine_donnees)
+
+    # -- valorisation des points ---------------------------------------------
+
+    def valeur_du_point(self, code: str,
+                        annee_liquidation: int) -> tuple[float, Fiabilite] | None:
+        """Ce que vaut, à la liquidation, un point acquis dans ``code``.
+
+        Un régime fermé ne sert plus ses points : ils ont été convertis dans son
+        successeur, au rapport des deux valeurs de service à la date de la
+        reprise — c'est ce rapport, et lui seul, qui préserve le niveau des
+        pensions le jour de la fusion. La méthode remonte donc la chaîne des
+        successions (UNIRS -> Arrco -> Agirc-Arrco, Agirc -> Agirc-Arrco,
+        IPACTE et IGRANTE -> Ircantec) en cumulant les conversions.
+
+        Quand la chaîne s'arrête avant l'année de liquidation — le successeur
+        n'a pas de valeur du point connue — la dernière valeur publiée est
+        ramenée en euros de la liquidation par l'indice des prix. C'est une
+        approximation, signalée comme telle par la fiabilité renvoyée.
+        """
+        conversion = 1.0
+        courant = code
+        fiabilite = Fiabilite.CERTIFIEE
+        for _ in range(len(self.catalogue) + 1):  # garde-fou : jamais de boucle
+            derniere = self.valeurs_point.derniere_annee_servie(courant)
+            if derniere is None:
+                return None
+            if annee_liquidation <= derniere:
+                valeur = self.valeurs_point.service(courant, annee_liquidation)
+                return conversion * valeur[0], min(fiabilite, valeur[1])
+
+            successeur = (self.catalogue[courant].integre_dans
+                          if courant in self.catalogue else None)
+            premiere = (self.valeurs_point.premiere_annee_servie(successeur)
+                        if successeur else None)
+            if premiere is None:
+                ancienne = self.valeurs_point.service(courant, derniere)
+                return (
+                    conversion * ancienne[0]
+                    * self.macro.coefficient_prix(derniere, annee_liquidation),
+                    min(fiabilite, ancienne[1], Fiabilite.MOYENNE),
+                )
+
+            avant = self.valeurs_point.service(courant, derniere)
+            apres = self.valeurs_point.service(successeur, premiere)
+            conversion *= avant[0] / apres[0]
+            fiabilite = min(fiabilite, avant[1], apres[1])
+            courant = successeur
+        return None  # pragma: no cover - chaîne de successions cyclique
 
     # -- salaire de référence ------------------------------------------------
 
@@ -160,8 +277,11 @@ class ScenarioActuel:
         trimestres_requis = 0
         taux_retenu = 0.0
 
-        # Cotisations cumulées par régime, pour les régimes en points.
+        # Cotisations cumulées par régime, pour les régimes en points dont on
+        # n'a pas le prix d'achat du point ; points acquis pour les autres.
         cumul_cotisations: dict[str, float] = {}
+        points_acquis: dict[str, float] = {}
+        fiabilite_points: dict[str, Fiabilite] = {}
         annees_par_regime: dict[str, int] = {}
 
         for ligne in carriere.lignes:
@@ -184,12 +304,26 @@ class ScenarioActuel:
                     )
                     assiette = max(0.0, min(base, plafond) - borne_basse * pass_annuel)
                     cotisation = assiette * periode.taux_cotisation_retraite
-                    cumul_cotisations[code] = cumul_cotisations.get(code, 0.0) + (
-                        cotisation * self.macro.coefficient_prix(ligne.annee, annee_liquidation)
-                    )
+                    achat = (self.valeurs_point.achat(code, ligne.annee)
+                             if periode.type_calcul in ("points", "mixte") else None)
+                    if achat is not None:
+                        reference, taux_appel, fiabilite_achat = achat
+                        points_acquis[code] = points_acquis.get(code, 0.0) + (
+                            cotisation / (taux_appel * reference)
+                        )
+                        fiabilite_points[code] = min(
+                            fiabilite_points.get(code, Fiabilite.CERTIFIEE),
+                            fiabilite_achat,
+                        )
+                    else:
+                        cumul_cotisations[code] = cumul_cotisations.get(code, 0.0) + (
+                            cotisation
+                            * self.macro.coefficient_prix(ligne.annee, annee_liquidation)
+                        )
                 annees_par_regime[code] = annees_par_regime.get(code, 0) + 1
 
-        for code, cumul in sorted(cumul_cotisations.items()):
+        for code in sorted(set(cumul_cotisations) | set(points_acquis)):
+            cumul = cumul_cotisations.get(code, 0.0)
             regime = self.catalogue[code]
             periode = regime.periode(min(annee_liquidation, _derniere_annee(regime)))
             if periode is None:
@@ -197,17 +331,43 @@ class ScenarioActuel:
             fiabilite_globale = min(fiabilite_globale, regime.fiabilite)
 
             if periode.type_calcul in ("points", "mixte"):
-                rendement, fiabilite_rendement = self.rendements.rendement(
-                    code, min(annee_liquidation, _derniere_annee(regime))
-                )
-                fiabilite_globale = min(fiabilite_globale, fiabilite_rendement)
-                montant = cumul * rendement
+                montant = 0.0
+                fiabilite_regime = regime.fiabilite
+                details = []
+
+                points = points_acquis.get(code, 0.0)
+                if points:
+                    valeur = self.valeur_du_point(code, annee_liquidation)
+                    if valeur is not None:
+                        service, fiabilite_service = valeur
+                        montant += points * service
+                        fiabilite_regime = min(
+                            fiabilite_regime, fiabilite_service, fiabilite_points[code]
+                        )
+                        details.append(
+                            f"{points:,.0f} points × valeur de service {service:.4f} €"
+                        )
+
+                # Années sans prix d'achat connu : le rendement instantané prend
+                # le relais, régime par régime et année par année.
+                if cumul:
+                    rendement, fiabilite_rendement = self.rendements.rendement(
+                        code, min(annee_liquidation, _derniere_annee(regime))
+                    )
+                    montant += cumul * rendement
+                    fiabilite_regime = min(fiabilite_regime, fiabilite_rendement)
+                    details.append(
+                        f"cotisations revalorisées {cumul:,.0f} € "
+                        f"× rendement {rendement:.2%}"
+                    )
+
+                fiabilite_globale = min(fiabilite_globale, fiabilite_regime)
                 if not ignorer_penalite_age:
                     montant *= _ajustement_age_points(periode, age_liquidation)
                 pensions.append(PensionRegime(
                     regime=code, montant=montant, type_calcul=periode.type_calcul,
-                    detail=f"cotisations revalorisées {cumul:,.0f} € × rendement {rendement:.2%}",
-                    fiabilite=min(regime.fiabilite, fiabilite_rendement),
+                    detail=" + ".join(details) or "aucun droit",
+                    fiabilite=fiabilite_regime,
                 ))
                 continue
 

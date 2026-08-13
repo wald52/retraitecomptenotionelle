@@ -2,10 +2,10 @@
  "certifie_le": "2026-08-13",
  "series": {
   "esperances_vie": {
-   "ajoutees": 46,
+   "ajoutees": 0,
    "corrigees": 0,
    "empreinte": "0ddd59a38e01cfd9",
-   "identiques": 404,
+   "identiques": 450,
    "niveau": "certifiee",
    "source": "INSEE BDM (e0, e60) et OCDE DSD_HEALTH_STAT@DF_LE (e65)",
    "valeurs": 450
@@ -29,10 +29,10 @@
    "valeurs": 24
   },
   "plafond_ancien": {
-   "ajoutees": 14,
-   "corrigees": 55,
+   "ajoutees": 0,
+   "corrigees": 0,
    "empreinte": "e2958be9531f7b78",
-   "identiques": 2,
+   "identiques": 71,
    "niveau": "haute",
    "source": "OpenFisca-France, plafond_securite_sociale_annuel.yaml",
    "valeurs": 71
@@ -47,10 +47,10 @@
    "valeurs": 76
   },
   "quotients_mortalite": {
-   "ajoutees": 6850,
+   "ajoutees": 0,
    "corrigees": 0,
    "empreinte": "428254319c1001b4",
-   "identiques": 0,
+   "identiques": 6850,
    "niveau": "certifiee",
    "source": "Eurostat demo_mlifetable, quotients de mortalité par âge",
    "valeurs": 6850
@@ -63,6 +63,33 @@
    "niveau": "certifiee",
    "source": "INSEE BDM, idbanks 011785411 et 011793486",
    "valeurs": 76
+  },
+  "valeurs_point": {
+   "ajoutees": 681,
+   "corrigees": 0,
+   "empreinte": "884f06b62850a219",
+   "identiques": 0,
+   "niveau": "haute",
+   "source": "OpenFisca-France-Pension, paramètres des régimes en points",
+   "valeurs": 681
+  },
+  "valeurs_point_texte": {
+   "ajoutees": 1,
+   "corrigees": 0,
+   "empreinte": "33772abba31cf52b",
+   "identiques": 0,
+   "niveau": "moyenne",
+   "source": "Accord national interprofessionnel du 17 novembre 2017",
+   "valeurs": 1
+  },
+  "valeurs_point_unirs": {
+   "ajoutees": 123,
+   "corrigees": 0,
+   "empreinte": "f456045e1b51f980",
+   "identiques": 0,
+   "niveau": "moyenne",
+   "source": "OpenFisca-France-Pension, UNIRS tenant lieu de point Arrco avant 1999",
+   "valeurs": 123
   }
  }
 }

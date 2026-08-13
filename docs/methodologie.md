@@ -248,6 +248,30 @@ savoir qu'il traduit une hausse de prélèvement, pas un cadeau.
 Étalon en droit constant. Approximation documentée, pas un simulateur officiel
 (voir `docs/limites.md` §3).
 
+Les régimes en annuités suivent la formule `taux × salaire de référence ×
+durée / durée requise`. Les **régimes en points** sont calculés en points, et
+non par un rendement moyen :
+
+```
+points acquis en année t = cotisation(t) / (taux d'appel(t) × salaire de référence(t))
+pension                  = Σ points × valeur de service (année de liquidation)
+```
+
+Le taux d'appel est le décalage, invisible ailleurs, entre ce qui est prélevé et
+ce qui ouvre des droits : depuis 1995, cotiser 125 € n'acquiert que 100 € de
+points. L'ignorer surestimerait la retraite complémentaire d'un quart.
+
+Un régime fermé ne sert plus ses points : ils passent à son successeur, au
+rapport des deux valeurs de service à la date de la reprise — le rapport qui
+laisse, par construction, les pensions inchangées le jour de la fusion. Le
+modèle refait ce chemin (UNIRS → Arrco → Agirc-Arrco, Agirc → Agirc-Arrco,
+IPACTE et IGRANTE → Ircantec) à partir de `regimes/valeurs_point.csv`.
+
+Les régimes dont le dépôt n'a pas les barèmes — CNAVPL, MSA, CNBF, RCI, RAFP —
+gardent l'ancienne approximation : `pension = cotisations revalorisées ×
+rendement instantané`, où le rendement est `valeur de service / (taux d'appel ×
+salaire de référence)`.
+
 ### Scénario 2 — comptes notionnels rétroactifs
 
 Compte ouvert à l'entrée dans la vie active, ou en 1941 si la carrière a commencé

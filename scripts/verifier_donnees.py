@@ -253,6 +253,50 @@ def source_quotients() -> dict[tuple, float]:
     }
 
 
+def _charge_points() -> dict:
+    chemin = BRUT / "openfisca_points.json"
+    if not chemin.exists():
+        raise SourceAbsente(f"{chemin} absent (lancer scripts/fetch/openfisca_points.py)")
+    return json.loads(chemin.read_text(encoding="utf-8"))
+
+
+def _cles_points(cle_json: str, substituees: bool) -> dict[tuple, float]:
+    charge = _charge_points()
+    a_part = set(charge.get("cles_substituees", []))
+    return {
+        tuple(cle.split("|")): valeur
+        for cle, valeur in sorted(charge[cle_json].items())
+        if (cle in a_part) is substituees
+    }
+
+
+def source_valeurs_point() -> dict[tuple, float]:
+    """Salaires de référence, valeurs de service et taux d'appel, par régime.
+
+    Ces trois grandeurs suffisent à reconstituer exactement une pension en
+    points : la cotisation d'une année divisée par le salaire de référence et
+    par le taux d'appel donne les points acquis, que la valeur de service
+    convertit en rente à la liquidation.
+    """
+    return _cles_points("serie", substituees=False)
+
+
+def source_valeurs_point_substituees() -> dict[tuple, float]:
+    """Valeurs de l'UNIRS servant de point Arrco avant l'unification de 1999.
+
+    Publiées, mais pour une autre caisse que celle que le modèle appelle
+    « arrco » — d'où un niveau en retrait.
+    """
+    return _cles_points("serie", substituees=True)
+
+
+def source_valeurs_point_texte() -> dict[tuple, float]:
+    """Ce qu'aucune transcription machine ne porte, saisi depuis le texte."""
+    charge = _charge_points()
+    return {tuple(cle.split("|")): valeur
+            for cle, valeur in sorted(charge["complements"].items())}
+
+
 def source_plafond_ancien() -> dict[tuple, float]:
     """Plafond de la Sécurité sociale d'avant 2002, par OpenFisca-France.
 
@@ -444,6 +488,67 @@ CERTIFICATIONS = (
         decimales=2,
         tolerance=0.05,
         unite=" ans",
+    ),
+    Certification(
+        nom="valeurs_point",
+        chemin=REFERENCE / "regimes" / "valeurs_point.csv",
+        cles=("regime", "annee", "mesure"),
+        colonne="valeur",
+        source=source_valeurs_point,
+        origine="OpenFisca-France-Pension, paramètres des régimes en points",
+        decimales=6,
+        tolerance=5e-7,
+        niveau="haute",
+        entete=(
+            "# Valeurs d'achat et de service du point, régime par régime",
+            "# source_id: openfisca_points (Agirc depuis 1947, Ircantec depuis 1949)",
+            "#",
+            "# mesure :",
+            "#   salaire_reference : prix d'achat du point, en euros courants de l'année.",
+            "#                       cotisation / (taux_appel × salaire_reference) = points acquis",
+            "#   valeur_service    : rente annuelle servie par un point, euros courants",
+            "#   taux_appel        : écart entre ce qui est prélevé et ce qui ouvre des",
+            "#                       droits. 1,25 depuis 1995 : cotiser 125 € n'acquiert",
+            "#                       que 100 € de points.",
+            "#",
+            "# Règle annuelle : valeur en vigueur au 31 décembre de l'année. Le salaire",
+            "# de référence change au 1er janvier, la valeur de service au 1er avril",
+            "# autrefois et au 1er novembre aujourd'hui.",
+            "#",
+            "# fiabilite :",
+            "#   haute   : transcription OpenFisca du texte de la circulaire",
+            "#   moyenne : valeurs de l'UNIRS tenant lieu de point Arrco avant son",
+            "#             unification de 1999, ou valeur saisie depuis le texte légal",
+            "#",
+            "# Repère de contrôle : Agirc-Arrco 2025, salaire de référence 20,1877 €,",
+            "# valeur de service 1,4386 €, taux d'appel 1,27 — soit un rendement",
+            "# instantané de 5,61 %, la valeur que publie le régime.",
+            "#",
+            "# Fichier écrit par scripts/verifier_donnees.py --appliquer : ne pas",
+            "# modifier à la main.",
+        ),
+    ),
+    Certification(
+        nom="valeurs_point_unirs",
+        chemin=REFERENCE / "regimes" / "valeurs_point.csv",
+        cles=("regime", "annee", "mesure"),
+        colonne="valeur",
+        source=source_valeurs_point_substituees,
+        origine="OpenFisca-France-Pension, UNIRS tenant lieu de point Arrco avant 1999",
+        decimales=6,
+        tolerance=5e-7,
+        niveau="moyenne",
+    ),
+    Certification(
+        nom="valeurs_point_texte",
+        chemin=REFERENCE / "regimes" / "valeurs_point.csv",
+        cles=("regime", "annee", "mesure"),
+        colonne="valeur",
+        source=source_valeurs_point_texte,
+        origine="Accord national interprofessionnel du 17 novembre 2017",
+        decimales=6,
+        tolerance=5e-7,
+        niveau="moyenne",
     ),
     Certification(
         nom="quotients_mortalite",
@@ -677,6 +782,60 @@ def controle_vraisemblance_cotisations() -> list[str]:
     return messages + anomalies
 
 
+def controle_vraisemblance_rendements() -> list[str]:
+    """Confronte les rendements saisis aux valeurs du point désormais connues.
+
+    ``rendements_points.csv`` n'est plus la source principale : le moteur
+    accumule des points là où il a le prix d'achat. Le fichier reste utilisé
+    pour les régimes que la série ne couvre pas, et ce contrôle mesure de
+    combien ses estimations s'écartaient de la réalité — le rendement
+    instantané n'étant rien d'autre que
+    ``valeur_service / (taux_appel × salaire_reference)``.
+    """
+    try:
+        valeurs = _charge_points()
+    except SourceAbsente as erreur:
+        return [f"IGNORÉ  vraisemblance rendements : {erreur}"]
+
+    serie = {**valeurs["serie"], **valeurs["complements"]}
+
+    def au(regime: str, annee: int, mesure: str, defaut: float | None = None):
+        candidates = [
+            cle for cle in serie
+            if cle.startswith(f"{regime}|") and cle.endswith(f"|{mesure}")
+            and int(cle.split("|")[1]) <= annee
+        ]
+        if not candidates:
+            return defaut
+        return serie[max(candidates, key=lambda cle: int(cle.split("|")[1]))]
+
+    lignes = charger_csv(REFERENCE / "regimes" / "rendements_points.csv")
+    comparees, ecarts = 0, []
+    for ligne in lignes:
+        regime, debut, fin = ligne["regime"], int(ligne["debut"]), int(ligne["fin"])
+        publies = []
+        for annee in range(debut, min(fin, 2026) + 1):
+            reference = au(regime, annee, "salaire_reference")
+            service = au(regime, annee, "valeur_service")
+            if reference and service:
+                publies.append(service / (reference * au(regime, annee, "taux_appel", 1.0)))
+        if not publies:
+            continue
+        comparees += 1
+        calcule = sum(publies) / len(publies)
+        saisi = float(ligne["rendement"])
+        if abs(calcule - saisi) > 0.005:
+            ecarts.append(
+                f"SUSPECT rendement {regime} {debut}-{fin} : fiche {saisi:.2%}, "
+                f"valeurs du point {calcule:.2%} en moyenne"
+            )
+    return [
+        f"OK      vraisemblance rendements : {comparees} périodes confrontées aux "
+        f"valeurs du point, {len(ecarts)} au-delà de 0,5 point",
+        "        les régimes sans valeur du point publiée restent calculés au rendement",
+    ] + ecarts
+
+
 def controle_vraisemblance_plafond() -> list[str]:
     """Confronte le plafond d'OpenFisca à celui publié par l'INSEE, sur 2002-2026.
 
@@ -731,6 +890,7 @@ def main(argv: list[str] | None = None) -> int:
     messages.extend(controle_vraisemblance_esperance_65())
     messages.extend(controle_vraisemblance_plafond())
     messages.extend(controle_vraisemblance_cotisations())
+    messages.extend(controle_vraisemblance_rendements())
 
     for message in messages:
         print(message)
