@@ -1,5 +1,5 @@
 # Espérances de vie observées et projetées, France
-# source_id: insee_bdm_esperance_vie (e0, e60), eurostat_demo_mlexpec (e65),
+# source_id: insee_bdm_esperance_vie (e0, e60), oecd_health_le (e65),
 #            insee_projections (années projetées)
 # unite: années
 # sexe: H | F
@@ -9,8 +9,15 @@
 # ------
 # Une ligne par (année, sexe, mesure), pour que chaque mesure porte SA propre
 # fiabilité : l'espérance de vie à 60 ans est certifiée annuellement depuis
-# 1946, celle à 65 ans depuis 1986 seulement, et les années antérieures restent
-# saisies à partir des tables TD/TV.
+# 1946, celle à 65 ans depuis 1960 seulement.
+#
+# POURQUOI e65 VIENT DE L'OCDE
+# ----------------------------
+# L'INSEE publie l'espérance de vie à 0, 1, 20, 40 et 60 ans — jamais à 65 ans,
+# dont la calibration a pourtant besoin pour fixer la pente de la force de
+# mortalité. L'OCDE la publie depuis 1960 et la tient de l'INSEE ; Eurostat la
+# publie aussi, depuis 1986, et sert de contrôle croisé. Les deux coïncident
+# exactement sur leurs 78 valeurs communes.
 #
 # fiabilite:
 #   certifiee : valeur recontrôlée contre la source par scripts/verifier_donnees.py
@@ -23,10 +30,9 @@
 # Gompertz-Makeham (cf. src/retraite_notionnelle/donnees/mortalite.py) : pour
 # chaque couple (année, sexe) les paramètres b et k sont ajustés de manière à
 # reproduire e60 et e65, et a est fixé au niveau de mortalité accidentelle.
-# La table ainsi obtenue est une APPROXIMATION assumée, pas la table INSEE.
-# Elle est immédiatement remplaçable : dès qu'un fichier
-# mortalite/quotients_periode.csv (annee,sexe,age,qx) est présent, il prime
-# sur la calibration paramétrique.
+# Depuis l'intégration de mortalite/quotients_periode.csv, cette calibration ne
+# sert plus que là où les tables observées ne vont pas : avant 1986, au-delà du
+# dernier âge publié, et pour les années projetées.
 #
 # Les années intermédiaires sont interpolées linéairement par le chargeur ;
 # e0 n'est pas utilisé par le moteur, il sert de repère et de contrôle.
@@ -93,114 +99,160 @@ annee,sexe,mesure,valeur,fiabilite
 1959,H,e60,15.90,certifiee
 1960,F,e0,73.60,certifiee
 1960,F,e60,19.50,certifiee
-1960,F,e65,15.6,haute
+1960,F,e65,15.60,certifiee
 1960,H,e0,67.00,certifiee
 1960,H,e60,15.70,certifiee
-1960,H,e65,12.5,haute
+1960,H,e65,12.50,certifiee
 1961,F,e0,74.40,certifiee
 1961,F,e60,20.10,certifiee
+1961,F,e65,16.10,certifiee
 1961,H,e0,67.50,certifiee
 1961,H,e60,16.10,certifiee
+1961,H,e65,12.80,certifiee
 1962,F,e0,73.90,certifiee
 1962,F,e60,19.60,certifiee
+1962,F,e65,15.70,certifiee
 1962,H,e0,67.00,certifiee
 1962,H,e60,15.70,certifiee
+1962,H,e65,12.60,certifiee
 1963,F,e0,73.80,certifiee
 1963,F,e60,19.50,certifiee
+1963,F,e65,15.60,certifiee
 1963,H,e0,66.80,certifiee
 1963,H,e60,15.50,certifiee
+1963,H,e65,12.40,certifiee
 1964,F,e0,74.80,certifiee
 1964,F,e60,20.30,certifiee
+1964,F,e65,16.40,certifiee
 1964,H,e0,67.70,certifiee
 1964,H,e60,16.00,certifiee
+1964,H,e65,12.90,certifiee
 1965,F,e0,74.70,certifiee
 1965,F,e60,20.10,certifiee
+1965,F,e65,16.20,certifiee
 1965,H,e0,67.50,certifiee
 1965,H,e60,15.70,certifiee
+1965,H,e65,12.70,certifiee
 1966,F,e0,75.20,certifiee
 1966,F,e60,20.50,certifiee
+1966,F,e65,16.60,certifiee
 1966,H,e0,67.80,certifiee
 1966,H,e60,16.10,certifiee
+1966,H,e65,13.00,certifiee
 1967,F,e0,75.20,certifiee
 1967,F,e60,20.40,certifiee
+1967,F,e65,16.50,certifiee
 1967,H,e0,67.80,certifiee
 1967,H,e60,15.90,certifiee
+1967,H,e65,12.80,certifiee
 1968,F,e0,75.20,certifiee
 1968,F,e60,20.40,certifiee
+1968,F,e65,16.40,certifiee
 1968,H,e0,67.80,certifiee
 1968,H,e60,15.80,certifiee
+1968,H,e65,12.70,certifiee
 1969,F,e0,75.10,certifiee
 1969,F,e60,20.20,certifiee
+1969,F,e65,16.30,certifiee
 1969,H,e0,67.40,certifiee
 1969,H,e60,15.60,certifiee
+1969,H,e65,12.50,certifiee
 1970,F,e0,75.90,certifiee
 1970,F,e60,20.80,certifiee
-1970,F,e65,16.8,haute
+1970,F,e65,16.80,certifiee
 1970,H,e0,68.40,certifiee
 1970,H,e60,16.20,certifiee
-1970,H,e65,13.0,haute
+1970,H,e65,13.00,certifiee
 1971,F,e0,75.90,certifiee
 1971,F,e60,20.80,certifiee
+1971,F,e65,16.80,certifiee
 1971,H,e0,68.30,certifiee
 1971,H,e60,16.20,certifiee
+1971,H,e65,13.00,certifiee
 1972,F,e0,76.20,certifiee
 1972,F,e60,21.10,certifiee
+1972,F,e65,17.00,certifiee
 1972,H,e0,68.50,certifiee
 1972,H,e60,16.40,certifiee
+1972,H,e65,13.10,certifiee
 1973,F,e0,76.30,certifiee
 1973,F,e60,21.00,certifiee
+1973,F,e65,17.00,certifiee
 1973,H,e0,68.70,certifiee
 1973,H,e60,16.40,certifiee
+1973,H,e65,13.10,certifiee
 1974,F,e0,76.70,certifiee
 1974,F,e60,21.30,certifiee
+1974,F,e65,17.20,certifiee
 1974,H,e0,68.90,certifiee
 1974,H,e60,16.50,certifiee
+1974,H,e65,13.30,certifiee
 1975,F,e0,76.90,certifiee
 1975,F,e60,21.30,certifiee
+1975,F,e65,17.20,certifiee
 1975,H,e0,69.00,certifiee
 1975,H,e60,16.50,certifiee
+1975,H,e65,13.20,certifiee
 1976,F,e0,77.20,certifiee
 1976,F,e60,21.50,certifiee
+1976,F,e65,17.40,certifiee
 1976,H,e0,69.20,certifiee
 1976,H,e60,16.60,certifiee
+1976,H,e65,13.30,certifiee
 1977,F,e0,77.80,certifiee
 1977,F,e60,22.00,certifiee
+1977,F,e65,17.90,certifiee
 1977,H,e0,69.70,certifiee
 1977,H,e60,17.00,certifiee
+1977,H,e65,13.70,certifiee
 1978,F,e0,77.90,certifiee
 1978,F,e60,22.00,certifiee
+1978,F,e65,17.90,certifiee
 1978,H,e0,69.80,certifiee
 1978,H,e60,17.00,certifiee
+1978,H,e65,13.60,certifiee
 1979,F,e0,78.30,certifiee
 1979,F,e60,22.30,certifiee
+1979,F,e65,18.10,certifiee
 1979,H,e0,70.10,certifiee
 1979,H,e60,17.20,certifiee
+1979,H,e65,13.90,certifiee
 1980,F,e0,78.40,certifiee
 1980,F,e60,22.40,certifiee
-1980,F,e65,18.2,haute
+1980,F,e65,18.20,certifiee
 1980,H,e0,70.20,certifiee
 1980,H,e60,17.30,certifiee
-1980,H,e65,13.6,haute
+1980,H,e65,13.60,certifiee
 1981,F,e0,78.50,certifiee
 1981,F,e60,22.30,certifiee
+1981,F,e65,18.20,certifiee
 1981,H,e0,70.40,certifiee
 1981,H,e60,17.30,certifiee
+1981,H,e65,14.00,certifiee
 1982,F,e0,78.90,certifiee
 1982,F,e60,22.70,certifiee
+1982,F,e65,18.50,certifiee
 1982,H,e0,70.70,certifiee
 1982,H,e60,17.70,certifiee
+1982,H,e65,14.30,certifiee
 1983,F,e0,78.80,certifiee
 1983,F,e60,22.60,certifiee
+1983,F,e65,18.40,certifiee
 1983,H,e0,70.70,certifiee
 1983,H,e60,17.60,certifiee
+1983,H,e65,14.20,certifiee
 1984,F,e0,79.30,certifiee
 1984,F,e60,23.00,certifiee
+1984,F,e65,18.80,certifiee
 1984,H,e0,71.20,certifiee
 1984,H,e60,17.90,certifiee
+1984,H,e65,14.50,certifiee
 1985,F,e0,79.40,certifiee
 1985,F,e60,23.00,certifiee
+1985,F,e65,18.80,certifiee
 1985,H,e0,71.30,certifiee
 1985,H,e60,17.90,certifiee
+1985,H,e65,14.50,certifiee
 1986,F,e0,79.70,certifiee
 1986,F,e60,23.20,certifiee
 1986,F,e65,19.20,certifiee

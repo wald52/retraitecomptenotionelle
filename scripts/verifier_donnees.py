@@ -205,11 +205,21 @@ def source_plafond() -> dict[tuple, float]:
     }
 
 
-def source_esperances() -> dict[tuple, float]:
-    """Espérances de vie : e0 et e60 par l'INSEE, e65 par Eurostat.
+def _serie_json(nom_fichier: str, script: str) -> dict[str, float]:
+    chemin = BRUT / nom_fichier
+    if not chemin.exists():
+        raise SourceAbsente(f"{chemin} absent (lancer {script})")
+    return json.loads(chemin.read_text(encoding="utf-8"))["serie"]
 
-    L'INSEE ne publie pas l'espérance de vie à 65 ans en série longue ; c'est la
-    seule raison pour laquelle une donnée française transite ici par Eurostat.
+
+def source_esperances() -> dict[tuple, float]:
+    """Espérances de vie : e0 et e60 par l'INSEE, e65 par l'OCDE.
+
+    L'INSEE publie e0, e1, e20, e40 et e60 depuis 1946, **jamais e65** — dont la
+    calibration a pourtant besoin pour fixer la pente de la force de mortalité.
+    C'est la seule raison pour laquelle une donnée française transite ici par
+    l'OCDE, qui la publie depuis 1960 et la tient de l'INSEE. Eurostat la publie
+    aussi mais seulement depuis 1986 : elle sert de contrôle croisé.
     """
     valeurs: dict[tuple, float] = {}
     for mesure in ("e0", "e60"):
@@ -217,17 +227,45 @@ def source_esperances() -> dict[tuple, float]:
             for periode, valeur in _observations(f"{mesure}_{sexe}").items():
                 valeurs[(periode, sexe, mesure)] = valeur
 
-    chemin = BRUT / "eurostat_esperance_vie.json"
-    if not chemin.exists():
-        raise SourceAbsente(
-            f"{chemin} absent (lancer scripts/fetch/eurostat_esperance_vie.py)"
-        )
-    eurostat = json.loads(chemin.read_text(encoding="utf-8"))["serie"]
-    for cle, valeur in eurostat.items():
+    ocde = _serie_json("oecd_esperance_vie.json", "scripts/fetch/oecd_esperance_vie.py")
+    for cle, valeur in ocde.items():
         annee, sexe, mesure = cle.split("|")
         if mesure == "e65":
             valeurs[(annee, sexe, mesure)] = valeur
     return dict(sorted(valeurs.items()))
+
+
+def source_quotients() -> dict[tuple, float]:
+    """Quotients de mortalité par âge — les vraies tables du moment.
+
+    Leur présence dispense le modèle de sa calibration paramétrique aux âges
+    couverts. Les classes ouvertes (85 ans et plus, puis 95 ans et plus selon
+    les millésimes) sont écartées à la récupération : au-delà du dernier âge
+    publié, la loi de Gompertz-Makeham reprend la main.
+    """
+    serie = _serie_json("eurostat_quotients.json", "scripts/fetch/eurostat_mortalite.py")
+    return {
+        tuple(cle.split("|")): valeur
+        for cle, valeur in sorted(serie.items(),
+                                  key=lambda kv: (int(kv[0].split("|")[0]),
+                                                  kv[0].split("|")[1],
+                                                  int(kv[0].split("|")[2])))
+    }
+
+
+def source_plafond_ancien() -> dict[tuple, float]:
+    """Plafond de la Sécurité sociale d'avant 2002, par OpenFisca-France.
+
+    Bornée à 2001 : au-delà, le plafond publié par l'INSEE est une source
+    primaire, qui l'emporte. Les années 2002-2026 servent de contrôle croisé
+    entre les deux, sans être versées ici.
+    """
+    serie = _serie_json("openfisca_plafond.json", "scripts/fetch/openfisca_plafond.py")
+    return {
+        (annee,): round(valeur)
+        for annee, valeur in sorted(serie.items())
+        if int(annee) < 2002
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -250,6 +288,12 @@ class Certification:
     unite: str = ""
     #: colonnes fixes à renseigner sur les lignes créées de toutes pièces
     gabarit: dict[str, str] = field(default_factory=dict)
+    #: Niveau accordé aux valeurs confrontées. ``certifiee`` suppose que la
+    #: source soit le producteur de la donnée ; une transcription tierce, même
+    #: sourcée et reprise automatiquement, ne va pas au-delà de ``haute``.
+    niveau: str = "certifiee"
+    #: en-tête à écrire si le fichier de référence n'existe pas encore
+    entete: tuple[str, ...] = ()
 
     def format(self, valeur: float) -> str:
         return f"{valeur:.{self.decimales}f}" if self.decimales else f"{valeur:.0f}"
@@ -259,6 +303,19 @@ class Certification:
             attendu = self.source()
         except SourceAbsente as erreur:
             return [f"IGNORÉ  {self.nom} : {erreur}"], {}
+
+        if not self.chemin.exists():
+            if not appliquer:
+                return [
+                    f"ABSENT  {self.nom} : {self.chemin.name} n'existe pas encore, "
+                    f"{len(attendu)} valeurs à créer — relancer avec --appliquer"
+                ], {}
+            self.chemin.parent.mkdir(parents=True, exist_ok=True)
+            champs = [*self.cles, self.colonne, "fiabilite"]
+            self.chemin.write_text(
+                "\n".join(self.entete) + "\n" + ",".join(champs) + "\n",
+                encoding="utf-8",
+            )
 
         commentaires, champs, lignes = _lire(self.chemin)
         par_cle = {tuple(l[c] for c in self.cles): l for l in lignes}
@@ -274,7 +331,7 @@ class Certification:
                     neuve.update(self.gabarit)
                     neuve.update(dict(zip(self.cles, cle)))
                     neuve[self.colonne] = texte
-                    neuve["fiabilite"] = "certifiee"
+                    neuve["fiabilite"] = self.niveau
                     lignes.append(neuve)
                 continue
             ancienne = float(ligne[self.colonne])
@@ -289,7 +346,7 @@ class Certification:
                 identiques += 1
             if appliquer:
                 ligne[self.colonne] = texte
-                ligne["fiabilite"] = "certifiee"
+                ligne["fiabilite"] = self.niveau
 
         if appliquer:
             lignes.sort(key=lambda l: tuple(
@@ -297,7 +354,7 @@ class Certification:
             ))
             _ecrire(self.chemin, commentaires, champs, lignes)
 
-        verbe = "certifiées" if appliquer else "certifiables"
+        verbe = ("versées au niveau " + self.niveau) if appliquer else "confrontables"
         messages = [
             f"OK      {self.nom} : {len(attendu)} valeurs {verbe} depuis {self.origine} "
             f"— {identiques} identiques, {len(corrigees)} corrigées, "
@@ -309,6 +366,7 @@ class Certification:
 
         journal = {
             "source": self.origine,
+            "niveau": self.niveau,
             "valeurs": len(attendu),
             "identiques": identiques,
             "corrigees": len(corrigees),
@@ -365,15 +423,55 @@ CERTIFICATIONS = (
         unite=" €",
     ),
     Certification(
+        nom="plafond_ancien",
+        chemin=REFERENCE / "macro" / "plafond_securite_sociale.csv",
+        cles=("annee",),
+        colonne="pass_eur",
+        source=source_plafond_ancien,
+        origine="OpenFisca-France, plafond_securite_sociale_annuel.yaml",
+        decimales=0,
+        tolerance=0.5,
+        unite=" €",
+        niveau="haute",
+    ),
+    Certification(
         nom="esperances_vie",
         chemin=REFERENCE / "mortalite" / "esperances_vie.csv",
         cles=("annee", "sexe", "mesure"),
         colonne="valeur",
         source=source_esperances,
-        origine="INSEE BDM (e0, e60) et Eurostat demo_mlexpec (e65)",
+        origine="INSEE BDM (e0, e60) et OCDE DSD_HEALTH_STAT@DF_LE (e65)",
         decimales=2,
         tolerance=0.05,
         unite=" ans",
+    ),
+    Certification(
+        nom="quotients_mortalite",
+        chemin=REFERENCE / "mortalite" / "quotients_periode.csv",
+        cles=("annee", "sexe", "age"),
+        colonne="qx",
+        source=source_quotients,
+        origine="Eurostat demo_mlifetable, quotients de mortalité par âge",
+        decimales=6,
+        tolerance=5e-7,
+        entete=(
+            "# Quotients de mortalité par âge — tables du moment, France",
+            "# source_id: eurostat_mlifetable",
+            "# unite: probabilité de décès dans l'année, entre 0 et 1",
+            "#",
+            "# Ce fichier PRIME sur la calibration paramétrique : dès qu'un couple",
+            "# (année, sexe, âge) y figure, le moteur l'utilise tel quel et n'appelle",
+            "# pas la loi de Gompertz-Makeham. Au-delà du dernier âge publié — 84 ans",
+            "# jusqu'en 2011, 94 ans ensuite — et hors des années couvertes, la loi",
+            "# paramétrique reprend la main : c'est un raccord assumé, pas un oubli.",
+            "#",
+            "# Champ : France métropolitaine jusqu'en 1997, France entière ensuite.",
+            "# Avant 1986, Eurostat ne publie pas de table française ; les tables TD/TV",
+            "# de l'INSEE, seules à remonter plus haut, ne sont diffusées qu'en tableurs.",
+            "#",
+            "# Fichier écrit par scripts/verifier_donnees.py --appliquer : ne pas",
+            "# modifier à la main.",
+        ),
     ),
 )
 
@@ -496,6 +594,115 @@ def controle_vraisemblance_inflation() -> list[str]:
     return messages + anomalies
 
 
+def controle_vraisemblance_esperance_65() -> list[str]:
+    """Confronte l'espérance de vie à 65 ans de l'OCDE à celle d'Eurostat.
+
+    Les deux organisations rediffusent le chiffre INSEE : elles doivent
+    coïncider. Un désaccord signalerait que l'une des deux a changé de champ —
+    France métropolitaine contre France entière, par exemple — et donc que la
+    série retenue n'est plus homogène avec les espérances à 60 ans, qui viennent
+    directement de l'INSEE.
+    """
+    try:
+        ocde = _serie_json("oecd_esperance_vie.json", "scripts/fetch/oecd_esperance_vie.py")
+        eurostat = _serie_json("eurostat_esperance_vie.json",
+                               "scripts/fetch/eurostat_mortalite.py")
+    except SourceAbsente as erreur:
+        return [f"IGNORÉ  vraisemblance espérance à 65 ans : {erreur}"]
+
+    communes = [c for c in set(ocde) & set(eurostat) if c.endswith("|e65")]
+    ecarts = {c: abs(ocde[c] - eurostat[c]) for c in communes}
+    depassements = [
+        f"SUSPECT espérance à 65 ans {cle.replace('|', '/')} : OCDE {ocde[cle]}, "
+        f"Eurostat {eurostat[cle]} — les deux devraient rediffuser le même chiffre INSEE"
+        for cle, ecart in sorted(ecarts.items()) if ecart > 0.05
+    ]
+    maximum = max(ecarts.values()) if ecarts else 0.0
+    return [
+        f"OK      vraisemblance espérance à 65 ans : {len(communes)} valeurs "
+        f"comparées OCDE / Eurostat, écart maximal {maximum:.2f} an",
+    ] + depassements
+
+
+def controle_vraisemblance_cotisations() -> list[str]:
+    """Confronte les taux du régime général saisis à ceux d'OpenFisca-France.
+
+    Ce contrôle ne corrige rien : les fiches de régime sont des YAML structurés
+    par périodes législatives, où un taux résume plusieurs années. Le rapprocher
+    d'une série annuelle demande un arbitrage — quelle moyenne, sur quelles
+    bornes — qui doit rester une décision explicite, prise à la main et tracée
+    dans les notes de la fiche. Le rôle du contrôle est de dire quand l'écart
+    devient assez grand pour appeler cette décision.
+    """
+    chemin = BRUT / "openfisca_cotisations.json"
+    if not chemin.exists():
+        return [
+            f"IGNORÉ  vraisemblance cotisations : {chemin} absent "
+            "(lancer scripts/fetch/openfisca_cotisations.py)"
+        ]
+
+    import yaml
+
+    serie = json.loads(chemin.read_text(encoding="utf-8"))["serie"]
+    couverture = {int(a) for a in serie}
+    fiches = yaml.safe_load(
+        (REFERENCE / "regimes" / "base_prive.yaml").read_text(encoding="utf-8")
+    )
+    regime = next(r for r in fiches["regimes"] if r["code"] == "regime_general")
+
+    messages, anomalies = [], []
+    comparees = 0
+    for periode in regime["periodes"]:
+        debut = max(int(periode["debut"]), min(couverture))
+        fin = min(int(periode["fin"] or max(couverture)), max(couverture))
+        annees = [a for a in range(debut, fin + 1) if a in couverture]
+        if not annees:
+            continue
+        comparees += 1
+        publie = sum(serie[str(a)]["total"] for a in annees) / len(annees)
+        saisi = float(periode["taux_cotisation_retraite"])
+        if abs(publie - saisi) > 0.002:
+            anomalies.append(
+                f"SUSPECT cotisations regime_general {periode['debut']}-{periode['fin']} : "
+                f"fiche {saisi:.2%}, OpenFisca {publie:.2%} en moyenne sur "
+                f"{annees[0]}-{annees[-1]}"
+            )
+    messages.append(
+        f"OK      vraisemblance cotisations : {comparees} périodes du régime général "
+        f"comparées à OpenFisca, {len(anomalies)} au-delà de 0,2 point"
+    )
+    messages.append(
+        "        avant 1967 aucune transcription n'existe : les taux y restent saisis"
+    )
+    return messages + anomalies
+
+
+def controle_vraisemblance_plafond() -> list[str]:
+    """Confronte le plafond d'OpenFisca à celui publié par l'INSEE, sur 2002-2026.
+
+    C'est ce recoupement qui autorise à se servir d'OpenFisca pour les années
+    anciennes : là où les deux sources se recouvrent, elles doivent tomber
+    d'accord au centime près, faute de quoi la transcription est suspecte.
+    """
+    try:
+        openfisca = _serie_json("openfisca_plafond.json",
+                                "scripts/fetch/openfisca_plafond.py")
+        insee = {cle[0]: valeur for cle, valeur in source_plafond().items()}
+    except SourceAbsente as erreur:
+        return [f"IGNORÉ  vraisemblance plafond : {erreur}"]
+
+    communes = sorted(set(openfisca) & set(insee))
+    anomalies = [
+        f"SUSPECT plafond {annee} : OpenFisca {openfisca[annee]:.0f} €, "
+        f"INSEE {insee[annee]:.0f} € — transcription à revoir"
+        for annee in communes if abs(openfisca[annee] - insee[annee]) > 1.0
+    ]
+    return [
+        f"OK      vraisemblance plafond : {len(communes)} années comparées "
+        f"OpenFisca / INSEE, {len(anomalies)} en désaccord",
+    ] + anomalies
+
+
 # ---------------------------------------------------------------------------
 
 
@@ -521,6 +728,9 @@ def main(argv: list[str] | None = None) -> int:
     messages.extend(controle_coherence_interne())
     messages.append("")
     messages.extend(controle_vraisemblance_inflation())
+    messages.extend(controle_vraisemblance_esperance_65())
+    messages.extend(controle_vraisemblance_plafond())
+    messages.extend(controle_vraisemblance_cotisations())
 
     for message in messages:
         print(message)

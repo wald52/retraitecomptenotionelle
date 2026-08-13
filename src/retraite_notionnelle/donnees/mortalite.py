@@ -1,17 +1,21 @@
 """Tables de mortalité : chargement, calibration, tables de génération.
 
-Deux sources possibles, dans cet ordre de priorité :
+Deux sources, dans cet ordre de priorité, arbitrées **couple par couple**
+(année, sexe, âge) et non en bloc :
 
 1. ``data/reference/mortalite/quotients_periode.csv`` (colonnes
-   ``annee,sexe,age,qx,fiabilite``) — les vraies tables INSEE, dès qu'elles
-   sont déposées dans le dépôt ;
-2. à défaut, une table paramétrique de **Gompertz-Makeham** calibrée pour
-   reproduire les espérances de vie publiées à 60 et 65 ans.
+   ``annee,sexe,age,qx``) — les quotients réellement observés. Ils couvrent
+   1986-2024, des âges 0 à 84 puis 0 à 94 selon les millésimes ;
+2. partout ailleurs — avant 1986, au-delà du dernier âge publié, et pour les
+   années projetées — une table paramétrique de **Gompertz-Makeham** calibrée
+   pour reproduire les espérances de vie publiées à 60 et 65 ans.
 
 Le point 2 est une approximation assumée : elle donne la bonne espérance de vie
 aux âges qui comptent pour la retraite (celle qui pilote le diviseur), mais elle
-ne prétend pas décrire la mortalité aux âges jeunes. Le passage au point 1 ne
-demande aucune modification du moteur.
+ne prétend pas décrire la mortalité aux âges jeunes. Le raccord entre les deux
+sources est contrôlé par les tests : l'espérance de vie à 60 ans recalculée à
+partir des seuls quotients observés retombe à 0,4 an près sur celle que publie
+l'INSEE, qui vient d'une tout autre chaîne de production.
 
 Force de mortalité retenue :  μ(x) = A + B · exp(k · (x − 60))
 """

@@ -20,7 +20,7 @@
 # macroéconomiques de l'INSEE, interrogeable sans clé d'accès à l'adresse
 # https://api.insee.fr/series/BDM/V1/data/SERIES_BDM/<idbank>
 
-version_manifeste: "2026-08-13"
+version_manifeste: "2026-08-13b"
 
 institutions:
 
@@ -97,7 +97,7 @@ institutions:
         recuperation: scripts/fetch/insee_bdm.py
         note: >-
           France métropolitaine, par sexe, annuel. L'INSEE ne publie pas
-          l'espérance de vie à 65 ans en série longue : voir eurostat_mlexpec.
+          l'espérance de vie à 65 ans, à aucune période : voir ocde_health_le.
 
       - id: insee_deces_mortalite
         titre: Décès et mortalité — séries longues
@@ -114,9 +114,10 @@ institutions:
         statut_integration: a_faire
         cible: data/reference/mortalite/quotients_periode.csv
         note: >-
-          Les quotients de mortalité par âge ne sont diffusés qu'en fichiers
-          tableurs ; ni la BDM ni Melodi ne les exposent. Tant qu'ils ne sont
-          pas déposés, le modèle calibre une table paramétrique sur e60 et e65.
+          Seule source de quotients par âge antérieurs à 1986, et seule à
+          couvrir les grands âges. Diffusée en tableurs seulement : ni la BDM
+          ni Melodi ne l'exposent. Pour 1986-2024, la table vient d'Eurostat
+          (eurostat_mlifetable).
 
       - id: insee_projections
         titre: Projections de population 2021-2070
@@ -399,8 +400,10 @@ institutions:
         statut_integration: saisi
         cible: data/reference/macro/plafond_securite_sociale.csv
         note: >-
-          Seule source pour 1945-2001. Le portail open data de l'Urssaf ne
-          publie pas de jeu « plafond » ; les valeurs anciennes sont au JO.
+          Source primaire des plafonds anciens, mais non diffusée en accès
+          machine : le portail open data de l'Urssaf ne publie aucun jeu
+          « plafond ». En attendant, les valeurs de 1931 à 2001 viennent de la
+          transcription OpenFisca (openfisca_plafond), au niveau `haute`.
       - id: urssaf_taux
         titre: Taux de cotisations du régime général
         url: https://www.urssaf.fr/accueil/outils-documentation/taux-baremes.html
@@ -447,10 +450,78 @@ institutions:
         titre: Espérance de vie par âge et par sexe (demo_mlexpec)
         url: https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/demo_mlexpec
         acces: api
+        statut_integration: automatise
+        cible: data/brut/eurostat_esperance_vie.json
+        recuperation: scripts/fetch/eurostat_mortalite.py
+        note: >-
+          Contrôle croisé de l'espérance de vie à 65 ans, dont la source
+          retenue est l'OCDE (couverture plus longue). Les deux coïncident
+          exactement sur leurs 78 valeurs communes.
+
+      - id: eurostat_mlifetable
+        titre: Table de mortalité par âge et par sexe (demo_mlifetable)
+        url: https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/demo_mlifetable
+        acces: api
+        statut_integration: certifie
+        cible: data/reference/mortalite/quotients_periode.csv
+        recuperation: scripts/fetch/eurostat_mortalite.py
+        note: >-
+          Quotients de mortalité par âge, 1986-2024 : les vraies tables du
+          moment, qui dispensent le modèle de sa calibration paramétrique aux
+          âges et années couverts. Territoires FX (1986-2012) puis FR
+          (1998-2024). Classes ouvertes (85 et plus, 95 et plus) écartées.
+
+  ocde:
+    nom: Organisation de coopération et de développement économiques
+    role: >-
+      Espérance de vie à 65 ans — la seule mesure dont le modèle a besoin et
+      que l'INSEE ne publie pas en série longue.
+    jeux:
+      - id: ocde_health_le
+        titre: Espérance de vie par âge et par sexe (DSD_HEALTH_STAT@DF_LE)
+        url: https://sdmx.oecd.org/public/rest/data/OECD.ELS.HD,DSD_HEALTH_STAT@DF_LE,
+        acces: api
         statut_integration: certifie
         cible: data/reference/mortalite/esperances_vie.csv
-        recuperation: scripts/fetch/eurostat_esperance_vie.py
+        recuperation: scripts/fetch/oecd_esperance_vie.py
         note: >-
-          Les valeurs françaises sont celles transmises par l'INSEE. Deux
-          territoires : FX (France métropolitaine, 1986-2012) puis FR (France
-          y compris DOM, 1998-2024). Avant 1986, e65 reste saisi.
+          France, par sexe, 1960-2024, valeurs transmises par l'INSEE.
+          Retenue plutôt qu'Eurostat parce qu'elle remonte vingt-six ans plus
+          haut ; les deux sources coïncident sur leur période commune.
+
+  openfisca:
+    nom: OpenFisca-France (modèle socio-fiscal de l'administration française)
+    role: >-
+      Transcription machine, datée décret par décret, des paramètres du droit
+      social français : plafond de la Sécurité sociale depuis 1930, taux de
+      cotisation vieillesse depuis 1967.
+    note: >-
+      Source SECONDAIRE : transcription du Journal officiel, non producteur.
+      Les valeurs qui en viennent plafonnent au niveau `haute` et ne sont
+      jamais `certifiee`. Deux recoupements automatiques les corroborent, refaits
+      à chaque exécution de scripts/verifier_donnees.py.
+    jeux:
+      - id: openfisca_plafond
+        titre: Plafond annuel de la Sécurité sociale, 1930-2026
+        url: https://github.com/openfisca/openfisca-france/blob/master/openfisca_france/parameters/prelevements_sociaux/pss/plafond_securite_sociale_annuel.yaml
+        acces: api
+        statut_integration: automatise
+        cible: data/reference/macro/plafond_securite_sociale.csv
+        recuperation: scripts/fetch/openfisca_plafond.py
+        note: >-
+          Renseigne les années 1931-2001, que ni l'INSEE ni l'Urssaf ne
+          diffusent. Au-delà de 2001, l'INSEE l'emporte et OpenFisca sert de
+          contrôle croisé.
+
+      - id: openfisca_cotisations
+        titre: Taux de cotisation vieillesse du régime général, 1967-2026
+        url: https://github.com/openfisca/openfisca-france/tree/master/openfisca_france/parameters/prelevements_sociaux/cotisations_securite_sociale_regime_general/cnav
+        acces: api
+        statut_integration: automatise
+        cible: data/brut/openfisca_cotisations.json
+        recuperation: scripts/fetch/openfisca_cotisations.py
+        note: >-
+          Sert de contrôle de vraisemblance sur les taux saisis dans les fiches
+          de régime, jamais de source versée automatiquement : une fiche est
+          structurée par périodes législatives, y reporter une série annuelle
+          demande un arbitrage qui doit rester explicite.

@@ -163,6 +163,56 @@ def test_confrontation_seule_n_ecrit_rien(verificateur, tmp_path):
     assert any(m.startswith("ÉCART") for m in messages)
 
 
+def test_transcription_tierce_ne_peut_pas_etre_certifiee(verificateur):
+    """La règle de niveau est ce qui distingue une source d'une recopie.
+
+    Le plafond ancien vient d'OpenFisca, transcription du Journal officiel : il
+    doit rester au niveau « haute », quoi qu'il arrive. Rien dans le code ne
+    l'empêcherait d'être promu par inadvertance ; ce test le garde.
+    """
+    par_nom = {c.nom: c for c in verificateur.CERTIFICATIONS}
+    assert par_nom["plafond_ancien"].niveau == "haute"
+    for nom in ("inflation", "salaire_moyen", "productivite", "plafond",
+                "esperances_vie", "quotients_mortalite"):
+        assert par_nom[nom].niveau == "certifiee", nom
+
+
+def test_plafond_ancien_s_arrete_ou_l_insee_commence(verificateur, monkeypatch):
+    """Deux sources sur un même fichier ne doivent pas se marcher dessus."""
+    monkeypatch.setattr(
+        verificateur, "_serie_json",
+        lambda *args: {"1999": 26471.2, "2001": 27349.4, "2002": 28224.0, "2010": 34620.0},
+    )
+    serie = verificateur.source_plafond_ancien()
+    assert set(serie) == {("1999",), ("2001",)}
+
+
+def test_prorata_du_plafond_sur_une_annee_a_deux_decrets():
+    """Le plafond annuel est la somme des plafonds mensuels, pas celui de janvier."""
+    module = _charger_script("openfisca_plafond", "scripts", "fetch", "openfisca_plafond.py")
+    # Un décret au 1er octobre : neuf mois à l'ancien taux, trois au nouveau.
+    valeurs = {"2010-01-01": 12000.0, "2010-10-01": 24000.0}
+    annuel = module.annualiser(valeurs)
+    assert annuel[2010] == pytest.approx(12000 * 9 / 12 + 24000 * 3 / 12)
+
+
+def test_conversion_des_francs_par_epoque():
+    """Anciens francs, nouveaux francs, euros : trois régimes d'unité."""
+    module = _charger_script("openfisca_plafond", "scripts", "fetch", "openfisca_plafond.py")
+    assert module.en_euros(120000, 1945) == pytest.approx(120000 / 100 / 6.55957)
+    assert module.en_euros(14400, 1968) == pytest.approx(14400 / 6.55957)
+    assert module.en_euros(28224, 2002) == pytest.approx(28224)
+
+
+def test_classes_d_age_ouvertes_sont_ecartees_des_quotients():
+    """« 85 ans et plus » n'est pas un quotient à 85 ans : ne pas le confondre."""
+    module = _charger_script("eurostat_mortalite", "scripts", "fetch", "eurostat_mortalite.py")
+    assert module._age_numerique("Y_LT1") == 0
+    assert module._age_numerique("Y65") == 65
+    assert module._age_numerique("Y_GE85") is None
+    assert module._age_numerique("Y_GE95") is None
+
+
 def test_manifeste_des_series_et_controles_se_correspondent():
     """Le récupérateur et le vérificateur doivent parler des mêmes séries."""
     module = _charger_script("insee_bdm", "scripts", "fetch", "insee_bdm.py")

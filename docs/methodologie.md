@@ -298,22 +298,34 @@ La fiabilité d'un résultat est celle de **son maillon le plus faible**.
 `Parametres.fiabilite_minimale` fait échouer la simulation plutôt que de
 produire un chiffre trompeur. `retraite-notionnelle donnees` en dresse l'état.
 
-**Aucune série n'est aujourd'hui au niveau `certifiee`** : voir `docs/limites.md`.
+Le niveau `certifiee` suppose que la source soit le **producteur** de la donnée
+et que la valeur ait été recontrôlée contre elle par
+`scripts/verifier_donnees.py`. Une transcription tierce, même sourcée et reprise
+automatiquement, plafonne à `haute`. L'état exact figure dans `docs/limites.md`.
 
 ### Tables de mortalité
 
-Deux sources possibles, par ordre de priorité :
+Deux sources, par ordre de priorité, et le partage se fait couple par couple
+(année, sexe, âge) — pas en bloc :
 
-1. `data/reference/mortalite/quotients_periode.csv` — les tables INSEE
-   (`annee,sexe,age,qx`), dès qu'elles sont déposées ;
-2. à défaut, une table paramétrique de **Gompertz-Makeham**
+1. `data/reference/mortalite/quotients_periode.csv` — les **quotients observés**
+   (`annee,sexe,age,qx`). Ils couvrent 1986-2024, des âges 0 à 84 puis 0 à 94
+   selon les millésimes, et viennent de la table de mortalité française
+   diffusée par Eurostat ;
+2. partout ailleurs — avant 1986, au-delà du dernier âge publié, et pour les
+   années projetées — une table paramétrique de **Gompertz-Makeham**
    `μ(x) = A + B·exp(k(x−60))`, dont *B* et *k* sont ajustés par bissection pour
    reproduire **exactement** les espérances de vie publiées à 60 et 65 ans.
 
-La calibration est vérifiée par les tests à 0,05 an près. Elle donne la bonne
-espérance de vie aux âges qui pilotent le diviseur ; elle ne prétend pas décrire
-la mortalité aux âges jeunes, qui n'entrent pas dans le calcul. Le passage aux
-vraies tables ne demande aucune modification du moteur.
+Le raccord entre les deux est assumé, et il est contrôlé : un test recalcule
+l'espérance de vie à 60 ans à partir des seuls quotients observés et la
+confronte à l'espérance publiée par l'INSEE, qui vient d'une tout autre chaîne
+de production. Les deux concordent à 0,4 an près. La calibration paramétrique,
+elle, est vérifiée à 0,05 an près sur ses propres cibles.
+
+Ce partage donne la bonne mortalité aux âges qui pilotent le diviseur sans
+prétendre décrire la mortalité aux âges jeunes, qui n'entrent pas dans le
+calcul.
 
 ### Unité de compte
 

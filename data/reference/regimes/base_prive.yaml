@@ -76,6 +76,12 @@ regimes:
   - code: regime_general
     nom: Régime général d'assurance vieillesse (CNAV)
     famille: base_prive
+    # Taux de cotisation des périodes postérieures à 1971 : moyenne des taux
+    # annuels publiés par OpenFisca-France (part salariale + part patronale,
+    # plafonnée + déplafonnée), récupérés par scripts/fetch/openfisca_cotisations.py
+    # et recoupés à chaque exécution de scripts/verifier_donnees.py. Avant
+    # octobre 1967, aucune transcription machine n'existe : le taux de la
+    # période 1945-1971 reste saisi depuis les ordonnances de 1945.
     source_id: cnav_baremes
     fiabilite: moyenne
     creation: 1945
@@ -119,7 +125,7 @@ regimes:
         taux_plein: 0.50
         salaire_reference: 10_meilleures_annees
         assiette: plafonnee
-        taux_cotisation_retraite: 0.104
+        taux_cotisation_retraite: 0.1119
         decote_par_trimestre: 0.05
         surcote_par_trimestre: null
         avantages_non_contributifs:
@@ -139,7 +145,7 @@ regimes:
         taux_plein: 0.50
         salaire_reference: 10_meilleures_annees
         assiette: plafonnee
-        taux_cotisation_retraite: 0.1445
+        taux_cotisation_retraite: 0.1505
         decote_par_trimestre: 0.0125
         surcote_par_trimestre: null
         avantages_non_contributifs:
@@ -160,7 +166,7 @@ regimes:
         taux_plein: 0.50
         salaire_reference: 25_meilleures_annees
         assiette: plafonnee
-        taux_cotisation_retraite: 0.1615
+        taux_cotisation_retraite: 0.1635
         decote_par_trimestre: 0.0125
         surcote_par_trimestre: null
         avantages_non_contributifs:
@@ -182,7 +188,7 @@ regimes:
         taux_plein: 0.50
         salaire_reference: 25_meilleures_annees
         assiette: plafonnee
-        taux_cotisation_retraite: 0.1645
+        taux_cotisation_retraite: 0.1659
         decote_par_trimestre: 0.0125
         surcote_par_trimestre: 0.0075
         avantages_non_contributifs:
@@ -201,7 +207,7 @@ regimes:
         taux_plein: 0.50
         salaire_reference: 25_meilleures_annees
         assiette: plafonnee
-        taux_cotisation_retraite: 0.1735
+        taux_cotisation_retraite: 0.1743
         decote_par_trimestre: 0.0125
         surcote_par_trimestre: 0.0125
         avantages_non_contributifs:
@@ -221,7 +227,7 @@ regimes:
         taux_plein: 0.50
         salaire_reference: 25_meilleures_annees
         assiette: plafonnee
-        taux_cotisation_retraite: 0.1787
+        taux_cotisation_retraite: 0.1786
         decote_par_trimestre: 0.0125
         surcote_par_trimestre: 0.0125
         avantages_non_contributifs:

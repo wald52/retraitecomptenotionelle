@@ -27,6 +27,20 @@ def mortalite() -> DonneesMortalite:
 
 
 @pytest.fixture(scope="module")
+def quotients() -> dict[tuple[int, str, int], float]:
+    """Table des quotients de mortalité observés, clé (année, sexe, âge)."""
+    import csv
+
+    chemin = RACINE_DONNEES / "reference" / "mortalite" / "quotients_periode.csv"
+    with chemin.open(encoding="utf-8") as flux:
+        lignes = (l for l in flux if not l.lstrip().startswith("#"))
+        return {
+            (int(l["annee"]), l["sexe"], int(l["age"])): float(l["qx"])
+            for l in csv.DictReader(lignes)
+        }
+
+
+@pytest.fixture(scope="module")
 def esperances() -> dict[tuple[int, str, str], float]:
     """Fichier des espérances de vie relu tel quel, clé (année, sexe, mesure)."""
     import csv
@@ -102,10 +116,26 @@ def test_ce_qui_precede_1950_reste_annonce_comme_estime(macro):
         assert serie.fiabilite(1935) == Fiabilite.ESTIMEE, serie.nom
 
 
-def test_plafond_certifie_sur_la_periode_publiee_en_serie(macro):
+def test_plafond_certifie_sur_la_periode_publiee_par_l_insee(macro):
     assert macro.plafond_securite_sociale.fiabilite(2010) == Fiabilite.CERTIFIEE
-    # Avant 2002 la série Urssaf n'est pas diffusée : la reconstitution demeure.
-    assert macro.plafond_securite_sociale.fiabilite(1960) == Fiabilite.ESTIMEE
+
+
+def test_plafond_ancien_vient_d_une_transcription_pas_du_producteur(macro):
+    """Le plafond d'avant 2002 vaut « haute », jamais « certifiee ».
+
+    Il vient d'OpenFisca-France, transcription du Journal officiel : publiée,
+    sourcée, reprise automatiquement — mais pas de la main du producteur.
+    """
+    for annee in (1945, 1960, 1985, 2001):
+        assert macro.plafond_securite_sociale.fiabilite(annee) == Fiabilite.HAUTE, annee
+
+
+def test_plafond_est_strictement_croissant(macro):
+    """Un plafond qui recule trahirait une conversion de francs manquée."""
+    serie = macro.plafond_securite_sociale
+    annees = [a for a in serie.annees() if a <= 2026]
+    for precedente, courante in zip(annees, annees[1:]):
+        assert serie(courante) >= serie(precedente), courante
 
 
 def test_esperances_de_vie_annuelles_sans_interpolation(esperances):
@@ -115,10 +145,38 @@ def test_esperances_de_vie_annuelles_sans_interpolation(esperances):
         assert set(range(1946, 2026)) <= annees
 
 
-def test_esperance_a_65_ans_certifiee_sur_la_periode_eurostat(mortalite):
-    """L'INSEE ne publie pas e65 : la certification s'arrête où Eurostat commence."""
+def test_esperance_a_65_ans_certifiee_depuis_1960(mortalite):
+    """L'INSEE ne publie pas e65 : la certification s'arrête où l'OCDE commence."""
     assert mortalite.loi(2010, "H").fiabilite == Fiabilite.CERTIFIEE
+    assert mortalite.loi(1960, "H").fiabilite == Fiabilite.CERTIFIEE
     assert mortalite.loi(1950, "H").fiabilite < Fiabilite.CERTIFIEE
+
+
+def test_le_modele_utilise_les_tables_de_mortalite_observees(mortalite):
+    assert mortalite.utilise_tables_reelles
+
+
+def test_les_quotients_observes_priment_sur_la_calibration(mortalite, quotients):
+    """Là où une table existe, c'est elle qui sort — pas la loi paramétrique."""
+    assert mortalite.survie_annuelle(70, 2015, "H") == pytest.approx(
+        1 - quotients[(2015, "H", 70)]
+    )
+    # Au-delà du dernier âge publié, la loi paramétrique reprend la main sans
+    # rupture : la survie doit rester dans une plage plausible.
+    assert 0.5 < mortalite.survie_annuelle(96, 2015, "H") < 0.95
+
+
+def test_les_tables_observees_reproduisent_les_esperances_publiees(mortalite, esperances):
+    """Deux sources indépendantes doivent décrire la même mortalité.
+
+    Les quotients viennent d'Eurostat, les espérances de l'INSEE et de l'OCDE.
+    Si l'espérance recalculée à partir des quotients s'écartait nettement de
+    l'espérance publiée, c'est que les deux ne portent pas sur le même champ.
+    """
+    for annee in (2000, 2015, 2020):
+        for sexe in ("H", "F"):
+            recalculee = mortalite.esperance_residuelle(60, annee, sexe, generation=False)
+            assert recalculee == pytest.approx(esperances[(annee, sexe, "e60")], abs=0.4)
 
 
 def test_journal_de_certification_decrit_les_series_certifiees():
@@ -128,6 +186,7 @@ def test_journal_de_certification_decrit_les_series_certifiees():
     permette, sur un dépôt fraîchement cloné, de savoir d'où viennent les
     valeurs marquées ``certifiee`` et combien elles sont.
     """
+    import collections
     import csv
     import json
 
@@ -135,21 +194,34 @@ def test_journal_de_certification_decrit_les_series_certifiees():
         (RACINE_DONNEES / "derive" / "certification.json").read_text(encoding="utf-8")
     )
     fichiers = {
-        "inflation": ("macro/ipc_annuel.csv", None),
-        "salaire_moyen": ("macro/salaire_moyen.csv", None),
-        "productivite": ("macro/productivite.csv", None),
-        "plafond": ("macro/plafond_securite_sociale.csv", None),
-        "esperances_vie": ("mortalite/esperances_vie.csv", None),
+        "inflation": "macro/ipc_annuel.csv",
+        "salaire_moyen": "macro/salaire_moyen.csv",
+        "productivite": "macro/productivite.csv",
+        "plafond": "macro/plafond_securite_sociale.csv",
+        "plafond_ancien": "macro/plafond_securite_sociale.csv",
+        "esperances_vie": "mortalite/esperances_vie.csv",
+        "quotients_mortalite": "mortalite/quotients_periode.csv",
     }
     assert set(journal["series"]) == set(fichiers)
 
-    for nom, (chemin_relatif, _) in fichiers.items():
+    # Deux contrôles peuvent viser le même fichier à des niveaux différents —
+    # le plafond en est le cas : INSEE certifie 2002-2025, OpenFisca renseigne
+    # tout ce qui précède au niveau « haute ». On compare donc par (fichier,
+    # niveau), pas contrôle par contrôle.
+    attendu: dict[tuple[str, str], int] = collections.Counter()
+    for nom, trace in journal["series"].items():
+        attendu[(fichiers[nom], trace["niveau"])] += trace["valeurs"]
+
+    constate: dict[tuple[str, str], int] = collections.Counter()
+    for chemin_relatif in set(fichiers.values()):
         chemin = RACINE_DONNEES / "reference" / chemin_relatif
         with chemin.open(encoding="utf-8") as flux:
             lignes = (l for l in flux if not l.lstrip().startswith("#"))
-            certifiees = sum(1 for l in csv.DictReader(lignes)
-                             if l["fiabilite"] == "certifiee")
-        assert certifiees == journal["series"][nom]["valeurs"], nom
+            for ligne in csv.DictReader(lignes):
+                constate[(chemin_relatif, ligne["fiabilite"])] += 1
+
+    for cle, nombre in attendu.items():
+        assert constate[cle] == nombre, cle
 
 
 # -- catalogue des régimes ---------------------------------------------------

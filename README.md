@@ -33,7 +33,7 @@ Agent de conduite SNCF né en 1955, parti à 50 ans (quinze ans avant l'âge de 
 Scénario                                      Courants   Constants   Mensuel    Écart
 ------------------------------------------------------------------------------------
 1. Système actuel                              20,435€     28,611€    2,384€     réf.
-2. Notionnel rétroactif (depuis l'origine)      1,300€      1,820€      152€   -93.6%
+2. Notionnel rétroactif (depuis l'origine)      1,284€      1,798€      150€   -93.7%
 3. Notionnel à compter de 2026                 20,435€     28,611€    2,384€    +0.0%
 ```
 
@@ -69,7 +69,7 @@ la page.
 
 `index.html` charge [Pyodide](https://pyodide.org) — CPython compilé en
 WebAssembly, versionné dans `moteur/pyodide/` (14 Mo) — puis décompresse
-`moteur/simulateur.zip` (109 Ko : le modèle et les données) dans son système de
+`moteur/simulateur.zip` (142 Ko : le modèle et les données) dans son système de
 fichiers virtuel, et appelle le module `retraite_notionnelle.web.navigateur`.
 
 Le site est servi depuis la racine du dépôt, telle quelle : c'est ce que GitHub
@@ -197,11 +197,12 @@ un effort contributif accru, pas un avantage accordé.
 
 ## Les données
 
-Vingt-deux institutions sont recensées dans [`data/sources.yaml`](data/sources.yaml) :
+Vingt-quatre institutions sont recensées dans [`data/sources.yaml`](data/sources.yaml) :
 INSEE, COR, Comité de suivi des retraites, DREES, CNAV, Service des retraites de
 l'État, Caisse des dépôts, Direction de la Sécurité sociale, Cour des comptes,
 Agirc-Arrco, Union Retraite, CCMSA, CNAVPL, CNBF, DGAFP, Direction du Budget,
-ERAFP, Ircantec, caisses des régimes spéciaux, Urssaf, Légifrance, Eurostat.
+ERAFP, Ircantec, caisses des régimes spéciaux, Urssaf, Légifrance, Eurostat,
+OCDE, OpenFisca-France.
 
 **Chaque valeur porte son niveau de fiabilité** — `certifiee`, `haute`,
 `moyenne`, `estimee` — et la fiabilité d'un résultat est celle de son maillon le
@@ -209,26 +210,35 @@ plus faible. `Parametres.fiabilite_minimale` fait échouer la simulation plutôt
 que de produire un chiffre trompeur.
 
 Une valeur n'est `certifiee` que si elle a été **confrontée à la source
-elle-même**, téléchargée depuis le producteur. C'est le cas de l'inflation, du
-salaire moyen et de la productivité de **1950 à 2025**, des espérances de vie
-annuelles depuis 1946, et du plafond de la Sécurité sociale depuis 2002 : ces
-séries sont recalculées depuis l'API SDMX de la Banque de données
-macroéconomiques de l'INSEE, ouverte sans clé d'accès et qui diffuse — contrairement
-à l'API Melodi — les séries longues.
+elle-même**, téléchargée depuis le producteur. Une transcription tierce, même
+sourcée et reprise automatiquement, plafonne à `haute`.
+
+| Donnée | Période certifiée | Producteur |
+|---|---|---|
+| Inflation, salaire moyen, productivité | 1950-2025 | INSEE, Banque de données macroéconomiques |
+| Espérance de vie à 0 et 60 ans | 1946-2025 | INSEE |
+| Espérance de vie à 65 ans | 1960-2024 | OCDE (l'INSEE ne la publie pas) |
+| Quotients de mortalité par âge | 1986-2024 | Eurostat |
+| Plafond de la Sécurité sociale | 2002-2025 | INSEE |
 
 ```bash
 python scripts/fetch/insee_bdm.py               # séries longues INSEE (BDM)
-python scripts/fetch/eurostat_esperance_vie.py  # espérance de vie à 65 ans
+python scripts/fetch/oecd_esperance_vie.py      # espérance de vie à 65 ans
+python scripts/fetch/eurostat_mortalite.py      # tables de mortalité par âge
+python scripts/fetch/openfisca_plafond.py       # plafond ancien
+python scripts/fetch/openfisca_cotisations.py   # taux de cotisation du RG
 python scripts/fetch/eurostat_hicp.py           # contrôle croisé de l'inflation
 
 python scripts/verifier_donnees.py              # confronte, sans rien écrire
 python scripts/verifier_donnees.py --appliquer  # aligne sur la source et certifie
 ```
 
-> **Ce qui reste saisi à la main :** les séries d'avant 1950, le plafond
-> d'avant 2002, l'espérance de vie à 65 ans d'avant 1986, les quotients de
-> mortalité par âge, et tous les paramètres de régime — taux, âges, valeurs de
-> point — qui viennent de règlements et non de séries statistiques.
+> **Ce qui reste saisi à la main :** les séries d'avant 1950, l'espérance de vie
+> à 65 ans d'avant 1960, les quotients de mortalité d'avant 1986, les taux de
+> cotisation d'avant 1967, et les paramètres propres à chaque régime — âges,
+> durées, valeurs de point — qui viennent de règlements et non de séries
+> statistiques. `docs/limites.md` recense aussi les sources essayées sans
+> succès, pour éviter de les rechercher deux fois.
 > Lire [`docs/limites.md`](docs/limites.md) avant de citer un chiffre.
 
 ---
@@ -240,7 +250,7 @@ data/
   sources.yaml                  manifeste des sources institutionnelles
   reference/
     macro/                      inflation, salaire moyen, productivité, plafond, projections
-    mortalite/                  espérances de vie observées et projetées
+    mortalite/                  espérances de vie et quotients par âge observés
     regimes/                    35 fiches de régime + schéma + rendements des points
     legislation/                âges de référence à cliquet, profils d'affiliation
   brut/                         téléchargements bruts, non versionnés
@@ -265,13 +275,13 @@ index.html                      le site : charge Pyodide, puis le simulateur
 .nojekyll                       servir les fichiers sans transformation
 moteur/
   pyodide/                      CPython compilé en WebAssembly (14 Mo, versionné)
-  simulateur.zip                le modèle et les données (109 Ko, reconstruit par script)
+  simulateur.zip                le modèle et les données (142 Ko, reconstruit par script)
 
 docs/
   methodologie.md               ce que le modèle calcule, et pourquoi ainsi
   limites.md                    ce qu'il ne calcule pas, et ce qui reste à certifier
 
-tests/                          124 tests
+tests/                          134 tests
 ```
 
 ---
@@ -300,8 +310,9 @@ sous « Options de modélisation ».
 python -m pytest tests
 ```
 
-124 tests couvrant le chargement et la fiabilité des données, la règle de
-certification, la calibration des tables de mortalité, les propriétés du moteur
+134 tests couvrant le chargement et la fiabilité des données, la règle de
+certification, la calibration des tables de mortalité et sa concordance avec les
+tables observées, les propriétés du moteur
 (monotonie du diviseur, cliquet de l'âge de référence, règles de fusion), le
 comportement des scénarios, le rendu des pages dans les deux modes et la
 fraîcheur du paquet embarqué dans le site. Aucun test n'accède au réseau : les

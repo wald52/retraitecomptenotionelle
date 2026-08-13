@@ -206,19 +206,22 @@ def commande_donnees(arguments: argparse.Namespace) -> int:
 
     print(
         "\nTables de mortalité : "
-        + ("tables INSEE observées" if simulateur.mortalite.utilise_tables_reelles
+        + ("quotients observés par âge, complétés par une calibration de "
+           "Gompertz-Makeham hors de leur portée"
+           if simulateur.mortalite.utilise_tables_reelles
            else "calibration paramétrique de Gompertz-Makeham sur e60 et e65")
     )
     journal = journal_certification(simulateur.macro.racine)
     if journal:
         print(f"\nDernier recontrôle contre les sources : {journal['certifie_le']}\n")
         for nom, trace in sorted(journal["series"].items()):
-            print(f"  {nom:<16} {trace['valeurs']:>4} valeurs — {trace['source']}")
+            print(f"  {nom:<20} {trace['valeurs']:>5} valeurs  {trace['niveau']:<10}"
+                  f" {trace['source']}")
         print(
-            "\nCe qui n'y figure pas n'a pas de source automatisable : inflation, "
-            "salaires et productivité d'avant 1950, plafond d'avant 2002, "
-            "espérance de vie à 65 ans d'avant 1986, paramètres de régime. "
-            "Voir docs/limites.md."
+            "\nCe qui n'y figure pas n'a pas de source automatisable : les séries "
+            "d'avant 1950, l'espérance de vie à 65 ans d'avant 1960, les quotients "
+            "de mortalité d'avant 1986, les taux de cotisation d'avant 1967, et les "
+            "paramètres propres à chaque régime. Voir docs/limites.md."
         )
     else:
         print(

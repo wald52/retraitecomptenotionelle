@@ -2,18 +2,20 @@
  "certifie_le": "2026-08-13",
  "series": {
   "esperances_vie": {
-   "ajoutees": 0,
+   "ajoutees": 46,
    "corrigees": 0,
-   "empreinte": "bb34c4d90544e81a",
-   "identiques": 398,
-   "source": "INSEE BDM (e0, e60) et Eurostat demo_mlexpec (e65)",
-   "valeurs": 398
+   "empreinte": "0ddd59a38e01cfd9",
+   "identiques": 404,
+   "niveau": "certifiee",
+   "source": "INSEE BDM (e0, e60) et OCDE DSD_HEALTH_STAT@DF_LE (e65)",
+   "valeurs": 450
   },
   "inflation": {
    "ajoutees": 0,
    "corrigees": 0,
    "empreinte": "545d9a49df7d26b5",
    "identiques": 76,
+   "niveau": "certifiee",
    "source": "INSEE BDM, idbanks 000008965 et 001764363",
    "valeurs": 76
   },
@@ -22,22 +24,43 @@
    "corrigees": 0,
    "empreinte": "26639dee3a21b59c",
    "identiques": 24,
+   "niveau": "certifiee",
    "source": "INSEE BDM, idbank 000822494",
    "valeurs": 24
+  },
+  "plafond_ancien": {
+   "ajoutees": 14,
+   "corrigees": 55,
+   "empreinte": "e2958be9531f7b78",
+   "identiques": 2,
+   "niveau": "haute",
+   "source": "OpenFisca-France, plafond_securite_sociale_annuel.yaml",
+   "valeurs": 71
   },
   "productivite": {
    "ajoutees": 0,
    "corrigees": 0,
    "empreinte": "9c69741a05c75be3",
    "identiques": 76,
+   "niveau": "certifiee",
    "source": "INSEE BDM, idbanks 011785223 et 011793334",
    "valeurs": 76
+  },
+  "quotients_mortalite": {
+   "ajoutees": 6850,
+   "corrigees": 0,
+   "empreinte": "428254319c1001b4",
+   "identiques": 0,
+   "niveau": "certifiee",
+   "source": "Eurostat demo_mlifetable, quotients de mortalité par âge",
+   "valeurs": 6850
   },
   "salaire_moyen": {
    "ajoutees": 0,
    "corrigees": 0,
    "empreinte": "1b8332a5465c4c4c",
    "identiques": 76,
+   "niveau": "certifiee",
    "source": "INSEE BDM, idbanks 011785411 et 011793486",
    "valeurs": 76
   }
