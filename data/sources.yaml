@@ -20,7 +20,7 @@
 # macroéconomiques de l'INSEE, interrogeable sans clé d'accès à l'adresse
 # https://api.insee.fr/series/BDM/V1/data/SERIES_BDM/<idbank>
 
-version_manifeste: "2026-08-13e"
+version_manifeste: "2026-08-13f"
 
 institutions:
 
@@ -450,6 +450,19 @@ institutions:
         acces: document
         statut_integration: saisi
         cible: data/reference/legislation/reformes.yaml
+
+      - id: dila_opendata
+        titre: Bases ouvertes de la DILA — JORF et LEGI
+        url: https://echanges.dila.gouv.fr/OPENDATA/
+        acces: fichier
+        statut_integration: a_faire
+        note: >-
+          Dumps complets, 1,6 Go et 1,1 Go compressés, filtrables en flux sans
+          écriture disque. Dépouillés une fois à la recherche des valeurs du
+          point de la CNAVPL, de la MSA et de la CNBF : seule la RCO agricole en
+          ressort, par l'article D. 732-166 du code rural, et sous une forme que
+          le modèle ne peut pas exploiter. Voir docs/limites.md §1 avant de
+          refaire le trajet.
 
   eurostat:
     nom: Eurostat

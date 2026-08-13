@@ -135,6 +135,30 @@ qui a été cherché, pour éviter de le rechercher deux fois.
   fiable. Confrontée aux barèmes que la Caisse des dépôts publie elle-même pour
   l'Ircantec, elle tombe juste sur cent vingt-trois valeurs sur cent
   vingt-quatre — le seul écart portant sur le taux d'appel de 1991.
+
+  **La voie légale a été suivie jusqu'au bout, et elle ne mène pas où il
+  faudrait.** Les bases ouvertes de la DILA ont été dépouillées en flux, sans
+  écriture disque : 12,4 Go de JORF puis 9,1 Go de LEGI, filtrés document par
+  document. Ce qu'on y trouve, et qui vaut d'être noté pour ne pas refaire le
+  trajet :
+
+  * la valeur de service du point de la **retraite complémentaire obligatoire
+    agricole** est portée par un article codifié, `D. 732-166` du code rural,
+    dont LEGI garde les versions successives datées — 0,3023 € en 2006,
+    0,3188 € en 2010, 0,3642 € en 2023, 0,3835 € en 2025. C'est une vraie série,
+    mais incomplète (2004-2005, 2007-2008 et 2012-2017 manquent au dépouillement)
+    et surtout inexploitable telle quelle : le modèle traite la MSA comme un
+    régime unique, alors que la RCO n'en est que la part complémentaire, créée en
+    2003, et qu'elle attribue des points **forfaitaires** autant que cotisés. Il
+    manque le prix d'acquisition, qui n'existe pas sous cette forme. L'intégrer à
+    moitié serait pire que l'approximation assumée d'aujourd'hui ;
+  * la **CNAVPL** et la **CNBF** n'apparaissent dans aucun article codifié
+    portant une valeur de point. Leurs barèmes sont arrêtés par les conseils
+    d'administration des caisses et approuvés par décision ministérielle : ils ne
+    passent pas par le *Journal officiel* sous une forme exploitable. C'est la
+    raison de fond pour laquelle aucune des vingt sources essayées n'en porte la
+    trace, et il ne sert à rien de chercher ailleurs — il faut les demander aux
+    caisses.
 * *Âges, durées requises, décotes* — ils viennent de lois, pas de séries
   statistiques. Légifrance expose une API, mais elle demande une clé et renvoie
   du texte juridique, non des paramètres.
