@@ -20,7 +20,7 @@
 # macroéconomiques de l'INSEE, interrogeable sans clé d'accès à l'adresse
 # https://api.insee.fr/series/BDM/V1/data/SERIES_BDM/<idbank>
 
-version_manifeste: "2026-08-13c"
+version_manifeste: "2026-08-13d"
 
 institutions:
 
@@ -527,7 +527,9 @@ institutions:
         note: >-
           Salaire de référence, valeur de service et taux d'appel de l'Agirc
           (1947), de l'Arrco (1949 via l'UNIRS, unifié en 1999), de l'Agirc-Arrco
-          (2019) et de l'Ircantec avec ses prédécesseurs IPACTE et IGRANTE.
+          (2019), de l'Ircantec avec ses prédécesseurs IPACTE et IGRANTE, du
+          RAFP (2005) et du RCI (2013). Ne couvre ni la CNAVPL, ni la MSA, ni
+          la CNBF : ces régimes ne sont pas modélisés par OpenFisca.
           Recoupé à chaque exécution contre le rendement instantané que
           l'Agirc-Arrco publie pour l'année en cours : 5,61 % en 2025.
 

@@ -19,8 +19,9 @@ est une **approximation documentée**, pas un simulateur officiel :
   liquidation (``regimes/valeurs_point.csv``). Les points d'un régime fermé sont
   convertis dans son successeur au rapport des deux valeurs de service, comme
   l'ont fait l'unification Arrco de 1999 et la fusion Agirc-Arrco de 2019. Les
-  régimes dont le dépôt n'a pas les barèmes — CNAVPL, MSA, CNBF, RCI, RAFP —
-  restent calculés au rendement instantané (``regimes/rendements_points.csv``) ;
+  régimes dont le dépôt n'a pas les barèmes — CNAVPL, MSA, CNBF — restent
+  calculés au rendement instantané (``regimes/rendements_points.csv``), de même
+  que les années postérieures au dernier barème publié ;
 * montée en charge des réformes — les paramètres sont ceux de l'année de
   liquidation, sans le détail génération par génération de la loi Balladur ni de
   la loi Touraine.
@@ -101,8 +102,9 @@ class ValeursPoint:
       depuis 1995, cotiser 125 € n'en acquiert que 100 ;
     * la **valeur de service**, qui convertit les points en rente à la liquidation.
 
-    Les régimes que ce fichier ne couvre pas retombent sur le rendement
-    instantané de :class:`Rendements`, qui reste l'approximation d'origine.
+    Les régimes que ce fichier ne couvre pas — CNAVPL, MSA, CNBF — retombent sur
+    le rendement instantané de :class:`Rendements`, qui reste l'approximation
+    d'origine, tout comme les années postérieures au dernier barème publié.
     """
 
     def __init__(self, racine: Path) -> None:
@@ -134,7 +136,16 @@ class ValeursPoint:
         return valeurs[max(anterieures)] if anterieures else None
 
     def achat(self, regime: str, annee: int) -> tuple[float, float, Fiabilite] | None:
-        """Prix d'achat effectif d'un point : (salaire de référence, taux d'appel)."""
+        """Prix d'achat effectif d'un point : (salaire de référence, taux d'appel).
+
+        Rien n'est renvoyé au-delà de la dernière année publiée. Prolonger le
+        dernier prix connu reviendrait à supposer un barème gelé : les points
+        seraient achetés trop bon marché et la pension surestimée. Ces années
+        retombent sur le rendement instantané, qui, lui, s'assume approximatif.
+        """
+        derniere = self._table.get((regime, "salaire_reference"))
+        if not derniere or annee > max(derniere):
+            return None
         reference = self._en_vigueur(regime, "salaire_reference", annee)
         if reference is None or reference[0] <= 0:
             return None

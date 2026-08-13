@@ -31,9 +31,9 @@ qu'aucun résultat ne soit cité sans savoir sur quoi il repose.
 | Plafond Sécurité sociale | 1931-2001 | haute | OpenFisca-France, daté décret par décret |
 | Taux de cotisation, régime général | 1967-2026 | moyenne | OpenFisca-France, recoupé à chaque exécution |
 | Taux de cotisation, autres régimes | tous | moyenne / estimée | Comptes de la Sécurité sociale |
-| Valeurs d'achat et de service du point | Agirc 1947-2018, Arrco 1949-2018, Agirc-Arrco 2019-2025, Ircantec 1949-2022 | haute | OpenFisca-France-Pension |
+| Valeurs d'achat et de service du point | Agirc 1947-2018, Arrco 1949-2018, Agirc-Arrco 2019-2025, Ircantec 1949-2022, RAFP 2005-2021, RCI 2013-2023 | haute | OpenFisca-France-Pension |
 | Valeurs du point, Arrco avant 1999 | 1949-1998 | moyenne | UNIRS, la plus grosse caisse Arrco |
-| Rendement des autres régimes en points | CNAVPL, MSA, CNBF, RCI, RAFP | **estimée** | reconstitution |
+| Rendement des autres régimes en points | CNAVPL, MSA, CNBF | haute / estimée | calculé là où le point est connu, reconstitué sinon |
 
 **Comment la certification fonctionne.** Une valeur n'est `certifiee` que si
 elle a été confrontée à un fichier téléchargé depuis le producteur. Le circuit
@@ -113,12 +113,17 @@ qui a été cherché, pour éviter de le rechercher deux fois.
 * *Taux de cotisation d'avant octobre 1967 et des régimes autres que le régime
   général* — aucune transcription machine n'existe. Ils viennent des
   ordonnances de 1945 et de leurs modificatifs, saisis à la main.
-* *Valeurs du point des régimes d'indépendants et de la fonction publique*
-  (CNAVPL, MSA, CNBF, RCI, RAFP) — OpenFisca-France-Pension transcrit les
-  régimes complémentaires de salariés, pas ceux-là. Ils restent calculés au
-  rendement instantané, et la confrontation des autres régimes à leurs vraies
-  valeurs a montré que ces reconstitutions peuvent se tromper du simple au
-  double : à prendre avec la même méfiance.
+* *Valeurs du point de la CNAVPL, de la MSA et de la CNBF* — les trois seules
+  caisses en points dont aucune série ne sort. Ont été essayés sans succès :
+  OpenFisca-France-Pension (ne modélise pas ces régimes), les barèmes IPP (même
+  périmètre, c'est la source amont d'OpenFisca), l'open data de la DREES
+  (résultats statistiques, pas paramètres), data.gouv.fr (les jeux de la MSA
+  sont des effectifs de retraités), et les sites des caisses — la CNAVPL décrit
+  le mécanisme sans publier de table, la CNBF ne met en ligne que des barèmes
+  annuels en PDF depuis 2016. Ces trois régimes restent au rendement instantané
+  reconstitué, et la confrontation des autres à leurs vraies valeurs a montré
+  que ces reconstitutions peuvent se tromper du simple au double : à prendre
+  avec la même méfiance.
 * *Âges, durées requises, décotes* — ils viennent de lois, pas de séries
   statistiques. Légifrance expose une API, mais elle demande une clé et renvoie
   du texte juridique, non des paramètres.
@@ -230,7 +235,7 @@ extensible : ajouter un régime consiste à écrire une fiche YAML conforme à
   `data/derive/calibrations_mortalite.json`, régénérable en supprimant le fichier.
 - La certification des séries est tracée dans `data/derive/certification.json`,
   régénérable par `scripts/verifier_donnees.py --appliquer`.
-- 138 tests couvrent le chargement, la fiabilité, la règle de certification, la
+- 140 tests couvrent le chargement, la fiabilité, la règle de certification, la
   concordance des tables de mortalité observées avec les espérances publiées, les
   propriétés du moteur et le comportement des scénarios : `python -m pytest tests`.
   Aucun test n'accède au réseau : les sources sont simulées.

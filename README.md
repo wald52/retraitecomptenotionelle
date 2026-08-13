@@ -69,7 +69,7 @@ la page.
 
 `index.html` charge [Pyodide](https://pyodide.org) — CPython compilé en
 WebAssembly, versionné dans `moteur/pyodide/` (14 Mo) — puis décompresse
-`moteur/simulateur.zip` (150 Ko : le modèle et les données) dans son système de
+`moteur/simulateur.zip` (151 Ko : le modèle et les données) dans son système de
 fichiers virtuel, et appelle le module `retraite_notionnelle.web.navigateur`.
 
 Le site est servi depuis la racine du dépôt, telle quelle : c'est ce que GitHub
@@ -242,9 +242,9 @@ python scripts/verifier_donnees.py --appliquer  # aligne sur la source et certif
 
 > **Ce qui reste saisi à la main :** les séries d'avant 1950, l'espérance de vie
 > à 65 ans d'avant 1960, les quotients de mortalité d'avant 1986, les taux de
-> cotisation d'avant 1967, les valeurs du point des régimes d'indépendants, et
-> les âges et durées propres à chaque régime, qui viennent de lois et non de
-> séries statistiques. `docs/limites.md` recense aussi les sources essayées sans
+> cotisation d'avant 1967, les valeurs du point de la CNAVPL, de la MSA et de la
+> CNBF, et les âges et durées propres à chaque régime, qui viennent de lois et
+> non de séries statistiques. `docs/limites.md` recense aussi les sources essayées sans
 > succès, pour éviter de les rechercher deux fois.
 > Lire [`docs/limites.md`](docs/limites.md) avant de citer un chiffre.
 
@@ -282,13 +282,13 @@ index.html                      le site : charge Pyodide, puis le simulateur
 .nojekyll                       servir les fichiers sans transformation
 moteur/
   pyodide/                      CPython compilé en WebAssembly (14 Mo, versionné)
-  simulateur.zip                le modèle et les données (150 Ko, reconstruit par script)
+  simulateur.zip                le modèle et les données (151 Ko, reconstruit par script)
 
 docs/
   methodologie.md               ce que le modèle calcule, et pourquoi ainsi
   limites.md                    ce qu'il ne calcule pas, et ce qui reste à certifier
 
-tests/                          138 tests
+tests/                          140 tests
 ```
 
 ---
@@ -317,7 +317,7 @@ sous « Options de modélisation ».
 python -m pytest tests
 ```
 
-138 tests couvrant le chargement et la fiabilité des données, la règle de
+140 tests couvrant le chargement et la fiabilité des données, la règle de
 certification, la calibration des tables de mortalité et sa concordance avec les
 tables observées, les propriétés du moteur
 (monotonie du diviseur, cliquet de l'âge de référence, règles de fusion), le

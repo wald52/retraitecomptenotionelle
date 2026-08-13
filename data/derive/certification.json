@@ -65,13 +65,13 @@
    "valeurs": 76
   },
   "valeurs_point": {
-   "ajoutees": 681,
+   "ajoutees": 737,
    "corrigees": 0,
-   "empreinte": "884f06b62850a219",
+   "empreinte": "90b8a89521a24bae",
    "identiques": 0,
    "niveau": "haute",
    "source": "OpenFisca-France-Pension, paramètres des régimes en points",
-   "valeurs": 681
+   "valeurs": 737
   },
   "valeurs_point_texte": {
    "ajoutees": 1,

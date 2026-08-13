@@ -10,9 +10,9 @@
 # POINTS année par année pour tout régime dont il connaît le prix d'achat :
 # cotisation / (taux d'appel × salaire de référence), converti en rente à la
 # liquidation par la valeur de service. L'approximation par rendement ne sert
-# plus que là où cette série ne va pas — CNAVPL, MSA, CNBF, RCI, CANCAVA,
-# ORGANIC, RAFP — et de filet de sécurité si le fichier des valeurs du point
-# venait à manquer.
+# plus que là où cette série ne va pas — CNAVPL, MSA, CNBF, CANCAVA, ORGANIC,
+# et les années postérieures au dernier barème publié — et de filet de sécurité
+# si le fichier des valeurs du point venait à manquer.
 #
 # Le rendement instantané est le rapport
 #
@@ -47,11 +47,11 @@ agirc_arrco,2019,2100,0.0581,haute
 ircantec,1971,1989,0.2281,haute
 ircantec,1990,2008,0.1225,haute
 ircantec,2009,2100,0.0852,haute
-rci,2013,2100,0.0570,estimee
+rci,2013,2100,0.0674,haute
 cnavpl,1949,2003,0.080,estimee
 cnavpl,2004,2100,0.0620,estimee
 cancava,1949,1972,0.090,estimee
 organic,1949,1972,0.090,estimee
 msa_non_salaries,1952,2100,0.0600,estimee
 cnbf,1948,2100,0.0650,estimee
-rafp,2005,2100,0.0430,moyenne
+rafp,2005,2100,0.0389,haute

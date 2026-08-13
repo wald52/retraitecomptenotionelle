@@ -317,3 +317,34 @@ def test_un_regime_sans_valeur_de_point_garde_le_rendement(simulateur):
     assert "cnavpl" in pensions
     assert "rendement" in pensions["cnavpl"].detail
     assert pensions["cnavpl"].montant > 0
+
+
+def test_le_prix_du_point_n_est_pas_prolonge_au_dela_du_publie(simulateur):
+    """Un barème inconnu ne doit pas être supposé gelé.
+
+    Prolonger le dernier prix d'achat connu ferait acheter les points trop bon
+    marché et gonflerait la pension sans que rien ne le signale. Ces années
+    doivent retomber sur le rendement instantané, qui, lui, s'annonce approximatif.
+    """
+    from retraite_notionnelle.scenarios.actuel import ValeursPoint
+
+    valeurs = ValeursPoint(simulateur.parametres.racine_donnees)
+    assert valeurs.achat("agirc", 2018) is not None
+    assert valeurs.achat("agirc", 2019) is None, "barème Agirc prolongé après sa fermeture"
+    assert valeurs.achat("rafp", 2005) is not None
+
+
+def test_rafp_et_rci_sont_calcules_en_points(simulateur):
+    """Les deux régimes que la recherche de sources a permis d'ajouter."""
+    fonctionnaire = simulateur.carriere_simple(
+        annee_naissance=1965, sexe="H", affiliation="fonctionnaire_etat",
+        age_debut=23, age_liquidation=64, part_primes=0.20,
+    )
+    artisan = simulateur.carriere_simple(
+        annee_naissance=1965, sexe="F", affiliation="artisan",
+        age_debut=25, age_liquidation=64,
+    )
+    for carriere, code in ((fonctionnaire, "rafp"), (artisan, "rci")):
+        pensions = {p.regime: p for p in simulateur.simuler(carriere).actuel.pensions_par_regime}
+        assert code in pensions, code
+        assert "points × valeur de service" in pensions[code].detail, code

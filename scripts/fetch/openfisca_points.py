@@ -107,6 +107,21 @@ SOURCES: dict[str, dict[str, tuple[str, str | None]]] = {
         "taux_appel": (f"{FRANCE}/cotisations_secteur_public/ircantec/taux_appel.yaml",
                        None),
     },
+    "rafp": {
+        "salaire_reference": (
+            f"{PENSION}/secteur_public/regimes_complementaires/rafp/"
+            "valeur_acquisition_point_rafp.yaml", None),
+        "valeur_service": (
+            f"{PENSION}/secteur_public/regimes_complementaires/rafp/"
+            "valeur_service_point_rafp.yaml", None),
+    },
+    # Régime complémentaire des indépendants, créé en 2013 par fusion des
+    # régimes complémentaires des artisans et des commerçants.
+    "rci": {
+        "salaire_reference": (f"{PENSION}/independants/salref_rci.yaml", None),
+        "valeur_service": (
+            f"{PENSION}/independants/pt_rci/valeur_point_rci_date.yaml", None),
+    },
     "ipacte": {
         "salaire_reference": (
             f"{PENSION}/secteur_public/regimes_complementaires/ircantec/salaire_de_reference/"
