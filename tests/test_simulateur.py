@@ -374,3 +374,41 @@ def test_le_producteur_prime_sur_la_transcription(simulateur):
     assert niveaux[2021] == "certifiee"
     assert niveaux[2022] == "haute", "hors couverture du producteur, la transcription"
     assert Fiabilite.depuis_texte("certifiee") > Fiabilite.depuis_texte("haute")
+
+
+def test_valeurs_du_point_des_avocats_sont_sourcees(simulateur):
+    """Les barèmes de la CNBF, seule source qui porte la valeur du point des avocats.
+
+    Elles sont rangées sous ``cnbf_complementaire``, un code que le catalogue ne
+    connaît pas : le régime complémentaire des avocats n'est pas encore séparé
+    de leur régime de base dans les fiches, et le moteur ne doit donc pas s'en
+    servir tant que la scission n'est pas faite. Le test garde les deux moitiés
+    de cette décision — les données sont là, le moteur ne les utilise pas.
+    """
+    import csv
+
+    from retraite_notionnelle.scenarios.actuel import ValeursPoint
+
+    chemin = (simulateur.parametres.racine_donnees / "reference" / "regimes"
+              / "valeurs_point.csv")
+    with chemin.open(encoding="utf-8") as flux:
+        lignes = [l for l in csv.DictReader(
+            x for x in flux if not x.lstrip().startswith("#"))
+            if l["regime"] == "cnbf_complementaire"]
+
+    valeurs = {(int(l["annee"]), l["mesure"]): float(l["valeur"]) for l in lignes}
+    assert {l["fiabilite"] for l in lignes} == {"certifiee"}
+    assert valeurs[(2026, "salaire_reference")] == pytest.approx(12.5229)
+    assert valeurs[(2026, "valeur_service")] == pytest.approx(1.0262)
+
+    # Le rendement d'un régime complémentaire décroît : c'est ce qui permet de
+    # détecter une lecture de travers dans le PDF du barème.
+    annees = sorted({a for a, _ in valeurs})
+    rendements = [valeurs[(a, "valeur_service")] / valeurs[(a, "salaire_reference")]
+                  for a in annees]
+    assert all(apres < avant for avant, apres in zip(rendements, rendements[1:]))
+    assert 0.08 < rendements[-1] < 0.11
+
+    # Le catalogue ignore ce code : le moteur ne peut pas s'en servir par mégarde.
+    assert "cnbf_complementaire" not in simulateur.catalogue
+    assert ValeursPoint(simulateur.parametres.racine_donnees).achat("cnbf", 2026) is None

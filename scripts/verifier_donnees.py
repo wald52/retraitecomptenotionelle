@@ -315,6 +315,21 @@ def source_valeurs_point_substituees() -> dict[tuple, float]:
     return _cles_points("serie", substituees=True)
 
 
+def source_valeurs_point_cnbf() -> dict[tuple, float]:
+    """Valeurs du point des avocats, dans les barèmes annuels de la CNBF.
+
+    La caisse est le producteur : c'est son propre barème, publié chaque
+    janvier. Aucune autre source ne les porte — ni OpenFisca, ni les barèmes
+    IPP, ni la législation consolidée, dépouillée deux fois pour s'en assurer.
+    """
+    return {
+        tuple(cle.split("|")): valeur
+        for cle, valeur in sorted(
+            _serie_json("cnbf_baremes.json", "scripts/fetch/cnbf_baremes.py").items()
+        )
+    }
+
+
 def source_valeurs_point_texte() -> dict[tuple, float]:
     """Ce qu'aucune transcription machine ne porte, saisi depuis le texte."""
     charge = _charge_points()
@@ -560,6 +575,16 @@ CERTIFICATIONS = (
         colonne="valeur",
         source=source_valeurs_point_ircantec,
         origine="Caisse des dépôts, barèmes Ircantec (IRC_BAR_01 et IRC_BAR_02)",
+        decimales=6,
+        tolerance=5e-7,
+    ),
+    Certification(
+        nom="valeurs_point_cnbf",
+        chemin=REFERENCE / "regimes" / "valeurs_point.csv",
+        cles=("regime", "annee", "mesure"),
+        colonne="valeur",
+        source=source_valeurs_point_cnbf,
+        origine="CNBF, barèmes annuels des cotisations et prestations",
         decimales=6,
         tolerance=5e-7,
     ),

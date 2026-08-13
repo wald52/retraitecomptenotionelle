@@ -65,37 +65,46 @@
    "valeurs": 76
   },
   "valeurs_point": {
-   "ajoutees": 613,
+   "ajoutees": 0,
    "corrigees": 0,
    "empreinte": "b22e96a0f9f4d01e",
-   "identiques": 0,
+   "identiques": 613,
    "niveau": "haute",
    "source": "OpenFisca-France-Pension, paramètres des régimes en points",
    "valeurs": 613
   },
+  "valeurs_point_cnbf": {
+   "ajoutees": 18,
+   "corrigees": 0,
+   "empreinte": "988dba33ad15f670",
+   "identiques": 0,
+   "niveau": "certifiee",
+   "source": "CNBF, barèmes annuels des cotisations et prestations",
+   "valeurs": 18
+  },
   "valeurs_point_ircantec": {
-   "ajoutees": 153,
+   "ajoutees": 0,
    "corrigees": 0,
    "empreinte": "08dba684ba1976e6",
-   "identiques": 0,
+   "identiques": 153,
    "niveau": "certifiee",
    "source": "Caisse des dépôts, barèmes Ircantec (IRC_BAR_01 et IRC_BAR_02)",
    "valeurs": 153
   },
   "valeurs_point_texte": {
-   "ajoutees": 1,
+   "ajoutees": 0,
    "corrigees": 0,
    "empreinte": "33772abba31cf52b",
-   "identiques": 0,
+   "identiques": 1,
    "niveau": "moyenne",
    "source": "Accord national interprofessionnel du 17 novembre 2017",
    "valeurs": 1
   },
   "valeurs_point_unirs": {
-   "ajoutees": 123,
+   "ajoutees": 0,
    "corrigees": 0,
    "empreinte": "f456045e1b51f980",
-   "identiques": 0,
+   "identiques": 123,
    "niveau": "moyenne",
    "source": "OpenFisca-France-Pension, UNIRS tenant lieu de point Arrco avant 1999",
    "valeurs": 123

@@ -34,7 +34,8 @@ qu'aucun résultat ne soit cité sans savoir sur quoi il repose.
 | Valeurs d'achat et de service du point, Ircantec | 1971-2021 | **certifiée** | Caisse des dépôts, qui gère le régime |
 | Valeurs d'achat et de service du point, autres | Agirc 1947-2018, Arrco 1949-2018, Agirc-Arrco 2019-2025, RAFP 2005-2021, RCI 2013-2023 | haute | OpenFisca-France-Pension |
 | Valeurs du point, Arrco avant 1999 | 1949-1998 | moyenne | UNIRS, la plus grosse caisse Arrco |
-| Rendement des autres régimes en points | CNAVPL, MSA, CNBF | haute / estimée | calculé là où le point est connu, reconstitué sinon |
+| Valeurs du point, complémentaire des avocats | 2017-2026 | **certifiée** | CNBF, ses barèmes annuels |
+| Rendement des autres régimes en points | CNAVPL, MSA | haute / estimée | calculé là où le point est connu, reconstitué sinon |
 
 **Comment la certification fonctionne.** Une valeur n'est `certifiee` que si
 elle a été confrontée à un fichier téléchargé depuis le producteur. Le circuit
@@ -48,6 +49,7 @@ python scripts/fetch/openfisca_plafond.py      # plafond ancien
 python scripts/fetch/openfisca_cotisations.py  # taux de cotisation du RG
 python scripts/fetch/openfisca_points.py       # valeurs du point, depuis 1947
 python scripts/fetch/cdc_ircantec.py           # barèmes Ircantec, par son gestionnaire
+python scripts/fetch/cnbf_baremes.py           # valeurs du point des avocats
 python scripts/fetch/eurostat_hicp.py          # contrôle croisé de l'inflation
 
 python scripts/verifier_donnees.py             # confronte, sans rien écrire
@@ -115,50 +117,71 @@ qui a été cherché, pour éviter de le rechercher deux fois.
 * *Taux de cotisation d'avant octobre 1967 et des régimes autres que le régime
   général* — aucune transcription machine n'existe. Ils viennent des
   ordonnances de 1945 et de leurs modificatifs, saisis à la main.
-* *Valeurs du point de la CNAVPL, de la MSA et de la CNBF* — les trois seules
-  caisses en points dont aucune série ne sort. Ont été essayés sans succès :
+* *Valeurs du point de la CNAVPL et de la MSA* — les deux dernières caisses en
+  points dont aucune série ne sort. Ont été essayés sans succès :
   OpenFisca-France-Pension (ne modélise pas ces régimes), les barèmes IPP (même
   périmètre — c'est la source amont d'OpenFisca, ses quarante-cinq feuilles
   couvrent l'Arrco, l'Agirc, l'UNIRS, PRO-BTP, l'Ircantec, la CANCAVA et
-  l'ORGANIC, pas ces trois-là), l'open data de la DREES (cinquante et un jeux
-  « retraite », tous des résultats statistiques), le portail open data de la
-  Caisse des dépôts (effectifs seulement), data.gouv.fr (les jeux de la MSA sont
-  des effectifs de retraités et d'exploitants), le portail statistiques.msa.fr,
-  et les sites des caisses — la CNAVPL décrit le mécanisme d'acquisition sans
-  publier de table, la CARMF ne donne que la valeur de l'année en cours, la CNBF
-  ne met en ligne que des barèmes annuels en PDF depuis 2016. Ces trois régimes
-  restent au rendement instantané reconstitué, et la confrontation des autres à
-  leurs vraies valeurs a montré que ces reconstitutions peuvent se tromper du
-  simple au double : à prendre avec la même méfiance.
-
-  Ce que la recherche a appris en creux : la transcription d'OpenFisca est
-  fiable. Confrontée aux barèmes que la Caisse des dépôts publie elle-même pour
-  l'Ircantec, elle tombe juste sur cent vingt-trois valeurs sur cent
-  vingt-quatre — le seul écart portant sur le taux d'appel de 1991.
+  l'ORGANIC), l'open data de la DREES (cinquante et un jeux « retraite », tous
+  des résultats statistiques), le portail open data de la Caisse des dépôts
+  (effectifs seulement), data.gouv.fr (les jeux de la MSA sont des effectifs de
+  retraités et d'exploitants), le portail statistiques.msa.fr, et les sites des
+  caisses — la CNAVPL décrit le mécanisme d'acquisition sans publier de table,
+  la CARMF, sa plus grosse section, ne donne que la valeur de l'année en cours.
+  Ces deux régimes restent au rendement instantané reconstitué, et la
+  confrontation des autres à leurs vraies valeurs a montré que ces
+  reconstitutions peuvent se tromper du simple au double : à prendre avec la
+  même méfiance.
 
   **La voie légale a été suivie jusqu'au bout, et elle ne mène pas où il
   faudrait.** Les bases ouvertes de la DILA ont été dépouillées en flux, sans
-  écriture disque : 12,4 Go de JORF puis 9,1 Go de LEGI, filtrés document par
-  document. Ce qu'on y trouve, et qui vaut d'être noté pour ne pas refaire le
-  trajet :
+  écriture disque : 12,4 Go de JORF puis 9,1 Go de LEGI, deux fois — une passe
+  ciblée, puis une passe large gardant tout article codifié portant une valeur
+  de point, pour ne pas manquer un renvoi du type « la valeur mentionnée à
+  l'article L. 643-1 ». Ce qu'on y trouve, et qui vaut d'être noté pour ne pas
+  refaire le trajet :
 
   * la valeur de service du point de la **retraite complémentaire obligatoire
     agricole** est portée par un article codifié, `D. 732-166` du code rural,
     dont LEGI garde les versions successives datées — 0,3023 € en 2006,
     0,3188 € en 2010, 0,3642 € en 2023, 0,3835 € en 2025. C'est une vraie série,
-    mais incomplète (2004-2005, 2007-2008 et 2012-2017 manquent au dépouillement)
-    et surtout inexploitable telle quelle : le modèle traite la MSA comme un
-    régime unique, alors que la RCO n'en est que la part complémentaire, créée en
-    2003, et qu'elle attribue des points **forfaitaires** autant que cotisés. Il
-    manque le prix d'acquisition, qui n'existe pas sous cette forme. L'intégrer à
-    moitié serait pire que l'approximation assumée d'aujourd'hui ;
-  * la **CNAVPL** et la **CNBF** n'apparaissent dans aucun article codifié
-    portant une valeur de point. Leurs barèmes sont arrêtés par les conseils
-    d'administration des caisses et approuvés par décision ministérielle : ils ne
-    passent pas par le *Journal officiel* sous une forme exploitable. C'est la
-    raison de fond pour laquelle aucune des vingt sources essayées n'en porte la
-    trace, et il ne sert à rien de chercher ailleurs — il faut les demander aux
-    caisses.
+    mais incomplète et surtout inexploitable telle quelle : le modèle traite la
+    MSA comme un régime unique, alors que la RCO n'en est que la part
+    complémentaire, créée en 2003, et qu'elle attribue des points
+    **forfaitaires** autant que cotisés. Il manque le prix d'acquisition, qui
+    n'existe pas sous cette forme. L'intégrer à moitié serait pire que
+    l'approximation assumée d'aujourd'hui ;
+  * la **CNAVPL** n'apparaît dans aucun article codifié portant une valeur de
+    point, et la passe large n'en trouve pas davantage : la législation
+    consolidée ne contient, sous ce libellé, que le point d'indice des pensions
+    militaires d'invalidité et celui de la fonction publique. Les barèmes de la
+    CNAVPL sont arrêtés par son conseil d'administration et approuvés par
+    décision ministérielle : ils ne passent pas par le *Journal officiel* sous
+    une forme exploitable. Il faut les demander à la caisse.
+
+  *La CNBF, elle, a fini par livrer les siennes* — non par la loi, mais par ses
+  propres barèmes annuels. Voir la limite suivante.
+
+* *Régime de base des avocats, et emploi des valeurs trouvées* — la CNBF publie
+  chaque janvier un barème en PDF qui donne le **coût d'acquisition** et la
+  **valeur de service** du point de son régime complémentaire. Ces valeurs sont
+  désormais dans le dépôt, certifiées, de 2017 à 2026 : le rendement du régime
+  y décroît régulièrement de 10,1 % à 8,2 %.
+
+  Le moteur ne s'en sert pas encore, et c'est délibéré. La fiche `cnbf` agrège
+  en un seul taux le régime de base — forfaitaire, sans point — et le régime
+  complémentaire. Verser toutes les cotisations dans le second gonflerait la
+  pension complémentaire et ferait disparaître la base. Les valeurs sont donc
+  rangées sous le code `cnbf_complementaire`, que le catalogue ne connaît pas,
+  en attendant que la fiche soit scindée en ses deux étages — ce qui suppose de
+  décider quelle classe de cotisation retenir par défaut, la CNBF en proposant
+  cinq. Un test garde les deux moitiés de cette décision.
+
+  Au passage, ces valeurs éclairent l'estimation en place : un rendement agrégé
+  de 6,5 % pour l'ensemble base + complémentaire est cohérent avec un
+  complémentaire à 8,2 % et une base forfaitaire moins rentable. L'estimation
+  n'était donc pas absurde, ce que rien ne permettait de dire jusqu'ici.
+
 * *Âges, durées requises, décotes* — ils viennent de lois, pas de séries
   statistiques. Légifrance expose une API, mais elle demande une clé et renvoie
   du texte juridique, non des paramètres.
@@ -270,7 +293,7 @@ extensible : ajouter un régime consiste à écrire une fiche YAML conforme à
   `data/derive/calibrations_mortalite.json`, régénérable en supprimant le fichier.
 - La certification des séries est tracée dans `data/derive/certification.json`,
   régénérable par `scripts/verifier_donnees.py --appliquer`.
-- 141 tests couvrent le chargement, la fiabilité, la règle de certification, la
+- 142 tests couvrent le chargement, la fiabilité, la règle de certification, la
   concordance des tables de mortalité observées avec les espérances publiées, les
   propriétés du moteur et le comportement des scénarios : `python -m pytest tests`.
   Aucun test n'accède au réseau : les sources sont simulées.

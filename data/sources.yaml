@@ -20,7 +20,7 @@
 # macroéconomiques de l'INSEE, interrogeable sans clé d'accès à l'adresse
 # https://api.insee.fr/series/BDM/V1/data/SERIES_BDM/<idbank>
 
-version_manifeste: "2026-08-13f"
+version_manifeste: "2026-08-13g"
 
 institutions:
 
@@ -334,6 +334,21 @@ institutions:
         acces: document
         statut_integration: saisi
         cible: data/reference/regimes/cnbf.yaml
+
+      - id: cnbf_baremes
+        titre: Barèmes annuels des cotisations et prestations, 2017-2026
+        url: https://www.cnbf.fr/medias/documents/?_sft_thematique-media=baremes
+        acces: fichier
+        statut_integration: certifie
+        cible: data/reference/regimes/valeurs_point.csv
+        recuperation: scripts/fetch/cnbf_baremes.py
+        note: >-
+          Coût d'acquisition et valeur de service du point du régime
+          complémentaire, publiés par la caisse elle-même — seule source qui les
+          porte, la législation consolidée n'en gardant aucune trace. Diffusés
+          en PDF : le récupérateur les lit avec scripts/fetch/lecture_pdf.py et
+          refuse d'écrire une série qui ne serait pas monotone, faute de quoi
+          une erreur de lecture passerait inaperçue.
 
   dgafp:
     nom: Direction générale de l'administration et de la fonction publique

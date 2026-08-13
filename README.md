@@ -221,6 +221,7 @@ sourcée et reprise automatiquement, plafonne à `haute`.
 | Quotients de mortalité par âge | 1986-2024 | Eurostat |
 | Plafond de la Sécurité sociale | 2002-2025 | INSEE |
 | Valeurs du point de l'Ircantec | 1971-2021 | Caisse des dépôts, qui gère le régime |
+| Valeurs du point des avocats | 2017-2026 | CNBF, ses barèmes annuels |
 
 Deux séries de plus sont reprises automatiquement d'**OpenFisca-France**, le
 modèle socio-fiscal de l'administration — le plafond de la Sécurité sociale
@@ -236,6 +237,7 @@ python scripts/fetch/openfisca_plafond.py       # plafond ancien
 python scripts/fetch/openfisca_cotisations.py   # taux de cotisation du RG
 python scripts/fetch/openfisca_points.py        # valeurs du point, depuis 1947
 python scripts/fetch/cdc_ircantec.py            # barèmes Ircantec, par son gestionnaire
+python scripts/fetch/cnbf_baremes.py            # valeurs du point des avocats
 python scripts/fetch/eurostat_hicp.py           # contrôle croisé de l'inflation
 
 python scripts/verifier_donnees.py              # confronte, sans rien écrire
@@ -244,9 +246,9 @@ python scripts/verifier_donnees.py --appliquer  # aligne sur la source et certif
 
 > **Ce qui reste saisi à la main :** les séries d'avant 1950, l'espérance de vie
 > à 65 ans d'avant 1960, les quotients de mortalité d'avant 1986, les taux de
-> cotisation d'avant 1967, les valeurs du point de la CNAVPL, de la MSA et de la
-> CNBF, et les âges et durées propres à chaque régime, qui viennent de lois et
-> non de séries statistiques. `docs/limites.md` recense aussi les sources essayées sans
+> cotisation d'avant 1967, les valeurs du point de la CNAVPL et de la MSA, et
+> les âges et durées propres à chaque régime, qui viennent de lois et non de
+> séries statistiques. `docs/limites.md` recense aussi les sources essayées sans
 > succès, pour éviter de les rechercher deux fois.
 > Lire [`docs/limites.md`](docs/limites.md) avant de citer un chiffre.
 
@@ -290,7 +292,7 @@ docs/
   methodologie.md               ce que le modèle calcule, et pourquoi ainsi
   limites.md                    ce qu'il ne calcule pas, et ce qui reste à certifier
 
-tests/                          141 tests
+tests/                          142 tests
 ```
 
 ---
@@ -319,7 +321,7 @@ sous « Options de modélisation ».
 python -m pytest tests
 ```
 
-141 tests couvrant le chargement et la fiabilité des données, la règle de
+142 tests couvrant le chargement et la fiabilité des données, la règle de
 certification, la calibration des tables de mortalité et sa concordance avec les
 tables observées, les propriétés du moteur
 (monotonie du diviseur, cliquet de l'âge de référence, règles de fusion), le
