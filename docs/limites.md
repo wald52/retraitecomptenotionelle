@@ -32,7 +32,7 @@ qu'aucun résultat ne soit cité sans savoir sur quoi il repose.
 | Taux de cotisation, régime général | 1967-2026 | moyenne | OpenFisca-France, recoupé à chaque exécution |
 | Taux de cotisation, autres régimes | tous | moyenne / estimée | Comptes de la Sécurité sociale |
 | Valeurs d'achat et de service du point, Ircantec | 1971-2021 | **certifiée** | Caisse des dépôts, qui gère le régime |
-| Valeurs d'achat et de service du point, autres | Agirc 1947-2018, Arrco 1949-2018, Agirc-Arrco 2019-2025, RAFP 2005-2021, RCI 2013-2023 | haute | OpenFisca-France-Pension |
+| Valeurs d'achat et de service du point, autres | Agirc 1947-2018, Arrco 1949-2018, Agirc-Arrco 2019-2025, RAFP 2005-2021, RCI 2013-2023 | haute | OpenFisca-France-Pension, recoupé à l'INSEE depuis 2001 |
 | Valeurs du point, Arrco avant 1999 | 1949-1998 | moyenne | UNIRS, la plus grosse caisse Arrco |
 | Valeurs du point, complémentaire des avocats | 2017-2026 | **certifiée** | CNBF, ses barèmes annuels |
 | Valeur du point et taux, base des professions libérales | 2021-2025 | **certifiée** | CNAVPL, ses recueils statistiques |
@@ -98,6 +98,20 @@ d'entre eux ne se compense pas : elle se transmet telle quelle au résultat.
   la retraite complémentaire d'un salarié du privé à carrière complète monte
   d'environ un tiers.
 
+**Et une confirmation, qui compte autant.** Les barèmes de l'Agirc et de
+l'Arrco pèsent, dans la pension d'un salarié du privé, plus lourd que tous les
+autres réunis, et leur seule source était OpenFisca — c'est-à-dire une
+transcription qu'on ne savait pas vérifier, la caisse ne publiant pas de série.
+L'INSEE, lui, diffuse la valeur de service du point depuis 2001, mensuelle,
+sous trois idbanks (`000849395` pour l'Arrco, `000822495` pour l'Agirc,
+`010593202` pour l'Agirc-Arrco). **Sur les 42 années où les deux se recouvrent,
+elles ne divergent pas une fois.** Ces valeurs restent au niveau `haute` — deux
+transcriptions ne font pas un producteur — mais leur accord est désormais
+recontrôlé à chaque exécution. Le recoupement a en outre comblé un trou : la
+valeur de service 2025 de l'Agirc-Arrco manquait, la transcription s'arrêtant à
+2024, si bien qu'une liquidation de 2025 convertissait ses points au barème de
+l'année précédente.
+
 **Ce qui reste hors de portée, et pourquoi.** La liste vaut recensement de ce
 qui a été cherché, pour éviter de le rechercher deux fois.
 
@@ -126,11 +140,39 @@ qui a été cherché, pour éviter de le rechercher deux fois.
   l'UNIRS, PRO-BTP, l'Ircantec, la CANCAVA et l'ORGANIC), l'open data de la
   DREES (cinquante et un jeux « retraite », tous des résultats statistiques), le
   portail open data de la Caisse des dépôts (effectifs seulement), data.gouv.fr
-  (les jeux de la MSA sont des effectifs de retraités et d'exploitants) et le
-  portail statistiques.msa.fr. Ce régime reste au rendement instantané
+  (les jeux de la MSA sont des effectifs de retraités et d'exploitants), le
+  portail statistiques.msa.fr, la BDM de l'INSEE — qui porte le point de l'Agirc
+  et de l'Arrco mais aucun point agricole — et le site de la caisse, dont les
+  pages de barèmes sont construites en JavaScript.
+
+  **Ce qui manque n'est pas ce qu'on croyait.** Les paramètres, eux, ont fini
+  par se laisser établir, et ils disent où est le vrai obstacle :
+
+  * le régime **complémentaire** (RCO) n'a pas de prix d'achat du point, et ne
+    peut pas en avoir : l'article D. 732-165 du code rural attribue les points
+    par une formule, `points = revenus × 100 ÷ (1 820 × SMIC horaire)`, avec un
+    plancher de 100 points à l'assiette minimale. Sa valeur de service est à
+    l'article D. 732-166, à 0,3919 € pour 2025 ;
+  * le régime de **base** comporte une part forfaitaire et une **retraite
+    proportionnelle en points**, dont le COR donne la valeur — 4,264 € en 2023.
+    Mais ces points ne s'achètent pas davantage : ils sont attribués par un
+    barème annuel par tranche de revenu, de 23 à 113 points selon la tranche.
+
+  L'obstacle est donc ce barème annuel par tranche, que ni la caisse ni le
+  ministère ne publient en série — et non un prix d'acquisition manquant, comme
+  cette page l'a d'abord écrit. S'y ajoute que le modèle traite la MSA comme un
+  régime unique quand il y a deux étages, et que la RCO attribue des points
+  gratuits autant que cotisés (66 par an aux conjoints et aides familiaux avant
+  2011, dans la limite de 17 années). Ce régime reste au rendement instantané
   reconstitué, et la confrontation des autres à leurs vraies valeurs a montré
   que ces reconstitutions peuvent se tromper du simple au double : à prendre
   avec la même méfiance.
+
+  *Légifrance porte bien ces articles, mais refuse les requêtes automatisées*
+  (403 sur toute requête non navigateur), et son API demande une clé. Les
+  valeurs ci-dessus ont donc été relevées à la lecture, et ne peuvent pas être
+  certifiées par un script : c'est pourquoi elles restent dans ce document et
+  dans les fiches de régime, pas dans une série.
 
   **La voie légale a été suivie jusqu'au bout, et elle ne mène pas où il
   faudrait.** Les bases ouvertes de la DILA ont été dépouillées en flux, sans
@@ -315,7 +357,7 @@ extensible : ajouter un régime consiste à écrire une fiche YAML conforme à
   `data/derive/calibrations_mortalite.json`, régénérable en supprimant le fichier.
 - La certification des séries est tracée dans `data/derive/certification.json`,
   régénérable par `scripts/verifier_donnees.py --appliquer`.
-- 143 tests couvrent le chargement, la fiabilité, la règle de certification, la
+- 144 tests couvrent le chargement, la fiabilité, la règle de certification, la
   concordance des tables de mortalité observées avec les espérances publiées, les
   propriétés du moteur et le comportement des scénarios : `python -m pytest tests`.
   Aucun test n'accède au réseau : les sources sont simulées.

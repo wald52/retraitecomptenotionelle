@@ -20,7 +20,7 @@
 # macroéconomiques de l'INSEE, interrogeable sans clé d'accès à l'adresse
 # https://api.insee.fr/series/BDM/V1/data/SERIES_BDM/<idbank>
 
-version_manifeste: "2026-08-13h"
+version_manifeste: "2026-08-13i"
 
 institutions:
 
@@ -98,6 +98,23 @@ institutions:
         note: >-
           France métropolitaine, par sexe, annuel. L'INSEE ne publie pas
           l'espérance de vie à 65 ans, à aucune période : voir ocde_health_le.
+
+      - id: insee_bdm_point_complementaire
+        titre: Valeur de service du point Agirc, Arrco et Agirc-Arrco, 2001-
+        url: https://api.insee.fr/series/BDM/V1/data/SERIES_BDM/010593202
+        idbank: ["000849395", "000822495", "010593202"]
+        acces: api
+        statut_integration: certifie
+        cible: data/reference/regimes/valeurs_point.csv
+        recuperation: scripts/fetch/insee_bdm.py
+        note: >-
+          Séries mensuelles ; le dépôt retient l'observation de décembre, sa
+          convention étant la valeur en vigueur au 31 décembre. L'INSEE n'est
+          pas le producteur de ces barèmes — l'Agirc-Arrco l'est — donc ces
+          valeurs ne priment pas sur la transcription d'OpenFisca, seule à
+          couvrir l'avant-2001 : elles la recoupent, et les 42 années communes
+          concordent sans exception. Elles la prolongent en revanche là où elle
+          s'arrête, l'INSEE publiant encore après la dernière année d'OpenFisca.
 
       - id: insee_deces_mortalite
         titre: Décès et mortalité — séries longues

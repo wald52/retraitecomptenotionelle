@@ -228,7 +228,10 @@ Deux séries de plus sont reprises automatiquement d'**OpenFisca-France**, le
 modèle socio-fiscal de l'administration — le plafond de la Sécurité sociale
 depuis 1931 et les valeurs d'achat et de service du point depuis 1947. Ce sont
 des transcriptions du *Journal officiel* et des circulaires, pas des sources
-primaires : elles plafonnent au niveau `haute`.
+primaires : elles plafonnent au niveau `haute`. Le point de l'Agirc et de
+l'Arrco, qui pèse le plus lourd des deux, est en outre recoupé à la série que
+l'INSEE publie depuis 2001 : sur les 42 années communes, les deux ne divergent
+pas une fois.
 
 ```bash
 python scripts/fetch/insee_bdm.py               # séries longues INSEE (BDM)
@@ -294,7 +297,7 @@ docs/
   methodologie.md               ce que le modèle calcule, et pourquoi ainsi
   limites.md                    ce qu'il ne calcule pas, et ce qui reste à certifier
 
-tests/                          143 tests
+tests/                          144 tests
 ```
 
 ---
@@ -323,7 +326,7 @@ sous « Options de modélisation ».
 python -m pytest tests
 ```
 
-143 tests couvrant le chargement et la fiabilité des données, la règle de
+144 tests couvrant le chargement et la fiabilité des données, la règle de
 certification, la calibration des tables de mortalité et sa concordance avec les
 tables observées, les propriétés du moteur
 (monotonie du diviseur, cliquet de l'âge de référence, règles de fusion), le

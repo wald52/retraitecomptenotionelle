@@ -449,3 +449,49 @@ def test_valeur_du_point_des_liberaux_est_sourcee(simulateur):
 
     # Faute de prix d'acquisition, le moteur doit rester sur le rendement.
     assert ValeursPoint(simulateur.parametres.racine_donnees).achat("cnavpl", 2025) is None
+
+
+def test_valeur_du_point_agirc_arrco_est_recoupee_par_l_insee(simulateur):
+    """Deux transcriptions publiques indépendantes, et elles concordent.
+
+    Les barèmes de l'Agirc et de l'Arrco pèsent plus lourd que tous les autres
+    réunis dans la pension d'un salarié du privé, et leur seule source était
+    jusqu'ici OpenFisca — invérifiable, la caisse ne publiant pas de série.
+    L'INSEE en diffuse la valeur de service depuis 2001 sous trois idbanks ;
+    ``controle_vraisemblance_point_insee`` compare les deux à chaque exécution.
+
+    Ce test garde ce que ce recoupement a rapporté : l'année 2025, que seule
+    la série INSEE couvre, la transcription s'arrêtant à 2024. Sans elle une
+    liquidation de 2025 convertissait ses points au barème de 2024.
+    """
+    import csv
+
+    chemin = (simulateur.parametres.racine_donnees / "reference" / "regimes"
+              / "valeurs_point.csv")
+    with chemin.open(encoding="utf-8") as flux:
+        lignes = [l for l in csv.DictReader(
+            x for x in flux if not x.lstrip().startswith("#"))
+            if l["mesure"] == "valeur_service"]
+
+    par_regime: dict[str, dict[int, float]] = {}
+    for ligne in lignes:
+        par_regime.setdefault(ligne["regime"], {})[int(ligne["annee"])] = float(
+            ligne["valeur"])
+
+    # Les valeurs de part et d'autre de la fusion, au 31 décembre — la
+    # convention du fichier. La dernière de l'Arrco, 1,2588 €, est celle que
+    # l'Agirc-Arrco reprend au 1er janvier 2019 avant de la revaloriser en
+    # novembre : la continuité du point est vérifiable, l'Agirc restant à part
+    # puisque ses points ont été convertis dans le rapport des deux valeurs.
+    assert par_regime["arrco"][2018] == pytest.approx(1.2588, abs=1e-4)
+    assert par_regime["agirc"][2018] == pytest.approx(0.4378, abs=1e-4)
+    assert par_regime["agirc_arrco"][2019] == pytest.approx(1.2714, abs=1e-4)
+
+    # Ce que le recoupement a ajouté : la dernière année, absente d'OpenFisca.
+    assert par_regime["agirc_arrco"][2025] == pytest.approx(1.4386, abs=1e-4)
+
+    # La valeur de service ne recule jamais : elle est gelée, jamais rabotée.
+    for regime in ("arrco", "agirc", "agirc_arrco"):
+        annees = sorted(a for a in par_regime[regime] if a >= 2001)
+        valeurs = [par_regime[regime][a] for a in annees]
+        assert all(apres >= avant for avant, apres in zip(valeurs, valeurs[1:]))

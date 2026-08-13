@@ -89,6 +89,26 @@ SERIES: dict[str, dict[str, str]] = {
         "role": "Montant du plafond mensuel de la Sécurité sociale, 2001-",
         "note": "la série ne remonte pas avant 2001 : le plafond ancien reste à saisir",
     },
+    # -- valeur de service du point des complémentaires du privé ------------
+    # Mensuelles, et l'INSEE n'est pas le producteur de ces barèmes : elles ne
+    # servent donc pas de source mais de contre-épreuve à la transcription
+    # d'OpenFisca, seule à couvrir l'avant-2001. Deux transcriptions publiques
+    # qui concordent valent mieux qu'une, à défaut de la caisse elle-même.
+    "point_arrco": {
+        "idbank": "000849395",
+        "role": "Valeur du point Arrco, mensuel, 2001-2018 (série arrêtée à la fusion)",
+        "note": "s'arrête en décembre 2018, quand l'Arrco disparaît dans l'Agirc-Arrco",
+    },
+    "point_agirc": {
+        "idbank": "000822495",
+        "role": "Valeur du point Agirc, mensuel, 2001-2018 (série arrêtée à la fusion)",
+        "note": "même arrêt que l'Arrco, et même raison",
+    },
+    "point_agirc_arrco": {
+        "idbank": "010593202",
+        "role": "Valeur de service du point Agirc-Arrco, mensuel, 2019-",
+        "note": "prend le relais des deux précédentes ; seule série à courir après 2024",
+    },
 }
 
 

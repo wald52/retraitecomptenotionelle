@@ -344,6 +344,45 @@ def source_valeurs_point_cnavpl() -> dict[tuple, float]:
     }
 
 
+def _point_insee() -> dict[str, dict[int, float]]:
+    """Valeur de service du point Agirc, Arrco et Agirc-Arrco, au 31 décembre.
+
+    L'INSEE diffuse ces barèmes en série mensuelle. La convention du dépôt
+    retient la valeur en vigueur au 31 décembre : c'est donc l'observation de
+    décembre qu'on garde, et une année dont il manque n'est pas reconstituée.
+    """
+    par_regime: dict[str, dict[int, float]] = {}
+    for nom, regime in (
+        ("point_arrco", "arrco"),
+        ("point_agirc", "agirc"),
+        ("point_agirc_arrco", "agirc_arrco"),
+    ):
+        par_regime[regime] = {
+            int(periode[:4]): valeur
+            for periode, valeur in sorted(_observations(nom).items())
+            if periode[5:7] == "12"
+        }
+    return par_regime
+
+
+def source_valeurs_point_insee() -> dict[tuple, float]:
+    """Ce que l'INSEE ajoute aux valeurs du point d'OpenFisca, et lui seul.
+
+    L'INSEE n'est pas le producteur de ces barèmes — l'Agirc-Arrco l'est — si
+    bien que cette série ne prime pas sur la transcription là où les deux se
+    recouvrent : ``controle_vraisemblance_point_insee`` les y confronte, et
+    c'est tout. Ce qu'elle apporte, c'est la fin de la série : OpenFisca
+    s'arrête à sa dernière année publiée, l'INSEE continue.
+    """
+    connues = set(_cles_points("serie", substituees=False))
+    return {
+        (regime, str(annee), "valeur_service"): valeur
+        for regime, valeurs in sorted(_point_insee().items())
+        for annee, valeur in sorted(valeurs.items())
+        if (regime, str(annee), "valeur_service") not in connues
+    }
+
+
 def source_valeurs_point_texte() -> dict[tuple, float]:
     """Ce qu'aucune transcription machine ne porte, saisi depuis le texte."""
     charge = _charge_points()
@@ -611,6 +650,17 @@ CERTIFICATIONS = (
         origine="CNAVPL, recueils statistiques annuels",
         decimales=6,
         tolerance=5e-7,
+    ),
+    Certification(
+        nom="valeurs_point_insee",
+        chemin=REFERENCE / "regimes" / "valeurs_point.csv",
+        cles=("regime", "annee", "mesure"),
+        colonne="valeur",
+        source=source_valeurs_point_insee,
+        origine="INSEE BDM, idbanks 000849395, 000822495 et 010593202",
+        decimales=6,
+        tolerance=5e-7,
+        niveau="haute",
     ),
     Certification(
         nom="valeurs_point_unirs",
@@ -947,6 +997,52 @@ def controle_vraisemblance_ircantec() -> list[str]:
     ] + ecarts[:6]
 
 
+def controle_vraisemblance_point_insee() -> list[str]:
+    """Confronte les valeurs du point d'OpenFisca à celles que l'INSEE publie.
+
+    L'Ircantec mise à part, aucun producteur ne diffuse ses barèmes en série :
+    la transcription d'OpenFisca était donc invérifiable pour les régimes qui
+    pèsent le plus lourd, l'Agirc et l'Arrco. L'INSEE en diffuse la valeur de
+    service depuis 2001, mensuelle, sous trois idbanks. Ce n'est pas le
+    producteur, mais c'est une seconde transcription publique et indépendante :
+    leur accord dit ce que vaut la première là où on ne peut pas remonter à la
+    caisse.
+
+    La tolérance est plus large que partout ailleurs — l'INSEE arrondit à quatre
+    décimales, quand OpenFisca garde la conversion exacte depuis les francs.
+    """
+    try:
+        insee = _point_insee()
+        transcription = _cles_points("serie", substituees=False)
+    except SourceAbsente as erreur:
+        return [f"IGNORÉ  vraisemblance point Agirc-Arrco : {erreur}"]
+
+    comparees, ecarts, ajoutees = 0, [], 0
+    for regime, valeurs in sorted(insee.items()):
+        for annee, valeur in sorted(valeurs.items()):
+            cle = (regime, str(annee), "valeur_service")
+            if cle not in transcription:
+                ajoutees += 1
+                continue
+            comparees += 1
+            if abs(transcription[cle] - valeur) > 1e-4:
+                ecarts.append(
+                    f"        écart {regime}/{annee} : INSEE {valeur}, "
+                    f"OpenFisca {transcription[cle]}"
+                )
+
+    messages = [
+        f"OK      vraisemblance point Agirc-Arrco : {comparees} années comparées "
+        f"INSEE / OpenFisca, {len(ecarts)} en désaccord",
+    ]
+    if ajoutees:
+        messages.append(
+            f"        {ajoutees} année(s) que seul l'INSEE couvre, versées au "
+            f"niveau haute : la transcription s'arrête avant lui"
+        )
+    return messages + ecarts[:6]
+
+
 def controle_vraisemblance_plafond() -> list[str]:
     """Confronte le plafond d'OpenFisca à celui publié par l'INSEE, sur 2002-2026.
 
@@ -1003,6 +1099,7 @@ def main(argv: list[str] | None = None) -> int:
     messages.extend(controle_vraisemblance_cotisations())
     messages.extend(controle_vraisemblance_rendements())
     messages.extend(controle_vraisemblance_ircantec())
+    messages.extend(controle_vraisemblance_point_insee())
 
     for message in messages:
         print(message)
