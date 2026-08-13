@@ -73,11 +73,20 @@
    "source": "OpenFisca-France-Pension, paramètres des régimes en points",
    "valeurs": 613
   },
+  "valeurs_point_cnavpl": {
+   "ajoutees": 13,
+   "corrigees": 0,
+   "empreinte": "d7c41cf89ee07d82",
+   "identiques": 0,
+   "niveau": "certifiee",
+   "source": "CNAVPL, recueils statistiques annuels",
+   "valeurs": 13
+  },
   "valeurs_point_cnbf": {
-   "ajoutees": 18,
+   "ajoutees": 0,
    "corrigees": 0,
    "empreinte": "988dba33ad15f670",
-   "identiques": 0,
+   "identiques": 18,
    "niveau": "certifiee",
    "source": "CNBF, barèmes annuels des cotisations et prestations",
    "valeurs": 18

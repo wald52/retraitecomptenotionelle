@@ -108,9 +108,15 @@ def _hexa(brut: bytes, table: dict[int, str] | None) -> str:
     return "".join(chr(code) if 32 <= code < 0x3000 else "" for code in codes)
 
 
+#: Les opérateurs de texte utiles. ``TL`` fixe l'interligne, que ``T*``, ``'``
+#: et ``"`` appliquent pour passer à la ligne suivante : sans eux, tout un
+#: paragraphe reste à la même ordonnée et se retrouve collé sur une seule ligne.
 JETONS = re.compile(
-    rb"(?P<tm>[-\d.]+ [-\d.]+ [-\d.]+ [-\d.]+ [-\d.]+ [-\d.]+ Tm)"
-    rb"|(?P<td>[-\d.]+ [-\d.]+ T[dD])"
+    rb"(?P<tm>[-\d.]+\s+[-\d.]+\s+[-\d.]+\s+[-\d.]+\s+[-\d.]+\s+[-\d.]+\s+Tm)"
+    rb"|(?P<td>[-\d.]+\s+[-\d.]+\s+T[dD])"
+    rb"|(?P<tl>[-\d.]+\s+TL)"
+    rb"|(?P<etoile>T\*)"
+    rb"|(?P<retour>[)\]]\s*[\'\"])"
     rb"|(?P<tf>/(\w+)\s+[-\d.]+\s+Tf)"
     rb"|(?P<hex><[0-9A-Fa-f\s]+>)"
     rb"|(?P<txt>\((?:[^()\\]|\\.)*\))"
@@ -126,6 +132,7 @@ def lignes_pdf(octets: bytes, tolerance: float = 3.0) -> list[str]:
         if not contenu or (b"Tj" not in contenu and b"TJ" not in contenu):
             continue
         x = y = 0.0
+        interligne = 0.0
         police = None
         for jeton in JETONS.finditer(contenu):
             if jeton.group("tm"):
@@ -134,8 +141,14 @@ def lignes_pdf(octets: bytes, tolerance: float = 3.0) -> list[str]:
             elif jeton.group("td"):
                 nombres = jeton.group("td").split()
                 x, y = x + float(nombres[0]), y + float(nombres[1])
+                if jeton.group("td").rstrip().endswith(b"TD"):
+                    interligne = -float(nombres[1])
+            elif jeton.group("tl"):
+                interligne = float(jeton.group("tl").split()[0])
+            elif jeton.group("etoile") or jeton.group("retour"):
+                y -= interligne
             elif jeton.group("tf"):
-                police = jeton.group(4)
+                police = jeton.group(9)
             else:
                 morceau = (_hexa(jeton.group("hex"), tables.get(police))
                            if jeton.group("hex")

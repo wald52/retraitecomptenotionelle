@@ -330,6 +330,20 @@ def source_valeurs_point_cnbf() -> dict[tuple, float]:
     }
 
 
+def source_valeurs_point_cnavpl() -> dict[tuple, float]:
+    """Valeur du point des professions libérales, dans les recueils CNAVPL.
+
+    La caisse est le producteur, et la seule à publier ce nombre : le décret
+    annuel ne fixe qu'un coefficient de revalorisation, jamais le montant.
+    """
+    return {
+        tuple(cle.split("|")): valeur
+        for cle, valeur in sorted(
+            _serie_json("cnavpl_recueils.json", "scripts/fetch/cnavpl_recueils.py").items()
+        )
+    }
+
+
 def source_valeurs_point_texte() -> dict[tuple, float]:
     """Ce qu'aucune transcription machine ne porte, saisi depuis le texte."""
     charge = _charge_points()
@@ -585,6 +599,16 @@ CERTIFICATIONS = (
         colonne="valeur",
         source=source_valeurs_point_cnbf,
         origine="CNBF, barèmes annuels des cotisations et prestations",
+        decimales=6,
+        tolerance=5e-7,
+    ),
+    Certification(
+        nom="valeurs_point_cnavpl",
+        chemin=REFERENCE / "regimes" / "valeurs_point.csv",
+        cles=("regime", "annee", "mesure"),
+        colonne="valeur",
+        source=source_valeurs_point_cnavpl,
+        origine="CNAVPL, recueils statistiques annuels",
         decimales=6,
         tolerance=5e-7,
     ),

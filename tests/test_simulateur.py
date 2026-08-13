@@ -412,3 +412,40 @@ def test_valeurs_du_point_des_avocats_sont_sourcees(simulateur):
     # Le catalogue ignore ce code : le moteur ne peut pas s'en servir par mégarde.
     assert "cnbf_complementaire" not in simulateur.catalogue
     assert ValeursPoint(simulateur.parametres.racine_donnees).achat("cnbf", 2026) is None
+
+
+def test_valeur_du_point_des_liberaux_est_sourcee(simulateur):
+    """La CNAVPL publie sa valeur du point dans ses recueils, et nulle part ailleurs.
+
+    Le décret annuel ne fixe qu'un coefficient de revalorisation : ni le
+    Journal officiel ni la législation consolidée ne portent le montant, ce que
+    quatre dépouillements ont établi. Ces valeurs viennent donc de la caisse.
+
+    Le moteur ne s'en sert pas encore : le prix d'acquisition d'un point se
+    déduit du taux de tranche et d'un plafond de points que le recueil ne
+    livre pas sous une forme relisible. Tant qu'il manque, la CNAVPL reste au
+    rendement instantané.
+    """
+    import csv
+
+    from retraite_notionnelle.scenarios.actuel import ValeursPoint
+
+    chemin = (simulateur.parametres.racine_donnees / "reference" / "regimes"
+              / "valeurs_point.csv")
+    with chemin.open(encoding="utf-8") as flux:
+        lignes = [l for l in csv.DictReader(
+            x for x in flux if not x.lstrip().startswith("#"))
+            if l["regime"] == "cnavpl"]
+
+    valeurs = {(int(l["annee"]), l["mesure"]): float(l["valeur"]) for l in lignes}
+    assert {l["fiabilite"] for l in lignes} == {"certifiee"}
+    assert valeurs[(2025, "valeur_service")] == pytest.approx(0.6540)
+    assert valeurs[(2025, "taux_t1")] == pytest.approx(0.0823)
+    assert valeurs[(2025, "taux_t2")] == pytest.approx(0.0187)
+
+    services = [valeurs[(a, "valeur_service")]
+                for a in sorted({a for a, m in valeurs if m == "valeur_service"})]
+    assert all(apres > avant for avant, apres in zip(services, services[1:]))
+
+    # Faute de prix d'acquisition, le moteur doit rester sur le rendement.
+    assert ValeursPoint(simulateur.parametres.racine_donnees).achat("cnavpl", 2025) is None

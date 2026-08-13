@@ -69,7 +69,7 @@ la page.
 
 `index.html` charge [Pyodide](https://pyodide.org) — CPython compilé en
 WebAssembly, versionné dans `moteur/pyodide/` (14 Mo) — puis décompresse
-`moteur/simulateur.zip` (151 Ko : le modèle et les données) dans son système de
+`moteur/simulateur.zip` (153 Ko : le modèle et les données) dans son système de
 fichiers virtuel, et appelle le module `retraite_notionnelle.web.navigateur`.
 
 Le site est servi depuis la racine du dépôt, telle quelle : c'est ce que GitHub
@@ -222,6 +222,7 @@ sourcée et reprise automatiquement, plafonne à `haute`.
 | Plafond de la Sécurité sociale | 2002-2025 | INSEE |
 | Valeurs du point de l'Ircantec | 1971-2021 | Caisse des dépôts, qui gère le régime |
 | Valeurs du point des avocats | 2017-2026 | CNBF, ses barèmes annuels |
+| Valeur du point des professions libérales | 2021-2025 | CNAVPL, ses recueils statistiques |
 
 Deux séries de plus sont reprises automatiquement d'**OpenFisca-France**, le
 modèle socio-fiscal de l'administration — le plafond de la Sécurité sociale
@@ -238,6 +239,7 @@ python scripts/fetch/openfisca_cotisations.py   # taux de cotisation du RG
 python scripts/fetch/openfisca_points.py        # valeurs du point, depuis 1947
 python scripts/fetch/cdc_ircantec.py            # barèmes Ircantec, par son gestionnaire
 python scripts/fetch/cnbf_baremes.py            # valeurs du point des avocats
+python scripts/fetch/cnavpl_recueils.py         # valeur du point des libéraux
 python scripts/fetch/eurostat_hicp.py           # contrôle croisé de l'inflation
 
 python scripts/verifier_donnees.py              # confronte, sans rien écrire
@@ -286,13 +288,13 @@ index.html                      le site : charge Pyodide, puis le simulateur
 .nojekyll                       servir les fichiers sans transformation
 moteur/
   pyodide/                      CPython compilé en WebAssembly (14 Mo, versionné)
-  simulateur.zip                le modèle et les données (151 Ko, reconstruit par script)
+  simulateur.zip                le modèle et les données (153 Ko, reconstruit par script)
 
 docs/
   methodologie.md               ce que le modèle calcule, et pourquoi ainsi
   limites.md                    ce qu'il ne calcule pas, et ce qui reste à certifier
 
-tests/                          142 tests
+tests/                          143 tests
 ```
 
 ---
@@ -321,7 +323,7 @@ sous « Options de modélisation ».
 python -m pytest tests
 ```
 
-142 tests couvrant le chargement et la fiabilité des données, la règle de
+143 tests couvrant le chargement et la fiabilité des données, la règle de
 certification, la calibration des tables de mortalité et sa concordance avec les
 tables observées, les propriétés du moteur
 (monotonie du diviseur, cliquet de l'âge de référence, règles de fusion), le

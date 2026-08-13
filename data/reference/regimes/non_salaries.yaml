@@ -202,9 +202,21 @@ regimes:
         avantages_non_contributifs: [minimum_vieillesse, reversion]
         notes: >-
           Réforme du 21 août 2003 : régime de base unique en points,
-          proportionnel au revenu. 8,23 % jusqu'à 0,85 PASS et 1,87 % jusqu'à
-          5 PASS. Chaque section gère en outre un régime complémentaire
-          obligatoire aux paramètres propres.
+          proportionnel au revenu, sur deux tranches. Les taux de 8,23 % et de
+          1,87 % sont ceux que la CNAVPL publie dans ses recueils statistiques,
+          et sont versés certifiés dans valeurs_point.csv avec la valeur de
+          service du point (0,5731 € en 2021, 0,6540 € en 2025). Attention, ils
+          ne valent que depuis 2015 : le plafond de la première tranche est
+          alors passé de 0,85 à 1 PASS, celui de la seconde de 0,85-5 à 0-5
+          PASS, et le nombre maximal de points de 450 à 525 sur T1 comme de 100
+          à 25 sur T2. La période n'est pas encore scindée à cette date, et le
+          taux agrégé de 10,15 % vaut pour toute la période 2004-. Le
+          plafonnement en points — 525 et 25 depuis 2015, source recueil
+          statistique — est ce qui manque au moteur pour convertir une
+          cotisation en droits ; il se lit dans un tableau que
+          scripts/fetch/cnavpl_recueils.py ne relit pas de façon sûre.
+          Chaque section gère en outre un régime complémentaire obligatoire aux
+          paramètres propres.
 
   - code: cnbf
     nom: Caisse nationale des barreaux français

@@ -20,7 +20,7 @@
 # macroéconomiques de l'INSEE, interrogeable sans clé d'accès à l'adresse
 # https://api.insee.fr/series/BDM/V1/data/SERIES_BDM/<idbank>
 
-version_manifeste: "2026-08-13g"
+version_manifeste: "2026-08-13h"
 
 institutions:
 
@@ -324,6 +324,26 @@ institutions:
         statut_integration: saisi
         cible: data/reference/regimes/cnavpl.yaml
 
+      - id: cnavpl_recueils
+        titre: Recueils statistiques, 2021-2025
+        url: https://www.cnavpl.fr/documents/
+        acces: fichier
+        statut_integration: certifie
+        cible: data/reference/regimes/valeurs_point.csv
+        recuperation: scripts/fetch/cnavpl_recueils.py
+        note: >-
+          Valeur de service du point du régime de base et taux de cotisation des
+          deux tranches, publiés par la caisse elle-même. Aucune base ne les
+          porte : le décret annuel fixe un coefficient de revalorisation et non
+          un montant, si bien que ni le Journal officiel ni la législation
+          consolidée n'en gardent trace. Le recueil est un annuaire d'une
+          soixantaine de pages, lu avec scripts/fetch/lecture_pdf.py ; le
+          récupérateur refuse d'écrire une série qui ne serait pas croissante.
+          Les millésimes antérieurs à 2021 mettent la valeur dans un graphique.
+          Le nombre maximal de points — 525 sur la tranche 1 et 25 sur la
+          tranche 2 depuis 2015 — figure dans un tableau que le récupérateur ne
+          relit pas de façon sûre : il est en commentaire de la fiche de régime.
+
   cnbf:
     nom: Caisse nationale des barreaux français
     role: Régime de retraite des avocats.
@@ -473,10 +493,16 @@ institutions:
         statut_integration: a_faire
         note: >-
           Dumps complets, 1,6 Go et 1,1 Go compressés, filtrables en flux sans
-          écriture disque. Dépouillés une fois à la recherche des valeurs du
-          point de la CNAVPL, de la MSA et de la CNBF : seule la RCO agricole en
-          ressort, par l'article D. 732-166 du code rural, et sous une forme que
-          le modèle ne peut pas exploiter. Voir docs/limites.md §1 avant de
+          écriture disque. Dépouillés quatre fois à la recherche des valeurs du
+          point de la CNAVPL, de la MSA et de la CNBF — deux passes ciblées puis
+          deux passes larges, 34 Go au total : seule la RCO agricole en ressort,
+          par l'article D. 732-166 du code rural, et sous une forme que le
+          modèle ne peut pas exploiter. Ni la CNAVPL ni la CNBF n'y figurent, et
+          ce n'est pas un défaut de la recherche : le décret annuel fixe un
+          coefficient de revalorisation, non un montant. Les 104 textes du JORF
+          portant une valeur de point ne mentionnent pas une fois le mot
+          « libérale ». Ces valeurs viennent donc des caisses — voir
+          cnavpl_recueils et cnbf_baremes. Lire docs/limites.md §1 avant de
           refaire le trajet.
 
   eurostat:

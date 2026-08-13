@@ -221,8 +221,8 @@ def commande_donnees(arguments: argparse.Namespace) -> int:
             "\nCe qui n'y figure pas n'a pas de source automatisable : les séries "
             "d'avant 1950, l'espérance de vie à 65 ans d'avant 1960, les quotients "
             "de mortalité d'avant 1986, les taux de cotisation d'avant 1967, les "
-            "valeurs du point de la CNAVPL, de la MSA et de la CNBF, et les âges et "
-            "durées propres à chaque régime. Voir docs/limites.md."
+            "valeurs du point de la MSA, et les âges et durées propres à chaque "
+            "régime. Voir docs/limites.md."
         )
     else:
         print(
