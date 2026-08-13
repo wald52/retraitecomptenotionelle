@@ -25,7 +25,7 @@ from .config import (
     SourceCotisations,
     TableConversion,
 )
-from .donnees.chargement import DonneeInsuffisante
+from .donnees.chargement import DonneeInsuffisante, journal_certification
 from .simulateur import Simulateur
 
 
@@ -209,12 +209,22 @@ def commande_donnees(arguments: argparse.Namespace) -> int:
         + ("tables INSEE observées" if simulateur.mortalite.utilise_tables_reelles
            else "calibration paramétrique de Gompertz-Makeham sur e60 et e65")
     )
-    print(
-        "\nAucune série n'est encore au niveau « certifiee » : la certification "
-        "suppose un recontrôle automatique contre la source, que scripts/fetch/ "
-        "prépare mais que les portails de diffusion ne permettent pas encore "
-        "pour les séries longues. Voir docs/limites.md."
-    )
+    journal = journal_certification(simulateur.macro.racine)
+    if journal:
+        print(f"\nDernier recontrôle contre les sources : {journal['certifie_le']}\n")
+        for nom, trace in sorted(journal["series"].items()):
+            print(f"  {nom:<16} {trace['valeurs']:>4} valeurs — {trace['source']}")
+        print(
+            "\nCe qui n'y figure pas n'a pas de source automatisable : inflation, "
+            "salaires et productivité d'avant 1950, plafond d'avant 2002, "
+            "espérance de vie à 65 ans d'avant 1986, paramètres de régime. "
+            "Voir docs/limites.md."
+        )
+    else:
+        print(
+            "\nAucune série n'a encore été recontrôlée : lancer scripts/fetch/ "
+            "puis scripts/verifier_donnees.py --appliquer. Voir docs/limites.md."
+        )
     return 0
 
 

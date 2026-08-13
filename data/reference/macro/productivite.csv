@@ -1,16 +1,23 @@
 # Productivité réelle du travail — variation annuelle, France
-# source_id: insee_productivite (valeur ajoutée en volume par personne employée)
+# source_id: insee_bdm_productivite (comptes nationaux annuels, base 2020)
 # unite: taux de variation annuel EN TERMES RÉELS, en fraction
-# fiabilite: haute | moyenne | estimee
+# fiabilite:
+#   certifiee (1950-2025) : valeur ajoutée en volume aux prix chaînés de 2020
+#             (idbank 011785223) rapportée à l'emploi intérieur total en
+#             personnes physiques (idbank 011793334), recontrôlée par
+#             scripts/verifier_donnees.py.
+#   estimee   (1930-1949) : reconstitution. Les comptes nationaux ne remontent
+#             pas avant 1949.
 #
-# AVERTISSEMENT DE FIABILITÉ
-# --------------------------
-# Série reconstituée. La productivité par tête et la productivité horaire
+# CHOIX D'INDICATEUR : la productivité par tête et la productivité horaire
 # divergent fortement en France à partir de 1982 (réduction du temps de travail,
-# puis 35 heures) : le choix de l'indicateur change matériellement le résultat
-# de l'indexation. Le concept retenu ici est la productivité PAR TÊTE.
-# Le paramètre `indicateur_productivite` permet de basculer sur l'horaire dès
-# que la série correspondante est intégrée.
+# puis 35 heures) ; le choix change matériellement le résultat de l'indexation.
+# Le concept retenu ici est la productivité PAR TÊTE. La série horaire publiée
+# par l'INSEE (idbank 011793337) est téléchargée en même temps, pour le
+# paramètre `indicateur_productivite`.
+#
+# Ne pas modifier les années certifiées à la main : elles seraient écrasées au
+# prochain scripts/verifier_donnees.py --appliquer.
 annee,variation_reelle,fiabilite
 1930,-0.030,estimee
 1931,-0.040,estimee
@@ -32,79 +39,79 @@ annee,variation_reelle,fiabilite
 1947,0.080,estimee
 1948,0.070,estimee
 1949,0.090,estimee
-1950,0.060,estimee
-1951,0.050,estimee
-1952,0.030,estimee
-1953,0.035,estimee
-1954,0.045,estimee
-1955,0.050,estimee
-1956,0.040,estimee
-1957,0.050,estimee
-1958,0.030,estimee
-1959,0.035,estimee
-1960,0.060,estimee
-1961,0.050,estimee
-1962,0.055,estimee
-1963,0.045,estimee
-1964,0.050,estimee
-1965,0.045,estimee
-1966,0.050,estimee
-1967,0.045,estimee
-1968,0.045,moyenne
-1969,0.060,moyenne
-1970,0.050,moyenne
-1971,0.045,moyenne
-1972,0.045,moyenne
-1973,0.040,moyenne
-1974,0.025,moyenne
-1975,0.010,moyenne
-1976,0.040,moyenne
-1977,0.025,moyenne
-1978,0.030,moyenne
-1979,0.028,moyenne
-1980,0.010,moyenne
-1981,0.012,moyenne
-1982,0.022,moyenne
-1983,0.018,moyenne
-1984,0.023,moyenne
-1985,0.022,moyenne
-1986,0.020,moyenne
-1987,0.021,moyenne
-1988,0.033,moyenne
-1989,0.025,moyenne
-1990,0.017,haute
-1991,0.012,haute
-1992,0.017,haute
-1993,0.003,haute
-1994,0.019,haute
-1995,0.011,haute
-1996,0.006,haute
-1997,0.017,haute
-1998,0.017,haute
-1999,0.013,haute
-2000,0.013,haute
-2001,0.003,haute
-2002,0.010,haute
-2003,0.009,haute
-2004,0.017,haute
-2005,0.011,haute
-2006,0.014,haute
-2007,0.006,haute
-2008,-0.006,haute
-2009,-0.014,haute
-2010,0.017,haute
-2011,0.011,haute
-2012,0.000,haute
-2013,0.007,haute
-2014,0.005,haute
-2015,0.010,haute
-2016,0.004,haute
-2017,0.010,haute
-2018,0.007,haute
-2019,0.004,haute
-2020,-0.015,haute
-2021,0.020,haute
-2022,-0.011,haute
-2023,-0.005,haute
-2024,0.002,haute
-2025,0.003,estimee
+1950,0.08351,certifiee
+1951,0.04537,certifiee
+1952,0.01833,certifiee
+1953,0.03081,certifiee
+1954,0.05631,certifiee
+1955,0.03588,certifiee
+1956,0.03171,certifiee
+1957,0.04679,certifiee
+1958,0.02888,certifiee
+1959,0.03598,certifiee
+1960,0.08133,certifiee
+1961,0.04840,certifiee
+1962,0.06509,certifiee
+1963,0.04793,certifiee
+1964,0.05082,certifiee
+1965,0.04541,certifiee
+1966,0.04178,certifiee
+1967,0.04656,certifiee
+1968,0.06035,certifiee
+1969,0.05120,certifiee
+1970,0.05440,certifiee
+1971,0.04846,certifiee
+1972,0.03382,certifiee
+1973,0.04704,certifiee
+1974,0.04819,certifiee
+1975,-0.00584,certifiee
+1976,0.02825,certifiee
+1977,0.03407,certifiee
+1978,0.02738,certifiee
+1979,0.02370,certifiee
+1980,0.01697,certifiee
+1981,0.01342,certifiee
+1982,0.02039,certifiee
+1983,0.01379,certifiee
+1984,0.02178,certifiee
+1985,0.01714,certifiee
+1986,0.01610,certifiee
+1987,0.01250,certifiee
+1988,0.03518,certifiee
+1989,0.02871,certifiee
+1990,0.02009,certifiee
+1991,0.01034,certifiee
+1992,0.02416,certifiee
+1993,0.00677,certifiee
+1994,0.01506,certifiee
+1995,0.01425,certifiee
+1996,0.00869,certifiee
+1997,0.01712,certifiee
+1998,0.01731,certifiee
+1999,0.00964,certifiee
+2000,0.01568,certifiee
+2001,0.00438,certifiee
+2002,0.00529,certifiee
+2003,0.00860,certifiee
+2004,0.02936,certifiee
+2005,0.01044,certifiee
+2006,0.01620,certifiee
+2007,0.01183,certifiee
+2008,0.00122,certifiee
+2009,-0.01516,certifiee
+2010,0.01696,certifiee
+2011,0.01752,certifiee
+2012,0.00037,certifiee
+2013,0.00633,certifiee
+2014,0.00658,certifiee
+2015,0.00566,certifiee
+2016,-0.00041,certifiee
+2017,0.00766,certifiee
+2018,0.00615,certifiee
+2019,0.00915,certifiee
+2020,-0.07243,certifiee
+2021,0.03825,certifiee
+2022,0.00684,certifiee
+2023,0.01099,certifiee
+2024,0.01155,certifiee
+2025,0.00698,certifiee

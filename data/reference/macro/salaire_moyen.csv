@@ -1,15 +1,20 @@
 # Salaire moyen par tête (SMPT) — variation annuelle nominale, ensemble de l'économie
-# source_id: insee_smpt (comptes nationaux annuels, base 2020)
+# source_id: insee_bdm_smpt (comptes nationaux annuels, base 2020)
 # unite: taux de variation annuel nominal, en fraction
-# fiabilite: haute | moyenne | estimee
+# fiabilite:
+#   certifiee (1950-2025) : salaires et traitements bruts (D11, total des
+#             branches, idbank 011785411) rapportés à l'emploi salarié
+#             intérieur en personnes physiques (idbank 011793486), recontrôlés
+#             par scripts/verifier_donnees.py.
+#   estimee   (1930-1949) : reconstitution. Les comptes nationaux ne remontent
+#             pas avant 1949.
 #
-# AVERTISSEMENT DE FIABILITÉ
-# --------------------------
-# Les comptes nationaux INSEE ne publient le SMPT en série continue que depuis
-# 1949 (base rétropolée). Avant 1949 la série est une reconstitution.
-# Sur 1949-1969 le champ (salariés du secteur marchand non agricole) diffère du
-# champ actuel : rupture de série. Ces valeurs doivent être remplacées par un
-# export certifié avant tout usage officiel (voir scripts/fetch/insee_smpt.py).
+# RUPTURE DE CHAMP CONNUE : sur 1949-1969 le périmètre des comptes nationaux
+# n'est pas celui d'aujourd'hui. Les valeurs sont bien celles publiées par
+# l'INSEE, mais leur comparabilité avec les années récentes reste imparfaite.
+#
+# Ne pas modifier les années certifiées à la main : elles seraient écrasées au
+# prochain scripts/verifier_donnees.py --appliquer.
 annee,variation_nominale,fiabilite
 1930,-0.020,estimee
 1931,-0.030,estimee
@@ -31,79 +36,79 @@ annee,variation_nominale,fiabilite
 1947,0.480,estimee
 1948,0.610,estimee
 1949,0.180,estimee
-1950,0.150,estimee
-1951,0.210,estimee
-1952,0.170,estimee
-1953,0.030,estimee
-1954,0.050,estimee
-1955,0.070,estimee
-1956,0.090,estimee
-1957,0.090,estimee
-1958,0.180,estimee
-1959,0.080,estimee
-1960,0.080,estimee
-1961,0.085,estimee
-1962,0.100,estimee
-1963,0.100,estimee
-1964,0.085,estimee
-1965,0.075,estimee
-1966,0.070,estimee
-1967,0.075,estimee
-1968,0.115,moyenne
-1969,0.110,moyenne
-1970,0.105,moyenne
-1971,0.108,moyenne
-1972,0.108,moyenne
-1973,0.130,moyenne
-1974,0.181,moyenne
-1975,0.174,moyenne
-1976,0.144,moyenne
-1977,0.127,moyenne
-1978,0.126,moyenne
-1979,0.130,moyenne
-1980,0.155,moyenne
-1981,0.155,moyenne
-1982,0.145,moyenne
-1983,0.102,moyenne
-1984,0.075,moyenne
-1985,0.062,moyenne
-1986,0.041,moyenne
-1987,0.032,moyenne
-1988,0.038,moyenne
-1989,0.044,moyenne
-1990,0.049,haute
-1991,0.044,haute
-1992,0.040,haute
-1993,0.027,haute
-1994,0.019,haute
-1995,0.028,haute
-1996,0.026,haute
-1997,0.021,haute
-1998,0.019,haute
-1999,0.023,haute
-2000,0.025,haute
-2001,0.028,haute
-2002,0.030,haute
-2003,0.025,haute
-2004,0.030,haute
-2005,0.031,haute
-2006,0.031,haute
-2007,0.030,haute
-2008,0.028,haute
-2009,0.012,haute
-2010,0.024,haute
-2011,0.026,haute
-2012,0.021,haute
-2013,0.016,haute
-2014,0.014,haute
-2015,0.011,haute
-2016,0.012,haute
-2017,0.018,haute
-2018,0.020,haute
-2019,0.022,haute
-2020,-0.006,haute
-2021,0.045,haute
-2022,0.050,haute
-2023,0.043,haute
-2024,0.028,haute
-2025,0.021,estimee
+1950,0.09827,certifiee
+1951,0.24880,certifiee
+1952,0.18644,certifiee
+1953,0.03467,certifiee
+1954,0.06572,certifiee
+1955,0.05631,certifiee
+1956,0.09519,certifiee
+1957,0.09545,certifiee
+1958,0.13343,certifiee
+1959,0.09453,certifiee
+1960,0.07992,certifiee
+1961,0.09195,certifiee
+1962,0.11491,certifiee
+1963,0.11875,certifiee
+1964,0.08635,certifiee
+1965,0.06213,certifiee
+1966,0.06012,certifiee
+1967,0.06459,certifiee
+1968,0.11817,certifiee
+1969,0.10877,certifiee
+1970,0.10970,certifiee
+1971,0.11350,certifiee
+1972,0.10224,certifiee
+1973,0.12841,certifiee
+1974,0.17536,certifiee
+1975,0.16879,certifiee
+1976,0.14064,certifiee
+1977,0.11457,certifiee
+1978,0.12006,certifiee
+1979,0.11567,certifiee
+1980,0.14391,certifiee
+1981,0.13500,certifiee
+1982,0.12955,certifiee
+1983,0.08981,certifiee
+1984,0.07214,certifiee
+1985,0.05385,certifiee
+1986,0.04586,certifiee
+1987,0.02900,certifiee
+1988,0.04230,certifiee
+1989,0.04064,certifiee
+1990,0.05672,certifiee
+1991,0.03892,certifiee
+1992,0.03236,certifiee
+1993,0.02312,certifiee
+1994,0.01079,certifiee
+1995,0.02436,certifiee
+1996,0.01784,certifiee
+1997,0.01709,certifiee
+1998,0.01674,certifiee
+1999,0.01880,certifiee
+2000,0.03315,certifiee
+2001,0.02917,certifiee
+2002,0.03594,certifiee
+2003,0.02628,certifiee
+2004,0.03579,certifiee
+2005,0.03251,certifiee
+2006,0.03277,certifiee
+2007,0.02507,certifiee
+2008,0.02575,certifiee
+2009,0.01414,certifiee
+2010,0.02889,certifiee
+2011,0.02030,certifiee
+2012,0.01862,certifiee
+2013,0.01566,certifiee
+2014,0.00749,certifiee
+2015,0.01101,certifiee
+2016,0.01349,certifiee
+2017,0.02109,certifiee
+2018,0.01640,certifiee
+2019,0.02201,certifiee
+2020,-0.03664,certifiee
+2021,0.05250,certifiee
+2022,0.05584,certifiee
+2023,0.04662,certifiee
+2024,0.02639,certifiee
+2025,0.01770,certifiee

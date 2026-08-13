@@ -1,0 +1,45 @@
+{
+ "certifie_le": "2026-08-13",
+ "series": {
+  "esperances_vie": {
+   "ajoutees": 0,
+   "corrigees": 0,
+   "empreinte": "bb34c4d90544e81a",
+   "identiques": 398,
+   "source": "INSEE BDM (e0, e60) et Eurostat demo_mlexpec (e65)",
+   "valeurs": 398
+  },
+  "inflation": {
+   "ajoutees": 0,
+   "corrigees": 0,
+   "empreinte": "545d9a49df7d26b5",
+   "identiques": 76,
+   "source": "INSEE BDM, idbanks 000008965 et 001764363",
+   "valeurs": 76
+  },
+  "plafond": {
+   "ajoutees": 0,
+   "corrigees": 0,
+   "empreinte": "26639dee3a21b59c",
+   "identiques": 24,
+   "source": "INSEE BDM, idbank 000822494",
+   "valeurs": 24
+  },
+  "productivite": {
+   "ajoutees": 0,
+   "corrigees": 0,
+   "empreinte": "9c69741a05c75be3",
+   "identiques": 76,
+   "source": "INSEE BDM, idbanks 011785223 et 011793334",
+   "valeurs": 76
+  },
+  "salaire_moyen": {
+   "ajoutees": 0,
+   "corrigees": 0,
+   "empreinte": "1b8332a5465c4c4c",
+   "identiques": 76,
+   "source": "INSEE BDM, idbanks 011785411 et 011793486",
+   "valeurs": 76
+  }
+ }
+}

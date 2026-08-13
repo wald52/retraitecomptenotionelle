@@ -10,11 +10,17 @@
 #   document -> publication (rapport, JO, décret) à saisir manuellement
 #
 # Champ `statut_integration` :
+#   certifie   -> data/reference/ est recontrôlé contre la source par
+#                 scripts/verifier_donnees.py, qui appose le niveau `certifiee`
 #   automatise -> data/reference/ est régénéré par un script
 #   saisi      -> valeurs saisies à la main depuis la source, à certifier
 #   a_faire    -> source identifiée, données pas encore intégrées
+#
+# Champ `idbank` : identifiant de série dans la Banque de données
+# macroéconomiques de l'INSEE, interrogeable sans clé d'accès à l'adresse
+# https://api.insee.fr/series/BDM/V1/data/SERIES_BDM/<idbank>
 
-version_manifeste: "2026-08-12"
+version_manifeste: "2026-08-13"
 
 institutions:
 
@@ -24,17 +30,28 @@ institutions:
       Indice des prix à la consommation, salaire moyen par tête, productivité,
       comptes nationaux, tables de mortalité et projections démographiques.
     jeux:
+      - id: insee_bdm_ipc
+        titre: Indice annuel des prix à la consommation, ensemble, 1949-2025
+        url: https://api.insee.fr/series/BDM/V1/data/SERIES_BDM/000008965
+        idbank: ["000008965", "001764363"]
+        acces: api
+        statut_integration: certifie
+        cible: data/reference/macro/ipc_annuel.csv
+        recuperation: scripts/fetch/insee_bdm.py
+        note: >-
+          Deux bases chaînées : base 100 en 1980 (publiée de 1949 à 1992) puis
+          base 2015 (à partir de 1990), raccordées sur 1990. L'API Melodi
+          (DS_IPC_PRINC) ne remonte pas avant les années 1990 ; la BDM, si.
+
       - id: insee_ipc_long
-        titre: Indice des prix à la consommation, série annuelle depuis 1901
-        url: https://www.insee.fr/fr/statistiques/serie/001763852
-        complement_url: https://www.insee.fr/fr/information/2417794
+        titre: Indice des prix à la consommation depuis 1901
+        url: https://www.insee.fr/fr/information/2417794
         acces: fichier
         statut_integration: saisi
         cible: data/reference/macro/ipc_annuel.csv
         note: >-
-          L'API Melodi (DS_IPC_PRINC) ne remonte pas avant les années 1990 ;
-          la série longue provient du tableau « L'indice des prix à la
-          consommation depuis 1901 » et du convertisseur franc/euro.
+          Seule source pour 1930-1949, que la BDM ne couvre pas. Tableau à
+          télécharger et convertisseur franc/euro, à saisir à la main.
 
       - id: insee_ipc_melodi
         titre: Indice des prix à la consommation (jeu principal)
@@ -44,19 +61,43 @@ institutions:
         cible: data/brut/insee_ipc_melodi.json
         note: Utilisé pour vérifier la partie récente de la série longue.
 
-      - id: insee_smpt
-        titre: Salaire moyen par tête (SMPT), comptes nationaux annuels
-        url: https://www.insee.fr/fr/statistiques/serie/010548500
-        acces: fichier
-        statut_integration: saisi
+      - id: insee_bdm_smpt
+        titre: Salaire moyen par tête, comptes nationaux annuels base 2020
+        url: https://api.insee.fr/series/BDM/V1/data/SERIES_BDM/011785411
+        idbank: ["011785411", "011793486"]
+        acces: api
+        statut_integration: certifie
         cible: data/reference/macro/salaire_moyen.csv
+        recuperation: scripts/fetch/insee_bdm.py
+        note: >-
+          Salaires et traitements bruts (D11, total des branches) rapportés à
+          l'emploi salarié intérieur en personnes physiques — la définition du
+          SMPT dans les comptes nationaux. Disponible depuis 1949.
 
-      - id: insee_productivite
-        titre: Productivité du travail (valeur ajoutée par tête et par heure)
-        url: https://www.insee.fr/fr/statistiques/serie/010565708
-        acces: fichier
-        statut_integration: saisi
+      - id: insee_bdm_productivite
+        titre: Productivité du travail par tête, comptes nationaux base 2020
+        url: https://api.insee.fr/series/BDM/V1/data/SERIES_BDM/011785223
+        idbank: ["011785223", "011793334", "011793337"]
+        acces: api
+        statut_integration: certifie
         cible: data/reference/macro/productivite.csv
+        recuperation: scripts/fetch/insee_bdm.py
+        note: >-
+          Valeur ajoutée en volume (prix chaînés de 2020) rapportée à l'emploi
+          intérieur total en personnes physiques. L'idbank 011793337 donne la
+          variante horaire, pour le paramètre indicateur_productivite.
+
+      - id: insee_bdm_esperance_vie
+        titre: Espérances de vie à la naissance et à 60 ans, 1946-2025
+        url: https://api.insee.fr/series/BDM/V1/data/SERIES_BDM/001686950
+        idbank: ["001686946", "001686951", "001686950", "001686955"]
+        acces: api
+        statut_integration: certifie
+        cible: data/reference/mortalite/esperances_vie.csv
+        recuperation: scripts/fetch/insee_bdm.py
+        note: >-
+          France métropolitaine, par sexe, annuel. L'INSEE ne publie pas
+          l'espérance de vie à 65 ans en série longue : voir eurostat_mlexpec.
 
       - id: insee_deces_mortalite
         titre: Décès et mortalité — séries longues
@@ -70,8 +111,12 @@ institutions:
         url: https://www.insee.fr/fr/statistiques/5390366
         complement_url: https://www.insee.fr/fr/statistiques/fichier/2416631/
         acces: fichier
-        statut_integration: saisi
+        statut_integration: a_faire
         cible: data/reference/mortalite/quotients_periode.csv
+        note: >-
+          Les quotients de mortalité par âge ne sont diffusés qu'en fichiers
+          tableurs ; ni la BDM ni Melodi ne les exposent. Tant qu'ils ne sont
+          pas déposés, le modèle calibre une table paramétrique sur e60 et e65.
 
       - id: insee_projections
         titre: Projections de population 2021-2070
@@ -353,6 +398,9 @@ institutions:
         acces: fichier
         statut_integration: saisi
         cible: data/reference/macro/plafond_securite_sociale.csv
+        note: >-
+          Seule source pour 1945-2001. Le portail open data de l'Urssaf ne
+          publie pas de jeu « plafond » ; les valeurs anciennes sont au JO.
       - id: urssaf_taux
         titre: Taux de cotisations du régime général
         url: https://www.urssaf.fr/accueil/outils-documentation/taux-baremes.html
@@ -381,7 +429,9 @@ institutions:
 
   eurostat:
     nom: Eurostat
-    role: Contrôle de cohérence sur l'inflation harmonisée et la productivité.
+    role: >-
+      Contrôle de cohérence sur l'inflation harmonisée, et espérance de vie à
+      65 ans — que l'INSEE ne publie pas en série longue.
     jeux:
       - id: eurostat_hicp
         titre: HICP — annual data
@@ -389,3 +439,18 @@ institutions:
         acces: api
         statut_integration: automatise
         cible: data/brut/eurostat_hicp.json
+        note: >-
+          Contrôle de vraisemblance seulement : l'IPCH et l'IPC national ne
+          mesurent pas la même chose, aucune valeur n'est certifiée par ce biais.
+
+      - id: eurostat_mlexpec
+        titre: Espérance de vie par âge et par sexe (demo_mlexpec)
+        url: https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/demo_mlexpec
+        acces: api
+        statut_integration: certifie
+        cible: data/reference/mortalite/esperances_vie.csv
+        recuperation: scripts/fetch/eurostat_esperance_vie.py
+        note: >-
+          Les valeurs françaises sont celles transmises par l'INSEE. Deux
+          territoires : FX (France métropolitaine, 1986-2012) puis FR (France
+          y compris DOM, 1998-2024). Avant 1986, e65 reste saisi.

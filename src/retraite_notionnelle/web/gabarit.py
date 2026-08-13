@@ -232,7 +232,7 @@ def pied() -> str:
     return f"""<footer>
   <p>Modèle ouvert, code et données sur <a href="{DEPOT}">GitHub</a> (licence MIT).
   Les montants sont bruts, exprimés en euros constants de l'année de référence.
-  Aucune série n'est encore au niveau de fiabilité « certifiée » :
+  Les séries d'avant 1950 et les paramètres de régime restent saisis à la main :
   <a href="{DEPOT}/blob/main/docs/limites.md">lire les limites</a> avant de citer un chiffre.</p>
 </footer>"""
 

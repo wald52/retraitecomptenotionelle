@@ -143,12 +143,12 @@ class DonneesMortalite:
         self._e65: dict[str, SerieAnnuelle] = {}
         for sexe in self.SEXES:
             self._e60[sexe] = charger_serie_annuelle(
-                chemin, "e60", nom=f"e60_{sexe}", interpolation="lineaire",
-                filtre={"sexe": sexe},
+                chemin, "valeur", nom=f"e60_{sexe}", interpolation="lineaire",
+                filtre={"sexe": sexe, "mesure": "e60"},
             )
             self._e65[sexe] = charger_serie_annuelle(
-                chemin, "e65", nom=f"e65_{sexe}", interpolation="lineaire",
-                filtre={"sexe": sexe},
+                chemin, "valeur", nom=f"e65_{sexe}", interpolation="lineaire",
+                filtre={"sexe": sexe, "mesure": "e65"},
             )
         self._quotients_observes = self._charger_quotients_observes()
 

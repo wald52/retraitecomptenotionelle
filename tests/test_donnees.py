@@ -26,6 +26,20 @@ def mortalite() -> DonneesMortalite:
     return DonneesMortalite(RACINE_DONNEES, cache_disque=False)
 
 
+@pytest.fixture(scope="module")
+def esperances() -> dict[tuple[int, str, str], float]:
+    """Fichier des espérances de vie relu tel quel, clé (année, sexe, mesure)."""
+    import csv
+
+    chemin = RACINE_DONNEES / "reference" / "mortalite" / "esperances_vie.csv"
+    with chemin.open(encoding="utf-8") as flux:
+        lignes = (l for l in flux if not l.lstrip().startswith("#"))
+        return {
+            (int(l["annee"]), l["sexe"], l["mesure"]): float(l["valeur"])
+            for l in csv.DictReader(lignes)
+        }
+
+
 # -- séries macro ------------------------------------------------------------
 
 
@@ -66,7 +80,76 @@ def test_plafond_croit_apres_la_derniere_valeur_publiee(macro):
 
 def test_serie_refuse_une_fiabilite_insuffisante(macro):
     with pytest.raises(DonneeInsuffisante):
-        macro.inflation(1946, fiabilite_minimale=Fiabilite.HAUTE)
+        macro.inflation(1941, fiabilite_minimale=Fiabilite.HAUTE)
+
+
+# -- certification des séries ------------------------------------------------
+
+
+def test_series_macro_certifiees_depuis_1950(macro):
+    """Ce que les sources automatisables couvrent doit être au niveau certifiee.
+
+    1950 est la première année où l'indice des prix, les comptes nationaux et
+    l'emploi sont tous trois publiés en série continue par l'INSEE.
+    """
+    for serie in (macro.inflation, macro.salaire_moyen, macro.productivite):
+        assert serie.fiabilite_minimale_sur(1950, 2025) == Fiabilite.CERTIFIEE, serie.nom
+
+
+def test_ce_qui_precede_1950_reste_annonce_comme_estime(macro):
+    """Aucune source n'existe pour l'avant-guerre : le dire, plutôt que l'oublier."""
+    for serie in (macro.inflation, macro.salaire_moyen, macro.productivite):
+        assert serie.fiabilite(1935) == Fiabilite.ESTIMEE, serie.nom
+
+
+def test_plafond_certifie_sur_la_periode_publiee_en_serie(macro):
+    assert macro.plafond_securite_sociale.fiabilite(2010) == Fiabilite.CERTIFIEE
+    # Avant 2002 la série Urssaf n'est pas diffusée : la reconstitution demeure.
+    assert macro.plafond_securite_sociale.fiabilite(1960) == Fiabilite.ESTIMEE
+
+
+def test_esperances_de_vie_annuelles_sans_interpolation(esperances):
+    """Une valeur observée par année : le chargeur n'a plus rien à interpoler."""
+    for sexe in ("H", "F"):
+        annees = {a for (a, s, m) in esperances if s == sexe and m == "e60"}
+        assert set(range(1946, 2026)) <= annees
+
+
+def test_esperance_a_65_ans_certifiee_sur_la_periode_eurostat(mortalite):
+    """L'INSEE ne publie pas e65 : la certification s'arrête où Eurostat commence."""
+    assert mortalite.loi(2010, "H").fiabilite == Fiabilite.CERTIFIEE
+    assert mortalite.loi(1950, "H").fiabilite < Fiabilite.CERTIFIEE
+
+
+def test_journal_de_certification_decrit_les_series_certifiees():
+    """La trace de certification doit rester en phase avec les fichiers.
+
+    ``data/brut/`` n'est pas versionné : ce journal est la seule pièce qui
+    permette, sur un dépôt fraîchement cloné, de savoir d'où viennent les
+    valeurs marquées ``certifiee`` et combien elles sont.
+    """
+    import csv
+    import json
+
+    journal = json.loads(
+        (RACINE_DONNEES / "derive" / "certification.json").read_text(encoding="utf-8")
+    )
+    fichiers = {
+        "inflation": ("macro/ipc_annuel.csv", None),
+        "salaire_moyen": ("macro/salaire_moyen.csv", None),
+        "productivite": ("macro/productivite.csv", None),
+        "plafond": ("macro/plafond_securite_sociale.csv", None),
+        "esperances_vie": ("mortalite/esperances_vie.csv", None),
+    }
+    assert set(journal["series"]) == set(fichiers)
+
+    for nom, (chemin_relatif, _) in fichiers.items():
+        chemin = RACINE_DONNEES / "reference" / chemin_relatif
+        with chemin.open(encoding="utf-8") as flux:
+            lignes = (l for l in flux if not l.lstrip().startswith("#"))
+            certifiees = sum(1 for l in csv.DictReader(lignes)
+                             if l["fiabilite"] == "certifiee")
+        assert certifiees == journal["series"][nom]["valeurs"], nom
 
 
 # -- catalogue des régimes ---------------------------------------------------
@@ -135,14 +218,17 @@ def test_regime_inconnu_leve_une_erreur_explicite(catalogue):
 # -- mortalité ---------------------------------------------------------------
 
 
-def test_calibration_reproduit_les_esperances_publiees(mortalite):
-    """La table paramétrique doit retomber sur ses cibles à 0,05 an près."""
-    cas = [(2024, "H", 23.6, 19.8), (2024, "F", 27.8, 23.6),
-           (1980, "H", 17.3, 13.6), (1960, "F", 19.5, 15.6)]
-    for annee, sexe, e60, e65 in cas:
+def test_calibration_reproduit_les_esperances_publiees(mortalite, esperances):
+    """La table paramétrique doit retomber sur ses cibles à 0,05 an près.
+
+    Les cibles sont relues dans le fichier de référence plutôt que recopiées
+    ici : c'est la source qui fait foi, et une recertification ne doit pas
+    demander de retoucher le test.
+    """
+    for annee, sexe in [(2024, "H"), (2024, "F"), (1980, "H"), (1960, "F")]:
         loi = mortalite.loi(annee, sexe)
-        assert loi.esperance(60) == pytest.approx(e60, abs=0.05)
-        assert loi.esperance(65) == pytest.approx(e65, abs=0.05)
+        assert loi.esperance(60) == pytest.approx(esperances[(annee, sexe, "e60")], abs=0.05)
+        assert loi.esperance(65) == pytest.approx(esperances[(annee, sexe, "e65")], abs=0.05)
 
 
 def test_esperance_decroit_avec_l_age(mortalite):

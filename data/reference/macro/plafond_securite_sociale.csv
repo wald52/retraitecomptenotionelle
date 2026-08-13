@@ -1,15 +1,18 @@
 # Plafond annuel de la Sécurité sociale (PASS)
-# source_id: urssaf_pss
+# source_id: insee_bdm (2002-2025), urssaf_pss (1945-2001)
 # unite: euros courants de l'année. Les valeurs antérieures à 2002 sont les
 #        plafonds en francs convertis au taux officiel 6,55957 FRF/EUR
 #        (conversion arithmétique, sans revalorisation ni déflation).
 # fiabilite:
-#   haute   (2002-2025) : valeurs publiées Urssaf
-#   moyenne (1968-2001) : plafonds en francs convertis, à recontrôler
-#   estimee (1945-1967) : RECONSTITUTION. Ces valeurs ne sont pas des plafonds
-#           publiés : elles sont rétropolées en indexant le plafond 1968 sur la
-#           série de salaire moyen (data/reference/macro/salaire_moyen.csv).
-#           À remplacer par les valeurs du JO avant tout usage officiel.
+#   certifiee (2002-2025) : plafond mensuel publié par l'INSEE (idbank
+#             000822494) multiplié par douze, après vérification que les douze
+#             mois de l'année portent bien la même valeur.
+#   moyenne   (1968-2001) : plafonds en francs convertis, à recontrôler.
+#   estimee   (1945-1967 et 2026) : RECONSTITUTION. Ces valeurs ne sont pas des
+#             plafonds publiés : elles sont rétropolées en indexant le plafond
+#             1968 sur la série de salaire moyen. La série INSEE ne remonte pas
+#             avant 2001 et l'Urssaf ne diffuse pas d'historique en open data :
+#             les valeurs anciennes sont à relever au Journal officiel.
 #
 # Le plafond borne l'assiette du régime général et sépare les tranches des
 # régimes complémentaires : une erreur de plafond déplace mécaniquement la
@@ -72,28 +75,28 @@ annee,pass_eur,fiabilite
 1999,25776,moyenne
 2000,26343,moyenne
 2001,26892,moyenne
-2002,28224,haute
-2003,29184,haute
-2004,29712,haute
-2005,30192,haute
-2006,31068,haute
-2007,32184,haute
-2008,33276,haute
-2009,34308,haute
-2010,34620,haute
-2011,35352,haute
-2012,36372,haute
-2013,37032,haute
-2014,37548,haute
-2015,38040,haute
-2016,38616,haute
-2017,39228,haute
-2018,39732,haute
-2019,40524,haute
-2020,41136,haute
-2021,41136,haute
-2022,41136,haute
-2023,43992,haute
-2024,46368,haute
-2025,47100,haute
+2002,28224,certifiee
+2003,29184,certifiee
+2004,29712,certifiee
+2005,30192,certifiee
+2006,31068,certifiee
+2007,32184,certifiee
+2008,33276,certifiee
+2009,34308,certifiee
+2010,34620,certifiee
+2011,35352,certifiee
+2012,36372,certifiee
+2013,37032,certifiee
+2014,37548,certifiee
+2015,38040,certifiee
+2016,38616,certifiee
+2017,39228,certifiee
+2018,39732,certifiee
+2019,40524,certifiee
+2020,41136,certifiee
+2021,41136,certifiee
+2022,41136,certifiee
+2023,43992,certifiee
+2024,46368,certifiee
+2025,47100,certifiee
 2026,48060,estimee

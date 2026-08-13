@@ -1,41 +1,82 @@
 # Limites — à lire avant d'utiliser un chiffre
 
-Ce modèle est une charpente complète et fonctionnelle. Ses **données ne sont pas
-encore certifiées**. Ce document dit exactement ce qui manque, pour qu'aucun
-résultat ne soit cité sans savoir sur quoi il repose.
+Ce modèle est une charpente complète et fonctionnelle. Ses séries
+macroéconomiques sont **certifiées de 1950 à 2025** : recalculées depuis les
+séries publiées par l'INSEE et recontrôlées automatiquement contre elles. Ce qui
+précède 1950, le plafond ancien et les paramètres de régime restent saisis à la
+main. Ce document dit exactement où passe la frontière, pour qu'aucun résultat ne
+soit cité sans savoir sur quoi il repose.
 
 ---
 
-## 1. Aucune série n'est certifiée
+## 1. État de certification des données
 
 `retraite-notionnelle donnees` affiche l'état exact. En résumé :
 
-| Donnée | Période | Niveau | Ce qu'il faudrait |
+| Donnée | Période | Niveau | Source |
 |---|---|---|---|
-| Inflation (IPC) | 1970-2024 | haute | export certifié INSEE série longue |
-| Inflation | 1930-1969 | estimée / moyenne | tableau INSEE « IPC depuis 1901 » |
-| Salaire moyen par tête | 1990-2024 | haute | export comptes nationaux |
-| Salaire moyen par tête | 1930-1989 | estimée / moyenne | série rétropolée INSEE |
-| Productivité réelle | 1990-2024 | haute | export comptes nationaux |
-| Productivité réelle | 1930-1989 | estimée / moyenne | série rétropolée INSEE |
-| Plafond Sécurité sociale | 2002-2025 | haute | — |
-| Plafond Sécurité sociale | 1945-1967 | **reconstituée** | valeurs du *Journal officiel* |
-| Espérances de vie | 1946-2024 | haute / moyenne | tables TD/TV INSEE complètes |
+| Inflation (IPC) | 1950-2025 | **certifiée** | INSEE BDM, idbanks 000008965 et 001764363 |
+| Inflation | 1930-1949 | estimée | tableau « IPC depuis 1901 », saisi |
+| Salaire moyen par tête | 1950-2025 | **certifiée** | INSEE BDM, idbanks 011785411 et 011793486 |
+| Salaire moyen par tête | 1930-1949 | estimée | reconstitution |
+| Productivité réelle | 1950-2025 | **certifiée** | INSEE BDM, idbanks 011785223 et 011793334 |
+| Productivité réelle | 1930-1949 | estimée | reconstitution |
+| Espérance de vie à 0 et 60 ans | 1946-2025 | **certifiée** | INSEE BDM, quatre idbanks, annuel par sexe |
+| Espérance de vie à 65 ans | 1986-2024 | **certifiée** | Eurostat `demo_mlexpec` |
+| Espérance de vie à 65 ans | 1946-1985 | haute / moyenne | tables TD/TV, saisies |
+| Plafond Sécurité sociale | 2002-2025 | **certifiée** | INSEE BDM, idbank 000822494 |
+| Plafond Sécurité sociale | 1968-2001 | moyenne | plafonds en francs convertis |
+| Plafond Sécurité sociale | 1945-1967 | **reconstituée** | valeurs à relever au *Journal officiel* |
 | Taux de cotisation par régime | tous | moyenne / estimée | Comptes de la Sécurité sociale |
 | Rendement des régimes en points | avant 2019 | **estimée** | historique des valeurs du point |
+| Quotients de mortalité par âge | — | absents | tables TD/TV INSEE, en tableur |
 
-**Pourquoi l'automatisation ne suffit pas.** Les scripts de `scripts/fetch/`
-fonctionnent pour l'API Melodi de l'INSEE et pour Eurostat, mais ces portails ne
-diffusent pas les séries longues : l'IPC ne remonte pas avant les années 1990,
-et les séries de comptes nationaux rétropolées ne sont publiées qu'en fichiers
-téléchargeables. Les valeurs antérieures ont donc été **saisies**, et le seul
-moyen de les faire passer au niveau `certifiee` est de déposer les fichiers
-sources dans `data/brut/` puis de lancer `scripts/verifier_donnees.py`.
+**Comment la certification fonctionne.** Une valeur n'est `certifiee` que si
+elle a été confrontée à un fichier téléchargé depuis le producteur. Le circuit
+tient en deux commandes :
 
-**Ce que cela veut dire concrètement.** Les niveaux absolus de pension sont
-indicatifs. Les **écarts entre les trois scénarios** sont beaucoup plus robustes :
-ils sont calculés sur les mêmes carrières, avec les mêmes séries, et une erreur
-sur une série se propage dans le même sens aux trois scénarios.
+```bash
+python scripts/fetch/insee_bdm.py              # dépose les séries source
+python scripts/fetch/eurostat_esperance_vie.py
+python scripts/verifier_donnees.py             # confronte, sans rien écrire
+python scripts/verifier_donnees.py --appliquer # aligne sur la source et certifie
+```
+
+`data/brut/` n'est pas versionné : c'est `data/derive/certification.json` qui
+garde la trace du dernier recontrôle — quelle source, quel jour, combien de
+valeurs, et une empreinte de la série reconstruite.
+
+**Ce que l'automatisation a corrigé.** L'API SDMX de la Banque de données
+macroéconomiques de l'INSEE (`api.insee.fr/series/BDM/V1`) est ouverte sans clé
+d'accès et diffuse, elle, les séries longues — contrairement à l'API Melodi, qui
+ne remonte pas avant les années 1990. Le recontrôle a confirmé la plupart des
+valeurs saisies mais en a corrigé beaucoup : 28 années d'inflation, 72 de
+salaire moyen et 70 de productivité s'écartaient de plus de 0,05 point. Comme
+l'indexation retient le **minimum** de ces trois taux, une erreur sur l'un
+d'entre eux ne se compense pas : elle se transmet telle quelle au résultat.
+
+**Ce qui reste hors de portée, et pourquoi.**
+
+* *Avant 1950* — ni l'indice des prix ni les comptes nationaux ne sont diffusés
+  en série continue. Le tableau « IPC depuis 1901 » n'existe qu'en fichier
+  tableur ; les comptes nationaux commencent en 1949.
+* *Plafond d'avant 2002* — la série INSEE ne remonte pas plus haut et le portail
+  open data de l'Urssaf ne publie aucun jeu « plafond ». Les valeurs anciennes
+  sont au *Journal officiel*, à relever décret par décret.
+* *Espérance de vie à 65 ans d'avant 1986* — l'INSEE publie e0, e1, e20, e40 et
+  e60, jamais e65 ; Eurostat, qui le publie, ne remonte pas avant 1986.
+* *Quotients de mortalité par âge* — diffusés en tableur seulement. Tant qu'ils
+  ne sont pas déposés, le modèle calibre une table paramétrique sur e60 et e65.
+* *Paramètres de régime* — taux de cotisation, âges, valeurs de point : ils
+  viennent de règlements et de circulaires, pas de séries statistiques. Aucune
+  API ne les expose.
+
+**Ce que cela veut dire concrètement.** Les carrières entamées après 1950 —
+c'est-à-dire les générations nées à partir de 1930 environ, soit la quasi-totalité
+des cas simulés — reposent désormais sur des séries recontrôlées. Les **écarts
+entre les trois scénarios** restent plus robustes encore que les niveaux : ils
+sont calculés sur les mêmes carrières, avec les mêmes séries, et une erreur
+résiduelle se propage dans le même sens aux trois scénarios.
 
 ---
 
@@ -47,7 +88,7 @@ que l'inflation dépasse la croissance de la productivité, c'est cette dernièr
 qui l'emporte.
 
 Sur 1941-2025, les comptes sont revalorisés ×4,9 quand les prix sont multipliés
-par 318,6 : **une cotisation de 1950 conserve 1,5 % de sa valeur réelle.**
+par 322,2 : **une cotisation de 1950 conserve 1,5 % de sa valeur réelle.**
 
 Conséquence : dans le scénario rétroactif, l'essentiel de la baisse affichée
 vient de la règle d'indexation, pas du passage aux comptes notionnels. Les deux
@@ -60,7 +101,7 @@ retraite-notionnelle simuler ... --indexation triple_lock_inverse_nominal
 retraite-notionnelle simuler ... --indexation prix
 ```
 
-La variante nominale conserve 76 % du pouvoir d'achat sur la même période, tout
+La variante nominale conserve 69 % du pouvoir d'achat sur la même période, tout
 en restant plus sévère que l'indexation sur les prix. C'est probablement ce que
 vise l'intention d'une règle d'indexation prudente ; le choix reste ouvert.
 
@@ -132,5 +173,8 @@ extensible : ajouter un régime consiste à écrire une fiche YAML conforme à
 - Aucune dépendance hors PyYAML ; tous les calculs sont déterministes.
 - La calibration des tables de mortalité est mémorisée dans
   `data/derive/calibrations_mortalite.json`, régénérable en supprimant le fichier.
-- 64 tests couvrent le chargement, la fiabilité, les propriétés du moteur et le
-  comportement des scénarios : `python -m pytest tests`.
+- La certification des séries est tracée dans `data/derive/certification.json`,
+  régénérable par `scripts/verifier_donnees.py --appliquer`.
+- 124 tests couvrent le chargement, la fiabilité, la règle de certification, les
+  propriétés du moteur et le comportement des scénarios : `python -m pytest tests`.
+  Aucun test n'accède au réseau : les sources sont simulées.

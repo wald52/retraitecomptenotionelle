@@ -32,9 +32,9 @@ Agent de conduite SNCF né en 1955, parti à 50 ans (quinze ans avant l'âge de 
 
 Scénario                                      Courants   Constants   Mensuel    Écart
 ------------------------------------------------------------------------------------
-1. Système actuel                              19,873€     27,810€    2,317€     réf.
-2. Notionnel rétroactif (depuis l'origine)      1,212€      1,696€      141€   -93.9%
-3. Notionnel à compter de 2026                 19,873€     27,810€    2,317€    +0.0%
+1. Système actuel                              20,435€     28,611€    2,384€     réf.
+2. Notionnel rétroactif (depuis l'origine)      1,300€      1,820€      152€   -93.6%
+3. Notionnel à compter de 2026                 20,435€     28,611€    2,384€    +0.0%
 ```
 
 > **Le scénario 2 n'est pas une proposition de réforme**, et l'écart qu'il
@@ -69,7 +69,7 @@ la page.
 
 `index.html` charge [Pyodide](https://pyodide.org) — CPython compilé en
 WebAssembly, versionné dans `moteur/pyodide/` (14 Mo) — puis décompresse
-`moteur/simulateur.zip` (104 Ko : le modèle et les données) dans son système de
+`moteur/simulateur.zip` (109 Ko : le modèle et les données) dans son système de
 fichiers virtuel, et appelle le module `retraite_notionnelle.web.navigateur`.
 
 Le site est servi depuis la racine du dépôt, telle quelle : c'est ce que GitHub
@@ -172,9 +172,9 @@ productivité qui l'emporte.
 
 | Règle | Comptes 1941-2025 | Prix | Pouvoir d'achat conservé |
 |---|---|---|---|
-| Triple lock inversé, littéral | ×4,9 | ×318,6 | **1,5 %** |
-| Triple lock inversé, tout en nominal | ×243,7 | ×318,6 | 76,5 % |
-| Indexation sur les prix | ×318,6 | ×318,6 | 100 % |
+| Triple lock inversé, littéral | ×4,9 | ×322,2 | **1,5 %** |
+| Triple lock inversé, tout en nominal | ×223,3 | ×322,2 | 69,3 % |
+| Indexation sur les prix | ×322,2 | ×322,2 | 100 % |
 
 Une cotisation de 1950 ne conserve donc que 1,5 % de sa valeur réelle. Dans le
 scénario rétroactif, **l'essentiel de la baisse affichée vient de la règle
@@ -197,28 +197,39 @@ un effort contributif accru, pas un avantage accordé.
 
 ## Les données
 
-Dix-neuf institutions sont recensées dans [`data/sources.yaml`](data/sources.yaml) :
+Vingt-deux institutions sont recensées dans [`data/sources.yaml`](data/sources.yaml) :
 INSEE, COR, Comité de suivi des retraites, DREES, CNAV, Service des retraites de
 l'État, Caisse des dépôts, Direction de la Sécurité sociale, Cour des comptes,
 Agirc-Arrco, Union Retraite, CCMSA, CNAVPL, CNBF, DGAFP, Direction du Budget,
-ERAFP, Ircantec, caisses des régimes spéciaux, Urssaf.
+ERAFP, Ircantec, caisses des régimes spéciaux, Urssaf, Légifrance, Eurostat.
 
 **Chaque valeur porte son niveau de fiabilité** — `certifiee`, `haute`,
 `moyenne`, `estimee` — et la fiabilité d'un résultat est celle de son maillon le
 plus faible. `Parametres.fiabilite_minimale` fait échouer la simulation plutôt
 que de produire un chiffre trompeur.
 
-> **Aucune série n'est aujourd'hui au niveau `certifiee`.** Les séries longues
-> (avant 1990) ont été saisies, pas extraites automatiquement : les portails de
-> diffusion ne les exposent pas en API. Les niveaux absolus de pension sont donc
-> indicatifs ; les **écarts entre scénarios** sont beaucoup plus robustes.
-> Lire [`docs/limites.md`](docs/limites.md) avant de citer un chiffre.
+Une valeur n'est `certifiee` que si elle a été **confrontée à la source
+elle-même**, téléchargée depuis le producteur. C'est le cas de l'inflation, du
+salaire moyen et de la productivité de **1950 à 2025**, des espérances de vie
+annuelles depuis 1946, et du plafond de la Sécurité sociale depuis 2002 : ces
+séries sont recalculées depuis l'API SDMX de la Banque de données
+macroéconomiques de l'INSEE, ouverte sans clé d'accès et qui diffuse — contrairement
+à l'API Melodi — les séries longues.
 
 ```bash
-python scripts/fetch/eurostat_hicp.py      # contrôle croisé de l'inflation
-python scripts/fetch/insee_melodi.py --catalogue
-python scripts/verifier_donnees.py         # cohérence et vraisemblance
+python scripts/fetch/insee_bdm.py               # séries longues INSEE (BDM)
+python scripts/fetch/eurostat_esperance_vie.py  # espérance de vie à 65 ans
+python scripts/fetch/eurostat_hicp.py           # contrôle croisé de l'inflation
+
+python scripts/verifier_donnees.py              # confronte, sans rien écrire
+python scripts/verifier_donnees.py --appliquer  # aligne sur la source et certifie
 ```
+
+> **Ce qui reste saisi à la main :** les séries d'avant 1950, le plafond
+> d'avant 2002, l'espérance de vie à 65 ans d'avant 1986, les quotients de
+> mortalité par âge, et tous les paramètres de régime — taux, âges, valeurs de
+> point — qui viennent de règlements et non de séries statistiques.
+> Lire [`docs/limites.md`](docs/limites.md) avant de citer un chiffre.
 
 ---
 
@@ -232,8 +243,8 @@ data/
     mortalite/                  espérances de vie observées et projetées
     regimes/                    35 fiches de régime + schéma + rendements des points
     legislation/                âges de référence à cliquet, profils d'affiliation
-  brut/                         téléchargements bruts (contrôle)
-  derive/                       calibrations mémorisées
+  brut/                         téléchargements bruts, non versionnés
+  derive/                       calibrations et journal de certification
 
 src/retraite_notionnelle/
   config.py                     toutes les décisions de modélisation, en un seul endroit
@@ -254,13 +265,13 @@ index.html                      le site : charge Pyodide, puis le simulateur
 .nojekyll                       servir les fichiers sans transformation
 moteur/
   pyodide/                      CPython compilé en WebAssembly (14 Mo, versionné)
-  simulateur.zip                le modèle et les données (104 Ko, reconstruit par script)
+  simulateur.zip                le modèle et les données (109 Ko, reconstruit par script)
 
 docs/
   methodologie.md               ce que le modèle calcule, et pourquoi ainsi
   limites.md                    ce qu'il ne calcule pas, et ce qui reste à certifier
 
-tests/                          109 tests
+tests/                          124 tests
 ```
 
 ---
@@ -289,12 +300,13 @@ sous « Options de modélisation ».
 python -m pytest tests
 ```
 
-109 tests couvrant le chargement et la fiabilité des données, la calibration des
-tables de mortalité, les propriétés du moteur (monotonie du diviseur, cliquet de
-l'âge de référence, règles de fusion), le comportement des scénarios, le rendu
-des pages dans les deux modes et la fraîcheur du paquet embarqué dans le site.
-Les tests du serveur sont ignorés si ses dépendances optionnelles ne sont pas
-installées.
+124 tests couvrant le chargement et la fiabilité des données, la règle de
+certification, la calibration des tables de mortalité, les propriétés du moteur
+(monotonie du diviseur, cliquet de l'âge de référence, règles de fusion), le
+comportement des scénarios, le rendu des pages dans les deux modes et la
+fraîcheur du paquet embarqué dans le site. Aucun test n'accède au réseau : les
+sources sont simulées. Les tests du serveur sont ignorés si ses dépendances
+optionnelles ne sont pas installées.
 
 ---
 

@@ -20,7 +20,7 @@ from ..config import (
     Parametres,
     TableConversion,
 )
-from ..donnees.chargement import DonneeInsuffisante
+from ..donnees.chargement import DonneeInsuffisante, journal_certification
 from ..simulateur import Comparaison, Simulateur
 from . import gabarit as g
 
@@ -728,13 +728,34 @@ def _donnees(contexte: Contexte) -> str:
         if niveau in par_niveau
     ]
 
+    journal = journal_certification(macro.racine)
+    certifications = [
+        [escape(nom), f"{trace['valeurs']}", escape(trace["source"])]
+        for nom, trace in sorted(journal.get("series", {}).items())
+    ]
+    if certifications:
+        bandeau = f"""<div class="note"><strong>Les séries macroéconomiques sont
+certifiées de 1950 à 2025</strong> — recontrôlées automatiquement contre l'API
+de la Banque de données macroéconomiques de l'INSEE, le
+{escape(journal['certifie_le'])}. Ce qui précède 1950, le plafond d'avant 2002 et
+les paramètres de régime restent saisis à la main : les <em>niveaux</em> de
+pension des carrières les plus anciennes gardent une marge, les <em>écarts entre
+scénarios</em>, qui sont l'objet du modèle, sont plus robustes encore.</div>"""
+    else:
+        bandeau = """<div class="note avertissement"><strong>Aucune série n'a
+encore été recontrôlée contre sa source.</strong> Lancer <code>scripts/fetch/</code>
+puis <code>scripts/verifier_donnees.py --appliquer</code>.</div>"""
+
     return f"""
 <h2 style="margin-top:0">Ce que valent les chiffres</h2>
-<div class="note avertissement"><strong>Aucune série n'est aujourd'hui au niveau
-« certifiée ».</strong> Les séries longues (avant 1990) ont été saisies, pas
-extraites automatiquement : les portails de diffusion ne les exposent pas en API.
-Les <em>niveaux</em> de pension sont donc indicatifs ; les <em>écarts entre
-scénarios</em>, qui sont l'objet du modèle, sont beaucoup plus robustes.</div>
+{bandeau}
+
+<h3>Ce qui a été recontrôlé contre la source</h3>
+{g.tableau(["Série", "Valeurs", "Source"], certifications, ["", "nombre", ""])}
+<p class="discret">Une valeur n'est « certifiée » que si elle a été confrontée au
+fichier téléchargé depuis le producteur. Hors de cette liste : l'inflation, les
+salaires et la productivité d'avant 1950, le plafond d'avant 2002, l'espérance de
+vie à 65 ans d'avant 1986, et tous les paramètres de régime.</p>
 
 <h3>Fiabilité des séries macroéconomiques, par décennie</h3>
 {g.tableau(

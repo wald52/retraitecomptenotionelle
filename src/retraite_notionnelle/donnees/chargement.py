@@ -8,6 +8,7 @@ et doit pouvoir refuser de s'exécuter si l'utilisateur exige mieux.
 from __future__ import annotations
 
 import csv
+import json
 from dataclasses import dataclass
 from enum import IntEnum
 from pathlib import Path
@@ -65,7 +66,9 @@ class SerieAnnuelle:
       dernière année renseignée. C'est le comportement correct pour des
       paramètres juridiques : un taux reste en vigueur jusqu'à sa modification.
     * ``lineaire`` — interpolation entre les deux années encadrantes. Correct
-      pour des grandeurs continues (espérances de vie publiées par décennie).
+      pour des grandeurs continues : l'espérance de vie à 60 ans est désormais
+      renseignée chaque année, celle à 65 ans ne l'est qu'avant 1986 par points
+      espacés, et c'est là que l'interpolation sert encore.
     """
 
     def __init__(
@@ -188,3 +191,21 @@ def charger_serie_annuelle(
 def charger_yaml(chemin: Path) -> dict:
     with chemin.open(encoding="utf-8") as flux:
         return yaml.safe_load(flux) or {}
+
+
+def journal_certification(racine: Path) -> dict:
+    """Trace du dernier recontrôle des séries contre leurs sources.
+
+    Écrite par ``scripts/verifier_donnees.py --appliquer``. Les téléchargements
+    bruts ne sont pas versionnés : ce journal est la seule pièce qui, sur un
+    dépôt cloné, dise d'où viennent les valeurs marquées ``certifiee``. Son
+    absence n'est pas une erreur — elle signifie qu'aucune certification n'a
+    encore eu lieu.
+    """
+    chemin = racine / "derive" / "certification.json"
+    if not chemin.exists():
+        return {}
+    try:
+        return json.loads(chemin.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):  # pragma: no cover - fichier abîmé
+        return {}
