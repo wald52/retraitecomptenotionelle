@@ -220,6 +220,7 @@ sourcée et reprise automatiquement, plafonne à `haute`.
 | Espérance de vie à 65 ans | 1960-2024 | OCDE (l'INSEE ne la publie pas) |
 | Quotients de mortalité par âge | 1986-2024 | Eurostat |
 | Plafond de la Sécurité sociale | 2002-2025 | INSEE |
+| Valeurs du point de l'Ircantec | 1971-2021 | Caisse des dépôts, qui gère le régime |
 
 Deux séries de plus sont reprises automatiquement d'**OpenFisca-France**, le
 modèle socio-fiscal de l'administration — le plafond de la Sécurité sociale
@@ -234,6 +235,7 @@ python scripts/fetch/eurostat_mortalite.py      # tables de mortalité par âge
 python scripts/fetch/openfisca_plafond.py       # plafond ancien
 python scripts/fetch/openfisca_cotisations.py   # taux de cotisation du RG
 python scripts/fetch/openfisca_points.py        # valeurs du point, depuis 1947
+python scripts/fetch/cdc_ircantec.py            # barèmes Ircantec, par son gestionnaire
 python scripts/fetch/eurostat_hicp.py           # contrôle croisé de l'inflation
 
 python scripts/verifier_donnees.py              # confronte, sans rien écrire
@@ -288,7 +290,7 @@ docs/
   methodologie.md               ce que le modèle calcule, et pourquoi ainsi
   limites.md                    ce qu'il ne calcule pas, et ce qui reste à certifier
 
-tests/                          140 tests
+tests/                          141 tests
 ```
 
 ---
@@ -317,7 +319,7 @@ sous « Options de modélisation ».
 python -m pytest tests
 ```
 
-140 tests couvrant le chargement et la fiabilité des données, la règle de
+141 tests couvrant le chargement et la fiabilité des données, la règle de
 certification, la calibration des tables de mortalité et sa concordance avec les
 tables observées, les propriétés du moteur
 (monotonie du diviseur, cliquet de l'âge de référence, règles de fusion), le

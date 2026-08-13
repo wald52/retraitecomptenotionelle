@@ -65,13 +65,22 @@
    "valeurs": 76
   },
   "valeurs_point": {
-   "ajoutees": 737,
+   "ajoutees": 613,
    "corrigees": 0,
-   "empreinte": "90b8a89521a24bae",
+   "empreinte": "b22e96a0f9f4d01e",
    "identiques": 0,
    "niveau": "haute",
    "source": "OpenFisca-France-Pension, paramètres des régimes en points",
-   "valeurs": 737
+   "valeurs": 613
+  },
+  "valeurs_point_ircantec": {
+   "ajoutees": 153,
+   "corrigees": 0,
+   "empreinte": "08dba684ba1976e6",
+   "identiques": 0,
+   "niveau": "certifiee",
+   "source": "Caisse des dépôts, barèmes Ircantec (IRC_BAR_01 et IRC_BAR_02)",
+   "valeurs": 153
   },
   "valeurs_point_texte": {
    "ajoutees": 1,

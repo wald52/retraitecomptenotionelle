@@ -215,7 +215,7 @@ def commande_donnees(arguments: argparse.Namespace) -> int:
     if journal:
         print(f"\nDernier recontrôle contre les sources : {journal['certifie_le']}\n")
         for nom, trace in sorted(journal["series"].items()):
-            print(f"  {nom:<20} {trace['valeurs']:>5} valeurs  {trace['niveau']:<10}"
+            print(f"  {nom:<23} {trace['valeurs']:>5} valeurs  {trace['niveau']:<10}"
                   f" {trace['source']}")
         print(
             "\nCe qui n'y figure pas n'a pas de source automatisable : les séries "

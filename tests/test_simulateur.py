@@ -348,3 +348,29 @@ def test_rafp_et_rci_sont_calcules_en_points(simulateur):
         pensions = {p.regime: p for p in simulateur.simuler(carriere).actuel.pensions_par_regime}
         assert code in pensions, code
         assert "points × valeur de service" in pensions[code].detail, code
+
+
+def test_le_producteur_prime_sur_la_transcription(simulateur):
+    """L'Ircantec est le seul régime dont on ait les deux sources.
+
+    Ses barèmes viennent de la Caisse des dépôts, qui gère le régime, et non
+    d'OpenFisca qui les transcrit. Là où le producteur publie, ses valeurs
+    doivent être certifiées ; ailleurs, la transcription reprend au niveau
+    « haute ».
+    """
+    import csv
+
+    from retraite_notionnelle.donnees.chargement import Fiabilite
+
+    chemin = (simulateur.parametres.racine_donnees / "reference" / "regimes"
+              / "valeurs_point.csv")
+    with chemin.open(encoding="utf-8") as flux:
+        lignes = [l for l in csv.DictReader(
+            x for x in flux if not x.lstrip().startswith("#"))
+            if l["regime"] == "ircantec"]
+
+    niveaux = {int(l["annee"]): l["fiabilite"] for l in lignes}
+    assert niveaux[1971] == "certifiee"
+    assert niveaux[2021] == "certifiee"
+    assert niveaux[2022] == "haute", "hors couverture du producteur, la transcription"
+    assert Fiabilite.depuis_texte("certifiee") > Fiabilite.depuis_texte("haute")

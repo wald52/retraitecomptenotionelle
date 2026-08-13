@@ -20,7 +20,7 @@
 # macroéconomiques de l'INSEE, interrogeable sans clé d'accès à l'adresse
 # https://api.insee.fr/series/BDM/V1/data/SERIES_BDM/<idbank>
 
-version_manifeste: "2026-08-13d"
+version_manifeste: "2026-08-13e"
 
 institutions:
 
@@ -223,11 +223,28 @@ institutions:
         acces: document
         statut_integration: saisi
         cible: data/reference/regimes/cnracl.yaml
+      - id: cdc_ircantec_baremes
+        titre: Barèmes de l'Ircantec — valeur du point, salaire de référence, taux d'appel
+        url: https://politiques-sociales.caissedesdepots.fr/sites/default/files/IRC_BAR_02_ValPt_SalRef.csv
+        complement_url: https://politiques-sociales.caissedesdepots.fr/sites/default/files/IRC_BAR_01_txcotis.csv
+        acces: api
+        statut_integration: certifie
+        cible: data/reference/regimes/valeurs_point.csv
+        recuperation: scripts/fetch/cdc_ircantec.py
+        note: >-
+          Deux CSV publiés par le gestionnaire du régime, couvrant 1971-2021.
+          Source PRIMAIRE, donc certifiable : elle l'emporte sur la
+          transcription OpenFisca, qui ne couvre plus que 2022 et les régimes
+          prédécesseurs IPACTE et IGRANTE.
+
       - id: cdc_open_data
         titre: Open data de la Caisse des dépôts — retraites
-        url: https://www.caissedesdepots.fr/
-        acces: fichier
+        url: https://opendata.caissedesdepots.fr/
+        acces: api
         statut_integration: a_faire
+        note: >-
+          Quatre-vingt-sept jeux, tous des effectifs de cotisants et de
+          retraités : aucun barème.
 
   dss:
     nom: Direction de la Sécurité sociale

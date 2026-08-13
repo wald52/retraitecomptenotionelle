@@ -31,7 +31,8 @@ qu'aucun résultat ne soit cité sans savoir sur quoi il repose.
 | Plafond Sécurité sociale | 1931-2001 | haute | OpenFisca-France, daté décret par décret |
 | Taux de cotisation, régime général | 1967-2026 | moyenne | OpenFisca-France, recoupé à chaque exécution |
 | Taux de cotisation, autres régimes | tous | moyenne / estimée | Comptes de la Sécurité sociale |
-| Valeurs d'achat et de service du point | Agirc 1947-2018, Arrco 1949-2018, Agirc-Arrco 2019-2025, Ircantec 1949-2022, RAFP 2005-2021, RCI 2013-2023 | haute | OpenFisca-France-Pension |
+| Valeurs d'achat et de service du point, Ircantec | 1971-2021 | **certifiée** | Caisse des dépôts, qui gère le régime |
+| Valeurs d'achat et de service du point, autres | Agirc 1947-2018, Arrco 1949-2018, Agirc-Arrco 2019-2025, RAFP 2005-2021, RCI 2013-2023 | haute | OpenFisca-France-Pension |
 | Valeurs du point, Arrco avant 1999 | 1949-1998 | moyenne | UNIRS, la plus grosse caisse Arrco |
 | Rendement des autres régimes en points | CNAVPL, MSA, CNBF | haute / estimée | calculé là où le point est connu, reconstitué sinon |
 
@@ -46,6 +47,7 @@ python scripts/fetch/eurostat_mortalite.py     # tables de mortalité par âge
 python scripts/fetch/openfisca_plafond.py      # plafond ancien
 python scripts/fetch/openfisca_cotisations.py  # taux de cotisation du RG
 python scripts/fetch/openfisca_points.py       # valeurs du point, depuis 1947
+python scripts/fetch/cdc_ircantec.py           # barèmes Ircantec, par son gestionnaire
 python scripts/fetch/eurostat_hicp.py          # contrôle croisé de l'inflation
 
 python scripts/verifier_donnees.py             # confronte, sans rien écrire
@@ -116,14 +118,23 @@ qui a été cherché, pour éviter de le rechercher deux fois.
 * *Valeurs du point de la CNAVPL, de la MSA et de la CNBF* — les trois seules
   caisses en points dont aucune série ne sort. Ont été essayés sans succès :
   OpenFisca-France-Pension (ne modélise pas ces régimes), les barèmes IPP (même
-  périmètre, c'est la source amont d'OpenFisca), l'open data de la DREES
-  (résultats statistiques, pas paramètres), data.gouv.fr (les jeux de la MSA
-  sont des effectifs de retraités), et les sites des caisses — la CNAVPL décrit
-  le mécanisme sans publier de table, la CNBF ne met en ligne que des barèmes
-  annuels en PDF depuis 2016. Ces trois régimes restent au rendement instantané
-  reconstitué, et la confrontation des autres à leurs vraies valeurs a montré
-  que ces reconstitutions peuvent se tromper du simple au double : à prendre
-  avec la même méfiance.
+  périmètre — c'est la source amont d'OpenFisca, ses quarante-cinq feuilles
+  couvrent l'Arrco, l'Agirc, l'UNIRS, PRO-BTP, l'Ircantec, la CANCAVA et
+  l'ORGANIC, pas ces trois-là), l'open data de la DREES (cinquante et un jeux
+  « retraite », tous des résultats statistiques), le portail open data de la
+  Caisse des dépôts (effectifs seulement), data.gouv.fr (les jeux de la MSA sont
+  des effectifs de retraités et d'exploitants), le portail statistiques.msa.fr,
+  et les sites des caisses — la CNAVPL décrit le mécanisme d'acquisition sans
+  publier de table, la CARMF ne donne que la valeur de l'année en cours, la CNBF
+  ne met en ligne que des barèmes annuels en PDF depuis 2016. Ces trois régimes
+  restent au rendement instantané reconstitué, et la confrontation des autres à
+  leurs vraies valeurs a montré que ces reconstitutions peuvent se tromper du
+  simple au double : à prendre avec la même méfiance.
+
+  Ce que la recherche a appris en creux : la transcription d'OpenFisca est
+  fiable. Confrontée aux barèmes que la Caisse des dépôts publie elle-même pour
+  l'Ircantec, elle tombe juste sur cent vingt-trois valeurs sur cent
+  vingt-quatre — le seul écart portant sur le taux d'appel de 1991.
 * *Âges, durées requises, décotes* — ils viennent de lois, pas de séries
   statistiques. Légifrance expose une API, mais elle demande une clé et renvoie
   du texte juridique, non des paramètres.
@@ -235,7 +246,7 @@ extensible : ajouter un régime consiste à écrire une fiche YAML conforme à
   `data/derive/calibrations_mortalite.json`, régénérable en supprimant le fichier.
 - La certification des séries est tracée dans `data/derive/certification.json`,
   régénérable par `scripts/verifier_donnees.py --appliquer`.
-- 140 tests couvrent le chargement, la fiabilité, la règle de certification, la
+- 141 tests couvrent le chargement, la fiabilité, la règle de certification, la
   concordance des tables de mortalité observées avec les espérances publiées, les
   propriétés du moteur et le comportement des scénarios : `python -m pytest tests`.
   Aucun test n'accède au réseau : les sources sont simulées.

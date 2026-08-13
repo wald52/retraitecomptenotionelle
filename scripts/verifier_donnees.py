@@ -270,6 +270,21 @@ def _cles_points(cle_json: str, substituees: bool) -> dict[tuple, float]:
     }
 
 
+def source_valeurs_point_ircantec() -> dict[tuple, float]:
+    """Barèmes de l'Ircantec publiés par la Caisse des dépôts, qui la gère.
+
+    Producteur de la donnée, donc seule source de ce fichier qui puisse être
+    certifiée. Elle couvre 1971-2021 ; ce qui déborde reste transcrit
+    d'OpenFisca.
+    """
+    return {
+        tuple(cle.split("|")): valeur
+        for cle, valeur in sorted(
+            _serie_json("cdc_ircantec.json", "scripts/fetch/cdc_ircantec.py").items()
+        )
+    }
+
+
 def source_valeurs_point() -> dict[tuple, float]:
     """Salaires de référence, valeurs de service et taux d'appel, par régime.
 
@@ -277,8 +292,18 @@ def source_valeurs_point() -> dict[tuple, float]:
     points : la cotisation d'une année divisée par le salaire de référence et
     par le taux d'appel donne les points acquis, que la valeur de service
     convertit en rente à la liquidation.
+
+    Ce que la Caisse des dépôts publie elle-même est retiré d'ici : deux
+    contrôles ne doivent pas se disputer les mêmes lignes, et le producteur
+    l'emporte sur la transcription. Si son fichier manque, OpenFisca reprend
+    toute la couverture — au niveau ``haute``, comme il se doit.
     """
-    return _cles_points("serie", substituees=False)
+    valeurs = _cles_points("serie", substituees=False)
+    try:
+        producteur = set(source_valeurs_point_ircantec())
+    except SourceAbsente:
+        return valeurs
+    return {cle: valeur for cle, valeur in valeurs.items() if cle not in producteur}
 
 
 def source_valeurs_point_substituees() -> dict[tuple, float]:
@@ -527,6 +552,16 @@ CERTIFICATIONS = (
             "# Fichier écrit par scripts/verifier_donnees.py --appliquer : ne pas",
             "# modifier à la main.",
         ),
+    ),
+    Certification(
+        nom="valeurs_point_ircantec",
+        chemin=REFERENCE / "regimes" / "valeurs_point.csv",
+        cles=("regime", "annee", "mesure"),
+        colonne="valeur",
+        source=source_valeurs_point_ircantec,
+        origine="Caisse des dépôts, barèmes Ircantec (IRC_BAR_01 et IRC_BAR_02)",
+        decimales=6,
+        tolerance=5e-7,
     ),
     Certification(
         nom="valeurs_point_unirs",
@@ -836,6 +871,33 @@ def controle_vraisemblance_rendements() -> list[str]:
     ] + ecarts
 
 
+def controle_vraisemblance_ircantec() -> list[str]:
+    """Confronte les barèmes Ircantec du producteur à ceux d'OpenFisca.
+
+    C'est le seul régime pour lequel le dépôt dispose des deux : la Caisse des
+    dépôts, qui gère l'Ircantec, et OpenFisca, qui la transcrit. Mesurer leur
+    écart, c'est mesurer ce que vaut la transcription là où on ne peut pas la
+    confronter — c'est-à-dire pour tous les autres régimes en points.
+    """
+    try:
+        producteur = _serie_json("cdc_ircantec.json", "scripts/fetch/cdc_ircantec.py")
+        transcription = _charge_points()["serie"]
+    except SourceAbsente as erreur:
+        return [f"IGNORÉ  vraisemblance Ircantec : {erreur}"]
+
+    communes = sorted(set(producteur) & set(transcription))
+    ecarts = [
+        f"        écart {cle.replace('|', '/')} : Caisse des dépôts "
+        f"{producteur[cle]}, OpenFisca {transcription[cle]}"
+        for cle in communes
+        if abs(producteur[cle] - transcription[cle]) > 1e-4
+    ]
+    return [
+        f"OK      vraisemblance Ircantec : {len(communes)} valeurs comparées "
+        f"producteur / transcription, {len(ecarts)} en désaccord",
+    ] + ecarts[:6]
+
+
 def controle_vraisemblance_plafond() -> list[str]:
     """Confronte le plafond d'OpenFisca à celui publié par l'INSEE, sur 2002-2026.
 
@@ -891,6 +953,7 @@ def main(argv: list[str] | None = None) -> int:
     messages.extend(controle_vraisemblance_plafond())
     messages.extend(controle_vraisemblance_cotisations())
     messages.extend(controle_vraisemblance_rendements())
+    messages.extend(controle_vraisemblance_ircantec())
 
     for message in messages:
         print(message)

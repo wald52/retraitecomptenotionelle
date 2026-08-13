@@ -202,6 +202,7 @@ def test_journal_de_certification_decrit_les_series_certifiees():
         "esperances_vie": "mortalite/esperances_vie.csv",
         "quotients_mortalite": "mortalite/quotients_periode.csv",
         "valeurs_point": "regimes/valeurs_point.csv",
+        "valeurs_point_ircantec": "regimes/valeurs_point.csv",
         "valeurs_point_unirs": "regimes/valeurs_point.csv",
         "valeurs_point_texte": "regimes/valeurs_point.csv",
     }
