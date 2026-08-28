@@ -18,7 +18,13 @@ from retraite_notionnelle.web.gabarit import (
     pourcentage,
     tableau,
 )
+from retraite_notionnelle.donnees.chargement import DonneeInsuffisante
 from retraite_notionnelle.web.pages import (
+    AGES_REFERENCE,
+    INDEXATIONS,
+    PROFILS,
+    PROJECTIONS,
+    TABLES,
     Contexte,
     ErreurSaisie,
     Saisie,
@@ -388,6 +394,84 @@ def test_le_portage_javascript_retrouve_les_chiffres_du_modele():
         cwd=racine, capture_output=True, text=True, check=False,
     )
     assert execution.returncode == 0, execution.stdout + execution.stderr
+
+
+def test_le_portage_javascript_concorde_sur_des_carrieres_tirees_au_hasard():
+    """Les témoins figés couvrent des cas choisis ; celui-ci, des cas non prévus.
+
+    Un portage se trompe rarement là où on l'a regardé. On tire donc des
+    carrières au hasard — graine fixe, donc reproductible —, on les calcule ici,
+    et ``tests/js/comparer.mjs`` vérifie que le site retrouve chaque valeur.
+    """
+    import json
+    import random
+    import shutil
+    import subprocess
+    import tempfile
+    from pathlib import Path
+
+    if shutil.which("node") is None:
+        pytest.skip("node absent : le portage JavaScript n'est pas vérifiable ici")
+
+    contexte = Contexte()
+    alea = random.Random(20260828)
+    statuts = list(contexte.simulateur().affiliations.codes)
+    cas = []
+    for numero in range(60):
+        debut = round(alea.uniform(14, 30) * 2) / 2
+        liquidation = round(alea.uniform(max(41, debut + 1), 75) * 2) / 2
+        requete = {
+            "naissance": str(alea.randint(1900, 2005)),
+            "sexe": alea.choice(["H", "F"]),
+            "statut": alea.choice(statuts),
+            "debut": f"{debut:g}",
+            "liquidation": f"{liquidation:g}",
+            "salaire": f"{alea.uniform(0.1, 9):.3f}",
+            "profil": alea.choice([code for code, _ in PROFILS]),
+            "primes": f"{alea.uniform(0, 0.6):.3f}",
+            "enfants": str(alea.randint(0, 6)),
+            "indexation": alea.choice([code for code, _ in INDEXATIONS]),
+            "age_reference": alea.choice([code for code, _ in AGES_REFERENCE]),
+            "table": alea.choice([code for code, _ in TABLES]),
+            "projection": alea.choice([code for code, _ in PROJECTIONS]),
+            "bascule": str(alea.randint(1945, 2065)),
+            "euros": str(alea.randint(1945, 2065)),
+            "interruptions": alea.choice(["", f"{alea.randint(1985, 2005)}:"
+                                          f"{alea.randint(2006, 2015)}:education_enfant"]),
+        }
+        nom = f"aleatoire_{numero}"
+        try:
+            resultat = contexte.simuler(Saisie.depuis_requete(requete)).dictionnaire()
+        except (ErreurSaisie, DonneeInsuffisante, KeyError, ValueError) as erreur:
+            cas.append({"nom": nom, "requete": requete, "erreur": str(erreur)})
+            continue
+        cas.append({"nom": nom, "requete": requete, "resultat": _sans_nan(resultat)})
+
+    racine = Path(__file__).resolve().parents[1]
+    with tempfile.NamedTemporaryFile("w", suffix=".json", encoding="utf-8",
+                                     delete=False) as fichier:
+        json.dump(cas, fichier, ensure_ascii=False)
+        chemin = fichier.name
+    try:
+        execution = subprocess.run(
+            ["node", "tests/js/comparer.mjs", chemin],
+            cwd=racine, capture_output=True, text=True, check=False,
+        )
+    finally:
+        Path(chemin).unlink(missing_ok=True)
+    assert execution.returncode == 0, execution.stdout + execution.stderr
+
+
+def _sans_nan(valeur):
+    """NaN et infinis en ``null`` : la norme JSON ne connaît qu'eux."""
+    if isinstance(valeur, float) and (valeur != valeur or valeur in (
+            float("inf"), float("-inf"))):
+        return None
+    if isinstance(valeur, dict):
+        return {cle: _sans_nan(v) for cle, v in valeur.items()}
+    if isinstance(valeur, list):
+        return [_sans_nan(v) for v in valeur]
+    return valeur
 
 
 def test_la_page_ne_depend_d_aucun_service_exterieur():

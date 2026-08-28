@@ -53,8 +53,8 @@ Scénario                                      Courants   Constants   Mensuel   
 Rien à installer, rien à lancer : une adresse à ouvrir. Le modèle et ses données
 de référence s'exécutent **dans votre navigateur**. Aucune donnée saisie ne
 quitte votre machine, puisqu'il n'y a pas de serveur de calcul. Le premier
-chargement transfère 230 Ko et prend quelques dixièmes de seconde ; les suivants
-sont immédiats.
+chargement transfère 103 Ko compressés (346 Ko bruts) et prend quelques dixièmes
+de seconde ; les suivants sont immédiats.
 
 Quatre pages : **Simuler** (une carrière, avec le détail du calcul et la
 décomposition de l'écart règle par règle), **Cas types** (la grille 12 carrières
@@ -90,6 +90,10 @@ au bit près, l'écart maximal étant d'un *ulp* (3 · 10⁻¹⁶, la précision
 flottant). Les pages, elles, sont comparées caractère par caractère : le
 formatage à la française reproduit jusqu'à l'arrondi au pair de Python, faute de
 quoi un « −12,5 % » deviendrait « −13 % » d'un côté et « −12 % » de l'autre.
+
+Des cas figés ne prouvent que ce qu'on a pensé à figer. Un second contrôle tire
+donc des carrières au hasard — graine fixe, donc reproductible —, les calcule en
+Python et les fait recalculer par le site : mêmes chiffres exigés, à 10⁻⁹ près.
 
 `pytest` lance cette comparaison, il n'y a donc qu'une commande à retenir. Les
 deux fichiers que charge le site sont produits par
@@ -312,7 +316,7 @@ docs/
   methodologie.md               ce que le modèle calcule, et pourquoi ainsi
   limites.md                    ce qu'il ne calcule pas, et ce qui reste à certifier
 
-tests/                          145 tests Python
+tests/                          148 tests Python
   temoins/                      chiffres et pages figés depuis le modèle Python
   js/                           le portage rejoué contre ces témoins (node --test)
 ```
@@ -343,7 +347,7 @@ sous « Options de modélisation ».
 python -m pytest tests
 ```
 
-145 tests couvrant le chargement et la fiabilité des données, la règle de
+148 tests couvrant le chargement et la fiabilité des données, la règle de
 certification, la calibration des tables de mortalité et sa concordance avec les
 tables observées, les propriétés du moteur
 (monotonie du diviseur, cliquet de l'âge de référence, règles de fusion), le
@@ -352,8 +356,9 @@ fraîcheur de ce que charge le site. Aucun test n'accède au réseau : les
 sources sont simulées. Les tests du serveur sont ignorés si ses dépendances
 optionnelles ne sont pas installées.
 
-L'un d'eux lance `node --test` pour rejouer les cas-témoins côté JavaScript ; il
-est ignoré si `node` est absent. On peut l'exécuter seul :
+Deux d'entre eux lancent `node` pour rejouer le calcul côté JavaScript — les
+cas-témoins figés, puis des carrières tirées au hasard ; ils sont ignorés si
+`node` est absent. On peut exécuter les premiers seuls :
 
 ```bash
 node --test tests/js/moteur.test.js
