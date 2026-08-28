@@ -494,6 +494,54 @@ def test_la_page_ne_depend_d_aucun_service_exterieur():
             )
 
 
+def test_le_prechargement_du_paquet_correspond_a_la_requete():
+    """Un préchargement qui ne correspond pas au ``fetch`` est pire qu'inutile.
+
+    Le navigateur ne réutilise le ``<link rel="preload">`` que si la requête a
+    exactement le même mode et les mêmes identifiants. Sinon il télécharge le
+    paquet **deux fois** — 186 Ko en trop à chaque première visite — en n'émettant
+    qu'un avertissement de console que personne ne lit. Les deux déclarations sont
+    donc verrouillées ensemble ici : ``crossorigin`` sur le lien, et un ``fetch``
+    nu, sans ``mode`` ni ``credentials`` qui s'en écarteraient.
+    """
+    import re
+    from pathlib import Path
+
+    page = (Path(__file__).resolve().parents[1] / "index.html").read_text(encoding="utf-8")
+
+    prechargement = re.search(r"<link rel=\"preload\"[^>]*donnees\.json[^>]*>", page)
+    appel = re.search(r"fetch\(\"moteur/donnees\.json\",\s*(\{[^}]*\})\)", page)
+    assert prechargement and appel, "préchargement ou requête introuvables dans index.html"
+
+    assert "crossorigin" in prechargement.group(0), (
+        "le préchargement doit porter crossorigin, sinon il ne correspond pas au fetch"
+    )
+    options = appel.group(1)
+    assert "credentials" not in options and "mode" not in options, (
+        f"la requête s'écarte du préchargement ({options}) : le paquet serait "
+        "téléchargé deux fois"
+    )
+
+
+def test_le_style_d_amorcage_ne_vise_que_des_elements_existants():
+    """Pas de règle orpheline dans la page : ce qui ne sert plus s'enlève."""
+    import re
+    from pathlib import Path
+
+    page = (Path(__file__).resolve().parents[1] / "index.html").read_text(encoding="utf-8")
+    amorce = re.search(r'<div id="amorce">.*?</div>\s*\n\s*<script', page, re.S).group(0)
+    style = re.search(r"<style>(.*?)</style>", page, re.S).group(1)
+
+    balises = set(re.findall(r"<(\w+)", amorce)) | {"h1", "div", "a", "p"}  # + echec()
+    for selecteur in re.findall(r"^\s*(#amorce[^{]*)\{", style, re.M):
+        dernier = selecteur.strip().split()[-1].lstrip(">").strip()
+        if dernier.startswith((".", "#")) or dernier in ("", "#amorce"):
+            continue
+        assert dernier in balises, (
+            f"la règle « {selecteur.strip()} » ne vise aucun élément de l'écran d'amorçage"
+        )
+
+
 def test_le_moteur_javascript_est_versionne():
     """Le site n'a aucune étape de construction : tout ce qu'il charge est là."""
     from pathlib import Path

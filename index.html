@@ -11,7 +11,7 @@
      scripts/construire_donnees.py : elle n'existe qu'en un seul endroit, et le
      serveur Python comme le site en JavaScript affichent la même chose. -->
 <link rel="stylesheet" href="moteur/style.css">
-<link rel="preload" href="moteur/donnees.json" as="fetch" type="application/json">
+<link rel="preload" href="moteur/donnees.json" as="fetch" crossorigin>
 
 <style>
   /* Écran d'amorçage : quelques dixièmes de seconde, le temps de récupérer les
@@ -25,9 +25,6 @@
   #amorce .jauge > span { display: block; height: 100%; width: 30%;
                           background: var(--accent);
                           animation: glisse 1.4s ease-in-out infinite; }
-  #amorce.echec .jauge { display: none; }
-  #amorce code { background: var(--fond-appui); padding: 0.1rem 0.35rem;
-                 border-radius: 3px; font-size: 0.88rem; }
   .replique { text-align: left; border-left: 3px solid var(--accent);
               background: var(--fond-appui); padding: 0.9rem 1.1rem; margin-top: 1.5rem;
               font-size: 0.92rem; }
@@ -68,6 +65,9 @@ function echec(titre, detail) {
 
 async function preparer() {
   etape("Chargement des séries de référence…");
+  // Requête volontairement nue : c'est celle que décrit le <link rel="preload">
+  // de l'en-tête, `crossorigin` compris. Toute option qui s'en écarterait ferait
+  // manquer le préchargement, et le paquet serait téléchargé deux fois.
   const reponse = await fetch("moteur/donnees.json", { cache: "force-cache" });
   if (!reponse.ok) {
     throw new Error(`moteur/donnees.json introuvable (${reponse.status})`);
