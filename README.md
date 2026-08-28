@@ -50,11 +50,11 @@ Scénario                                      Courants   Constants   Mensuel   
 
 ### 👉 [wald52.github.io/retraitecomptenotionelle](https://wald52.github.io/retraitecomptenotionelle/)
 
-Rien à installer, rien à lancer : une adresse à ouvrir. Le modèle — le code
-Python de ce dépôt et ses données de référence — s'exécute **dans votre
-navigateur**, en WebAssembly. Aucune donnée saisie ne quitte votre machine,
-puisqu'il n'y a pas de serveur de calcul. Le premier chargement prend environ
-trois secondes, les suivants sont immédiats.
+Rien à installer, rien à lancer : une adresse à ouvrir. Le modèle et ses données
+de référence s'exécutent **dans votre navigateur**. Aucune donnée saisie ne
+quitte votre machine, puisqu'il n'y a pas de serveur de calcul. Le premier
+chargement transfère 230 Ko et prend quelques dixièmes de seconde ; les suivants
+sont immédiats.
 
 Quatre pages : **Simuler** (une carrière, avec le détail du calcul et la
 décomposition de l'écart règle par règle), **Cas types** (la grille 12 carrières
@@ -65,26 +65,38 @@ ou partagée telle quelle — et chaque résultat est consultable en JSON au bas
 la page.
 
 <details>
-<summary>Comment la page fonctionne, et pourquoi ce choix</summary>
+<summary>Comment la page fonctionne, et comment on sait qu'elle dit vrai</summary>
 
-`index.html` charge [Pyodide](https://pyodide.org) — CPython compilé en
-WebAssembly, versionné dans `moteur/pyodide/` (14 Mo) — puis décompresse
-`moteur/simulateur.zip` (154 Ko : le modèle et les données) dans son système de
-fichiers virtuel, et appelle le module `retraite_notionnelle.web.navigateur`.
+`index.html` charge deux choses : `moteur/donnees.json` (186 Ko — les séries, les
+tables de mortalité, les 35 fiches de régime) et `moteur/js/`, un portage du
+modèle en JavaScript sans aucune bibliothèque. Le site est servi depuis la racine
+du dépôt, telle quelle : c'est ce que GitHub Pages publie sans aucun réglage, et
+`.nojekyll` demande que les fichiers soient servis sans transformation. Rien
+n'est chargé depuis un CDN ou un service tiers, ce qu'un test vérifie : le site
+fonctionne derrière un réseau fermé, et survivra à la disparition de n'importe
+quel hébergeur.
 
-Le site est servi depuis la racine du dépôt, telle quelle : c'est ce que GitHub
-Pages publie sans aucun réglage, et `.nojekyll` demande que les fichiers soient
-servis sans transformation.
+Le site a d'abord exécuté le Python lui-même, par [Pyodide](https://pyodide.org).
+C'était le choix le plus sûr — un seul code — mais il faisait télécharger
+13,5 Mo d'interpréteur pour faire tourner 160 Ko de modèle, soit quarante fois le
+poids de ce qu'on voulait exécuter.
 
-C'est **le même code Python** que la ligne de commande, à la ligne près : pas de
-portage en JavaScript qui divergerait du modèle, pas de résultats précalculés
-qui figeraient les hypothèses. Rien n'est chargé depuis un CDN ou un service
-tiers, ce qu'un test vérifie : le site fonctionne derrière un réseau fermé, et
-survivra à la disparition de n'importe quel hébergeur.
+Le risque d'un portage, c'est qu'il déplace un chiffre sans que rien n'échoue.
+Il est traité de front : **le Python de `src/` reste la référence**, et
+`scripts/construire_temoins.py` fige depuis lui 71 simulations complètes et le
+HTML des quatre pages, dans `tests/temoins/`. `node --test` rejoue le tout côté
+JavaScript et compare valeur par valeur — 3 030 nombres, dont 98,6 % identiques
+au bit près, l'écart maximal étant d'un *ulp* (3 · 10⁻¹⁶, la précision d'un
+flottant). Les pages, elles, sont comparées caractère par caractère : le
+formatage à la française reproduit jusqu'à l'arrondi au pair de Python, faute de
+quoi un « −12,5 % » deviendrait « −13 % » d'un côté et « −12 % » de l'autre.
 
-Le paquet `moteur/simulateur.zip` est reconstruit par `python scripts/construire_site.py`
-après toute modification du code ou des données ; le test `test_le_paquet_est_a_jour`
-échoue s'il a été oublié.
+`pytest` lance cette comparaison, il n'y a donc qu'une commande à retenir. Les
+deux fichiers que charge le site sont produits par
+`python scripts/construire_donnees.py` — le paquet de données depuis `data/`, et
+`moteur/style.css` depuis la feuille de style du module Python, qui reste écrite
+en un seul endroit. Le test `test_le_paquet_est_a_jour` échoue si l'un des deux a
+été oublié.
 
 </details>
 
@@ -158,6 +170,7 @@ print(simulateur.simuler(carriere).tableau())
 | Suppression des avantages | Ni majorations enfants, ni MDA, ni AVPF, ni bonifications, ni réversion, ni trimestres gratuits |
 | Tout le monde peut simuler | 22 statuts d'affiliation, cinq informations suffisent |
 | Utilisable sans rien installer | Le modèle s'exécute dans le navigateur, sur une simple adresse |
+| Portage vérifié, pas cru sur parole | Le site rejoue 71 simulations témoins figées depuis le modèle Python |
 
 ---
 
@@ -287,19 +300,21 @@ src/retraite_notionnelle/
     pages.py                    contenu des pages — sans autre dépendance que le moteur
     gabarit.py                  rendu HTML et feuille de style
     application.py              serveur FastAPI et API JSON (dépendances optionnelles)
-    navigateur.py               pont vers la page qui s'exécute dans le navigateur
 
-index.html                      le site : charge Pyodide, puis le simulateur
+index.html                      le site : charge les données, puis le moteur JavaScript
 .nojekyll                       servir les fichiers sans transformation
-moteur/
-  pyodide/                      CPython compilé en WebAssembly (14 Mo, versionné)
-  simulateur.zip                le modèle et les données (154 Ko, reconstruit par script)
+moteur/                         ce que le navigateur charge, et rien d'autre
+  donnees.json                  séries, tables et régimes (186 Ko, produit par script)
+  style.css                     extraite de gabarit.py (produite par script)
+  js/                           portage du modèle, sans bibliothèque ni étape de build
 
 docs/
   methodologie.md               ce que le modèle calcule, et pourquoi ainsi
   limites.md                    ce qu'il ne calcule pas, et ce qui reste à certifier
 
-tests/                          145 tests
+tests/                          145 tests Python
+  temoins/                      chiffres et pages figés depuis le modèle Python
+  js/                           le portage rejoué contre ces témoins (node --test)
 ```
 
 ---
@@ -333,9 +348,16 @@ certification, la calibration des tables de mortalité et sa concordance avec le
 tables observées, les propriétés du moteur
 (monotonie du diviseur, cliquet de l'âge de référence, règles de fusion), le
 comportement des scénarios, le rendu des pages dans les deux modes et la
-fraîcheur du paquet embarqué dans le site. Aucun test n'accède au réseau : les
+fraîcheur de ce que charge le site. Aucun test n'accède au réseau : les
 sources sont simulées. Les tests du serveur sont ignorés si ses dépendances
 optionnelles ne sont pas installées.
+
+L'un d'eux lance `node --test` pour rejouer les cas-témoins côté JavaScript ; il
+est ignoré si `node` est absent. On peut l'exécuter seul :
+
+```bash
+node --test tests/js/moteur.test.js
+```
 
 ---
 

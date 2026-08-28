@@ -292,56 +292,102 @@ def test_pas_de_renvoi_vers_l_api_dans_le_navigateur(mode_navigateur, contexte):
     assert "Les résultats complets en JSON" in corps
 
 
-def test_le_pont_du_navigateur_rend_du_json(mode_navigateur):
-    import json
-
-    from retraite_notionnelle.config import RACINE_DONNEES
-    from retraite_notionnelle.web import navigateur
-
-    navigateur.demarrer(str(RACINE_DONNEES))
-    page = json.loads(navigateur.rendre_page("/cas-types", "{}"))
-    assert page["titre"] == "Cas types"
-    assert "Le cas général" in page["corps"]
-    assert 'href="#/"' in page["entete"]
-    assert navigateur.feuille_de_style().startswith("\n:root")
-
-
-# -- paquet embarqué dans la page --------------------------------------------
+# -- ce que charge le site ---------------------------------------------------
 
 
 def _construction():
     import importlib.util
     from pathlib import Path
 
-    chemin = Path(__file__).resolve().parents[1] / "scripts" / "construire_site.py"
-    specification = importlib.util.spec_from_file_location("construire_site", chemin)
+    chemin = Path(__file__).resolve().parents[1] / "scripts" / "construire_donnees.py"
+    specification = importlib.util.spec_from_file_location("construire_donnees", chemin)
     module = importlib.util.module_from_spec(specification)
     specification.loader.exec_module(module)
     return module
 
 
 def test_le_paquet_est_a_jour():
-    """Le paquet servi au navigateur doit refléter le code du dépôt.
+    """Le paquet et la feuille de style servis au site doivent refléter le dépôt.
 
-    S'il échoue : ``python scripts/construire_site.py``.
+    S'il échoue : ``python scripts/construire_donnees.py``.
     """
     construction = _construction()
-    assert construction.PAQUET.exists(), "moteur/simulateur.zip est absent"
-    assert construction.PAQUET.read_bytes() == construction.construire(), (
-        "moteur/simulateur.zip est périmé — lancer python scripts/construire_site.py"
-    )
+    for chemin, contenu in construction.sorties().items():
+        assert chemin.exists(), f"{chemin.name} est absent"
+        assert chemin.read_bytes() == contenu, (
+            f"{chemin.name} est périmé — lancer python scripts/construire_donnees.py"
+        )
 
 
-def test_le_paquet_contient_le_moteur_et_les_donnees():
-    import zipfile
+def test_le_paquet_contient_les_donnees_du_modele():
+    import json
 
     construction = _construction()
-    with zipfile.ZipFile(construction.PAQUET) as archive:
-        noms = set(archive.namelist())
-    assert "retraite_notionnelle/simulateur.py" in noms
-    assert "retraite_notionnelle/web/navigateur.py" in noms
-    assert "data/sources.yaml" in noms
-    assert any(nom.startswith("data/reference/macro/") for nom in noms)
+    paquet = json.loads(construction.PAQUET.read_text(encoding="utf-8"))
+
+    assert paquet["version"] == construction.VERSION
+    assert {"series", "regimes", "affiliations", "quotients", "calibrations",
+            "valeurs_point", "rendements_points", "hypotheses"} <= set(paquet)
+    assert len(paquet["regimes"]) == 35
+    assert {"inflation", "salaire_moyen", "productivite", "pass"} <= set(paquet["series"])
+
+
+def test_toutes_les_calibrations_de_mortalite_sont_livrees():
+    """Le navigateur lit une table, il ne recalibre rien.
+
+    La calibration est une double bissection : la refaire dans la page coûterait
+    du temps et ferait dépendre le résultat de la ``libm`` du navigateur. On
+    vérifie donc que le paquet couvre tout le domaine où le modèle la consulte.
+    """
+    import json
+
+    from retraite_notionnelle.config import RACINE_DONNEES
+    from retraite_notionnelle.donnees.mortalite import DonneesMortalite
+
+    paquet = json.loads(_construction().PAQUET.read_text(encoding="utf-8"))
+    mortalite = DonneesMortalite(RACINE_DONNEES, cache_disque=False)
+    for sexe in DonneesMortalite.SEXES:
+        serie = mortalite._e60[sexe]
+        for annee in range(serie.premiere_annee, serie.derniere_annee + 1):
+            assert f"{annee}|{sexe}" in paquet["calibrations"]
+
+
+def test_les_temoins_du_portage_sont_a_jour():
+    """Les chiffres que doit retrouver le portage JavaScript.
+
+    S'il échoue : ``python scripts/construire_temoins.py`` — et relire le diff,
+    qui montre exactement quels montants le changement déplace.
+    """
+    import importlib.util
+    from pathlib import Path
+
+    chemin = Path(__file__).resolve().parents[1] / "scripts" / "construire_temoins.py"
+    specification = importlib.util.spec_from_file_location("construire_temoins", chemin)
+    module = importlib.util.module_from_spec(specification)
+    specification.loader.exec_module(module)
+
+    for fichier, contenu in module.construire().items():
+        assert fichier.exists(), f"{fichier.name} est absent"
+        assert fichier.read_bytes() == contenu, (
+            f"{fichier.name} est périmé — lancer python scripts/construire_temoins.py"
+        )
+
+
+def test_le_portage_javascript_retrouve_les_chiffres_du_modele():
+    """Lance ``node --test`` : le site doit calculer comme la référence Python."""
+    import shutil
+    import subprocess
+    from pathlib import Path
+
+    if shutil.which("node") is None:
+        pytest.skip("node absent : le portage JavaScript n'est pas vérifiable ici")
+
+    racine = Path(__file__).resolve().parents[1]
+    execution = subprocess.run(
+        ["node", "--test", "tests/js/moteur.test.js"],
+        cwd=racine, capture_output=True, text=True, check=False,
+    )
+    assert execution.returncode == 0, execution.stdout + execution.stderr
 
 
 def test_la_page_ne_depend_d_aucun_service_exterieur():
@@ -349,7 +395,8 @@ def test_la_page_ne_depend_d_aucun_service_exterieur():
     from pathlib import Path
 
     page = (Path(__file__).resolve().parents[1] / "index.html").read_text()
-    assert 'src="moteur/pyodide/pyodide.js"' in page
+    assert 'href="moteur/style.css"' in page
+    assert 'from "./moteur/js/pages.js"' in page
     assert "cdn.jsdelivr.net" not in page
 
     #: Seules adresses tolérées : le dépôt lui-même (liens que le lecteur suit
@@ -363,12 +410,30 @@ def test_la_page_ne_depend_d_aucun_service_exterieur():
             )
 
 
-def test_le_moteur_pyodide_est_versionne():
+def test_le_moteur_javascript_est_versionne():
+    """Le site n'a aucune étape de construction : tout ce qu'il charge est là."""
     from pathlib import Path
 
-    pyodide = Path(__file__).resolve().parents[1] / "moteur" / "pyodide"
-    attendus = {"pyodide.js", "pyodide.asm.mjs", "pyodide.asm.wasm",
-                "python_stdlib.zip", "pyodide-lock.json"}
-    presents = {chemin.name for chemin in pyodide.iterdir()}
-    assert attendus <= presents, f"manquant : {attendus - presents}"
-    assert any(nom.startswith("pyyaml-") for nom in presents)
+    moteur = Path(__file__).resolve().parents[1] / "moteur"
+    assert (moteur / "donnees.json").exists()
+    assert (moteur / "style.css").exists()
+
+    modules = {chemin.name for chemin in (moteur / "js").iterdir()}
+    attendus = {
+        "format.js", "serie.js", "config.js", "macro.js", "mortalite.js",
+        "regimes.js", "indexation.js", "conversion.js", "fusion.js",
+        "age-reference.js", "carriere.js", "compte.js", "scenario-actuel.js",
+        "scenario-notionnel.js", "simulateur.js", "castypes.js", "gabarit.js",
+        "pages.js",
+    }
+    assert attendus <= modules, f"manquant : {attendus - modules}"
+
+    #: Le portage ne tire aucune bibliothèque : il ne doit rien importer
+    #: d'autre que lui-même.
+    for chemin in (moteur / "js").iterdir():
+        for ligne in chemin.read_text(encoding="utf-8").splitlines():
+            if ligne.startswith("import ") and " from " in ligne:
+                origine = ligne.rsplit(" from ", 1)[1].strip(' ;"')
+                assert origine.startswith("./"), (
+                    f"{chemin.name} importe depuis l'extérieur : {origine}"
+                )

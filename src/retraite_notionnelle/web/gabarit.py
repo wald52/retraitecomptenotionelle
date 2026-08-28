@@ -188,9 +188,10 @@ body.calcul-en-cours main { opacity: 0.45; transition: opacity 0.2s; }
 DEPOT = "https://github.com/wald52/retraitecomptenotionelle"
 
 #: « serveur » : les pages sont servies par FastAPI, une adresse par page.
-#: « navigateur » : tout tourne dans le navigateur, la navigation se fait par
-#: l'ancre de l'adresse (``#/cas-types``). Le rendu est identique dans les deux
-#: cas ; seuls les liens changent.
+#: « navigateur » : la navigation se fait par l'ancre de l'adresse
+#: (``#/cas-types``), comme sur le site. Le rendu est identique dans les deux
+#: cas ; seuls les liens changent. Le second mode sert à produire les témoins
+#: que doit retrouver le portage JavaScript.
 MODE = "serveur"
 
 LIENS = (

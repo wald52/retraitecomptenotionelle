@@ -1,14 +1,13 @@
-"""Interface web du simulateur, servie de deux façons.
+"""Interface web du simulateur, servie par un serveur local.
 
-* **Dans le navigateur, sans rien installer** — ``docs/index.html`` exécute le
-  moteur Python dans la page elle-même (Pyodide). C'est la version publiée sur
-  GitHub Pages : une adresse à ouvrir, rien d'autre.
-* **En local, avec un serveur** — ``retraite-notionnelle web`` sert les mêmes
-  pages via FastAPI et expose en plus une API JSON. Dépendances optionnelles :
-  ``pip install -e ".[web]"``.
+``retraite-notionnelle web`` sert les pages via FastAPI et expose une API JSON.
+Dépendances optionnelles : ``pip install -e ".[web]"``.
 
-Les deux affichent exactement la même chose : le contenu est produit par
-:mod:`.pages`, qui ne dépend que de la bibliothèque standard.
+Le site publié sur GitHub Pages, lui, ne passe plus par Python : il exécute un
+portage JavaScript du modèle (``moteur/js/``), pour n'avoir à télécharger que le
+modèle et ses données plutôt qu'un interpréteur entier. Ce module reste la
+**référence** dont ce portage doit reproduire les chiffres, et
+``scripts/construire_temoins.py`` fige ici même ce qu'il doit retrouver.
 """
 
 from __future__ import annotations

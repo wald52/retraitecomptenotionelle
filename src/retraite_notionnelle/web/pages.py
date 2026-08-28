@@ -1,9 +1,9 @@
 """Contenu des pages : formulaire, résultats, cas types, méthode, données.
 
 Ce module ne dépend que de la bibliothèque standard et du moteur. Il est utilisé
-tel quel par le serveur FastAPI (:mod:`.application`) et par la version qui
-s'exécute entièrement dans le navigateur (:mod:`.navigateur`), pour que les deux
-affichent exactement la même chose.
+tel quel par le serveur FastAPI (:mod:`.application`), et sert de référence au
+portage JavaScript qui fait tourner le site (``moteur/js/pages.js``) : les deux
+rendus sont comparés caractère par caractère par ``tests/js/moteur.test.js``.
 """
 
 from __future__ import annotations
