@@ -36,6 +36,16 @@ champs_periode:
   age_ouverture:  "âge minimal de liquidation (années, décimales admises)"
   age_taux_plein: "âge d'annulation de la décote / du taux plein d'office"
   duree_requise_trimestres: "durée d'assurance requise pour le taux plein (null si sans objet)"
+  duree_requise_par_generation:
+    description: >-
+      Si vrai, la durée requise est lue dans
+      `legislation/duree_assurance_requise.csv` à l'ANNÉE DE NAISSANCE, et la
+      valeur ci-dessus ne sert que de repli pour les générations hors table.
+      C'est la règle depuis la loi du 22 juillet 1993 : deux assurés qui
+      liquident le même jour n'ont pas la même exigence s'ils ne sont pas de la
+      même génération. Absent ou faux, la durée est celle de la période, lue à
+      l'année de liquidation — ce qui reste correct avant 1993.
+    defaut: false
   taux_plein: "taux de liquidation maximal (0.50 = 50 %)"
 
   salaire_reference:

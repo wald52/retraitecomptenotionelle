@@ -15,7 +15,9 @@
  */
 
 import { formatFixe, formatPourcentage } from "./format.js";
-import { Rendements, ValeursPoint } from "./regimes.js";
+import {
+  DureesRequises, MinimumContributif, Rendements, ValeursPoint,
+} from "./regimes.js";
 import { Fiabilite } from "./serie.js";
 
 export class ScenarioActuel {
@@ -26,6 +28,8 @@ export class ScenarioActuel {
     this.parametres = parametres;
     this.rendements = new Rendements(paquet);
     this.valeursPoint = new ValeursPoint(paquet);
+    this.dureesRequises = new DureesRequises(paquet);
+    this.minimumContributif = new MinimumContributif(paquet, macro);
   }
 
   // -- valorisation des points -----------------------------------------------
@@ -88,6 +92,10 @@ export class ScenarioActuel {
    * vigueur depuis la réforme de 1993. Avant 1993 ils l'étaient sur les
    * salaires ; l'approximation retenue applique la règle des prix sur toute la
    * période, ce qui minore le salaire de référence des carrières anciennes.
+   *
+   * Le salaire retenu est celui de l'assiette du régime, et pas la
+   * rémunération entière : la pension civile porte sur le seul traitement
+   * indiciaire, primes exclues.
    */
   salaireDeReference(carriere, periode, anneeLiquidation, plafonner) {
     const revenus = [];
@@ -95,7 +103,7 @@ export class ScenarioActuel {
       if (!ligne.cotise || ligne.annee >= anneeLiquidation) {
         continue;
       }
-      let revenu = ligne.revenu;
+      let revenu = assietteDeReference(periode, ligne);
       if (plafonner) {
         revenu = Math.min(revenu, this.macro.plafond_securite_sociale.valeur(ligne.annee));
       }
@@ -132,12 +140,12 @@ export class ScenarioActuel {
    * lui a-t-elle déjà ouverts ». La proratisation par la durée continue de
    * s'appliquer.
    */
-  calculer(carriere, ignorerPenaliteAge = false) {
+  calculer(carriere, ignorerPenaliteAge = false, avantagesNonContributifs = true) {
     const anneeLiquidation = carriere.anneeLiquidation;
     const ageLiquidation = carriere.age_liquidation || 0.0;
 
     let trimestres = carriere.trimestresActuels;
-    if (this.parametres.neutralisations.majoration_duree_assurance === false) {
+    if (avantagesNonContributifs) {
       trimestres += 8 * carriere.nombre_enfants; // MDA, régime général
     }
 
@@ -146,12 +154,32 @@ export class ScenarioActuel {
     let trimestresRequis = 0;
     let tauxRetenu = 0.0;
 
+    // Indice dans `pensions` et prorata de durée des régimes de base qui
+    // portent le minimum contributif.
+    const eligiblesMinimum = [];
+
     // Cotisations cumulées par régime, pour les régimes en points dont on n'a
     // pas le prix d'achat du point ; points acquis pour les autres.
     const cumulCotisations = new Map();
     const pointsAcquis = new Map();
     const fiabilitePoints = new Map();
-    const anneesParRegime = new Map();
+    // Durée d'assurance validée dans chaque régime, PÉRIODES ASSIMILÉES
+    // COMPRISES : le coefficient de proratisation porte sur la durée
+    // d'assurance, pas sur les seules années cotisées.
+    const trimestresParRegime = new Map();
+    for (const ligne of carriere.lignes) {
+      if (ligne.annee >= anneeLiquidation) {
+        continue;
+      }
+      for (const code of this.affiliations.regimes(ligne.affiliation, ligne.annee)) {
+        if (!this.catalogue.contient(code)) {
+          continue;
+        }
+        trimestresParRegime.set(
+          code, (trimestresParRegime.get(code) ?? 0) + ligne.trimestres_valides,
+        );
+      }
+    }
 
     for (const ligne of carriere.lignes) {
       if (!ligne.cotise) {
@@ -189,7 +217,6 @@ export class ScenarioActuel {
               + cotisation * this.macro.coefficientPrix(ligne.annee, anneeLiquidation));
           }
         }
-        anneesParRegime.set(code, (anneesParRegime.get(code) ?? 0) + 1);
       }
     }
 
@@ -254,12 +281,20 @@ export class ScenarioActuel {
 
       // Régimes en annuités.
       const plafonner = ["plafonnee", "tranche_1", "tranche_a"].includes(periode.assiette);
+      const indicePension = pensions.length;
       const salaireReference = this.salaireDeReference(
         carriere, periode, anneeLiquidation, plafonner,
       );
-      const requis = periode.duree_requise_trimestres || 160;
+      let requis = periode.duree_requise_trimestres || 160;
+      if (periode.duree_requise_par_generation) {
+        const parGeneration = this.dureesRequises.trimestres(carriere.annee_naissance);
+        if (parGeneration !== null) {
+          requis = parGeneration[0];
+          fiabiliteGlobale = Math.min(fiabiliteGlobale, parGeneration[1]);
+        }
+      }
       trimestresRequis = Math.max(trimestresRequis, requis);
-      const trimestresRegime = Math.min((anneesParRegime.get(code) ?? 0) * 4, requis);
+      const trimestresRegime = Math.min(trimestresParRegime.get(code) ?? 0, requis);
 
       let taux = periode.taux_plein || 0.5;
       if (!ignorerPenaliteAge) {
@@ -274,14 +309,27 @@ export class ScenarioActuel {
           // spéciaux avant 2008) ne subissent que la proratisation.
           taux *= Math.max(0.0, 1.0 - periode.decote_par_trimestre * trimestresDecote);
         }
-        const supplementaires = Math.max(0, trimestres - requis);
+        // La surcote ne récompense que les trimestres COTISÉS APRÈS l'âge
+        // légal ET au-delà de la durée requise.
+        let supplementaires = Math.max(0, trimestres - requis);
         if (periode.surcote_par_trimestre && supplementaires > 0
             && ageLiquidation >= periode.age_ouverture) {
-          taux *= 1.0 + periode.surcote_par_trimestre * supplementaires;
+          supplementaires = Math.min(
+            supplementaires,
+            trimestresCotisesApres(carriere, periode.age_ouverture, anneeLiquidation),
+          );
+          if (supplementaires > 0) {
+            taux *= 1.0 + periode.surcote_par_trimestre * supplementaires;
+          }
         }
       }
 
       tauxRetenu = Math.max(tauxRetenu, taux);
+      if (periode.avantages_non_contributifs.includes("minimum_contributif")) {
+        // Le minimum ne relève que les régimes de base qui le portent, et au
+        // prorata de la durée acquise DANS CE régime.
+        eligiblesMinimum.push([indicePension, trimestresRegime / requis]);
+      }
       pensions.push({
         regime: code,
         montant: salaireReference * taux * (trimestresRegime / requis),
@@ -296,15 +344,28 @@ export class ScenarioActuel {
 
     // Avantages non contributifs du droit positif.
     let minimumApplique = false;
-    const neutralisations = this.parametres.neutralisations;
-    if (!neutralisations.majoration_enfants && carriere.nombre_enfants >= 3) {
+    if (avantagesNonContributifs && carriere.nombre_enfants >= 3) {
       total *= 1.1;
     }
-    if (!neutralisations.minimum_contributif) {
-      const plancher = minimumContributif(this.macro, anneeLiquidation);
-      if (total > 0 && total < plancher && trimestres > 0) {
-        total = plancher * Math.min(1.0, trimestres / Math.max(trimestresRequis, 1));
+    if (avantagesNonContributifs && eligiblesMinimum.length > 0) {
+      const [montantMinimum, plafond, fiabiliteMinimum] = this.minimumContributif
+        .valeurs(anneeLiquidation);
+      let releve = 0.0;
+      for (const [indice, prorata] of eligiblesMinimum) {
+        const plancher = montantMinimum * Math.min(1.0, prorata);
+        if (pensions[indice].montant > 0 && pensions[indice].montant < plancher) {
+          releve += plancher - pensions[indice].montant;
+        }
+      }
+      if (releve > 0) {
+        // Écrêtement : le complément est rogné de ce qui dépasse le plafond,
+        // tous régimes confondus, et jamais au-delà.
+        releve = Math.max(0.0, Math.min(releve, plafond - total));
+      }
+      if (releve > 0) {
+        total += releve;
         minimumApplique = true;
+        fiabiliteGlobale = Math.min(fiabiliteGlobale, fiabiliteMinimum);
       }
     }
 
@@ -339,11 +400,29 @@ function ajustementAgePoints(periode, ageLiquidation) {
   return Math.max(0.0, 1.0 - periode.decote_par_trimestre * trimestresManquants);
 }
 
+/** Part de la rémunération que ce régime prend en compte. */
+function assietteDeReference(periode, ligne) {
+  if (periode.assiette === "primes_uniquement") {
+    return ligne.revenu * ligne.part_primes;
+  }
+  if (periode.assiette === "hors_primes") {
+    return ligne.revenu * (1.0 - ligne.part_primes);
+  }
+  return ligne.revenu;
+}
+
 /**
- * Minimum contributif annuel, ancré sur sa valeur 2025 et déflaté : 733,03 €
- * par mois de minimum contributif majoré au 1er janvier 2025, soit 8 796 € par
- * an. Grandeur indicative, utilisée par le seul scénario « système actuel ».
+ * Trimestres cotisés à partir de l'année où l'assuré atteint ``age``. Seuls
+ * ceux-là ouvrent droit à la surcote : c'est une récompense du travail
+ * prolongé, pas de l'entrée précoce dans la vie active.
  */
-function minimumContributif(macro, annee) {
-  return 8796.0 * macro.coefficientPrix(2025, annee);
+function trimestresCotisesApres(carriere, age, anneeLiquidation) {
+  let total = 0;
+  for (const ligne of carriere.lignes) {
+    if (ligne.cotise && ligne.annee < anneeLiquidation
+        && ligne.annee - carriere.annee_naissance >= age) {
+      total += ligne.trimestres_valides;
+    }
+  }
+  return total;
 }

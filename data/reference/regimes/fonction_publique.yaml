@@ -86,6 +86,7 @@ regimes:
         age_ouverture: 60
         age_taux_plein: 65
         duree_requise_trimestres: 160
+        duree_requise_par_generation: true
         taux_plein: 0.75
         salaire_reference: derniers_6_mois
         assiette: hors_primes
@@ -104,6 +105,7 @@ regimes:
         age_ouverture: 62
         age_taux_plein: 67
         duree_requise_trimestres: 172
+        duree_requise_par_generation: true
         taux_plein: 0.75
         salaire_reference: derniers_6_mois
         assiette: hors_primes
@@ -122,6 +124,7 @@ regimes:
         age_ouverture: 64
         age_taux_plein: 67
         duree_requise_trimestres: 172
+        duree_requise_par_generation: true
         taux_plein: 0.75
         salaire_reference: derniers_6_mois
         assiette: hors_primes
@@ -173,6 +176,7 @@ regimes:
         age_ouverture: 60
         age_taux_plein: 65
         duree_requise_trimestres: 160
+        duree_requise_par_generation: true
         taux_plein: 0.75
         salaire_reference: derniers_6_mois
         assiette: hors_primes
@@ -188,6 +192,7 @@ regimes:
         age_ouverture: 64
         age_taux_plein: 67
         duree_requise_trimestres: 172
+        duree_requise_par_generation: true
         taux_plein: 0.75
         salaire_reference: derniers_6_mois
         assiette: hors_primes
@@ -235,6 +240,7 @@ regimes:
         age_ouverture: 64
         age_taux_plein: 67
         duree_requise_trimestres: 172
+        duree_requise_par_generation: true
         taux_plein: 0.75
         salaire_reference: derniers_6_mois
         assiette: hors_primes

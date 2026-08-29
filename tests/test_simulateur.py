@@ -253,19 +253,58 @@ def test_les_avantages_familiaux_ne_jouent_que_dans_le_systeme_actuel(simulateur
             == pytest.approx(sans.notionnel_retroactif.pension_annuelle))
 
 
-def test_desactiver_une_neutralisation_change_le_systeme_actuel():
-    """Contrôle : la majoration pour trois enfants existe bien dans le scénario 1."""
-    avec_majoration = Parametres(
-        neutralisations=Neutralisations(majoration_enfants=False)
-    )
-    reference = Simulateur(Parametres())
-    variante = Simulateur(avec_majoration)
+def test_le_systeme_actuel_applique_ses_avantages_sans_condition(simulateur):
+    """Le scénario 1 est le droit positif : ses minima s'appliquent toujours.
+
+    Les drapeaux :class:`Neutralisations` décrivent ce que les scénarios
+    notionnels RETIRENT. Les lire dans le scénario 1 amputait l'étalon de la
+    majoration pour trois enfants, de la MDA et du minimum contributif —
+    c'est-à-dire précisément de ce qui protège les carrières que le notionnel
+    pénalise le plus, ce qui minorait l'écart mesuré.
+    """
     commun = dict(annee_naissance=1975, sexe="F",
                   affiliation="salarie_prive_non_cadre",
-                  age_debut=22, age_liquidation=64, nombre_enfants=3)
-    sans = reference.simuler(reference.carriere_simple(**commun)).actuel.pension_annuelle
-    avec = variante.simuler(variante.carriere_simple(**commun)).actuel.pension_annuelle
-    assert avec == pytest.approx(sans * 1.10)
+                  age_debut=22, age_liquidation=64)
+    sans = simulateur.simuler(
+        simulateur.carriere_simple(**commun, nombre_enfants=0)
+    ).actuel
+    avec = simulateur.simuler(
+        simulateur.carriere_simple(**commun, nombre_enfants=3)
+    ).actuel
+
+    # Majoration de 10 % pour trois enfants, et huit trimestres par enfant.
+    assert avec.trimestres_valides == sans.trimestres_valides + 24
+    assert avec.pension_annuelle > sans.pension_annuelle * 1.09
+
+    # Les neutralisations ne doivent rien y changer : elles ne concernent que
+    # les scénarios notionnels.
+    neutralise = Simulateur(
+        Parametres(neutralisations=Neutralisations(majoration_enfants=False))
+    )
+    autre = neutralise.simuler(
+        neutralise.carriere_simple(**commun, nombre_enfants=3)
+    ).actuel
+    assert autre.pension_annuelle == pytest.approx(avec.pension_annuelle)
+
+
+def test_le_minimum_contributif_est_ecrete_pour_les_grosses_pensions(simulateur):
+    """Un cadre à carrière complète ne doit jamais toucher le minimum."""
+    carriere = simulateur.carriere_simple(
+        annee_naissance=1965, sexe="H", affiliation="salarie_prive_cadre",
+        age_debut=22, age_liquidation=64, niveau_salaire=3.0,
+    )
+    assert simulateur.simuler(carriere).actuel.minimum_applique is False
+
+
+def test_le_minimum_contributif_releve_les_petites_pensions(simulateur):
+    """Une carrière courte au SMIC relève du minimum : c'est son objet."""
+    carriere = simulateur.carriere_simple(
+        annee_naissance=1965, sexe="F", affiliation="salarie_prive_non_cadre",
+        age_debut=37, age_liquidation=62, niveau_salaire=0.4,
+        profil_carriere="plat",
+    )
+    resultat = simulateur.simuler(carriere).actuel
+    assert resultat.minimum_applique is True
 
 
 # -- restitution -------------------------------------------------------------

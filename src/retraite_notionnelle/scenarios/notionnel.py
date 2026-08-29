@@ -265,7 +265,9 @@ class ScenarioNotionnel:
             identifiant=f"{carriere.identifiant} (droits figés {bascule})",
         )
         droits = self.scenario_actuel.calculer(
-            carriere_tronquee, ignorer_penalite_age=True
+            carriere_tronquee,
+            ignorer_penalite_age=True,
+            avantages_non_contributifs=False,
         )
 
         if self.parametres.age_conversion_droits_acquis is AgeConversionDroitsAcquis.REFERENCE:

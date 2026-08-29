@@ -1,0 +1,56 @@
+# Durée d'assurance requise pour le taux plein, PAR GÉNÉRATION
+# ------------------------------------------------------------
+# source_id: legifrance_textes, cnav_circulaires
+#
+# La durée requise est indexée sur l'ANNÉE DE NAISSANCE, jamais sur l'année de
+# liquidation : deux assurés qui liquident le même jour n'ont pas la même
+# exigence s'ils ne sont pas de la même génération. C'est la règle depuis la
+# loi du 22 juillet 1993 (dite Balladur), qui a fait monter la durée de 150 à
+# 160 trimestres à raison d'un trimestre par génération, de 1934 à 1943.
+#
+# Étapes législatives reprises ici :
+#   - loi du 22 juillet 1993 : générations 1934-1943, 150 -> 160
+#   - loi du 21 août 2003 (Fillon) : générations 1949-1952, 161 -> 164
+#   - loi du 9 novembre 2010 et décrets de montée en charge : 1953-1957
+#   - loi du 20 janvier 2014 (Touraine) : 1958 et suivantes, cible 172
+#   - loi du 14 avril 2023 : accélération, cible 172 atteinte dès 1965
+#
+# La génération 1961 est coupée au 1er septembre par la loi de 2023 ; le modèle
+# ne connaît que l'année de naissance et retient la valeur de la fraction la
+# plus nombreuse de la génération, soit 168.
+#
+# Avant la génération 1934, la durée requise ne dépendait pas de la génération :
+# elle est alors lue dans la fiche du régime, à l'année de liquidation.
+generation,trimestres,fiabilite
+1934,151,haute
+1935,152,haute
+1936,153,haute
+1937,154,haute
+1938,155,haute
+1939,156,haute
+1940,157,haute
+1941,158,haute
+1942,159,haute
+1943,160,haute
+1944,160,haute
+1945,160,haute
+1946,160,haute
+1947,160,haute
+1948,160,haute
+1949,161,haute
+1950,162,haute
+1951,163,haute
+1952,164,haute
+1953,165,haute
+1954,165,haute
+1955,166,haute
+1956,166,haute
+1957,166,haute
+1958,167,haute
+1959,167,haute
+1960,167,haute
+1961,168,haute
+1962,169,haute
+1963,170,haute
+1964,171,haute
+1965,172,haute

@@ -10,6 +10,44 @@ qu'aucun résultat ne soit cité sans savoir sur quoi il repose.
 
 ---
 
+## Paramètres du scénario 1 restant à certifier
+
+Le scénario 1 sert d'étalon : ce qui n'y est pas sourcé fragilise tout le reste.
+
+| Paramètre | Valeur retenue | État |
+|---|---|---|
+| Minimum contributif majoré | 8 796 €/an (2025) | **non confronté à la source** |
+| Plafond d'écrêtement du minimum | 16 410 €/an (2025) | **non confronté à la source** |
+| Durée requise par génération | table 1934-1965, 151 → 172 trimestres | reprise des textes, non recontrôlée automatiquement |
+
+Les deux premières portent la fiabilité `estimee` et la propagent à tout
+résultat où le minimum s'applique — `retraite-notionnelle simuler` l'affiche.
+`scripts/verifier_donnees.py` ne sait pas encore les recontrôler : il n'existe
+pas de série ouverte publiée par la CNAV pour ces montants, ils figurent dans
+des circulaires. Les relever à la main à chaque revalorisation est le seul
+moyen connu à ce jour.
+
+## Écarts connus avec le droit positif, dans le scénario 1
+
+Ce qui reste approché, après la reprise du moteur :
+
+- **Trimestres validés au forfait.** Chaque année de carrière vaut quatre
+  trimestres. En droit, un trimestre s'acquiert par tranche de 150 SMIC
+  horaires : une année à temps très partiel en valide moins de quatre. Le
+  modèle surestime donc la durée d'assurance des carrières à très bas revenu
+  (en deçà d'environ 0,2 fois le salaire moyen).
+- **Le motif d'interruption n'est pas lu.** `type_periode` est enregistré mais
+  n'influence rien : toute interruption ne verse aucune cotisation, qu'elle
+  soit indemnisée ou non. Les points Agirc-Arrco financés par l'UNEDIC pendant
+  le chômage indemnisé ne sont donc pas acquis, alors que la méthode annonce
+  l'inverse.
+- **Montée en charge des réformes par palier.** Les paramètres autres que la
+  durée requise sont ceux de l'année de liquidation, sans le détail génération
+  par génération (âge légal de la loi de 2023, notamment).
+- **Majoration pour trois enfants appliquée au total.** En droit, elle vaut
+  10 % au régime général, 10 % plafonnés à l'Agirc-Arrco, et 10 % plus 5 % par
+  enfant supplémentaire dans la fonction publique.
+
 ## 1. État de certification des données
 
 `retraite-notionnelle donnees` affiche l'état exact. En résumé :

@@ -47,6 +47,11 @@ class PeriodeRegime:
     age_ouverture: float
     age_taux_plein: float
     duree_requise_trimestres: int | None
+    #: La durée requise suit-elle la génération plutôt que l'année de
+    #: liquidation ? Vrai depuis la loi Balladur pour les régimes alignés, la
+    #: loi Fillon pour la fonction publique, leurs réformes propres pour les
+    #: régimes spéciaux. La valeur ci-dessus sert alors de repli.
+    duree_requise_par_generation: bool
     taux_plein: float | None
     salaire_reference: str
     assiette: str
@@ -148,6 +153,9 @@ class CatalogueRegimes:
                 duree_requise_trimestres=(
                     None if p.get("duree_requise_trimestres") is None
                     else int(p["duree_requise_trimestres"])
+                ),
+                duree_requise_par_generation=bool(
+                    p.get("duree_requise_par_generation", False)
                 ),
                 taux_plein=None if p.get("taux_plein") is None else float(p["taux_plein"]),
                 salaire_reference=p.get("salaire_reference", "sans_objet"),

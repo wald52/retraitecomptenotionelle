@@ -167,7 +167,7 @@ export class ScenarioNotionnel {
       nombre_enfants: 0, // avantages familiaux neutralisés
       identifiant: `${carriere.identifiant} (droits figés ${bascule})`,
     });
-    const droits = this.scenarioActuel.calculer(carriereTronquee, true);
+    const droits = this.scenarioActuel.calculer(carriereTronquee, true, false);
 
     const ageConversion = this.parametres.age_conversion_droits_acquis
         === AgeConversionDroitsAcquis.REFERENCE

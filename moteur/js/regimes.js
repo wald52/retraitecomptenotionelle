@@ -1,4 +1,63 @@
 /**
+ * Durée d'assurance requise pour le taux plein, PAR GÉNÉRATION.
+ *
+ * Depuis la loi du 22 juillet 1993, l'exigence est indexée sur l'année de
+ * NAISSANCE et non sur l'année de liquidation : deux assurés qui liquident le
+ * même jour n'ont pas la même durée requise s'ils ne sont pas de la même
+ * génération.
+ */
+export class DureesRequises {
+  constructor(paquet) {
+    this._table = paquet.durees_requises ?? {};
+    const generations = Object.keys(this._table).map(Number);
+    this._derniere = generations.length ? Math.max(...generations) : null;
+  }
+
+  /** @returns {[number, number] | null} trimestres et fiabilité. */
+  trimestres(generation) {
+    if (this._derniere === null) {
+      return null;
+    }
+    if (generation > this._derniere) {
+      return this._table[String(this._derniere)];
+    }
+    return this._table[String(generation)] ?? null;
+  }
+}
+
+/**
+ * Montant du minimum contributif et plafond d'écrêtement, par année.
+ *
+ * Deux grandeurs, et pas une seule : le minimum est ÉCRÊTÉ dès que l'ensemble
+ * des pensions dépasse un plafond. Sans cette seconde condition, le modèle
+ * servait le minimum à des assurés que leurs complémentaires placent déjà
+ * bien au-dessus.
+ */
+export class MinimumContributif {
+  constructor(paquet, macro) {
+    this.macro = macro;
+    this._table = paquet.minimum_contributif ?? {};
+  }
+
+  /** @returns {[number, number, number]} montant, plafond et fiabilité. */
+  valeurs(annee) {
+    const annees = Object.keys(this._table).map(Number);
+    if (annees.length === 0) {
+      return [0.0, 0.0, 0];
+    }
+    let reference = annees[0];
+    for (const candidate of annees) {
+      if (Math.abs(candidate - annee) < Math.abs(reference - annee)) {
+        reference = candidate;
+      }
+    }
+    const [montant, plafond, fiabilite] = this._table[String(reference)];
+    const coefficient = this.macro.coefficientPrix(reference, annee);
+    return [montant * coefficient, plafond * coefficient, fiabilite];
+  }
+}
+
+/**
  * Catalogue des régimes, profils d'affiliation et barèmes du point.
  *
  * Portage de ``src/retraite_notionnelle/donnees/regimes.py``, de la classe

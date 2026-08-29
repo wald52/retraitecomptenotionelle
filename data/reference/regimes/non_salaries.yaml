@@ -110,6 +110,7 @@ regimes:
         age_ouverture: 62
         age_taux_plein: 67
         duree_requise_trimestres: 172
+        duree_requise_par_generation: true
         taux_plein: 0.50
         salaire_reference: 25_meilleures_annees
         assiette: plafonnee

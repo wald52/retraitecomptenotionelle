@@ -1,0 +1,22 @@
+# Minimum contributif : montant majoré et plafond d'écrêtement
+# -------------------------------------------------------------
+# source_id: legifrance_textes, cnav_circulaires
+#
+# ATTENTION — CES DEUX VALEURS NE SONT PAS CERTIFIÉES.
+# Elles reprennent l'ordre de grandeur en vigueur au 1er janvier 2025 mais
+# n'ont pas été confrontées à la source ; elles portent donc la fiabilité
+# `estimee` et la propagent à tout résultat où le minimum s'applique.
+# `scripts/verifier_donnees.py` ne sait pas encore les recontrôler.
+# Voir docs/limites.md.
+#
+# `montant` : minimum contributif majoré, en euros par an, avant proratisation
+#             par la durée d'assurance au régime.
+# `plafond` : montant total de pensions, tous régimes confondus, au-delà duquel
+#             le minimum est écrêté (article L. 173-2 du code de la sécurité
+#             sociale). Sans ce plafond, le minimum est versé à des assurés
+#             que leurs autres régimes placent déjà bien au-dessus.
+#
+# Les années non renseignées sont déflatées depuis la dernière connue, par
+# l'indice des prix : c'est le comportement de la classe qui lit ce fichier.
+annee,montant,plafond,fiabilite
+2025,8796.0,16410.0,estimee

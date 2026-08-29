@@ -92,6 +92,46 @@ class Rendements:
         return 0.0, Fiabilite.ESTIMEE
 
 
+class DureesRequises:
+    """Durée d'assurance requise pour le taux plein, par génération.
+
+    Depuis la loi du 22 juillet 1993, l'exigence est indexée sur l'année de
+    NAISSANCE et non sur l'année de liquidation : deux assurés qui liquident le
+    même jour n'ont pas la même durée requise s'ils ne sont pas de la même
+    génération. Lire l'exigence à l'année de liquidation, comme le faisait ce
+    module, appliquait aux générations anciennes une durée que la loi ne leur a
+    jamais opposée — et donc une décote qu'elles n'ont pas subie.
+    """
+
+    def __init__(self, racine: Path) -> None:
+        self._table: dict[int, tuple[int, Fiabilite]] = {}
+        chemin = racine / "reference" / "legislation" / "duree_assurance_requise.csv"
+        if not chemin.exists():
+            return
+        with chemin.open(encoding="utf-8") as flux:
+            lignes = (l for l in flux if not l.lstrip().startswith("#"))
+            for ligne in csv.DictReader(lignes):
+                self._table[int(ligne["generation"])] = (
+                    int(ligne["trimestres"]),
+                    Fiabilite.depuis_texte(ligne["fiabilite"]),
+                )
+
+    def trimestres(self, generation: int) -> tuple[int, Fiabilite] | None:
+        """Durée requise d'une génération, ``None`` si hors table.
+
+        Au-delà de la dernière génération renseignée, la cible est atteinte et
+        ne bouge plus : la dernière valeur vaut pour toutes les suivantes. En
+        deçà de la première, la durée ne dépendait pas encore de la génération —
+        on renvoie ``None`` pour que la fiche du régime reprenne la main.
+        """
+        if not self._table:
+            return None
+        derniere = max(self._table)
+        if generation > derniere:
+            return self._table[derniere]
+        return self._table.get(generation)
+
+
 class ValeursPoint:
     """Prix d'achat et valeur de service du point, régime par régime et année.
 
@@ -176,6 +216,8 @@ class ScenarioActuel:
         self.parametres = parametres
         self.rendements = Rendements(parametres.racine_donnees)
         self.valeurs_point = ValeursPoint(parametres.racine_donnees)
+        self.durees_requises = DureesRequises(parametres.racine_donnees)
+        self.minimum_contributif = MinimumContributif(parametres.racine_donnees, macro)
 
     # -- valorisation des points ---------------------------------------------
 
@@ -236,12 +278,18 @@ class ScenarioActuel:
         salaires ; l'approximation retenue applique la règle des prix sur toute
         la période, ce qui minore le salaire de référence des carrières
         anciennes.
+
+        Le salaire retenu est celui de l'assiette du régime, et pas la
+        rémunération entière : la pension civile porte sur le seul traitement
+        indiciaire, primes exclues. C'est le paramètre qui commande le taux de
+        remplacement d'un fonctionnaire, puisque les primes n'ouvrent de droit
+        qu'au RAFP.
         """
         revenus: list[float] = []
         for ligne in carriere.lignes:
             if not ligne.cotise or ligne.annee >= annee_liquidation:
                 continue
-            revenu = ligne.revenu
+            revenu = _assiette_de_reference(periode, ligne)
             if plafonner:
                 revenu = min(revenu, self.macro.plafond_securite_sociale(ligne.annee))
             revenus.append(revenu * self.macro.coefficient_prix(ligne.annee, annee_liquidation))
@@ -265,7 +313,8 @@ class ScenarioActuel:
     # -- calcul --------------------------------------------------------------
 
     def calculer(self, carriere: Carriere,
-                 ignorer_penalite_age: bool = False) -> ResultatActuel:
+                 ignorer_penalite_age: bool = False,
+                 avantages_non_contributifs: bool = True) -> ResultatActuel:
         """Pension servie par le système en vigueur.
 
         ``ignorer_penalite_age`` neutralise la décote et la surcote liées à
@@ -275,12 +324,25 @@ class ScenarioActuel:
         droits sa carrière lui a-t-elle déjà ouverts ». La proratisation par la
         durée, elle, continue de s'appliquer : une carrière courte ouvre bien
         des droits proportionnellement plus faibles.
+
+        ``avantages_non_contributifs`` commande le minimum contributif, la
+        majoration pour trois enfants et la majoration de durée d'assurance.
+        Il vaut VRAI par défaut, et il doit le rester : ce scénario décrit le
+        droit positif, il sert d'étalon, et un étalon amputé de ses minima
+        sous-estime le système actuel là où il protège le plus — petites
+        pensions et carrières de mères de famille. Seule la valorisation des
+        droits acquis du scénario prospectif le met à faux, parce qu'elle
+        mesure du contributif pur.
+
+        Les drapeaux :class:`Neutralisations` ne sont PAS lus ici : ils
+        décrivent ce que les scénarios notionnels retirent, pas ce que le droit
+        en vigueur accorde.
         """
         annee_liquidation = carriere.annee_liquidation
         age_liquidation = carriere.age_liquidation or 0.0
 
         trimestres = carriere.trimestres_actuels
-        if self.parametres.neutralisations.majoration_duree_assurance is False:
+        if avantages_non_contributifs:
             trimestres += 8 * carriere.nombre_enfants  # MDA, régime général
 
         pensions: list[PensionRegime] = []
@@ -288,12 +350,31 @@ class ScenarioActuel:
         trimestres_requis = 0
         taux_retenu = 0.0
 
+        #: Indice dans ``pensions`` et prorata de durée des régimes de base qui
+        #: portent le minimum contributif.
+        eligibles_minimum: list[tuple[int, float]] = []
+
         # Cotisations cumulées par régime, pour les régimes en points dont on
         # n'a pas le prix d'achat du point ; points acquis pour les autres.
         cumul_cotisations: dict[str, float] = {}
         points_acquis: dict[str, float] = {}
         fiabilite_points: dict[str, Fiabilite] = {}
-        annees_par_regime: dict[str, int] = {}
+        # Durée d'assurance validée dans chaque régime, PÉRIODES ASSIMILÉES
+        # COMPRISES : le coefficient de proratisation du régime général porte
+        # sur la durée d'assurance, pas sur les seules années cotisées. Une
+        # année de chômage indemnisé ne verse rien au compte mais compte bien
+        # dans le rapport durée acquise / durée requise.
+        trimestres_par_regime: dict[str, int] = {}
+
+        for ligne in carriere.lignes:
+            if ligne.annee >= annee_liquidation:
+                continue
+            for code in self.affiliations.regimes(ligne.affiliation, ligne.annee):
+                if code not in self.catalogue:
+                    continue
+                trimestres_par_regime[code] = (
+                    trimestres_par_regime.get(code, 0) + ligne.trimestres_valides
+                )
 
         for ligne in carriere.lignes:
             if not ligne.cotise:
@@ -331,7 +412,6 @@ class ScenarioActuel:
                             cotisation
                             * self.macro.coefficient_prix(ligne.annee, annee_liquidation)
                         )
-                annees_par_regime[code] = annees_par_regime.get(code, 0) + 1
 
         for code in sorted(set(cumul_cotisations) | set(points_acquis)):
             cumul = cumul_cotisations.get(code, 0.0)
@@ -388,8 +468,15 @@ class ScenarioActuel:
                 carriere, periode, annee_liquidation, plafonner
             )
             requis = periode.duree_requise_trimestres or 160
+            if periode.duree_requise_par_generation:
+                par_generation = self.durees_requises.trimestres(
+                    carriere.annee_naissance
+                )
+                if par_generation is not None:
+                    requis, fiabilite_duree = par_generation
+                    fiabilite_globale = min(fiabilite_globale, fiabilite_duree)
             trimestres_requis = max(trimestres_requis, requis)
-            trimestres_regime = min(annees_par_regime.get(code, 0) * 4, requis)
+            trimestres_regime = min(trimestres_par_regime.get(code, 0), requis)
 
             taux = periode.taux_plein or 0.5
             if not ignorer_penalite_age:
@@ -404,13 +491,28 @@ class ScenarioActuel:
                     # régimes spéciaux avant 2008) ne subissent que la
                     # proratisation : leur `decote_par_trimestre` est nul.
                     taux *= max(0.0, 1.0 - periode.decote_par_trimestre * trimestres_decote)
+                # La surcote ne récompense que les trimestres COTISÉS APRÈS
+                # l'âge légal ET au-delà de la durée requise. Les compter tous
+                # majorait la pension de qui a commencé tôt sans jamais
+                # travailler au-delà de l'âge d'ouverture.
                 supplementaires = max(0, trimestres - requis)
                 if (periode.surcote_par_trimestre and supplementaires > 0
                         and age_liquidation >= periode.age_ouverture):
-                    taux *= 1.0 + periode.surcote_par_trimestre * supplementaires
+                    supplementaires = min(
+                        supplementaires,
+                        _trimestres_cotises_apres(
+                            carriere, periode.age_ouverture, annee_liquidation
+                        ),
+                    )
+                    if supplementaires > 0:
+                        taux *= 1.0 + periode.surcote_par_trimestre * supplementaires
 
             taux_retenu = max(taux_retenu, taux)
             montant = salaire_reference * taux * (trimestres_regime / requis)
+            if "minimum_contributif" in periode.avantages_non_contributifs:
+                # Le minimum ne relève que les régimes de base qui le portent,
+                # et au prorata de la durée acquise DANS CE régime.
+                eligibles_minimum.append((len(pensions), trimestres_regime / requis))
             pensions.append(PensionRegime(
                 regime=code, montant=montant, type_calcul="annuites",
                 detail=(
@@ -424,14 +526,26 @@ class ScenarioActuel:
 
         # Avantages non contributifs du droit positif.
         minimum_applique = False
-        neutralisations = self.parametres.neutralisations
-        if not neutralisations.majoration_enfants and carriere.nombre_enfants >= 3:
+        if avantages_non_contributifs and carriere.nombre_enfants >= 3:
             total *= 1.10
-        if not neutralisations.minimum_contributif:
-            plancher = _minimum_contributif(self.macro, annee_liquidation)
-            if 0 < total < plancher and trimestres > 0:
-                total = plancher * min(1.0, trimestres / max(trimestres_requis, 1))
+        if avantages_non_contributifs and eligibles_minimum:
+            montant_minimum, plafond, fiabilite_minimum = (
+                self.minimum_contributif.valeurs(annee_liquidation)
+            )
+            releve = 0.0
+            for indice, prorata in eligibles_minimum:
+                pension = pensions[indice]
+                plancher = montant_minimum * min(1.0, prorata)
+                if 0 < pension.montant < plancher:
+                    releve += plancher - pension.montant
+            if releve > 0:
+                # Écrêtement : le complément est rogné de ce qui dépasse le
+                # plafond, tous régimes confondus, et jamais au-delà.
+                releve = max(0.0, min(releve, plafond - total))
+            if releve > 0:
+                total += releve
                 minimum_applique = True
+                fiabilite_globale = min(fiabilite_globale, fiabilite_minimum)
 
         return ResultatActuel(
             pension_annuelle=total,
@@ -442,6 +556,37 @@ class ScenarioActuel:
             minimum_applique=minimum_applique,
             fiabilite=fiabilite_globale,
         )
+
+
+def _trimestres_cotises_apres(carriere: Carriere, age: float,
+                              annee_liquidation: int) -> int:
+    """Trimestres cotisés à partir de l'année où l'assuré atteint ``age``.
+
+    Seuls ceux-là ouvrent droit à la surcote : c'est une récompense du travail
+    prolongé, pas de l'entrée précoce dans la vie active.
+    """
+    return sum(
+        ligne.trimestres_valides
+        for ligne in carriere.lignes
+        if ligne.cotise
+        and ligne.annee < annee_liquidation
+        and ligne.annee - carriere.annee_naissance >= age
+    )
+
+
+def _assiette_de_reference(periode: PeriodeRegime, ligne) -> float:
+    """Part de la rémunération que ce régime prend en compte.
+
+    Même découpage que dans la boucle de cotisation : un régime qui ne cotise
+    que sur le traitement indiciaire ne peut pas liquider sur la rémunération
+    primes comprises, sans quoi les primes ouvriraient deux fois des droits —
+    au RAFP et à la pension civile — alors qu'elles n'en ouvrent qu'au RAFP.
+    """
+    if periode.assiette == "primes_uniquement":
+        return ligne.revenu * ligne.part_primes
+    if periode.assiette == "hors_primes":
+        return ligne.revenu * (1.0 - ligne.part_primes)
+    return ligne.revenu
 
 
 def _derniere_annee(regime) -> int:
@@ -458,12 +603,38 @@ def _ajustement_age_points(periode: PeriodeRegime, age_liquidation: float) -> fl
     return max(0.0, 1.0 - periode.decote_par_trimestre * trimestres_manquants)
 
 
-def _minimum_contributif(macro: DonneesMacro, annee: int) -> float:
-    """Minimum contributif annuel, ancré sur sa valeur 2025 et déflaté.
+class MinimumContributif:
+    """Montant du minimum contributif et plafond d'écrêtement, par année.
 
-    Valeur de référence : 733,03 €/mois de minimum contributif majoré au
-    1er janvier 2025, soit 8 796 € par an. Grandeur indicative, utilisée
-    uniquement par le scénario « système actuel ».
+    Deux grandeurs, et pas une seule : le minimum ne se contente pas de
+    relever une petite pension de base, il est ÉCRÊTÉ dès que l'ensemble des
+    pensions de l'assuré dépasse un plafond (article L. 173-2). Sans cette
+    seconde condition, le modèle servait le minimum à des assurés que leurs
+    régimes complémentaires placent déjà bien au-dessus.
+
+    Les deux valeurs sont pour l'instant `estimee` : elles n'ont pas été
+    confrontées à la source, et le résultat qui les emploie en hérite.
     """
-    reference_annee, reference_valeur = 2025, 8796.0
-    return reference_valeur * macro.coefficient_prix(reference_annee, annee)
+
+    def __init__(self, racine: Path, macro: DonneesMacro) -> None:
+        self.macro = macro
+        self._table: dict[int, tuple[float, float, Fiabilite]] = {}
+        chemin = racine / "reference" / "legislation" / "minimum_contributif.csv"
+        if not chemin.exists():
+            return
+        with chemin.open(encoding="utf-8") as flux:
+            lignes = (l for l in flux if not l.lstrip().startswith("#"))
+            for ligne in csv.DictReader(lignes):
+                self._table[int(ligne["annee"])] = (
+                    float(ligne["montant"]), float(ligne["plafond"]),
+                    Fiabilite.depuis_texte(ligne["fiabilite"]),
+                )
+
+    def valeurs(self, annee: int) -> tuple[float, float, Fiabilite]:
+        """Montant et plafond de l'année, déflatés depuis l'année connue."""
+        if not self._table:
+            return 0.0, 0.0, Fiabilite.ESTIMEE
+        reference = min(self._table, key=lambda a: abs(a - annee))
+        montant, plafond, fiabilite = self._table[reference]
+        coefficient = self.macro.coefficient_prix(reference, annee)
+        return montant * coefficient, plafond * coefficient, fiabilite

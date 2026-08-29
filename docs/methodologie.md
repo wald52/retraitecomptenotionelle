@@ -200,7 +200,17 @@ Sont **supprimés** dans les scénarios notionnels — tous activés par défaut
 | carrières longues | dispositif d'âge, remplacé par l'actuariel |
 | décote et surcote | remplacées par le coefficient de conversion |
 
-Le scénario 1 les conserve **toutes** : c'est le droit positif, il sert d'étalon.
+Le scénario 1 les conserve **toutes**, sans condition : c'est le droit positif,
+il sert d'étalon. Les drapeaux ci-dessus ne sont pas lus par le scénario 1 —
+ils décrivent ce que les scénarios notionnels retirent, pas ce que le droit en
+vigueur accorde. Les lire des deux côtés amputait l'étalon du minimum
+contributif, de la majoration pour trois enfants et de la MDA, c'est-à-dire
+précisément de ce qui protège les carrières que le notionnel pénalise le plus :
+l'écart mesuré s'en trouvait minoré.
+
+Une seule exception, et elle est explicite : la valorisation des droits acquis
+du scénario 3 appelle le scénario 1 avec `avantages_non_contributifs=False`,
+parce qu'elle mesure du contributif pur.
 
 Le critère retenu pour une période non cotisée est **le versement effectif de
 cotisations**, pas la nature de la période. Une période de chômage indemnisé
