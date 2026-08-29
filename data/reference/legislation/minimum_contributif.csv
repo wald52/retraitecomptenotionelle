@@ -14,8 +14,19 @@
 #                  est rogné.
 #
 # CE SONT DES ANCRES DATÉES, PAS DES SÉRIES. Le code n'est pas modifié chaque
-# année : les montants sont revalorisés par l'effet de la loi. La colonne
-# `annee` porte donc la date d'effet de l'ancre, et le modèle revalorise :
+# année : les montants sont revalorisés par l'effet de la loi, et l'article est
+# réécrit plus souvent qu'il n'est revalorisé — ses versions de 2009 et de 2020
+# répètent le montant de 2007 sans y toucher. Une ancre est donc un montant qui
+# CHANGE, et le récupérateur ne garde que la première année où chaque valeur
+# apparaît, c'est-à-dire le décret qui l'a fixée.
+#
+# Le modèle retient ensuite l'ancre la PLUS PROCHE de l'année demandée, et non
+# la dernière en vigueur : entre deux décrets le montant dérive d'autant plus
+# qu'on s'éloigne de l'ancre, le législateur ayant parfois gelé la
+# revalorisation. La reconstitution tombe alors à 2 % près sur quinze ans, et
+# exactement sur les années récentes.
+#
+# La colonne `annee` porte la date d'effet de l'ancre, et le modèle revalorise :
 #
 #   * sur le SMIC à partir de cette date — c'est la règle, depuis février 2014
 #     pour le plafond et depuis la réforme du 14 avril 2023 pour les deux
@@ -25,8 +36,9 @@
 #
 # Le contrôle est immédiat, et il tombe juste : l'ancre de 2014 rapportée au
 # SMIC de 2025 redonne 1 396 €/mois là où les caisses publient 1 394,86 €, et
-# celle de 2023 redonne 8 970 €/an là où elles publient 8 972,28 €. Deux
-# chemins indépendants qui se rejoignent à 0,03 % près.
+# celle de 2023 redonne 8 970 €/an là où elles publient 8 972,28 €, 10 721 €
+# pour le majoré contre 10 720,68. Deux chemins indépendants qui se rejoignent
+# à 0,03 % près.
 #
 # Montants EN EUROS PAR AN. Le plafond est publié au mois (1 120 €) : il est
 # porté ici à l'année.
@@ -34,6 +46,9 @@
 # Fichier écrit par scripts/verifier_donnees.py --appliquer, qui le confronte à
 # scripts/fetch/dila_legi_minimum_contributif.py.
 mesure,annee,valeur,fiabilite
-montant_base,2023,8509.610000,haute
-montant_majore,2023,10170.860000,haute
-plafond_ecretement,2014,13440.000000,haute
+montant_base,2007,6958.210000,certifiee
+montant_base,2023,8509.610000,certifiee
+montant_majore,2007,7603.410000,certifiee
+montant_majore,2023,10170.860000,certifiee
+plafond_ecretement,2012,12060.000000,certifiee
+plafond_ecretement,2014,13440.000000,certifiee

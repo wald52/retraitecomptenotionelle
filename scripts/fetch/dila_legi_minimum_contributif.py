@@ -182,23 +182,36 @@ def main() -> int:
               f"{', '.join(ARTICLES)} dans le dump", file=sys.stderr)
         return 1
 
-    # On garde la version la plus récente de chaque article : ce sont des
-    # ancres, pas des séries, et c'est l'ancre en vigueur qui vaut.
-    serie: dict[str, float] = {}
-    ancres: dict[str, int] = {}
+    # Une ancre est un montant qui CHANGE. L'article est réécrit plus souvent
+    # qu'il n'est revalorisé — les versions de 2009 et de 2020 répètent le
+    # montant de 2007 sans y toucher, la revalorisation annuelle se faisant par
+    # l'effet de la loi et non par modification du code. Retenir chacune comme
+    # une ancre fraîche remettrait le compteur à zéro et perdrait treize ans de
+    # revalorisation ; on ne garde donc que la PREMIÈRE année où chaque valeur
+    # apparaît, c'est-à-dire le décret qui l'a fixée.
+    lues: dict[str, list[tuple[int, float]]] = {}
     for article, debut, corps in sorted(versions, key=lambda v: (v[0], v[1])):
         annee = int(debut[:4]) if debut[:4].isdigit() else 0
         if article == "D351-2-1":
-            trouves = montants(corps)
-            for mesure, valeur in trouves.items():
-                serie[f"{mesure}|{annee}"] = valeur
-                ancres[mesure] = annee
+            for mesure, valeur in montants(corps).items():
+                lues.setdefault(mesure, []).append((annee, valeur))
         else:
             lu = plafond(corps)
             if lu is not None:
                 annee_effet, valeur = lu
-                serie[f"plafond_ecretement|{annee_effet}"] = valeur
-                ancres["plafond_ecretement"] = annee_effet
+                lues.setdefault("plafond_ecretement", []).append(
+                    (annee_effet, valeur))
+
+    serie: dict[str, float] = {}
+    ancres: dict[str, int] = {}
+    for mesure, relevees in lues.items():
+        precedente = None
+        for annee, valeur in sorted(relevees):
+            if precedente is not None and abs(valeur - precedente) < 1e-9:
+                continue  # même montant redit : ce n'est pas une nouvelle ancre
+            serie[f"{mesure}|{annee}"] = valeur
+            ancres[mesure] = annee
+            precedente = valeur
 
     for cle, valeur in sorted(serie.items()):
         mesure, _, annee = cle.partition("|")

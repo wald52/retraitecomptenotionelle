@@ -19,6 +19,15 @@
    "source": "INSEE BDM, idbanks 000008965 et 001764363",
    "valeurs": 76
   },
+  "minimum_contributif": {
+   "ajoutees": 0,
+   "corrigees": 0,
+   "empreinte": "86693c4efe70d0d7",
+   "identiques": 6,
+   "niveau": "certifiee",
+   "source": "DILA, base LEGI, code de la sécurité sociale D. 351-2-1 et D. 173-21-0-0-1",
+   "valeurs": 6
+  },
   "plafond": {
    "ajoutees": 0,
    "corrigees": 0,

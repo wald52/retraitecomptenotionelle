@@ -1098,6 +1098,19 @@ def _derniere_annee(regime) -> int:
     return min(max(annees), 2100) if annees else 2100
 
 
+#: Année à partir de laquelle chaque montant suit le SMIC et non plus les prix.
+#: Le plafond d'écrêtement bascule avec le décret du 14 février 2014, qui le
+#: revalorise « aux mêmes dates et dans les mêmes proportions que le salaire
+#: minimum de croissance » (D. 173-21-0-0-1) ; les deux minima basculent avec
+#: la réforme du 14 avril 2023. Avant ces dates, ils suivaient les prix, comme
+#: les pensions.
+INDEXATION_SUR_LE_SMIC = {
+    "montant_base": 2023,
+    "montant_majore": 2023,
+    "plafond_ecretement": 2014,
+}
+
+
 class MinimumContributif:
     """Minimum contributif, minimum majoré et plafond d'écrêtement.
 
@@ -1138,25 +1151,33 @@ class MinimumContributif:
     def _revalorise(self, mesure: str, annee: int) -> tuple[float, Fiabilite]:
         """Ancre de la mesure, portée à l'année demandée.
 
-        L'ancre retenue est la DERNIÈRE en vigueur à cette date — une valeur
-        reste opposable jusqu'à ce qu'un décret la remplace, et l'article en a
-        connu plusieurs. En deçà de la première, c'est elle qu'on projette en
-        arrière, faute de mieux.
+        L'ancre retenue est la PLUS PROCHE dans le temps, et non la dernière en
+        vigueur. Ce n'est pas une lecture de barème mais une minimisation
+        d'erreur : entre deux décrets, le montant servi est revalorisé chaque
+        année sans que le code bouge, si bien qu'une ancre projetée dérive
+        d'autant plus qu'on s'en éloigne — et le législateur a parfois gelé la
+        revalorisation, ce qu'aucun indice ne reproduit. Pour 2020, l'ancre de
+        2023 ramenée en arrière tombe à 3 % du montant réellement servi, celle
+        de 2007 projetée en avant à 6 %.
 
-        En avant de l'ancre, la revalorisation se fait sur le SMIC : c'est la
-        règle que la loi énonce. En arrière, sur les prix : c'est celle qui
-        s'appliquait alors.
+        L'index, lui, ne dépend pas de l'ancre mais de l'ANNÉE TRAVERSÉE : les
+        prix jusqu'à la bascule que la loi a fixée pour cette grandeur, le SMIC
+        ensuite. Un montant ancré en 2009 et lu en 2015 se revalorise donc sur
+        les prix, règle d'alors, quand le même ancré en 2023 et lu en 2025 se
+        revalorise sur le SMIC. Prendre l'index de l'ancre plutôt que celui de
+        la période appliquerait à quinze ans de revalorisations une règle que
+        la loi n'a introduite qu'en 2023.
         """
         ancres = sorted(a for (m, a) in self._table if m == mesure)
         if not ancres:
             return 0.0, Fiabilite.ESTIMEE
-        anterieures = [a for a in ancres if a <= annee]
-        reference = max(anterieures) if anterieures else ancres[0]
+        reference = min(ancres, key=lambda a: (abs(a - annee), a))
         valeur, fiabilite = self._table[(mesure, reference)]
-        coefficient = (
-            self.macro.coefficient_smic(reference, annee) if annee >= reference
-            else self.macro.coefficient_prix(reference, annee)
-        )
+
+        bascule = INDEXATION_SUR_LE_SMIC[mesure]
+        pivot = min(max(reference, bascule), annee)
+        coefficient = (self.macro.coefficient_prix(reference, pivot)
+                       * self.macro.coefficient_smic(pivot, annee))
         return valeur * coefficient, fiabilite
 
     def valeurs(self, annee: int,

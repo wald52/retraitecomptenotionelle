@@ -109,6 +109,17 @@ export class AnneesSalaireReference extends TableParGeneration {
  * faire, et sur le bon index — le SMIC à partir de la date d'effet, les prix
  * avant elle.
  */
+/**
+ * Année à partir de laquelle chaque montant suit le SMIC et non plus les prix :
+ * le plafond d'écrêtement depuis le décret du 14 février 2014, les deux minima
+ * depuis la réforme du 14 avril 2023. Avant, ils suivaient les prix.
+ */
+export const INDEXATION_SUR_LE_SMIC = Object.freeze({
+  montant_base: 2023,
+  montant_majore: 2023,
+  plafond_ecretement: 2014,
+});
+
 export class MinimumContributif {
   constructor(paquet, macro) {
     this.macro = macro;
@@ -118,9 +129,12 @@ export class MinimumContributif {
   /**
    * Ancre de la mesure, portée à l'année demandée.
    *
-   * L'ancre retenue est la DERNIÈRE en vigueur à cette date — une valeur reste
-   * opposable jusqu'à ce qu'un décret la remplace. En avant d'elle la
-   * revalorisation se fait sur le SMIC, en arrière sur les prix.
+   * L'ancre retenue est la PLUS PROCHE dans le temps : entre deux décrets le
+   * montant servi est revalorisé sans que le code bouge, si bien qu'une ancre
+   * projetée dérive d'autant plus qu'on s'en éloigne.
+   *
+   * L'index, lui, dépend de l'ANNÉE TRAVERSÉE et non de l'ancre : les prix
+   * jusqu'à la bascule que la loi a fixée pour cette grandeur, le SMIC ensuite.
    *
    * @returns {[number, number]} ancre revalorisée, et fiabilité.
    */
@@ -132,14 +146,17 @@ export class MinimumContributif {
     if (ancres.length === 0) {
       return [0.0, 0];
     }
-    const anterieures = ancres.filter((a) => a <= annee);
-    const reference = anterieures.length
-      ? anterieures[anterieures.length - 1]
-      : ancres[0];
+    let reference = ancres[0];
+    for (const candidate of ancres) {
+      if (Math.abs(candidate - annee) < Math.abs(reference - annee)) {
+        reference = candidate;
+      }
+    }
     const [valeur, fiabilite] = this._table[`${mesure}|${reference}`];
-    const coefficient = annee >= reference
-      ? this.macro.coefficientSmic(reference, annee)
-      : this.macro.coefficientPrix(reference, annee);
+    const bascule = INDEXATION_SUR_LE_SMIC[mesure];
+    const pivot = Math.min(Math.max(reference, bascule), annee);
+    const coefficient = this.macro.coefficientPrix(reference, pivot)
+      * this.macro.coefficientSmic(pivot, annee);
     return [valeur * coefficient, fiabilite];
   }
 

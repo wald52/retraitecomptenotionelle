@@ -13,18 +13,16 @@ qu'aucun résultat ne soit cité sans savoir sur quoi il repose.
 ## Paramètres du scénario 1, et ce qu'ils valent
 
 Le scénario 1 sert d'étalon : ce qui n'y est pas sourcé fragilise tout le reste.
-Les trois premières lignes viennent de changer de statut : elles ont désormais
-un chemin de certification, ce que cette page tenait pour impossible. Elles
-portent `haute` tant que `scripts/verifier_donnees.py --appliquer` n'a pas
-tourné avec le récupérateur — c'est lui qui les passera à `certifiee`. Les
-suivantes restent saisies depuis les textes, faute d'un chemin automatisable :
-Légifrance refuse les requêtes non navigateur et son API demande une clé.
+Les trois premières lignes viennent d'en sortir : elles sont désormais
+confrontées à la loi elle-même, et non plus saisies de mémoire. Les suivantes
+restent saisies depuis les textes, faute d'un chemin automatisable : Légifrance
+refuse les requêtes non navigateur et son API demande une clé.
 
 | Paramètre | Valeur retenue | État |
 |---|---|---|
-| Minimum contributif | 8 509,61 €/an au 1er septembre 2023 | code de la sécurité sociale D. 351-2-1, **récupérable par script** |
-| Minimum contributif majoré | 10 170,86 €/an au 1er septembre 2023 | même article, même chemin |
-| Plafond d'écrêtement du minimum | 1 120 €/mois au 1er février 2014 | D. 173-21-0-0-1, même chemin |
+| Minimum contributif | ancres 2007 et 2023, 6 958,21 → 8 509,61 €/an | **certifié**, code de la sécurité sociale D. 351-2-1 |
+| Minimum contributif majoré | ancres 2007 et 2023, 7 603,41 → 10 170,86 €/an | **certifié**, même article |
+| Plafond d'écrêtement du minimum | ancres 2012 et 2014, 1 005 → 1 120 €/mois | **certifié**, D. 173-21-0-0-1 |
 | Durée requise par génération | table 1934-1965, 151 → 172 trimestres | reprise des textes, non recontrôlée automatiquement |
 | Âge légal par génération | table 1930-1968, 60 → 64 ans | reprise des textes, non recontrôlée automatiquement |
 | Âge d'annulation de la décote par génération | table 1930-1955, 65 → 67 ans | reprise des textes, non recontrôlée automatiquement |
@@ -66,13 +64,22 @@ Trois corrections en découlent, et aucune n'est cosmétique.
    sur le SMIC à partir de la date d'effet de l'ancre, sur les prix avant elle,
    règle qui s'appliquait alors.
 3. **Ce ne sont pas des séries mais des ancres datées** : le code n'est pas
-   modifié chaque année, les montants sont revalorisés par l'effet de la loi.
-   C'est donc au modèle de les porter à l'année de liquidation — et le contrôle
-   tombe juste. L'ancre de 2014 rapportée au SMIC de 2025 redonne 1 396 €/mois
-   là où les caisses publient 1 394,86 € ; celle de 2023 redonne 8 970 €/an là
-   où elles publient 8 972,28 €, et 10 721 € pour le majoré là où elles
-   publient 10 720,68 €. Deux chemins indépendants qui se rejoignent à 0,03 %
-   près.
+   modifié chaque année, les montants sont revalorisés par l'effet de la loi —
+   et l'article est réécrit plus souvent qu'il n'est revalorisé. Ses versions de
+   2009 et de 2020 répètent le montant de 2007 sans y toucher : les retenir
+   comme des ancres fraîches remettrait le compteur à zéro et perdrait treize
+   ans de revalorisation. Une ancre est donc un montant qui CHANGE, et il n'y
+   en a que deux par grandeur.
+
+   C'est ensuite au modèle de porter l'ancre à l'année de liquidation, en
+   retenant la PLUS PROCHE — entre deux décrets le montant dérive d'autant plus
+   qu'on s'en éloigne, le législateur ayant parfois gelé la revalorisation, ce
+   qu'aucun indice ne reproduit. Le contrôle tombe alors à 2 % près sur quinze
+   ans et juste sur les années récentes : 8 797 €/an calculés pour 2024 contre
+   8 796 publiés, 8 970 pour 2025 contre 8 972, 10 721 pour le majoré contre
+   10 720,68, et le plafond de 2014 rapporté au SMIC de 2025 redonne
+   1 396 €/mois là où les caisses publient 1 394,86 €. Deux chemins
+   indépendants qui se rejoignent.
 
 ## Écarts connus avec le droit positif, dans le scénario 1
 
@@ -137,7 +144,7 @@ Ce qui reste approché :
 | Quotients de mortalité par âge | 1986-2024 | **certifiée** | Eurostat `demo_mlifetable`, âges 0-94 |
 | Quotients de mortalité par âge | 1899-1985 | **certifiée** | INED, tables de Vallin et Meslé, âges 0-104 |
 | Quotients de mortalité par âge | après 1985, au-delà de 94 ans | absents | calibration paramétrique |
-| Minimum contributif et plafond d'écrêtement | ancres de 2014 et 2023 | haute | DILA, base LEGI, code de la sécurité sociale |
+| Minimum contributif et plafond d'écrêtement | ancres de 2007 à 2014 | **certifiée** | DILA, base LEGI, code de la sécurité sociale |
 | Plafond Sécurité sociale | 2002-2025 | **certifiée** | INSEE BDM, idbank 000822494 |
 | Plafond Sécurité sociale | 1931-2001 | haute | OpenFisca-France, daté décret par décret |
 | Taux de cotisation, régime général | 1967-2026 | moyenne | OpenFisca-France, recoupé à chaque exécution |
@@ -569,7 +576,7 @@ extensible : ajouter un régime consiste à écrire une fiche YAML conforme à
   remplacer : les récupérateurs sont indépendants et lents, on ne lance
   presque jamais les treize d'un coup, et réécrire le journal à partir des
   seules sources présentes ce jour-là effaçait la trace de toutes les autres.
-- 165 tests couvrent le chargement, la fiabilité, la règle de certification, la
+- 166 tests couvrent le chargement, la fiabilité, la règle de certification, la
   concordance des tables de mortalité observées avec les espérances publiées, les
   propriétés du moteur et le comportement des scénarios : `python -m pytest tests`.
   Aucun test n'accède au réseau : les sources sont simulées.

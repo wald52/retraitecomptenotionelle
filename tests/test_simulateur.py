@@ -1160,21 +1160,48 @@ def test_le_minimum_contributif_distingue_le_montant_majore(simulateur):
 def test_le_minimum_contributif_est_revalorise_sur_le_smic(simulateur):
     """Le SMIC, et non les prix : c'est ce que la loi dit depuis 2014 et 2023.
 
-    L'ancre est datée — le code n'est pas modifié chaque année, les montants
-    sont revalorisés par l'effet de la loi. Les revaloriser sur les prix les
-    décrochait d'autant que le SMIC a progressé plus vite.
+    L'index ne dépend pas de l'ancre mais de l'ANNÉE TRAVERSÉE. Prendre celui
+    de l'ancre appliquerait à quinze ans de revalorisations une règle que la
+    loi n'a introduite qu'en 2023.
     """
     minimum = simulateur.scenario_actuel.minimum_contributif
     macro = simulateur.macro
 
+    # Le plafond bascule sur le SMIC en 2014 : de son ancre à aujourd'hui,
+    # c'est le SMIC et rien que lui — et il monte plus vite que les prix.
     ancre, _ = minimum._revalorise("plafond_ecretement", 2014)
     porte, _ = minimum._revalorise("plafond_ecretement", 2025)
     assert porte == pytest.approx(ancre * macro.coefficient_smic(2014, 2025))
     assert porte > ancre * macro.coefficient_prix(2014, 2025)
 
-    # En arrière de l'ancre, c'est la règle d'alors qui vaut : les prix.
-    avant, _ = minimum._revalorise("plafond_ecretement", 2000)
-    assert avant == pytest.approx(ancre * macro.coefficient_prix(2014, 2000))
+    # Les deux minima ne basculent qu'en 2023. Une année antérieure se
+    # revalorise donc sur les prix, depuis l'ancre de 2007.
+    depuis_2007, _ = minimum._revalorise("montant_base", 2007)
+    en_2012, _ = minimum._revalorise("montant_base", 2012)
+    assert en_2012 == pytest.approx(depuis_2007 * macro.coefficient_prix(2007, 2012))
+
+
+def test_l_ancre_du_minimum_la_plus_proche_est_retenue(simulateur):
+    """Une ancre projetée dérive : on prend la moins lointaine.
+
+    L'article est réécrit plus souvent qu'il n'est revalorisé — ses versions de
+    2009 et 2020 répètent le montant de 2007 — et le législateur a parfois gelé
+    la revalorisation, ce qu'aucun indice ne reproduit. La reconstitution reste
+    à quelques pour cent des montants publiés sur quinze ans, et tombe juste
+    sur les années récentes.
+    """
+    minimum = simulateur.scenario_actuel.minimum_contributif
+    ancres = sorted(a for (mesure, a) in minimum._table if mesure == "montant_base")
+    assert ancres == [2007, 2023], "les montants redits ne sont pas des ancres"
+
+    publies = {2010: 7452, 2015: 7548, 2020: 7746, 2024: 8796, 2025: 8972}
+    for annee, publie in publies.items():
+        calcule, _ = minimum._revalorise("montant_base", annee)
+        assert calcule == pytest.approx(publie, rel=0.03), annee
+    # Sur les années récentes, l'ancre de 2023 est à portée : l'écart s'efface.
+    for annee in (2024, 2025):
+        calcule, _ = minimum._revalorise("montant_base", annee)
+        assert calcule == pytest.approx(publies[annee], rel=0.001), annee
 
 
 def test_la_carriere_complete_ouvre_le_minimum_majore(simulateur):
