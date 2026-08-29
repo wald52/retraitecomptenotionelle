@@ -45,9 +45,14 @@ export const CAS_TYPES = [
     age_debut: 21, age_liquidation: 64, niveau_salaire: 0.9,
     sexe: "F", nombre_enfants: 2,
     interruptions_relatives: [8, 9, 10, 11, 12].map((d) => [d, "education_enfant"]),
-    commentaire: "Cinq années sans cotisation. Le système actuel les compense par "
-      + "l'AVPF et la majoration de durée d'assurance ; le compte notionnel ne "
-      + "compense rien. Écart maximal entre les scénarios.",
+    commentaire: "Cinq années sans cotisation. Le système actuel les couvre par "
+      + "des trimestres assimilés, par l'AVPF — qui porte au compte un salaire au "
+      + "SMIC — et par la majoration de durée d'assurance ; le compte notionnel ne "
+      + "couvre rien. Les deux premiers ne se voient guère ici : sur une carrière "
+      + "de plus de vingt-cinq années portées au compte, les années au SMIC "
+      + "n'entrent pas dans les vingt-cinq meilleures, et les trimestres assimilés "
+      + "ne servent que si la durée requise n'est pas atteinte. C'est un résultat, "
+      + "pas une omission.",
   },
   {
     code: "fonctionnaire_sedentaire",

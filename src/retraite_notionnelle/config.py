@@ -160,8 +160,22 @@ class Neutralisations:
     cotisations comptent ».
 
     Chaque drapeau à ``True`` signifie : ce droit est SUPPRIMÉ dans les
-    scénarios notionnels. Le scénario « système actuel » les conserve tous,
-    puisqu'il décrit le droit positif.
+    scénarios notionnels. Ces drapeaux ne sont jamais lus par le scénario
+    « système actuel » : ils décrivent ce que les scénarios notionnels retirent,
+    pas ce que le droit en vigueur accorde.
+
+    **Ce que le scénario 1 sert vraiment**, et il ne l'a pas toujours fait :
+    minimum contributif, minimum garanti, minimum vieillesse, majoration pour
+    enfants, majoration de durée d'assurance, AVPF, périodes assimilées,
+    garantie minimale de points, carrière longue, décote et surcote.
+
+    **Ce qu'il ne sert pas**, et qu'il ne peut donc pas retirer : la réversion,
+    qui concerne le conjoint survivant et non l'assuré ; les bonifications et la
+    catégorie active, qui supposent de connaître le corps d'appartenance ; la
+    pension majorée de référence du régime agricole ; les coefficients de
+    solidarité et majorants de l'Agirc-Arrco, dispositif éteint dont l'effet
+    temporaire serait représenté faussement par un modèle qui ne calcule qu'une
+    pension annuelle unique. Voir ``docs/limites.md``.
     """
 
     minimum_contributif: bool = True
