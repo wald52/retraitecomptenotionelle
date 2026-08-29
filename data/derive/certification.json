@@ -1,5 +1,5 @@
 {
- "certifie_le": "2026-08-13",
+ "certifie_le": "2026-08-29",
  "series": {
   "esperances_vie": {
    "ajoutees": 0,
@@ -54,6 +54,15 @@
    "niveau": "certifiee",
    "source": "Eurostat demo_mlifetable, quotients de mortalité par âge",
    "valeurs": 6850
+  },
+  "quotients_mortalite_anciens": {
+   "ajoutees": 0,
+   "corrigees": 0,
+   "empreinte": "f8ebae8e98ffe4d9",
+   "identiques": 18226,
+   "niveau": "certifiee",
+   "source": "INED, tables de Vallin et Meslé, quotients du moment par âge",
+   "valeurs": 18226
   },
   "salaire_moyen": {
    "ajoutees": 0,

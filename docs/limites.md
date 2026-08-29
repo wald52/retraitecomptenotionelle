@@ -10,14 +10,21 @@ qu'aucun résultat ne soit cité sans savoir sur quoi il repose.
 
 ---
 
-## Paramètres du scénario 1 restant à certifier
+## Paramètres du scénario 1, et ce qu'ils valent
 
 Le scénario 1 sert d'étalon : ce qui n'y est pas sourcé fragilise tout le reste.
+Les trois premières lignes viennent de changer de statut : elles ont désormais
+un chemin de certification, ce que cette page tenait pour impossible. Elles
+portent `haute` tant que `scripts/verifier_donnees.py --appliquer` n'a pas
+tourné avec le récupérateur — c'est lui qui les passera à `certifiee`. Les
+suivantes restent saisies depuis les textes, faute d'un chemin automatisable :
+Légifrance refuse les requêtes non navigateur et son API demande une clé.
 
 | Paramètre | Valeur retenue | État |
 |---|---|---|
-| Minimum contributif majoré | 8 796 €/an (2025) | **non confronté à la source** |
-| Plafond d'écrêtement du minimum | 16 410 €/an (2025) | **non confronté à la source** |
+| Minimum contributif | 8 509,61 €/an au 1er septembre 2023 | code de la sécurité sociale D. 351-2-1, **récupérable par script** |
+| Minimum contributif majoré | 10 170,86 €/an au 1er septembre 2023 | même article, même chemin |
+| Plafond d'écrêtement du minimum | 1 120 €/mois au 1er février 2014 | D. 173-21-0-0-1, même chemin |
 | Durée requise par génération | table 1934-1965, 151 → 172 trimestres | reprise des textes, non recontrôlée automatiquement |
 | Âge légal par génération | table 1930-1968, 60 → 64 ans | reprise des textes, non recontrôlée automatiquement |
 | Âge d'annulation de la décote par génération | table 1930-1955, 65 → 67 ans | reprise des textes, non recontrôlée automatiquement |
@@ -27,19 +34,45 @@ Le scénario 1 sert d'étalon : ce qui n'y est pas sourcé fragilise tout le res
 | Plafond de la majoration familiale Agirc-Arrco | 2 367 €/an (novembre 2025) | publié par la caisse, saisi |
 | Droits ouverts par motif d'interruption | 9 motifs | principe sourcé, fractions non recontrôlées |
 
-Le minimum contributif ne figure dans **aucune source machine ouverte** : ni
-l'INSEE, ni OpenFisca-France, qui modélise le socio-fiscal mais pas la
-liquidation des retraites. Ses montants sont publiés dans des circulaires
-CNAV, en PDF. Il n'y a donc pas de chemin de certification automatique à
-écrire, et la vérification reste manuelle à chaque revalorisation. C'est la
-seule grandeur du scénario 1 dans ce cas.
+**Le minimum contributif est sorti de cette liste, et c'est la même leçon que
+pour la MSA.** Cette page a longtemps écrit qu'il ne figurait « dans aucune
+source machine ouverte », que ses montants n'étaient publiés que dans des
+circulaires CNAV en PDF, et qu'il n'y avait donc « pas de chemin de
+certification automatique à écrire ». C'était faux, et pour la même raison que
+la fois précédente : *la donnée est dans la loi, et il fallait chercher par le
+numéro d'article.* Deux articles suffisent :
 
-Les deux premières portent la fiabilité `estimee` et la propagent à tout
-résultat où le minimum s'applique — `retraite-notionnelle simuler` l'affiche.
-`scripts/verifier_donnees.py` ne sait pas encore les recontrôler : il n'existe
-pas de série ouverte publiée par la CNAV pour ces montants, ils figurent dans
-des circulaires. Les relever à la main à chaque revalorisation est le seul
-moyen connu à ce jour.
+* **D. 351-2-1** du code de la sécurité sociale porte les DEUX montants — le
+  minimum, et le minimum majoré au titre des périodes cotisées ;
+* **D. 173-21-0-0-1** porte le plafond d'écrêtement de l'article L. 173-2, et
+  dit dans la même phrase comment il se revalorise : « aux mêmes dates et dans
+  les mêmes proportions que le salaire minimum de croissance ».
+
+`scripts/fetch/dila_legi_minimum_contributif.py` les lit dans la base LEGI, en
+flux, comme celui de la MSA.
+
+Trois corrections en découlent, et aucune n'est cosmétique.
+
+1. **Le montant retenu était le mauvais.** La ligne portait 8 796 €/an sous le
+   libellé « majoré » : c'est en réalité le minimum NON majoré de 2024. Le
+   majoré vaut près d'un cinquième de plus, et c'est lui qui s'applique à une
+   carrière complète — c'est-à-dire au cas même que le minimum contributif est
+   fait de protéger. Le moteur distingue désormais les deux, sur la condition
+   de droit : la durée COTISÉE, dont les trimestres assimilés et ceux de la
+   majoration de durée d'assurance sont exclus.
+2. **La revalorisation se faisait sur le mauvais index.** Les trois montants
+   suivent le SMIC — le plafond depuis février 2014, les deux minima depuis la
+   réforme du 14 avril 2023 — et non les prix. Le modèle les indexe maintenant
+   sur le SMIC à partir de la date d'effet de l'ancre, sur les prix avant elle,
+   règle qui s'appliquait alors.
+3. **Ce ne sont pas des séries mais des ancres datées** : le code n'est pas
+   modifié chaque année, les montants sont revalorisés par l'effet de la loi.
+   C'est donc au modèle de les porter à l'année de liquidation — et le contrôle
+   tombe juste. L'ancre de 2014 rapportée au SMIC de 2025 redonne 1 396 €/mois
+   là où les caisses publient 1 394,86 € ; celle de 2023 redonne 8 970 €/an là
+   où elles publient 8 972,28 €, et 10 721 € pour le majoré là où elles
+   publient 10 720,68 €. Deux chemins indépendants qui se rejoignent à 0,03 %
+   près.
 
 ## Écarts connus avec le droit positif, dans le scénario 1
 
@@ -102,7 +135,9 @@ Ce qui reste approché :
 | Espérance de vie à 65 ans | 1960-2024 | **certifiée** | OCDE `DSD_HEALTH_STAT@DF_LE` |
 | Espérance de vie à 65 ans | 1946-1959 | haute / moyenne | tables TD/TV, saisies |
 | Quotients de mortalité par âge | 1986-2024 | **certifiée** | Eurostat `demo_mlifetable`, âges 0-94 |
-| Quotients de mortalité par âge | avant 1986, grands âges | absents | calibration paramétrique |
+| Quotients de mortalité par âge | 1899-1985 | **certifiée** | INED, tables de Vallin et Meslé, âges 0-104 |
+| Quotients de mortalité par âge | après 1985, au-delà de 94 ans | absents | calibration paramétrique |
+| Minimum contributif et plafond d'écrêtement | ancres de 2014 et 2023 | haute | DILA, base LEGI, code de la sécurité sociale |
 | Plafond Sécurité sociale | 2002-2025 | **certifiée** | INSEE BDM, idbank 000822494 |
 | Plafond Sécurité sociale | 1931-2001 | haute | OpenFisca-France, daté décret par décret |
 | Taux de cotisation, régime général | 1967-2026 | moyenne | OpenFisca-France, recoupé à chaque exécution |
@@ -130,6 +165,8 @@ python scripts/fetch/cdc_ircantec.py           # barèmes Ircantec, par son gest
 python scripts/fetch/cnbf_baremes.py           # valeurs du point des avocats
 python scripts/fetch/cnavpl_recueils.py        # valeur du point des professions libérales
 python scripts/fetch/dila_legi_msa.py          # point de la complémentaire agricole (lent : 1,1 Go)
+python scripts/fetch/dila_legi_minimum_contributif.py  # minimum contributif et plafond (lent aussi)
+python scripts/fetch/ined_vallin_mesle.py      # quotients de mortalité d'avant 1986
 python scripts/fetch/eurostat_hicp.py          # contrôle croisé de l'inflation
 
 python scripts/verifier_donnees.py             # confronte, sans rien écrire
@@ -199,18 +236,54 @@ qui a été cherché, pour éviter de le rechercher deux fois.
   franc-euro de l'INSEE (calcul côté navigateur, coefficients non exposés), les
   longues séries de prix de la BRI (débutent en 1951), Eurostat (1996), les
   données de la Banque mondiale (1960). Le tableau « IPC depuis 1901 » n'existe
-  qu'en fichier tableur, à déposer dans `data/brut/`.
+  qu'en fichier tableur. Ce n'est plus le format qui bloque — `lecture_xls.py`
+  ouvre les classeurs Excel 97 depuis les tables de mortalité de l'INED — c'est
+  l'adresse : la page de l'INSEE qui porte ce tableau ne sert qu'un
+  convertisseur, sans lien de téléchargement. Le jour où l'adresse est connue,
+  le chemin est court.
+* *Quotients de mortalité par âge d'avant 1986* — **trouvés.** Cette page
+  écrivait que la Human Mortality Database était « seule à couvrir la France
+  depuis 1816 » et que son inscription obligatoire la mettait hors de portée
+  d'un script. Elle n'est pas seule : Jacques Vallin et France Meslé ont
+  reconstitué les tables françaises de 1806 à 1997, l'INED les a publiées en
+  2001, et l'INED en sert librement le contenu du cédérom. Le tableau II-B-1
+  donne exactement ce qui manquait — « quotients du moment par année d'âge, de
+  0 à 104 ans » — pour les deux sexes.
+
+  Le dépôt en reprend **1899-1985**, soit 18 226 quotients, et laisse à
+  Eurostat, producteur de la donnée observée, tout ce qui suit. Les deux
+  sources se recouvrent en fait de 1986 à 1997 : sur ces douze années et
+  85 âges, elles concordent à un écart médian de 0,4 à 0,7 %. C'est ce
+  recoupement qui autorise à les aboucher.
+
+  Le fichier est un classeur Excel 97, format que la bibliothèque standard ne
+  sait pas ouvrir. Comme pour les PDF de la CNBF, on a donc écrit le lecteur :
+  `scripts/fetch/lecture_xls.py` extrait les nombres d'un fichier composite
+  OLE2, en quatre types d'enregistrements BIFF et sans dépendance.
+
 * *Espérance de vie à 65 ans d'avant 1960* — l'INSEE publie e0, e1, e20, e40 et
-  e60, jamais e65. Ni l'OCDE (1960) ni Eurostat (1986) ne remontent plus haut.
-  La Human Mortality Database, seule à couvrir la France depuis 1816, exige une
-  inscription : elle n'est donc pas récupérable par script.
-* *Quotients de mortalité par âge d'avant 1986, et au-delà de 94 ans* — Eurostat
-  n'y publie rien, et ses classes ouvertes (85 et plus, 95 et plus) ne sont pas
-  des quotients à un âge donné. Au-delà du dernier âge publié, le modèle
-  reprend sa loi de Gompertz-Makeham : c'est un raccord assumé.
+  e60, jamais e65 ; ni l'OCDE (1960) ni Eurostat (1986) ne remontent plus haut.
+  La question a toutefois perdu de son poids : sur 1899-1985, le modèle
+  n'estime plus la mortalité, il la lit. L'espérance de vie à 65 ans n'y sert
+  plus qu'à calibrer une loi dont ces années n'ont plus besoin, et elle reste
+  dérivable des mêmes tables INED si le besoin revient.
+
+* *Quotients de mortalité au-delà de 94 ans, depuis 1986* — Eurostat s'arrête à
+  94 ans et ses classes ouvertes (85 et plus, 95 et plus) ne sont pas des
+  quotients à un âge donné. Au-delà, sur ces années-là, le modèle reprend sa
+  loi de Gompertz-Makeham : c'est un raccord assumé, mais il ne concerne plus
+  que les années postérieures à 1986. L'INED couvre 1986-1997 jusqu'à 104 ans
+  et pourrait combler ces douze années ; on s'en est abstenu pour ne pas
+  panacher deux sources sur une même année.
+
 * *Taux de cotisation d'avant octobre 1967 et des régimes autres que le régime
   général* — aucune transcription machine n'existe. Ils viennent des
-  ordonnances de 1945 et de leurs modificatifs, saisis à la main.
+  ordonnances de 1945 et de leurs modificatifs, saisis à la main. Ont été
+  essayés sans succès, pour éviter de refaire le trajet : les barèmes IPP, qui
+  sont la source amont d'OpenFisca et ne commencent pas plus tôt que lui pour
+  la CNAV (1967) ; et la Banque de données macroéconomiques de l'INSEE, dont la
+  série de taux de cotisation vieillesse (idbank 000483633) ne porte que la
+  part salariale et ne débute qu'en juillet 1993.
 * *Valeur du point de la MSA* — **trouvée, après huit sources infructueuses.**
   Ont été essayés sans succès : OpenFisca-France-Pension (ne modélise pas ce
   régime), les barèmes IPP (même périmètre — c'est la source amont d'OpenFisca,
@@ -326,11 +399,25 @@ qui a été cherché, pour éviter de le rechercher deux fois.
 
   C'est la seule des trois caisses à rester dans cet état. La CNAVPL et la MSA
   en sont sorties par le même chemin — scinder la fiche, puis lire le barème en
-  points plutôt que d'attendre un prix d'achat — mais ce chemin ne mène nulle
-  part ici : le complémentaire des avocats est un barème par classe et par
-  tranche de revenu, dont les taux vont de 5,2 % à 20,4 %. Sans cette grille, et
-  sans une décision sur la classe par défaut, scinder la fiche remplacerait une
-  approximation documentée par une autre qui ne le serait pas.
+  points plutôt que d'attendre un prix d'achat. Ici le chemin est différent, et
+  ce qui manque a changé de nature : **la grille est là.** Le barème que
+  `scripts/fetch/cnbf_baremes.py` télécharge déjà porte, outre les deux valeurs
+  du point, tout ce qu'il faudrait pour scinder la fiche :
+
+  * la cotisation FORFAITAIRE du régime de base, par année d'ancienneté — 351 €
+    la première année, 1 921 € à partir de la sixième et pour les avocats de
+    65 ans et plus (barème 2025) ;
+  * la cotisation PROPORTIONNELLE de base, 3,20 % du revenu net, plafonnée ;
+  * la grille du complémentaire, par classe et par tranche de revenu : trois
+    classes (C1, C2, C2+) et cinq tranches, de 7,00 % à 15,10 % en classe C1.
+
+  Ce qui bloque n'est donc plus une donnée mais **deux décisions de
+  modélisation**, et elles appartiennent à qui tient le modèle : quelle classe
+  retenir par défaut — C1 est l'obligatoire, mais ce n'est pas la plus répandue
+  — et comment exprimer des tranches fixées en euros dans un moteur dont toutes
+  les assiettes sont en plafonds de la Sécurité sociale. Trancher au jugé
+  remplacerait une approximation documentée par une autre qui ne le serait pas ;
+  la fiche reste donc agrégée, et le dit.
 
   Au passage, ces valeurs éclairent l'estimation en place : un rendement agrégé
   de 6,5 % pour l'ensemble base + complémentaire est cohérent avec un
@@ -478,8 +565,11 @@ extensible : ajouter un régime consiste à écrire une fiche YAML conforme à
 - La calibration des tables de mortalité est mémorisée dans
   `data/derive/calibrations_mortalite.json`, régénérable en supprimant le fichier.
 - La certification des séries est tracée dans `data/derive/certification.json`,
-  régénérable par `scripts/verifier_donnees.py --appliquer`.
-- 159 tests couvrent le chargement, la fiabilité, la règle de certification, la
+  que `scripts/verifier_donnees.py --appliquer` COMPLÈTE au lieu de le
+  remplacer : les récupérateurs sont indépendants et lents, on ne lance
+  presque jamais les treize d'un coup, et réécrire le journal à partir des
+  seules sources présentes ce jour-là effaçait la trace de toutes les autres.
+- 165 tests couvrent le chargement, la fiabilité, la règle de certification, la
   concordance des tables de mortalité observées avec les espérances publiées, les
   propriétés du moteur et le comportement des scénarios : `python -m pytest tests`.
   Aucun test n'accède au réseau : les sources sont simulées.

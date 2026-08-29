@@ -191,6 +191,19 @@ class DonneesMacro:
             return coefficient
         return 1.0 / self.coefficient_prix(annee_arrivee, annee_depart)
 
+    def coefficient_smic(self, annee_depart: int, annee_arrivee: int) -> float:
+        """Coefficient de passage par le SMIC, d'une année à l'autre.
+
+        Plusieurs montants du droit positif ne suivent ni les prix ni les
+        salaires mais **le salaire minimum de croissance** : le plafond
+        d'écrêtement du minimum contributif depuis février 2014, les deux
+        montants du minimum lui-même depuis la réforme du 14 avril 2023. Les
+        revaloriser sur les prix, comme le faisait le modèle, les décrochait
+        d'autant que le SMIC a progressé plus vite.
+        """
+        depart = self.smic_horaire(annee_depart)
+        return self.smic_horaire(annee_arrivee) / depart if depart > 0 else 1.0
+
     def coefficient_revalorisation_salaires(self, annee_depart: int,
                                             annee_arrivee: int) -> float:
         """Revalorisation d'un salaire porté au compte, de ``annee_depart`` à

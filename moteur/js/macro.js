@@ -159,6 +159,19 @@ export class DonneesMacro {
   }
 
   /**
+   * Coefficient de passage par le SMIC, d'une année à l'autre.
+   *
+   * Plusieurs montants du droit positif ne suivent ni les prix ni les salaires
+   * mais le SALAIRE MINIMUM DE CROISSANCE : le plafond d'écrêtement du minimum
+   * contributif depuis février 2014, les deux montants du minimum lui-même
+   * depuis la réforme du 14 avril 2023.
+   */
+  coefficientSmic(depart, arrivee) {
+    const valeurDepart = this.smic_horaire.valeur(depart);
+    return valeurDepart > 0 ? this.smic_horaire.valeur(arrivee) / valeurDepart : 1.0;
+  }
+
+  /**
    * Revalorisation d'un salaire porté au compte, de ``depart`` à ``arrivee``.
    *
    * Ce n'est pas l'indice des prix. Les salaires inscrits au compte sont

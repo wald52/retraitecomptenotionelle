@@ -998,8 +998,19 @@ class ScenarioActuel:
                 ))
 
         if avantages_non_contributifs and eligibles_minimum:
+            # Le minimum MAJORÉ ne récompense que les périodes cotisées : les
+            # trimestres assimilés et ceux de la MDA n'y ouvrent pas droit.
+            # C'est près d'un cinquième de plus, et c'est le montant qui vaut
+            # pour une carrière complète — le cas que le minimum est fait pour
+            # protéger.
+            trimestres_cotises = sum(
+                ligne.trimestres_valides for ligne in carriere.lignes
+                if ligne.cotise and ligne.annee < annee_liquidation
+            )
             montant_minimum, plafond, fiabilite_minimum = (
-                self.minimum_contributif.valeurs(annee_liquidation)
+                self.minimum_contributif.valeurs(
+                    annee_liquidation, trimestres_cotises >= requis_reference
+                )
             )
             releve = 0.0
             for indice, prorata in eligibles_minimum:
@@ -1088,37 +1099,80 @@ def _derniere_annee(regime) -> int:
 
 
 class MinimumContributif:
-    """Montant du minimum contributif et plafond d'écrêtement, par année.
+    """Minimum contributif, minimum majoré et plafond d'écrêtement.
 
-    Deux grandeurs, et pas une seule : le minimum ne se contente pas de
-    relever une petite pension de base, il est ÉCRÊTÉ dès que l'ensemble des
-    pensions de l'assuré dépasse un plafond (article L. 173-2). Sans cette
-    seconde condition, le modèle servait le minimum à des assurés que leurs
-    régimes complémentaires placent déjà bien au-dessus.
+    Trois grandeurs, et pas une seule :
 
-    Les deux valeurs sont pour l'instant `estimee` : elles n'ont pas été
-    confrontées à la source, et le résultat qui les emploie en hérite.
+    * le **minimum**, auquel est portée la pension de base d'un assuré au taux
+      plein, au prorata de sa durée dans le régime ;
+    * le **minimum majoré**, servi à sa place quand la durée COTISÉE atteint la
+      durée requise — près d'un cinquième au-dessus du premier ;
+    * le **plafond d'écrêtement** de l'article L. 173-2 : le complément est
+      rogné dès que l'ensemble des pensions dépasse ce total. Sans cette
+      condition, le modèle servait le minimum à des assurés que leurs régimes
+      complémentaires placent déjà bien au-dessus.
+
+    Les trois sont des **ancres datées**, lues dans le code de la sécurité
+    sociale (D. 351-2-1 et D. 173-21-0-0-1) et non dans une série annuelle : le
+    code n'est pas modifié chaque année, les montants sont revalorisés par
+    l'effet de la loi. C'est donc au modèle de le faire, et sur le bon index —
+    **le SMIC** à partir de la date d'effet, les prix avant elle. Les
+    revaloriser sur les prix comme le faisait ce module les décrochait d'autant
+    que le SMIC a progressé plus vite.
     """
 
     def __init__(self, racine: Path, macro: DonneesMacro) -> None:
         self.macro = macro
-        self._table: dict[int, tuple[float, float, Fiabilite]] = {}
+        self._table: dict[tuple[str, int], tuple[float, Fiabilite]] = {}
         chemin = racine / "reference" / "legislation" / "minimum_contributif.csv"
         if not chemin.exists():
             return
         with chemin.open(encoding="utf-8") as flux:
             lignes = (l for l in flux if not l.lstrip().startswith("#"))
             for ligne in csv.DictReader(lignes):
-                self._table[int(ligne["annee"])] = (
-                    float(ligne["montant"]), float(ligne["plafond"]),
+                self._table[(ligne["mesure"], int(ligne["annee"]))] = (
+                    float(ligne["valeur"]),
                     Fiabilite.depuis_texte(ligne["fiabilite"]),
                 )
 
-    def valeurs(self, annee: int) -> tuple[float, float, Fiabilite]:
-        """Montant et plafond de l'année, déflatés depuis l'année connue."""
+    def _revalorise(self, mesure: str, annee: int) -> tuple[float, Fiabilite]:
+        """Ancre de la mesure, portée à l'année demandée.
+
+        L'ancre retenue est la DERNIÈRE en vigueur à cette date — une valeur
+        reste opposable jusqu'à ce qu'un décret la remplace, et l'article en a
+        connu plusieurs. En deçà de la première, c'est elle qu'on projette en
+        arrière, faute de mieux.
+
+        En avant de l'ancre, la revalorisation se fait sur le SMIC : c'est la
+        règle que la loi énonce. En arrière, sur les prix : c'est celle qui
+        s'appliquait alors.
+        """
+        ancres = sorted(a for (m, a) in self._table if m == mesure)
+        if not ancres:
+            return 0.0, Fiabilite.ESTIMEE
+        anterieures = [a for a in ancres if a <= annee]
+        reference = max(anterieures) if anterieures else ancres[0]
+        valeur, fiabilite = self._table[(mesure, reference)]
+        coefficient = (
+            self.macro.coefficient_smic(reference, annee) if annee >= reference
+            else self.macro.coefficient_prix(reference, annee)
+        )
+        return valeur * coefficient, fiabilite
+
+    def valeurs(self, annee: int,
+                majore: bool = False) -> tuple[float, float, Fiabilite]:
+        """Montant applicable et plafond de l'année.
+
+        ``majore`` dit si l'assuré remplit la condition de durée COTISÉE qui
+        ouvre le montant majoré. Le distinguer n'est pas un raffinement : entre
+        les deux, il y a près d'un cinquième d'écart, et c'est le majoré qui
+        vaut pour une carrière complète — c'est-à-dire pour le cas que le
+        minimum contributif est fait pour protéger.
+        """
         if not self._table:
             return 0.0, 0.0, Fiabilite.ESTIMEE
-        reference = min(self._table, key=lambda a: abs(a - annee))
-        montant, plafond, fiabilite = self._table[reference]
-        coefficient = self.macro.coefficient_prix(reference, annee)
-        return montant * coefficient, plafond * coefficient, fiabilite
+        montant, fiabilite_montant = self._revalorise(
+            "montant_majore" if majore else "montant_base", annee
+        )
+        plafond, fiabilite_plafond = self._revalorise("plafond_ecretement", annee)
+        return montant, plafond, min(fiabilite_montant, fiabilite_plafond)

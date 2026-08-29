@@ -96,12 +96,18 @@ export class AnneesSalaireReference extends TableParGeneration {
 }
 
 /**
- * Montant du minimum contributif et plafond d'écrêtement, par année.
+ * Minimum contributif, minimum majoré et plafond d'écrêtement.
  *
- * Deux grandeurs, et pas une seule : le minimum est ÉCRÊTÉ dès que l'ensemble
- * des pensions dépasse un plafond. Sans cette seconde condition, le modèle
- * servait le minimum à des assurés que leurs complémentaires placent déjà
- * bien au-dessus.
+ * Trois grandeurs : le minimum auquel est portée la pension de base, le
+ * minimum MAJORÉ servi à sa place quand la durée cotisée atteint la durée
+ * requise, et le plafond de l'article L. 173-2 au-delà duquel le complément
+ * est rogné.
+ *
+ * Les trois sont des ANCRES DATÉES, lues dans le code de la sécurité sociale
+ * et non dans une série annuelle : le code n'est pas modifié chaque année, les
+ * montants sont revalorisés par l'effet de la loi. C'est donc au modèle de le
+ * faire, et sur le bon index — le SMIC à partir de la date d'effet, les prix
+ * avant elle.
  */
 export class MinimumContributif {
   constructor(paquet, macro) {
@@ -109,21 +115,44 @@ export class MinimumContributif {
     this._table = paquet.minimum_contributif ?? {};
   }
 
+  /**
+   * Ancre de la mesure, portée à l'année demandée.
+   *
+   * L'ancre retenue est la DERNIÈRE en vigueur à cette date — une valeur reste
+   * opposable jusqu'à ce qu'un décret la remplace. En avant d'elle la
+   * revalorisation se fait sur le SMIC, en arrière sur les prix.
+   *
+   * @returns {[number, number]} ancre revalorisée, et fiabilité.
+   */
+  _revalorise(mesure, annee) {
+    const ancres = Object.keys(this._table)
+      .filter((cle) => cle.startsWith(`${mesure}|`))
+      .map((cle) => Number(cle.split("|")[1]))
+      .sort((a, b) => a - b);
+    if (ancres.length === 0) {
+      return [0.0, 0];
+    }
+    const anterieures = ancres.filter((a) => a <= annee);
+    const reference = anterieures.length
+      ? anterieures[anterieures.length - 1]
+      : ancres[0];
+    const [valeur, fiabilite] = this._table[`${mesure}|${reference}`];
+    const coefficient = annee >= reference
+      ? this.macro.coefficientSmic(reference, annee)
+      : this.macro.coefficientPrix(reference, annee);
+    return [valeur * coefficient, fiabilite];
+  }
+
   /** @returns {[number, number, number]} montant, plafond et fiabilité. */
-  valeurs(annee) {
-    const annees = Object.keys(this._table).map(Number);
-    if (annees.length === 0) {
+  valeurs(annee, majore = false) {
+    if (Object.keys(this._table).length === 0) {
       return [0.0, 0.0, 0];
     }
-    let reference = annees[0];
-    for (const candidate of annees) {
-      if (Math.abs(candidate - annee) < Math.abs(reference - annee)) {
-        reference = candidate;
-      }
-    }
-    const [montant, plafond, fiabilite] = this._table[String(reference)];
-    const coefficient = this.macro.coefficientPrix(reference, annee);
-    return [montant * coefficient, plafond * coefficient, fiabilite];
+    const [montant, fiabiliteMontant] = this._revalorise(
+      majore ? "montant_majore" : "montant_base", annee,
+    );
+    const [plafond, fiabilitePlafond] = this._revalorise("plafond_ecretement", annee);
+    return [montant, plafond, Math.min(fiabiliteMontant, fiabilitePlafond)];
   }
 }
 

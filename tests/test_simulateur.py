@@ -1130,3 +1130,102 @@ def test_la_complementaire_agricole_ouvre_cent_points_a_l_assiette_minimale(simu
     # 2003 à 2023 inclus, cent points par an au minimum.
     assert points == pytest.approx(100 * 21, rel=0.01)
     assert pension.montant > 0
+
+
+# -- minimum contributif, désormais sourcé dans le code ----------------------
+
+
+def test_le_minimum_contributif_distingue_le_montant_majore(simulateur):
+    """Deux montants, pas un : le majoré vaut près d'un cinquième de plus.
+
+    Le majoré ne récompense que les périodes COTISÉES. Le modèle servait le
+    montant de base à tout le monde — c'est-à-dire le plus faible des deux, et
+    précisément pas celui qui s'applique à la carrière complète que le minimum
+    est fait de protéger.
+    """
+    minimum = simulateur.scenario_actuel.minimum_contributif
+    base, plafond, _ = minimum.valeurs(2025)
+    majore, meme_plafond, _ = minimum.valeurs(2025, majore=True)
+
+    assert majore > base * 1.15
+    assert meme_plafond == plafond
+
+    # Les montants publiés par les caisses pour 2025 : 8 972 € et 10 721 €
+    # par an. L'ancre du code, revalorisée sur le SMIC, doit les retrouver.
+    assert base == pytest.approx(8972.28, rel=0.01)
+    assert majore == pytest.approx(10720.68, rel=0.01)
+    assert plafond == pytest.approx(16738.32, rel=0.01)
+
+
+def test_le_minimum_contributif_est_revalorise_sur_le_smic(simulateur):
+    """Le SMIC, et non les prix : c'est ce que la loi dit depuis 2014 et 2023.
+
+    L'ancre est datée — le code n'est pas modifié chaque année, les montants
+    sont revalorisés par l'effet de la loi. Les revaloriser sur les prix les
+    décrochait d'autant que le SMIC a progressé plus vite.
+    """
+    minimum = simulateur.scenario_actuel.minimum_contributif
+    macro = simulateur.macro
+
+    ancre, _ = minimum._revalorise("plafond_ecretement", 2014)
+    porte, _ = minimum._revalorise("plafond_ecretement", 2025)
+    assert porte == pytest.approx(ancre * macro.coefficient_smic(2014, 2025))
+    assert porte > ancre * macro.coefficient_prix(2014, 2025)
+
+    # En arrière de l'ancre, c'est la règle d'alors qui vaut : les prix.
+    avant, _ = minimum._revalorise("plafond_ecretement", 2000)
+    assert avant == pytest.approx(ancre * macro.coefficient_prix(2014, 2000))
+
+
+def test_la_carriere_complete_ouvre_le_minimum_majore(simulateur):
+    """La condition est une durée COTISÉE, que le moteur sait maintenant lire."""
+    petite = dict(annee_naissance=1960, sexe="H",
+                  affiliation="salarie_prive_non_cadre",
+                  age_liquidation=64, niveau_salaire=0.2,
+                  profil_carriere="plat")
+    complete = simulateur.scenario_actuel.calculer(
+        simulateur.carriere_simple(age_debut=20, **petite))
+    courte = simulateur.scenario_actuel.calculer(
+        simulateur.carriere_simple(age_debut=50, **petite))
+
+    releve = {a.code: a.montant for a in complete.avantages_appliques}
+    assert "minimum_contributif" in releve
+    # La carrière complète est portée au majoré, la courte au montant de base
+    # et au prorata de sa durée : le plancher par trimestre acquis est donc
+    # strictement plus élevé pour la première.
+    plancher_complet = complete.pension_annuelle
+    plancher_court = courte.pension_annuelle
+    assert plancher_complet > plancher_court
+
+
+# -- mortalité observée avant 1986 -------------------------------------------
+
+
+def test_les_quotients_observes_remontent_avant_eurostat(simulateur):
+    """Eurostat s'arrête à 1986 ; l'INED, lui, remonte au XIXe siècle.
+
+    `docs/limites.md` tenait la Human Mortality Database pour la seule source à
+    remonter plus haut, et donc la série pour hors de portée puisqu'elle exige
+    une inscription. Les tables de Vallin et Meslé, que l'INED sert librement,
+    la remplacent : le modèle a désormais de vrais quotients là où il n'avait
+    que sa loi de Gompertz-Makeham.
+    """
+    quotients = simulateur.mortalite._quotients_observes
+    assert quotients is not None
+
+    annees = sorted({annee for annee, _ in quotients})
+    assert annees[0] <= 1899
+    assert 1950 in annees and 1985 in annees and 2020 in annees
+
+    # Avant 1986, les âges vont jusqu'à 104 ans : le raccord paramétrique ne
+    # sert plus sur ces années-là.
+    ages_1950 = quotients[(1950, "H")]
+    assert max(ages_1950) >= 104
+    # Un quotient reste une probabilité, et croît en tendance avec l'âge.
+    assert all(0 < q <= 1 for q in ages_1950.values())
+    assert ages_1950[90] > ages_1950[60] > ages_1950[30]
+
+    # Et le moteur les emploie : la survie d'une année couverte ne passe plus
+    # par la loi paramétrique.
+    attendu = 1.0 - ages_1950[70]
+    assert simulateur.mortalite.survie_annuelle(70, 1950, "H") == pytest.approx(attendu)

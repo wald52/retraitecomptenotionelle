@@ -673,8 +673,18 @@ export class ScenarioActuel {
       }
     }
     if (avantagesNonContributifs && eligiblesMinimum.length > 0) {
+      // Le minimum MAJORÉ ne récompense que les périodes cotisées : les
+      // trimestres assimilés et ceux de la MDA n'y ouvrent pas droit. C'est
+      // près d'un cinquième de plus, et c'est le montant qui vaut pour une
+      // carrière complète — le cas que le minimum est fait pour protéger.
+      let trimestresCotises = 0;
+      for (const ligne of carriere.lignes) {
+        if (ligne.cotise && ligne.annee < anneeLiquidation) {
+          trimestresCotises += ligne.trimestres_valides;
+        }
+      }
       const [montantMinimum, plafond, fiabiliteMinimum] = this.minimumContributif
-        .valeurs(anneeLiquidation);
+        .valeurs(anneeLiquidation, trimestresCotises >= requisReference);
       let releve = 0.0;
       for (const [indice, prorata] of eligiblesMinimum) {
         const plancher = montantMinimum * Math.min(1.0, prorata);

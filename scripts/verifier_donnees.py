@@ -253,6 +253,29 @@ def source_quotients() -> dict[tuple, float]:
     }
 
 
+def source_quotients_anciens() -> dict[tuple, float]:
+    """Quotients de mortalité par âge d'AVANT 1986, reconstitués par l'INED.
+
+    Eurostat ne publie rien avant 1986, et `docs/limites.md` tenait la Human
+    Mortality Database pour la seule à remonter plus haut — donc hors d'atteinte
+    d'un script, puisqu'elle exige une inscription. Elle n'est pas la seule :
+    les tables de Vallin et Meslé, publiées par l'INED, couvrent 1806-1997 par
+    année d'âge jusqu'à 104 ans, et l'INED en sert librement le fichier.
+
+    Les deux sources se recouvrent de 1986 à 1997 et concordent à un demi-point
+    de pourcentage près ; le dépôt reprend l'INED jusqu'en 1985 et laisse à
+    Eurostat, producteur de la donnée observée, tout ce qui suit.
+    """
+    serie = _serie_json("ined_vallin_mesle.json", "scripts/fetch/ined_vallin_mesle.py")
+    return {
+        tuple(cle.split("|")): valeur
+        for cle, valeur in sorted(serie.items(),
+                                  key=lambda kv: (int(kv[0].split("|")[0]),
+                                                  kv[0].split("|")[1],
+                                                  int(kv[0].split("|")[2])))
+    }
+
+
 def _charge_points() -> dict:
     chemin = BRUT / "openfisca_points.json"
     if not chemin.exists():
@@ -355,6 +378,25 @@ def source_valeurs_point_msa() -> dict[tuple, float]:
         tuple(cle.split("|")): valeur
         for cle, valeur in sorted(
             _serie_json("dila_legi_msa.json", "scripts/fetch/dila_legi_msa.py").items()
+        )
+    }
+
+
+def source_minimum_contributif() -> dict[tuple, float]:
+    """Minimum contributif, minimum majoré et plafond, dans le code.
+
+    `docs/limites.md` a longtemps écrit que ces montants ne figuraient dans
+    aucune source machine ouverte, et qu'il n'y avait donc pas de chemin de
+    certification à écrire. C'était la même erreur que pour la MSA : la donnée
+    est dans la loi, il fallait chercher par le NUMÉRO D'ARTICLE. D. 351-2-1
+    du code de la sécurité sociale porte les deux montants, D. 173-21-0-0-1 le
+    plafond d'écrêtement. La base LEGI en garde toutes les versions datées.
+    """
+    return {
+        tuple(cle.split("|")): valeur
+        for cle, valeur in sorted(
+            _serie_json("dila_legi_minimum_contributif.json",
+                        "scripts/fetch/dila_legi_minimum_contributif.py").items()
         )
     }
 
@@ -677,6 +719,18 @@ CERTIFICATIONS = (
         tolerance=5e-7,
     ),
     Certification(
+        nom="minimum_contributif",
+        chemin=REFERENCE / "legislation" / "minimum_contributif.csv",
+        cles=("mesure", "annee"),
+        colonne="valeur",
+        source=source_minimum_contributif,
+        origine="DILA, base LEGI, code de la sécurité sociale D. 351-2-1 et "
+                "D. 173-21-0-0-1",
+        decimales=6,
+        tolerance=5e-3,
+        unite=" €/an",
+    ),
+    Certification(
         nom="valeurs_point_insee",
         chemin=REFERENCE / "regimes" / "valeurs_point.csv",
         cles=("regime", "annee", "mesure"),
@@ -708,6 +762,16 @@ CERTIFICATIONS = (
         decimales=6,
         tolerance=5e-7,
         niveau="moyenne",
+    ),
+    Certification(
+        nom="quotients_mortalite_anciens",
+        chemin=REFERENCE / "mortalite" / "quotients_periode.csv",
+        cles=("annee", "sexe", "age"),
+        colonne="qx",
+        source=source_quotients_anciens,
+        origine="INED, tables de Vallin et Meslé, quotients du moment par âge",
+        decimales=6,
+        tolerance=5e-7,
     ),
     Certification(
         nom="quotients_mortalite",
@@ -1130,9 +1194,19 @@ def main(argv: list[str] | None = None) -> int:
         print(message)
 
     if arguments.appliquer and journal:
+        # Le journal se COMPLÈTE, il ne se remplace pas. Les récupérateurs sont
+        # indépendants et lents : on lance rarement les onze d'un coup, et
+        # réécrire le fichier à partir des seules sources présentes ce jour-là
+        # effacerait la trace de toutes les autres — c'est-à-dire la seule
+        # pièce qui, sur un dépôt fraîchement cloné, dise d'où viennent les
+        # valeurs certifiées.
         JOURNAL.parent.mkdir(parents=True, exist_ok=True)
+        consigne = {}
+        if JOURNAL.exists():
+            consigne = json.loads(JOURNAL.read_text(encoding="utf-8")).get("series", {})
+        consigne.update(journal)
         JOURNAL.write_text(
-            json.dumps({"certifie_le": date.today().isoformat(), "series": journal},
+            json.dumps({"certifie_le": date.today().isoformat(), "series": consigne},
                        ensure_ascii=False, indent=1, sort_keys=True),
             encoding="utf-8",
         )

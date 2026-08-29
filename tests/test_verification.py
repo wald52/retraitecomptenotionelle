@@ -235,3 +235,55 @@ def test_journal_de_certification_est_lisible():
     for nom, trace in journal["series"].items():
         assert trace["valeurs"] > 0, nom
         assert len(trace["empreinte"]) == 16, nom
+
+
+def test_les_deux_montants_du_minimum_se_lisent_sans_verbe():
+    """La rédaction change ; l'ordre des montants, non.
+
+    L'article D. 351-2-1 porte le minimum puis sa majoration, et le verbe qui
+    les introduit a changé trois fois en vingt ans — « est fixé à », « est
+    porté à », « de façon à atteindre ». On relève donc tous les montants
+    annuels et l'on retient le plus petit, puis le plus grand.
+    """
+    module = _charger_script("dila_legi_minimum_contributif", "scripts", "fetch",
+                             "dila_legi_minimum_contributif.py")
+    texte = (
+        "Le montant minimum auquel est portée, lors de sa liquidation, la "
+        "pension de vieillesse au taux plein en application de l'article "
+        "L. 351-10 est fixé à 8 509,61 euros par an au 1er septembre 2023. "
+        "Ce montant minimum est majoré au titre des périodes ayant donné lieu "
+        "à cotisations à la charge de l'assuré, de façon à atteindre "
+        "10 170,86 euros par an au 1er septembre 2023."
+    )
+    assert module.montants(texte) == {
+        "montant_base": pytest.approx(8509.61),
+        "montant_majore": pytest.approx(10170.86),
+    }
+    # Une rédaction antérieure, sans majoration : un seul montant.
+    assert module.montants("est fixé à 6 958,21 euros par an") == {
+        "montant_base": pytest.approx(6958.21)
+    }
+    # Le plafond est publié au MOIS : il est porté à l'année.
+    assert module.plafond(
+        "Le montant mensuel total des pensions personnelles de retraite "
+        "mentionné au premier alinéa de l'article L. 173-2 est fixé à "
+        "1 120 euros au 1er février 2014."
+    ) == (2014, pytest.approx(13440.0))
+
+
+def test_lecture_d_un_classeur_excel_97():
+    """Le lecteur BIFF doit rendre les nombres, et rien d'autre.
+
+    Il n'y a pas de classeur au dépôt — data/brut/ n'est pas versionné — mais
+    le décodage des nombres RK, lui, se contrôle seul : c'est le seul endroit
+    du lecteur où une erreur de bit passerait pour une valeur plausible.
+    """
+    module = _charger_script("lecture_xls", "scripts", "fetch", "lecture_xls.py")
+    # Entier codé sur 30 bits, drapeau « entier » à 1.
+    assert module._rk((1234 << 2) | 0b10) == pytest.approx(1234.0)
+    # Le même, avec le drapeau « centième ».
+    assert module._rk((1234 << 2) | 0b11) == pytest.approx(12.34)
+    # Un double tronqué : 0,5 s'écrit exactement sur les 30 bits de poids fort.
+    import struct
+    brut = struct.unpack("<Q", struct.pack("<d", 0.5))[0] >> 32
+    assert module._rk(brut & 0xFFFFFFFC) == pytest.approx(0.5)

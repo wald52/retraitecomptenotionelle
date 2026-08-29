@@ -68,9 +68,9 @@ la page.
 <details>
 <summary>Comment la page fonctionne, et comment on sait qu'elle dit vrai</summary>
 
-`index.html` charge deux choses : `moteur/donnees.json` (186 Ko — les séries, les
-tables de mortalité, les 35 fiches de régime) et `moteur/js/`, un portage du
-modèle en JavaScript sans aucune bibliothèque. Le site est servi depuis la racine
+`index.html` charge deux choses : `moteur/donnees.json` (467 Ko — les séries, les
+tables de mortalité observées de 1899 à 2024, les 36 fiches de régime) et
+`moteur/js/`, un portage du modèle en JavaScript sans aucune bibliothèque. Le site est servi depuis la racine
 du dépôt, telle quelle : c'est ce que GitHub Pages publie sans aucun réglage, et
 `.nojekyll` demande que les fichiers soient servis sans transformation. Rien
 n'est chargé depuis un CDN ou un service tiers, ce qu'un test vérifie : le site
@@ -313,7 +313,7 @@ src/retraite_notionnelle/
 index.html                      le site : charge les données, puis le moteur JavaScript
 .nojekyll                       servir les fichiers sans transformation
 moteur/                         ce que le navigateur charge, et rien d'autre
-  donnees.json                  séries, tables et régimes (186 Ko, produit par script)
+  donnees.json                  séries, tables et régimes (467 Ko, produit par script)
   style.css                     extraite de gabarit.py (produite par script)
   js/                           portage du modèle, sans bibliothèque ni étape de build
 

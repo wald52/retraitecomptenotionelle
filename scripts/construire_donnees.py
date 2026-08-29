@@ -247,13 +247,13 @@ def _table_par_generation(classe) -> dict:
 
 
 def _minimum_contributif() -> dict:
-    """Montant et plafond d'écrêtement du minimum contributif, par année."""
+    """Ancres datées du minimum contributif, de sa majoration et du plafond."""
     from retraite_notionnelle.donnees.macro import DonneesMacro
     from retraite_notionnelle.scenarios.actuel import MinimumContributif
 
     table = MinimumContributif(DONNEES, DonneesMacro(DONNEES))._table
-    return {str(annee): [montant, plafond, int(fiabilite)]
-            for annee, (montant, plafond, fiabilite) in sorted(table.items())}
+    return {f"{mesure}|{annee}": [valeur, int(fiabilite)]
+            for (mesure, annee), (valeur, fiabilite) in sorted(table.items())}
 
 
 def _hypotheses() -> dict:

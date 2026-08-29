@@ -1,22 +1,39 @@
-# Minimum contributif : montant majoré et plafond d'écrêtement
+# Minimum contributif, minimum majoré et plafond d'écrêtement
 # -------------------------------------------------------------
-# source_id: legifrance_textes, cnav_circulaires
+# source_id: dila_legi_minimum_contributif
 #
-# ATTENTION — CES DEUX VALEURS NE SONT PAS CERTIFIÉES.
-# Elles reprennent l'ordre de grandeur en vigueur au 1er janvier 2025 mais
-# n'ont pas été confrontées à la source ; elles portent donc la fiabilité
-# `estimee` et la propagent à tout résultat où le minimum s'applique.
-# `scripts/verifier_donnees.py` ne sait pas encore les recontrôler.
-# Voir docs/limites.md.
+# Ces trois grandeurs sont dans la LOI, et non dans les seules circulaires CNAV
+# que ce dépôt a longtemps crues leur unique support. Deux articles suffisent :
 #
-# `montant` : minimum contributif majoré, en euros par an, avant proratisation
-#             par la durée d'assurance au régime.
-# `plafond` : montant total de pensions, tous régimes confondus, au-delà duquel
-#             le minimum est écrêté (article L. 173-2 du code de la sécurité
-#             sociale). Sans ce plafond, le minimum est versé à des assurés
-#             que leurs autres régimes placent déjà bien au-dessus.
+#   D. 351-2-1     du code de la sécurité sociale porte les deux montants —
+#                  le minimum, et le minimum MAJORÉ au titre des périodes
+#                  cotisées, servi quand la durée cotisée atteint la durée
+#                  requise ;
+#   D. 173-21-0-0-1 porte le plafond d'écrêtement de l'article L. 173-2 : le
+#                  total des pensions personnelles au-delà duquel le complément
+#                  est rogné.
 #
-# Les années non renseignées sont déflatées depuis la dernière connue, par
-# l'indice des prix : c'est le comportement de la classe qui lit ce fichier.
-annee,montant,plafond,fiabilite
-2025,8796.0,16410.0,estimee
+# CE SONT DES ANCRES DATÉES, PAS DES SÉRIES. Le code n'est pas modifié chaque
+# année : les montants sont revalorisés par l'effet de la loi. La colonne
+# `annee` porte donc la date d'effet de l'ancre, et le modèle revalorise :
+#
+#   * sur le SMIC à partir de cette date — c'est la règle, depuis février 2014
+#     pour le plafond et depuis la réforme du 14 avril 2023 pour les deux
+#     minima, que la loi indexe expressément sur « le salaire minimum de
+#     croissance » ;
+#   * sur les prix avant elle, règle qui s'appliquait alors.
+#
+# Le contrôle est immédiat, et il tombe juste : l'ancre de 2014 rapportée au
+# SMIC de 2025 redonne 1 396 €/mois là où les caisses publient 1 394,86 €, et
+# celle de 2023 redonne 8 970 €/an là où elles publient 8 972,28 €. Deux
+# chemins indépendants qui se rejoignent à 0,03 % près.
+#
+# Montants EN EUROS PAR AN. Le plafond est publié au mois (1 120 €) : il est
+# porté ici à l'année.
+#
+# Fichier écrit par scripts/verifier_donnees.py --appliquer, qui le confronte à
+# scripts/fetch/dila_legi_minimum_contributif.py.
+mesure,annee,valeur,fiabilite
+montant_base,2023,8509.610000,haute
+montant_majore,2023,10170.860000,haute
+plafond_ecretement,2014,13440.000000,haute

@@ -6648,7 +6648,7 @@
        "code": "minimum_contributif",
        "detail": "portée au plancher, au prorata de la durée acquise",
        "libelle": "Minimum contributif",
-       "montant": 4904.718277974307
+       "montant": 6248.611884378219
       }
      ],
      "minimum_applique": true,
@@ -6669,10 +6669,10 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 10775.690409709941,
-     "pension_annuelle_euros_constants": 8599.984584296664,
-     "pension_mensuelle": 897.9742008091617,
-     "taux_remplacement": 0.7155305722934747,
+     "pension_annuelle": 12119.584016113853,
+     "pension_annuelle_euros_constants": 9672.534356847116,
+     "pension_mensuelle": 1009.9653346761544,
+     "taux_remplacement": 0.8047681918547457,
      "total_contributif": 5870.972131735634
     },
     "notionnel_prospectif": {
@@ -6694,7 +6694,7 @@
      "rendement_cumule": 1.066788111639174,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.28516253439495487,
-     "variation_vs_actuel": -0.6014670156148192
+     "variation_vs_actuel": -0.6456587905919318
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -6708,7 +6708,7 @@
      "rendement_cumule": 1.1256616815700797,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.2273348819036044,
-     "variation_vs_actuel": -0.6822848796314421
+     "variation_vs_actuel": -0.7175150755155137
     }
    },
    "unite": {

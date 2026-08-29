@@ -534,6 +534,26 @@ institutions:
           recoupées à la fiche 16 du panorama de la DREES, qui en donne les
           bornes et le pas.
 
+      - id: dila_legi_minimum_contributif
+        titre: Minimum contributif, minimum majoré et plafond d'écrêtement
+        url: https://echanges.dila.gouv.fr/OPENDATA/LEGI/
+        acces: api
+        statut_integration: certifie
+        cible: data/reference/legislation/minimum_contributif.csv
+        recuperation: scripts/fetch/dila_legi_minimum_contributif.py
+        note: >-
+          Articles D. 351-2-1 (les deux montants) et D. 173-21-0-0-1 (le
+          plafond de l'article L. 173-2) du code de la sécurité sociale. Ce
+          manifeste a longtemps tenu ces montants pour introuvables hors des
+          circulaires CNAV : c'était la même erreur que pour la MSA, la donnée
+          est dans la loi et il fallait chercher par le numéro d'article.
+          Ce sont des ANCRES DATÉES, non des séries : le code n'est pas modifié
+          chaque année, les montants sont revalorisés par l'effet de la loi —
+          sur le SMIC depuis février 2014 pour le plafond, depuis la réforme du
+          14 avril 2023 pour les deux minima. Le modèle fait cette
+          revalorisation, et elle retombe sur les montants publiés par les
+          caisses à 0,03 % près.
+
       - id: dila_legi_msa
         titre: Valeur de service du point de la RCO agricole, 2005-2024
         url: https://echanges.dila.gouv.fr/OPENDATA/LEGI/
@@ -572,6 +592,33 @@ institutions:
           valeur de point ne mentionnent pas une fois le mot « libérale ». Ces
           deux séries viennent donc des caisses — voir cnavpl_recueils et
           cnbf_baremes. Lire docs/limites.md §1 avant de refaire le trajet.
+
+  ined:
+    nom: Institut national d'études démographiques
+    role: >-
+      Tables de mortalité françaises reconstituées, 1806-1997, et leurs
+      projections. Seule source ouverte à remonter avant Eurostat.
+    jeux:
+      - id: ined_vallin_mesle
+        titre: Quotients de mortalité du moment par année d'âge, 1806-2102
+        url: https://www.ined.fr/Xtradocs/cdrom_vallin_mesle/contenu.htm
+        acces: fichier
+        statut_integration: certifie
+        cible: data/reference/mortalite/quotients_periode.csv
+        recuperation: scripts/fetch/ined_vallin_mesle.py
+        note: >-
+          Vallin (Jacques) et Meslé (France), « Tables de mortalité françaises
+          pour les XIXe et XXe siècles et projections pour le XXIe siècle »,
+          INED, Données statistiques n° 4, 2001. L'INED sert librement le
+          contenu du cédérom, sans inscription : le tableau II-B-1 donne les
+          quotients du moment par année d'âge, de 0 à 104 ans. C'est ce que la
+          Human Mortality Database aurait donné, sans la barrière d'inscription
+          qui la mettait hors de portée d'un script.
+          Le dépôt n'en reprend que 1899-1985 : à partir de 1986 la donnée
+          observée vient d'Eurostat, son producteur. Les deux se recouvrent de
+          1986 à 1997 et concordent à un demi-point de pourcentage près sur
+          85 âges — c'est ce recoupement qui autorise à les aboucher.
+          Diffusé en classeur Excel 97, lu par scripts/fetch/lecture_xls.py.
 
   eurostat:
     nom: Eurostat
