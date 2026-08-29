@@ -147,7 +147,7 @@ def main() -> int:
             "source_bareme": PENSION,
             "recupere_le": date.today().isoformat(),
             "unite": "euros par an et par point d'indice majoré",
-            "point_indice": {str(a): point[a] for a in annees},
+            "serie": {str(a): point[a] for a in annees},
             "bareme_minimum_garanti": {
                 colonne: {str(a): v for a, v in serie.items()}
                 for colonne, serie in bareme.items()

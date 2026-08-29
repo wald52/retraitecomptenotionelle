@@ -1448,10 +1448,13 @@ class ScenarioActuel:
 
         # Avantages non contributifs du droit positif, DANS L'ORDRE OÙ LE DROIT
         # LES APPLIQUE, et l'ordre commande le résultat : la majoration de durée
-        # d'assurance d'abord, qui change la décote et la proratisation ; puis
-        # le minimum contributif, qui porte la pension de base à son plancher ;
-        # puis seulement la majoration pour enfants, qui se calcule SUR CE
-        # plancher. Ce module prenait les deux derniers dans l'autre sens : les
+        # d'assurance et l'AVPF d'abord, qui déplacent la décote, la
+        # proratisation et le salaire annuel moyen ; puis les deux minima, qui
+        # portent la pension de base à son plancher ; puis seulement la
+        # majoration pour enfants, qui se calcule SUR CE plancher ; l'ASPA
+        # enfin, qui est différentielle et complète tout le reste.
+        #
+        # Ce module prenait le minimum et la majoration dans l'autre sens : les
         # 10 % portaient sur une pension que le minimum n'avait pas encore
         # relevée, et l'écrêtement du minimum comparait au plafond un total qui
         # incluait déjà la majoration, alors que l'article L. 173-2 ne retient
@@ -1479,6 +1482,29 @@ class ScenarioActuel:
                     detail=f"{8 * carriere.nombre_enfants} trimestres pour "
                            f"{carriere.nombre_enfants} enfant"
                            f"{'s' if carriere.nombre_enfants > 1 else ''}",
+                ))
+
+        if (avantages_non_contributifs and avpf
+                and any(ligne.revenu_avpf > 0 for ligne in carriere.lignes)):
+            # Effet de l'AVPF, mesuré comme celui de la MDA : la même carrière
+            # sans le salaire forfaitaire porté au compte. Il joue en amont de
+            # tout le reste, puisqu'il déplace le salaire annuel moyen — et il
+            # peut jouer dans les deux sens : il relève une carrière longue à
+            # bas salaire, il abaisse la moyenne d'une carrière courte et bien
+            # payée, où les années au SMIC viennent s'ajouter aux années
+            # retenues au lieu de les remplacer.
+            sans_avpf = self.calculer(
+                carriere, ignorer_penalite_age,
+                avantages_non_contributifs=False, avpf=False,
+            )
+            effet_avpf = total_contributif - sans_avpf.total_contributif
+            total_contributif = sans_avpf.total_contributif
+            if abs(effet_avpf) > 1e-9:
+                avantages.insert(0, AvantageApplique(
+                    code="avpf",
+                    libelle="Assurance vieillesse des parents au foyer",
+                    montant=effet_avpf,
+                    detail="salaire forfaitaire au SMIC porté au compte",
                 ))
 
         if avantages_non_contributifs and eligibles_minimum:
@@ -1552,29 +1578,6 @@ class ScenarioActuel:
                         + (", majoration des périodes cotisées comprise"
                            if majoration_ouverte else "")
                     ),
-                ))
-
-        if (avantages_non_contributifs and avpf
-                and any(ligne.revenu_avpf > 0 for ligne in carriere.lignes)):
-            # Effet de l'AVPF, mesuré comme celui de la MDA : la même carrière
-            # sans le salaire forfaitaire porté au compte. Il joue en amont de
-            # tout le reste, puisqu'il déplace le salaire annuel moyen — et il
-            # peut jouer dans les deux sens : il relève une carrière longue à
-            # bas salaire, il abaisse la moyenne d'une carrière courte et bien
-            # payée, où les années au SMIC viennent s'ajouter aux années
-            # retenues au lieu de les remplacer.
-            sans_avpf = self.calculer(
-                carriere, ignorer_penalite_age,
-                avantages_non_contributifs=False, avpf=False,
-            )
-            effet_avpf = total_contributif - sans_avpf.total_contributif
-            total_contributif = sans_avpf.total_contributif
-            if abs(effet_avpf) > 1e-9:
-                avantages.insert(0, AvantageApplique(
-                    code="avpf",
-                    libelle="Assurance vieillesse des parents au foyer",
-                    montant=effet_avpf,
-                    detail="salaire forfaitaire au SMIC porté au compte",
                 ))
 
         if avantages_non_contributifs and eligibles_garanti:

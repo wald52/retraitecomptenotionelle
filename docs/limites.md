@@ -22,7 +22,7 @@ Ce qui suit est le recensement complet de ses paramètres et de leur état.
 | Plafond d'écrêtement du minimum | ancres 2012 et 2014 ; montants servis 2020, 2024-2026 | **certifié** (D. 173-21-0-0-1) et transcrit |
 | Minimum garanti, barème | montée en charge 2004-2013, indice 216 → 227 | OpenFisca-France-Pension, repris automatiquement |
 | Minimum garanti, référence | 997,96 €/mois au 1er janvier 2004 ; montants servis 2020, 2023-2025 | transcrit, recoupé au point d'indice |
-| Point d'indice de la fonction publique | série datée 1960-2027 | OpenFisca-France, repris automatiquement |
+| Point d'indice de la fonction publique | série datée 1960-2027 | OpenFisca-France, **recontrôlé à chaque exécution** |
 | Minimum vieillesse (ASPA) | montants servis 2007, 2010, 2016-2026 | transcrit des publications |
 | Décote de la fonction publique | article L. 14, montée en charge 2006-2020 | reprise des textes, non recontrôlée |
 | Carrière longue | trois étapes, 2004, 2012, 2023 | textes ; l'étape de 2004 reste approchée |
@@ -180,6 +180,7 @@ modèle n'a pas, ou décrit un dispositif qu'il représenterait faussement.
 | Quotients de mortalité par âge | 1899-1985 | **certifiée** | INED, tables de Vallin et Meslé, âges 0-104 |
 | Quotients de mortalité par âge | après 1985, au-delà de 94 ans | absents | calibration paramétrique |
 | Minimum contributif et plafond d'écrêtement | ancres de 2007 à 2014 | **certifiée** | DILA, base LEGI, code de la sécurité sociale |
+| Point d'indice de la fonction publique | 1960-2027 | haute | OpenFisca-France, `point_indice_en_euros` |
 | Plafond Sécurité sociale | 2002-2025 | **certifiée** | INSEE BDM, idbank 000822494 |
 | Plafond Sécurité sociale | 1931-2001 | haute | OpenFisca-France, daté décret par décret |
 | Taux de cotisation, régime général | 1967-2026 | moyenne | OpenFisca-France, recoupé à chaque exécution |

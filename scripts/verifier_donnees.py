@@ -401,6 +401,23 @@ def source_minimum_contributif() -> dict[tuple, float]:
     }
 
 
+def source_point_indice() -> dict[tuple, float]:
+    """Traitement annuel d'un point d'indice de la fonction publique.
+
+    Une seule grandeur en dépend, mais elle est décisive : la référence du
+    MINIMUM GARANTI, que l'article L. 17 du code des pensions fixe au
+    traitement de l'indice majoré 227 au 1er janvier 2004. Le recoupement se
+    fait tout seul — 227 × 52,7558 = 11 975,57 € par an, soit les 997,96 € par
+    mois que publie le Service des retraites de l'État.
+
+    Transcription tierce du Journal officiel par OpenFisca-France : niveau
+    `haute`, jamais `certifiee`.
+    """
+    serie = _serie_json("openfisca_point_indice.json",
+                        "scripts/fetch/openfisca_point_indice.py")
+    return {(annee,): valeur for annee, valeur in sorted(serie.items())}
+
+
 def _point_insee() -> dict[str, dict[int, float]]:
     """Valeur de service du point Agirc, Arrco et Agirc-Arrco, au 31 décembre.
 
@@ -762,6 +779,17 @@ CERTIFICATIONS = (
         decimales=6,
         tolerance=5e-7,
         niveau="moyenne",
+    ),
+    Certification(
+        nom="point_indice_fonction_publique",
+        chemin=REFERENCE / "legislation" / "point_indice_fonction_publique.csv",
+        cles=("annee",),
+        colonne="valeur",
+        source=source_point_indice,
+        origine="OpenFisca-France, point_indice_en_euros.yaml",
+        decimales=4,
+        tolerance=5e-5,
+        niveau="haute",
     ),
     Certification(
         nom="quotients_mortalite_anciens",

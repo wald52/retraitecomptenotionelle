@@ -46,6 +46,15 @@
    "source": "OpenFisca-France, plafond_securite_sociale_annuel.yaml",
    "valeurs": 71
   },
+  "point_indice_fonction_publique": {
+   "ajoutees": 1,
+   "corrigees": 0,
+   "empreinte": "eea496d8ddd4ee78",
+   "identiques": 67,
+   "niveau": "haute",
+   "source": "OpenFisca-France, point_indice_en_euros.yaml",
+   "valeurs": 68
+  },
   "productivite": {
    "ajoutees": 0,
    "corrigees": 0,

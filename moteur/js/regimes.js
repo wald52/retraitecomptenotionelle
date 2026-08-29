@@ -417,7 +417,10 @@ export class CarriereLongue {
       if (acquis < trimestresDebut || trimestresCotises < requis + supplement) {
         continue;
       }
-      if (meilleur === null || ageDepart < meilleur[0]) {
+      // Départage identique à celui de Python, qui compare des couples
+      // (âge, fiabilité) : à âge égal, la fiabilité la plus basse l'emporte.
+      if (meilleur === null || ageDepart < meilleur[0]
+          || (ageDepart === meilleur[0] && fiabilite < meilleur[1])) {
         meilleur = [ageDepart, fiabilite];
       }
     }

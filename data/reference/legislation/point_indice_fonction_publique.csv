@@ -24,7 +24,10 @@
 # majoration de la rémunération des personnels civils et militaires de l'État.
 # Transcription tierce : niveau `haute`, jamais `certifiee`.
 #
-# Récupérée par scripts/fetch/openfisca_point_indice.py.
+# Récupérée par scripts/fetch/openfisca_point_indice.py et RECONTRÔLÉE à
+# chaque exécution de scripts/verifier_donnees.py, comme les autres séries
+# reprises automatiquement. Fichier écrit par --appliquer : ne pas modifier
+# les valeurs à la main.
 annee,valeur,fiabilite
 1960,3.5612,haute
 1961,3.6664,haute
@@ -93,3 +96,4 @@ annee,valeur,fiabilite
 2024,59.0734,haute
 2025,59.0734,haute
 2026,59.0734,haute
+2027,59.0734,haute

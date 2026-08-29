@@ -201,6 +201,8 @@ def test_journal_de_certification_decrit_les_series_certifiees():
         "plafond_ancien": "macro/plafond_securite_sociale.csv",
         "esperances_vie": "mortalite/esperances_vie.csv",
         "minimum_contributif": "legislation/minimum_contributif.csv",
+        "point_indice_fonction_publique":
+            "legislation/point_indice_fonction_publique.csv",
         "quotients_mortalite": "mortalite/quotients_periode.csv",
         "quotients_mortalite_anciens": "mortalite/quotients_periode.csv",
         "valeurs_point": "regimes/valeurs_point.csv",
