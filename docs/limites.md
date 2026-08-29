@@ -20,9 +20,9 @@ refuse les requêtes non navigateur et son API demande une clé.
 
 | Paramètre | Valeur retenue | État |
 |---|---|---|
-| Minimum contributif | ancres 2007 et 2023, 6 958,21 → 8 509,61 €/an | **certifié**, code de la sécurité sociale D. 351-2-1 |
-| Minimum contributif majoré | ancres 2007 et 2023, 7 603,41 → 10 170,86 €/an | **certifié**, même article |
-| Plafond d'écrêtement du minimum | ancres 2012 et 2014, 1 005 → 1 120 €/mois | **certifié**, D. 173-21-0-0-1 |
+| Minimum contributif | ancres du code 2007 et 2023 ; montants servis 2020, 2024-2026 | **certifié** (D. 351-2-1) et transcrit |
+| Minimum contributif majoré | idem, 7 603,41 → 10 170,86 €/an | **certifié**, même article |
+| Plafond d'écrêtement du minimum | ancres 2012 et 2014 ; montants servis 2020, 2024-2026 | **certifié** (D. 173-21-0-0-1) et transcrit |
 | Durée requise par génération | table 1934-1965, 151 → 172 trimestres | reprise des textes, non recontrôlée automatiquement |
 | Âge légal par génération | table 1930-1968, 60 → 64 ans | reprise des textes, non recontrôlée automatiquement |
 | Âge d'annulation de la décote par génération | table 1930-1955, 65 → 67 ans | reprise des textes, non recontrôlée automatiquement |
@@ -68,18 +68,33 @@ Trois corrections en découlent, et aucune n'est cosmétique.
    et l'article est réécrit plus souvent qu'il n'est revalorisé. Ses versions de
    2009 et de 2020 répètent le montant de 2007 sans y toucher : les retenir
    comme des ancres fraîches remettrait le compteur à zéro et perdrait treize
-   ans de revalorisation. Une ancre est donc un montant qui CHANGE, et il n'y
-   en a que deux par grandeur.
+   ans de revalorisation. Une ancre est donc un montant qui CHANGE.
 
-   C'est ensuite au modèle de porter l'ancre à l'année de liquidation, en
-   retenant la PLUS PROCHE — entre deux décrets le montant dérive d'autant plus
-   qu'on s'en éloigne, le législateur ayant parfois gelé la revalorisation, ce
-   qu'aucun indice ne reproduit. Le contrôle tombe alors à 2 % près sur quinze
-   ans et juste sur les années récentes : 8 797 €/an calculés pour 2024 contre
-   8 796 publiés, 8 970 pour 2025 contre 8 972, 10 721 pour le majoré contre
-   10 720,68, et le plafond de 2014 rapporté au SMIC de 2025 redonne
-   1 396 €/mois là où les caisses publient 1 394,86 €. Deux chemins
-   indépendants qui se rejoignent.
+   **Et une ancre projetée reste un calcul, que la réalité dément.** Une
+   première version de ce moteur retenait l'ancre la plus proche de l'année
+   demandée, pour minimiser la dérive. Appliquée à 2020, elle ramenait en
+   arrière le minimum MAJORÉ d'après la réforme de 2023 — laquelle l'a relevé
+   de plus de 30 % — et donnait 9 068 €/an quand l'État, répondant à la
+   question écrite n° 32630 de l'Assemblée nationale, rappelle 702,55 €/mois,
+   soit 8 431 €/an. Sept virgule six pour cent de trop, sur le montant même
+   qui protège les plus petites pensions.
+
+   Deux corrections en découlent, et la seconde est un principe :
+
+   * la projection part désormais de la valeur **en vigueur** à la date
+     demandée, jamais d'une postérieure : une marche créée par une réforme ne
+     glisse pas dans le passé ;
+   * surtout, **les montants réellement servis sont au fichier**, et ils
+     priment sur toute projection. Ils viennent de leur publication et non d'un
+     producteur : ils portent `haute`, pas `certifiee`. Le modèle préfère donc
+     une valeur transcrite, moins bien sourcée, à une valeur calculée depuis
+     une ancre certifiée — parce que la première dit ce qui a été payé et la
+     seconde ce qui aurait dû l'être.
+
+   Sont ainsi renseignés 2020 (réponse ministérielle) et 2024-2026 (montants
+   publiés par les caisses). Le reste est projeté, et l'écart résiduel se
+   mesure : environ 1 % pour 2021, la revalorisation ayant été gelée plusieurs
+   années sans qu'aucun indice ne le reproduise.
 
 ## Écarts connus avec le droit positif, dans le scénario 1
 

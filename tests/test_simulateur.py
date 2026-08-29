@@ -1167,12 +1167,18 @@ def test_le_minimum_contributif_est_revalorise_sur_le_smic(simulateur):
     minimum = simulateur.scenario_actuel.minimum_contributif
     macro = simulateur.macro
 
-    # Le plafond bascule sur le SMIC en 2014 : de son ancre à aujourd'hui,
-    # c'est le SMIC et rien que lui — et il monte plus vite que les prix.
+    # Le plafond bascule sur le SMIC en 2014. Une année qui n'a pas de montant
+    # connu se projette donc sur le SMIC depuis cette ancre — et le SMIC monte
+    # plus vite que les prix.
     ancre, _ = minimum._revalorise("plafond_ecretement", 2014)
-    porte, _ = minimum._revalorise("plafond_ecretement", 2025)
-    assert porte == pytest.approx(ancre * macro.coefficient_smic(2014, 2025))
-    assert porte > ancre * macro.coefficient_prix(2014, 2025)
+    porte, _ = minimum._revalorise("plafond_ecretement", 2018)
+    assert porte == pytest.approx(ancre * macro.coefficient_smic(2014, 2018))
+    assert porte > ancre * macro.coefficient_prix(2014, 2018)
+
+    # 2025, lui, a un montant connu : aucune projection ne s'y applique.
+    assert minimum._revalorise("plafond_ecretement", 2025)[0] == pytest.approx(
+        1394.86 * 12
+    )
 
     # Les deux minima ne basculent qu'en 2023. Une année antérieure se
     # revalorise donc sur les prix, depuis l'ancre de 2007.
@@ -1181,48 +1187,52 @@ def test_le_minimum_contributif_est_revalorise_sur_le_smic(simulateur):
     assert en_2012 == pytest.approx(depuis_2007 * macro.coefficient_prix(2007, 2012))
 
 
-def test_l_ancre_du_minimum_la_plus_proche_est_retenue(simulateur):
-    """Une ancre projetée dérive : on prend la moins lointaine.
+def test_les_montants_reellement_servis_priment_sur_toute_projection(simulateur):
+    """Ce que les caisses ont payé passe avant ce que le modèle calcule.
 
-    L'article est réécrit plus souvent qu'il n'est revalorisé — ses versions de
-    2009 et 2020 répètent le montant de 2007 — et le législateur a parfois gelé
-    la revalorisation, ce qu'aucun indice ne reproduit. La reconstitution reste
-    à quelques pour cent des montants publiés sur quinze ans, et tombe juste
-    sur les années récentes.
+    Le fichier porte deux sortes de valeurs : les ancres du code, certifiées,
+    et les montants réellement servis, transcrits de leur publication. Les
+    secondes ne sont que `haute` — ce sont des transcriptions — et elles
+    l'emportent pourtant, parce qu'une valeur transcrite qui dit vrai vaut
+    mieux qu'une valeur calculée qui dit faux.
     """
     minimum = simulateur.scenario_actuel.minimum_contributif
-    ancres = sorted(a for (mesure, a) in minimum._table if mesure == "montant_base")
-    assert ancres == [2007, 2023], "les montants redits ne sont pas des ancres"
 
-    publies = {2010: 7452, 2015: 7548, 2020: 7746, 2024: 8796, 2025: 8972}
-    for annee, publie in publies.items():
-        calcule, _ = minimum._revalorise("montant_base", annee)
-        assert calcule == pytest.approx(publie, rel=0.03), annee
-    # Sur les années récentes, l'ancre de 2023 est à portée : l'écart s'efface.
-    for annee in (2024, 2025):
-        calcule, _ = minimum._revalorise("montant_base", annee)
-        assert calcule == pytest.approx(publies[annee], rel=0.001), annee
+    # Réponse du ministère à la question écrite n° 32630 (Assemblée nationale) :
+    # 642,93 €/mois en 2020, majoré à 702,55 €, plafond 1 191,57 €.
+    servis = {
+        2020: (642.93 * 12, 702.55 * 12, 1191.57 * 12),
+        2024: (733.03 * 12, 876.13 * 12, 1394.86 * 12),
+        2025: (747.69 * 12, 893.39 * 12, 1394.86 * 12),
+    }
+    for annee, (base, majore, plafond) in servis.items():
+        assert minimum.valeurs(annee)[0] == pytest.approx(base), annee
+        assert minimum.valeurs(annee, majore=True)[0] == pytest.approx(majore), annee
+        assert minimum.valeurs(annee)[1] == pytest.approx(plafond), annee
 
 
-def test_la_carriere_complete_ouvre_le_minimum_majore(simulateur):
-    """La condition est une durée COTISÉE, que le moteur sait maintenant lire."""
-    petite = dict(annee_naissance=1960, sexe="H",
-                  affiliation="salarie_prive_non_cadre",
-                  age_liquidation=64, niveau_salaire=0.2,
-                  profil_carriere="plat")
-    complete = simulateur.scenario_actuel.calculer(
-        simulateur.carriere_simple(age_debut=20, **petite))
-    courte = simulateur.scenario_actuel.calculer(
-        simulateur.carriere_simple(age_debut=50, **petite))
+def test_une_reforme_ne_glisse_pas_dans_le_passe(simulateur):
+    """La projection part de la valeur EN VIGUEUR, jamais d'une postérieure.
 
-    releve = {a.code: a.montant for a in complete.avantages_appliques}
-    assert "minimum_contributif" in releve
-    # La carrière complète est portée au majoré, la courte au montant de base
-    # et au prorata de sa durée : le plancher par trimestre acquis est donc
-    # strictement plus élevé pour la première.
-    plancher_complet = complete.pension_annuelle
-    plancher_court = courte.pension_annuelle
-    assert plancher_complet > plancher_court
+    La réforme du 14 avril 2023 a relevé le minimum majoré de plus de 30 %.
+    Ramener cette valeur en arrière, comme le faisait la règle de l'ancre la
+    plus proche, surestimait de 7,6 % le montant de 2020 — celui-là même que
+    l'État a rappelé dans sa réponse à une question écrite.
+    """
+    minimum = simulateur.scenario_actuel.minimum_contributif
+    ancres = sorted(a for (mesure, a) in minimum._table if mesure == "montant_majore")
+    assert ancres[0] == 2007 and 2023 in ancres
+
+    # 2015 n'est pas au fichier : il est projeté depuis l'ancre de 2007, donc
+    # reste très en dessous du montant d'après réforme.
+    projete, _ = minimum._revalorise("montant_majore", 2015)
+    avant_reforme = minimum._table[("montant_majore", 2007)][0]
+    apres_reforme = minimum._table[("montant_majore", 2023)][0]
+    assert avant_reforme < projete < apres_reforme * 0.9
+
+    # Et une année antérieure à toute ancre se projette depuis la première.
+    ancien, _ = minimum._revalorise("montant_majore", 1990)
+    assert ancien < avant_reforme
 
 
 # -- mortalité observée avant 1986 -------------------------------------------

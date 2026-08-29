@@ -1,6 +1,7 @@
 # Minimum contributif, minimum majoré et plafond d'écrêtement
 # -------------------------------------------------------------
-# source_id: dila_legi_minimum_contributif
+# source_id: dila_legi_minimum_contributif (ancres du code),
+#            an_question_ecrite_mico et cnav_montants_minimum (montants servis)
 #
 # Ces trois grandeurs sont dans la LOI, et non dans les seules circulaires CNAV
 # que ce dépôt a longtemps crues leur unique support. Deux articles suffisent :
@@ -20,11 +21,24 @@
 # CHANGE, et le récupérateur ne garde que la première année où chaque valeur
 # apparaît, c'est-à-dire le décret qui l'a fixée.
 #
-# Le modèle retient ensuite l'ancre la PLUS PROCHE de l'année demandée, et non
-# la dernière en vigueur : entre deux décrets le montant dérive d'autant plus
-# qu'on s'éloigne de l'ancre, le législateur ayant parfois gelé la
-# revalorisation. La reconstitution tombe alors à 2 % près sur quinze ans, et
-# exactement sur les années récentes.
+# DEUX ORIGINES, ET LA RÉALITÉ PASSE AVANT LA RECONSTITUTION.
+#
+#   * les ancres du code, certifiées, disent ce qu'un décret a fixé et quand ;
+#   * les MONTANTS RÉELLEMENT SERVIS, transcrits de leur publication, disent ce
+#     que les caisses ont payé. Ils sont au niveau `haute` — ce sont des
+#     transcriptions — et le moteur les préfère à toute projection dès qu'une
+#     année en porte un.
+#
+# Ce n'est pas un détail de méthode. Projeter l'ancre la plus proche donnait
+# pour le minimum majoré de 2020 un montant supérieur de 7,6 % à celui que
+# l'État a répondu à une question écrite : la réforme de 2023 a relevé ce
+# montant de plus de 30 %, et rien n'autorise à faire glisser cette marche en
+# arrière. Une valeur transcrite, même sans chemin de certification, vaut mieux
+# qu'une valeur calculée qui contredit ce qui a été payé.
+#
+# Entre deux valeurs connues, et au-delà de la dernière, le modèle projette
+# depuis l'ancre EN VIGUEUR à la date demandée — la dernière fixée avant elle,
+# jamais une postérieure.
 #
 # La colonne `annee` porte la date d'effet de l'ancre, et le modèle revalorise :
 #
@@ -47,8 +61,20 @@
 # scripts/fetch/dila_legi_minimum_contributif.py.
 mesure,annee,valeur,fiabilite
 montant_base,2007,6958.210000,certifiee
+montant_base,2020,7715.160000,haute
 montant_base,2023,8509.610000,certifiee
+montant_base,2024,8796.360000,haute
+montant_base,2025,8972.280000,haute
+montant_base,2026,9075.480000,haute
 montant_majore,2007,7603.410000,certifiee
+montant_majore,2020,8430.600000,haute
 montant_majore,2023,10170.860000,certifiee
+montant_majore,2024,10513.560000,haute
+montant_majore,2025,10720.680000,haute
+montant_majore,2026,10847.160000,haute
 plafond_ecretement,2012,12060.000000,certifiee
 plafond_ecretement,2014,13440.000000,certifiee
+plafond_ecretement,2020,14298.840000,haute
+plafond_ecretement,2024,16738.320000,haute
+plafond_ecretement,2025,16738.320000,haute
+plafond_ecretement,2026,17338.680000,haute

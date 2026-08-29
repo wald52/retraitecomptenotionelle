@@ -1151,27 +1151,30 @@ class MinimumContributif:
     def _revalorise(self, mesure: str, annee: int) -> tuple[float, Fiabilite]:
         """Ancre de la mesure, portée à l'année demandée.
 
-        L'ancre retenue est la PLUS PROCHE dans le temps, et non la dernière en
-        vigueur. Ce n'est pas une lecture de barème mais une minimisation
-        d'erreur : entre deux décrets, le montant servi est revalorisé chaque
-        année sans que le code bouge, si bien qu'une ancre projetée dérive
-        d'autant plus qu'on s'en éloigne — et le législateur a parfois gelé la
-        revalorisation, ce qu'aucun indice ne reproduit. Pour 2020, l'ancre de
-        2023 ramenée en arrière tombe à 3 % du montant réellement servi, celle
-        de 2007 projetée en avant à 6 %.
+        **Un montant connu passe avant tout calcul.** Quand l'année demandée
+        figure au fichier, on la sert telle quelle : c'est ce que les caisses
+        ont payé, et aucune projection ne vaut mieux que cela.
 
-        L'index, lui, ne dépend pas de l'ancre mais de l'ANNÉE TRAVERSÉE : les
-        prix jusqu'à la bascule que la loi a fixée pour cette grandeur, le SMIC
-        ensuite. Un montant ancré en 2009 et lu en 2015 se revalorise donc sur
-        les prix, règle d'alors, quand le même ancré en 2023 et lu en 2025 se
-        revalorise sur le SMIC. Prendre l'index de l'ancre plutôt que celui de
-        la période appliquerait à quinze ans de revalorisations une règle que
-        la loi n'a introduite qu'en 2023.
+        Sinon, on projette depuis la valeur EN VIGUEUR à cette date — la
+        dernière fixée avant elle, jamais une postérieure. Ramener une valeur
+        postérieure en arrière ferait glisser dans le passé les marches que la
+        loi a créées : la réforme de 2023 a relevé le minimum majoré de plus de
+        30 %, et l'appliquer à 2020 le surestimait de 7,6 % par rapport au
+        montant que l'État a lui-même rappelé.
+
+        L'index de la projection ne dépend pas de l'ancre mais de l'ANNÉE
+        TRAVERSÉE : les prix jusqu'à la bascule que la loi a fixée pour cette
+        grandeur, le SMIC ensuite. Un montant ancré en 2007 et lu en 2015 se
+        revalorise donc sur les prix, règle d'alors, quand le même ancré en
+        2023 et lu en 2025 se revalorise sur le SMIC.
         """
         ancres = sorted(a for (m, a) in self._table if m == mesure)
         if not ancres:
             return 0.0, Fiabilite.ESTIMEE
-        reference = min(ancres, key=lambda a: (abs(a - annee), a))
+        if annee in ancres:
+            return self._table[(mesure, annee)]
+        anterieures = [a for a in ancres if a < annee]
+        reference = max(anterieures) if anterieures else ancres[0]
         valeur, fiabilite = self._table[(mesure, reference)]
 
         bascule = INDEXATION_SUR_LE_SMIC[mesure]

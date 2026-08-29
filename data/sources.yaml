@@ -207,6 +207,21 @@ institutions:
     nom: Caisse nationale d'assurance vieillesse
     role: Régime général — paramètres, barèmes, statistiques.
     jeux:
+      - id: cnav_montants_minimum
+        titre: Montants servis du minimum contributif et du plafond, 2024-2026
+        url: https://www.legislation.lassuranceretraite.fr/
+        acces: document
+        statut_integration: saisi
+        cible: data/reference/legislation/minimum_contributif.csv
+        note: >-
+          Montants mensuels en vigueur au 31 décembre de chaque année, tels que
+          publiés et relayés : 733,03 € puis 747,69 € et 756,29 € pour le
+          minimum, 876,13 € puis 893,39 € et 903,93 € pour le majoré, plafond
+          d'écrêtement 1 394,86 € puis 1 444,89 €. Transcription, donc `haute`
+          et jamais `certifiee` — mais préférée à une projection, parce qu'elle
+          dit ce qui a été payé. Le montant de 2023 n'est pas repris ici : le
+          code le porte déjà, au centime près.
+
       - id: cnav_baremes
         titre: Barèmes et paramètres du régime général (circulaires)
         url: https://www.legislation.cnav.fr/
@@ -322,6 +337,30 @@ institutions:
           pour les pensions servies depuis le 1er novembre 2025, revalorisé
           comme la valeur de service du point, opposable aux seuls assurés nés
           à compter du 2 août 1951 — vient des mêmes publications.
+
+  assemblee_nationale:
+    nom: Assemblée nationale
+    role: >-
+      Réponses ministérielles aux questions écrites. Source de dernier recours,
+      mais officielle, quand un montant n'est publié nulle part en série.
+    jeux:
+      - id: an_question_ecrite_mico
+        titre: Question écrite n° 32630 — montants du minimum contributif en 2020
+        url: https://www.assemblee-nationale.fr/dyn/15/questions/QANR5L15QE32630.pdf
+        acces: document
+        statut_integration: saisi
+        cible: data/reference/legislation/minimum_contributif.csv
+        note: >-
+          « Le montant du minimum contributif s'élève en 2020 à 642,93 euros
+          pour une carrière complète. Celui-ci est majoré à 702,55 euros
+          lorsque l'intéressé justifie d'une durée d'assurance de plus de
+          120 trimestres. […] le minimum contributif ne peut pas porter la
+          somme des pensions au-dessus d'un certain montant, soit
+          1 191,57 euros. »
+          Ces trois montants sont ce que les caisses ont RÉELLEMENT SERVI cette
+          année-là. Ils priment sur toute projection depuis les ancres du code :
+          la réforme de 2023 ayant relevé le minimum majoré de plus de 30 %,
+          ramener sa valeur en arrière surestimait 2020 de 7,6 %.
 
   union_retraite:
     nom: Union Retraite / Info-Retraite

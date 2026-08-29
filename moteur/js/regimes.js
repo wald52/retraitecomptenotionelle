@@ -129,14 +129,16 @@ export class MinimumContributif {
   /**
    * Ancre de la mesure, portée à l'année demandée.
    *
-   * L'ancre retenue est la PLUS PROCHE dans le temps : entre deux décrets le
-   * montant servi est revalorisé sans que le code bouge, si bien qu'une ancre
-   * projetée dérive d'autant plus qu'on s'en éloigne.
+   * Un montant CONNU passe avant tout calcul : quand l'année figure au
+   * fichier, on la sert telle quelle. Sinon on projette depuis la valeur en
+   * vigueur à cette date — la dernière fixée avant elle, jamais une
+   * postérieure, sans quoi les marches créées par une réforme glisseraient
+   * dans le passé.
    *
-   * L'index, lui, dépend de l'ANNÉE TRAVERSÉE et non de l'ancre : les prix
-   * jusqu'à la bascule que la loi a fixée pour cette grandeur, le SMIC ensuite.
+   * L'index dépend de l'ANNÉE TRAVERSÉE et non de l'ancre : les prix jusqu'à
+   * la bascule que la loi a fixée pour cette grandeur, le SMIC ensuite.
    *
-   * @returns {[number, number]} ancre revalorisée, et fiabilité.
+   * @returns {[number, number]} valeur, et fiabilité.
    */
   _revalorise(mesure, annee) {
     const ancres = Object.keys(this._table)
@@ -146,12 +148,13 @@ export class MinimumContributif {
     if (ancres.length === 0) {
       return [0.0, 0];
     }
-    let reference = ancres[0];
-    for (const candidate of ancres) {
-      if (Math.abs(candidate - annee) < Math.abs(reference - annee)) {
-        reference = candidate;
-      }
+    if (ancres.includes(annee)) {
+      return this._table[`${mesure}|${annee}`];
     }
+    const anterieures = ancres.filter((a) => a < annee);
+    const reference = anterieures.length
+      ? anterieures[anterieures.length - 1]
+      : ancres[0];
     const [valeur, fiabilite] = this._table[`${mesure}|${reference}`];
     const bascule = INDEXATION_SUR_LE_SMIC[mesure];
     const pivot = Math.min(Math.max(reference, bascule), annee);
