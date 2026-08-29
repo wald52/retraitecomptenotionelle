@@ -3,6 +3,7 @@
   "requete": {
    "age_reference": "cliquet_puis_esperance_vie",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -107,6 +108,14 @@
      "capital_droits_acquis": 432389.314741273,
      "capital_notionnel": 645355.3438350847,
      "cotisations_versees": 199632.9231365155,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 432389.314741273,
+      "capital_a_la_bascule": 379924.3191881915,
+      "coefficient_revalorisation": 1.1380932804332895,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 17246.58038729881
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 25000.542846696564,
      "pension_annuelle_euros_constants": 19952.715316217604,
@@ -120,6 +129,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 441878.0871816279,
      "cotisations_versees": 392549.6393954653,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 17117.99887787654,
      "pension_annuelle_euros_constants": 13661.72568683778,
@@ -141,6 +151,7 @@
   "requete": {
    "age_reference": "legal_sans_cliquet",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -245,6 +256,14 @@
      "capital_droits_acquis": 432389.314741273,
      "capital_notionnel": 645355.3438350847,
      "cotisations_versees": 199632.9231365155,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 432389.314741273,
+      "capital_a_la_bascule": 379924.3191881915,
+      "coefficient_revalorisation": 1.1380932804332895,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 17246.58038729881
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 25000.542846696564,
      "pension_annuelle_euros_constants": 19952.715316217604,
@@ -258,6 +277,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 441878.0871816279,
      "cotisations_versees": 392549.6393954653,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 17117.99887787654,
      "pension_annuelle_euros_constants": 13661.72568683778,
@@ -279,6 +299,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "1980",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -387,6 +408,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 297629.58642978815,
      "cotisations_versees": 255733.62534748155,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 11020.567123800429,
      "pension_annuelle_euros_constants": 6780.1646896843195,
@@ -400,6 +422,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 297629.58642978815,
      "cotisations_versees": 255733.62534748155,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 11020.567123800429,
      "pension_annuelle_euros_constants": 6780.1646896843195,
@@ -421,6 +444,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2000",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -528,6 +552,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 434874.3286976798,
      "cotisations_versees": 373659.05044069025,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 16102.437218421539,
      "pension_annuelle_euros_constants": 9906.674948734462,
@@ -541,6 +566,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 434874.3286976798,
      "cotisations_versees": 373659.05044069025,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 16102.437218421539,
      "pension_annuelle_euros_constants": 9906.674948734462,
@@ -562,6 +588,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -666,6 +693,14 @@
      "capital_droits_acquis": 203939.5379940996,
      "capital_notionnel": 758322.0531649184,
      "cotisations_versees": 491528.41385483235,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 203939.5379940996,
+      "capital_a_la_bascule": 154348.6961640633,
+      "coefficient_revalorisation": 1.3212909668982513,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 7006.624902970978
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 28078.99304840656,
      "pension_annuelle_euros_constants": 17274.99093740334,
@@ -679,6 +714,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 681913.5468889903,
      "cotisations_versees": 586204.4605888688,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 25249.754590146502,
      "pension_annuelle_euros_constants": 15534.363392749668,
@@ -700,6 +736,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2040",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -804,6 +841,14 @@
      "capital_droits_acquis": 591859.1276374261,
      "capital_notionnel": 931369.810323715,
      "cotisations_versees": 316933.84571151785,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 591859.1276374261,
+      "capital_a_la_bascule": 514895.5242505083,
+      "coefficient_revalorisation": 1.1494742132376223,
+      "diviseur": 23.304720743913965,
+      "pension_figee": 22094.043945365593
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 34486.569816119874,
      "pension_annuelle_euros_constants": 21217.113448781834,
@@ -817,6 +862,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 681913.5468889903,
      "cotisations_versees": 586204.4605888688,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 25249.754590146502,
      "pension_annuelle_euros_constants": 15534.363392749668,
@@ -838,6 +884,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2060",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -942,6 +989,7 @@
      "capital_droits_acquis": 1536875.9460547941,
      "capital_notionnel": 1536875.9460547941,
      "cotisations_versees": 0,
+     "droits_acquis": null,
      "fiabilite": "moyenne",
      "pension_annuelle": 56907.12649781106,
      "pension_annuelle_euros_constants": 35010.874244264945,
@@ -955,6 +1003,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 679271.6434913466,
      "cotisations_versees": 583655.0629404999,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 25151.93073440158,
      "pension_annuelle_euros_constants": 15474.179389051884,
@@ -976,6 +1025,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -1080,6 +1130,14 @@
      "capital_droits_acquis": 432389.314741273,
      "capital_notionnel": 645355.3438350847,
      "cotisations_versees": 199632.9231365155,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 432389.314741273,
+      "capital_a_la_bascule": 379924.3191881915,
+      "coefficient_revalorisation": 1.1380932804332895,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 17246.58038729881
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 25000.542846696564,
      "pension_annuelle_euros_constants": 19952.715316217604,
@@ -1093,6 +1151,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 441878.0871816279,
      "cotisations_versees": 392549.6393954653,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 17117.99887787654,
      "pension_annuelle_euros_constants": 13661.72568683778,
@@ -1110,10 +1169,307 @@
    }
   }
  },
+ "conversion_acquis_liquidation": {
+  "requete": {
+   "age_reference": "cliquet_legal",
+   "bascule": "2026",
+   "conversion_acquis": "liquidation",
+   "debut": "21",
+   "enfants": "0",
+   "euros": "2026",
+   "indexation": "triple_lock_inverse",
+   "interruptions": "",
+   "liquidation": "64",
+   "naissance": "1975",
+   "primes": "0",
+   "profil": "ascendant",
+   "projection": "cor_central",
+   "salaire": "1",
+   "sexe": "H",
+   "statut": "salarie_prive_non_cadre",
+   "table": "unisexe"
+  },
+  "resultat": {
+   "age_reference": {
+    "age": 67.0,
+    "anticipe": true,
+    "ecart_annees": 3.0
+   },
+   "assure": {
+    "affiliations": [
+     "salarie_prive_non_cadre"
+    ],
+    "age_liquidation": 64.0,
+    "annee_liquidation": 2039,
+    "annee_naissance": 1975,
+    "annees_cotisees": 43,
+    "identifiant": "assuré",
+    "sexe": "H",
+    "trimestres_actuels": 172
+   },
+   "conversion": {
+    "diviseur": 25.813653239147904,
+    "esperance_residuelle": 25.813653239147904,
+    "table": "unisexe_generation"
+   },
+   "fiabilite": "estimee",
+   "regime_fusionne": {
+    "age_ouverture": 64.0,
+    "age_taux_plein": 67.0,
+    "annee_bascule": 2026,
+    "duree_requise_trimestres": 172,
+    "origines": {
+     "age_ouverture": "regime_general",
+     "age_taux_plein": "regime_general",
+     "duree_requise_trimestres": "regime_general",
+     "salaire_reference": "agirc_arrco",
+     "taux_cotisation_retraite": "somme regime_general 17.86% + agirc_arrco 7.87%"
+    },
+    "regimes_fusionnes": [
+     "agirc_arrco",
+     "banque_de_france",
+     "cnavpl",
+     "cnbf",
+     "cnracl",
+     "comedie_francaise",
+     "crpcen",
+     "fonction_publique_etat",
+     "fspoeie",
+     "ieg",
+     "ircantec",
+     "marins",
+     "msa_non_salaries",
+     "msa_salaries",
+     "opera_de_paris",
+     "port_strasbourg",
+     "ratp",
+     "rci",
+     "regime_general",
+     "sncf"
+    ],
+    "taux_cotisation": 0.25730000000000003
+   },
+   "scenarios": {
+    "actuel": {
+     "minimum_applique": false,
+     "par_regime": [
+      {
+       "detail": "913 points × valeur de service 1.8341 € + cotisations revalorisées 74,395 € × rendement 5.81%",
+       "montant": 5997.343622983402,
+       "regime": "agirc_arrco"
+      },
+      {
+       "detail": "2,623 points × valeur de service 1.8159 €",
+       "montant": 4571.793804528307,
+       "regime": "arrco"
+      },
+      {
+       "detail": "SR 57,209 € × taux 50.00% × 172/172",
+       "montant": 28604.60993709649,
+       "regime": "regime_general"
+      }
+     ],
+     "pension_annuelle": 39173.7473646082,
+     "pension_annuelle_euros_constants": 31264.226294139706,
+     "pension_mensuelle": 3264.4789470506835,
+     "taux_remplacement": 0.5202453449371622
+    },
+    "notionnel_prospectif": {
+     "capital_droits_acquis": 482714.47875659214,
+     "capital_notionnel": 695680.5078504039,
+     "cotisations_versees": 199632.9231365155,
+     "droits_acquis": {
+      "age_conversion": 64.0,
+      "capital": 482714.47875659214,
+      "capital_a_la_bascule": 424143.15861070313,
+      "coefficient_revalorisation": 1.1380932804332895,
+      "diviseur": 24.592884449317385,
+      "pension_figee": 17246.58038729881
+     },
+     "fiabilite": "estimee",
+     "pension_annuelle": 26950.098903295253,
+     "pension_annuelle_euros_constants": 21508.639010708957,
+     "pension_mensuelle": 2245.8415752746046,
+     "rendement_cumule": 1.066788111639174,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.35790968297055353,
+     "variation_vs_actuel": -0.3120367410230579
+    },
+    "notionnel_retroactif": {
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 441878.0871816279,
+     "cotisations_versees": 392549.6393954653,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17117.99887787654,
+     "pension_annuelle_euros_constants": 13661.72568683778,
+     "pension_mensuelle": 1426.4999064897117,
+     "rendement_cumule": 1.1256616815700797,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.22733488190360435,
+     "variation_vs_actuel": -0.5630237077257021
+    }
+   },
+   "unite": {
+    "coefficient": 0.7980912830000428,
+    "euros_constants_de": 2026,
+    "scenario_projection": "cor_central"
+   }
+  }
+ },
+ "conversion_acquis_liquidation_tardive": {
+  "requete": {
+   "age_reference": "cliquet_legal",
+   "bascule": "2026",
+   "conversion_acquis": "liquidation",
+   "debut": "21",
+   "enfants": "0",
+   "euros": "2026",
+   "indexation": "triple_lock_inverse",
+   "interruptions": "",
+   "liquidation": "70",
+   "naissance": "1975",
+   "primes": "0",
+   "profil": "ascendant",
+   "projection": "cor_central",
+   "salaire": "1",
+   "sexe": "H",
+   "statut": "salarie_prive_non_cadre",
+   "table": "unisexe"
+  },
+  "resultat": {
+   "age_reference": {
+    "age": 67.0,
+    "anticipe": false,
+    "ecart_annees": -3.0
+   },
+   "assure": {
+    "affiliations": [
+     "salarie_prive_non_cadre"
+    ],
+    "age_liquidation": 70.0,
+    "annee_liquidation": 2045,
+    "annee_naissance": 1975,
+    "annees_cotisees": 49,
+    "identifiant": "assuré",
+    "sexe": "H",
+    "trimestres_actuels": 196
+   },
+   "conversion": {
+    "diviseur": 21.239680738063925,
+    "esperance_residuelle": 21.239680738063925,
+    "table": "unisexe_generation"
+   },
+   "fiabilite": "estimee",
+   "regime_fusionne": {
+    "age_ouverture": 64.0,
+    "age_taux_plein": 67.0,
+    "annee_bascule": 2026,
+    "duree_requise_trimestres": 172,
+    "origines": {
+     "age_ouverture": "regime_general",
+     "age_taux_plein": "regime_general",
+     "duree_requise_trimestres": "regime_general",
+     "salaire_reference": "agirc_arrco",
+     "taux_cotisation_retraite": "somme regime_general 17.86% + agirc_arrco 7.87%"
+    },
+    "regimes_fusionnes": [
+     "agirc_arrco",
+     "banque_de_france",
+     "cnavpl",
+     "cnbf",
+     "cnracl",
+     "comedie_francaise",
+     "crpcen",
+     "fonction_publique_etat",
+     "fspoeie",
+     "ieg",
+     "ircantec",
+     "marins",
+     "msa_non_salaries",
+     "msa_salaries",
+     "opera_de_paris",
+     "port_strasbourg",
+     "ratp",
+     "rci",
+     "regime_general",
+     "sncf"
+    ],
+    "taux_cotisation": 0.25730000000000003
+   },
+   "scenarios": {
+    "actuel": {
+     "minimum_applique": false,
+     "par_regime": [
+      {
+       "detail": "865 points × valeur de service 2.0353 € + cotisations revalorisées 119,486 € × rendement 5.81%",
+       "montant": 8703.437302863511,
+       "regime": "agirc_arrco"
+      },
+      {
+       "detail": "2,556 points × valeur de service 2.0151 €",
+       "montant": 5149.937795240963,
+       "regime": "arrco"
+      },
+      {
+       "detail": "SR 67,858 € × taux 65.00% × 172/172",
+       "montant": 44107.741864706186,
+       "regime": "regime_general"
+      }
+     ],
+     "pension_annuelle": 57961.11696281066,
+     "pension_annuelle_euros_constants": 41685.287974171915,
+     "pension_mensuelle": 4830.093080234222,
+     "taux_remplacement": 0.6541221379821472
+    },
+    "notionnel_prospectif": {
+     "capital_droits_acquis": 392442.85837821837,
+     "capital_notionnel": 733106.9051167908,
+     "cotisations_versees": 311577.19699807366,
+     "droits_acquis": {
+      "age_conversion": 70.0,
+      "capital": 392442.85837821837,
+      "capital_a_la_bascule": 324840.61825230357,
+      "coefficient_revalorisation": 1.2081089504435316,
+      "diviseur": 19.582656694408392,
+      "pension_figee": 16588.1791894487
+     },
+     "fiabilite": "estimee",
+     "pension_annuelle": 34515.90982735347,
+     "pension_annuelle_euros_constants": 24823.63550321079,
+     "pension_mensuelle": 2876.3258189461226,
+     "rendement_cumule": 1.0933535894819626,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.38953046307154227,
+     "variation_vs_actuel": -0.4044988841484928
+    },
+    "notionnel_retroactif": {
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 574300.5049544371,
+     "cotisations_versees": 496965.0369373579,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 27039.036604972374,
+     "pension_annuelle_euros_constants": 19446.31308857703,
+     "pension_mensuelle": 2253.2530504143647,
+     "rendement_cumule": 1.1556155106879828,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.30514995845180826,
+     "variation_vs_actuel": -0.5334969713865019
+    }
+   },
+   "unite": {
+    "coefficient": 0.7191940072672903,
+    "euros_constants_de": 2026,
+    "scenario_projection": "cor_central"
+   }
+  }
+ },
  "deja_liquide": {
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -1218,6 +1574,7 @@
      "capital_droits_acquis": 287579.14201804774,
      "capital_notionnel": 287579.14201804774,
      "cotisations_versees": 0,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 11239.552984017637,
      "pension_annuelle_euros_constants": 18369.61085642406,
@@ -1231,6 +1588,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 68344.86686525143,
      "cotisations_versees": 57397.031113149205,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 2671.1455737962274,
      "pension_annuelle_euros_constants": 4365.645573384421,
@@ -1252,6 +1610,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "3",
    "euros": "2026",
@@ -1356,6 +1715,14 @@
      "capital_droits_acquis": 432389.314741273,
      "capital_notionnel": 645355.3438350847,
      "cotisations_versees": 199632.9231365155,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 432389.314741273,
+      "capital_a_la_bascule": 379924.3191881915,
+      "coefficient_revalorisation": 1.1380932804332895,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 17246.58038729881
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 25000.542846696564,
      "pension_annuelle_euros_constants": 19952.715316217604,
@@ -1369,6 +1736,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 441878.0871816279,
      "cotisations_versees": 392549.6393954653,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 17117.99887787654,
      "pension_annuelle_euros_constants": 13661.72568683778,
@@ -1390,6 +1758,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "1980",
@@ -1494,6 +1863,14 @@
      "capital_droits_acquis": 432389.314741273,
      "capital_notionnel": 645355.3438350847,
      "cotisations_versees": 199632.9231365155,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 432389.314741273,
+      "capital_a_la_bascule": 379924.3191881915,
+      "coefficient_revalorisation": 1.1380932804332895,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 17246.58038729881
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 25000.542846696564,
      "pension_annuelle_euros_constants": 5938.790423776341,
@@ -1507,6 +1884,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 441878.0871816279,
      "cotisations_versees": 392549.6393954653,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 17117.99887787654,
      "pension_annuelle_euros_constants": 4066.3200168703606,
@@ -1528,6 +1906,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2000",
@@ -1632,6 +2011,14 @@
      "capital_droits_acquis": 432389.314741273,
      "capital_notionnel": 645355.3438350847,
      "cotisations_versees": 199632.9231365155,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 432389.314741273,
+      "capital_a_la_bascule": 379924.3191881915,
+      "coefficient_revalorisation": 1.1380932804332895,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 17246.58038729881
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 25000.542846696564,
      "pension_annuelle_euros_constants": 12954.116798793277,
@@ -1645,6 +2032,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 441878.0871816279,
      "cotisations_versees": 392549.6393954653,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 17117.99887787654,
      "pension_annuelle_euros_constants": 8869.74967645255,
@@ -1666,6 +2054,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2050",
@@ -1770,6 +2159,14 @@
      "capital_droits_acquis": 432389.314741273,
      "capital_notionnel": 645355.3438350847,
      "cotisations_versees": 199632.9231365155,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 432389.314741273,
+      "capital_a_la_bascule": 379924.3191881915,
+      "coefficient_revalorisation": 1.1380932804332895,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 17246.58038729881
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 25000.542846696564,
      "pension_annuelle_euros_constants": 30257.151210205342,
@@ -1783,6 +2180,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 441878.0871816279,
      "cotisations_versees": 392549.6393954653,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 17117.99887787654,
      "pension_annuelle_euros_constants": 20717.225367467327,
@@ -1804,6 +2202,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -1908,6 +2307,7 @@
      "capital_droits_acquis": 255530.6534028488,
      "capital_notionnel": 255530.6534028488,
      "cotisations_versees": 0,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 12066.440147528341,
      "pension_annuelle_euros_constants": 20094.568822595247,
@@ -1921,6 +2321,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 63818.98718578745,
      "cotisations_versees": 53198.72781551353,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 3013.6031779293266,
      "pension_annuelle_euros_constants": 5018.634802187035,
@@ -1942,6 +2343,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -2041,6 +2443,7 @@
      "capital_droits_acquis": 521878.6009801084,
      "capital_notionnel": 521878.6009801084,
      "cotisations_versees": 0,
+     "droits_acquis": null,
      "fiabilite": "moyenne",
      "pension_annuelle": 22293.2390405248,
      "pension_annuelle_euros_constants": 31791.186567225872,
@@ -2054,6 +2457,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 127034.81623054863,
      "cotisations_versees": 109123.68089087895,
+     "droits_acquis": null,
      "fiabilite": "moyenne",
      "pension_annuelle": 5426.582962739076,
      "pension_annuelle_euros_constants": 7738.5574647705425,
@@ -2075,6 +2479,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -2174,6 +2579,7 @@
      "capital_droits_acquis": 587367.8960813432,
      "capital_notionnel": 587367.8960813432,
      "cotisations_versees": 0,
+     "droits_acquis": null,
      "fiabilite": "moyenne",
      "pension_annuelle": 24531.366676024,
      "pension_annuelle_euros_constants": 30202.08340144663,
@@ -2187,6 +2593,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 198936.4197926577,
      "cotisations_versees": 175297.1765970711,
+     "droits_acquis": null,
      "fiabilite": "moyenne",
      "pension_annuelle": 8308.561451362128,
      "pension_annuelle_euros_constants": 10229.18409781622,
@@ -2208,6 +2615,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -2312,6 +2720,7 @@
      "capital_droits_acquis": 717925.1107280698,
      "capital_notionnel": 717925.1107280698,
      "cotisations_versees": 0,
+     "droits_acquis": null,
      "fiabilite": "moyenne",
      "pension_annuelle": 29381.85529202736,
      "pension_annuelle_euros_constants": 30177.95739571123,
@@ -2325,6 +2734,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 268985.62416482274,
      "cotisations_versees": 253138.15576642848,
+     "droits_acquis": null,
      "fiabilite": "moyenne",
      "pension_annuelle": 11008.525216274307,
      "pension_annuelle_euros_constants": 11306.801482222392,
@@ -2346,6 +2756,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -2450,6 +2861,14 @@
      "capital_droits_acquis": 524677.1003446312,
      "capital_notionnel": 647857.2120660736,
      "cotisations_versees": 118004.9681151175,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 524677.1003446312,
+      "capital_a_la_bascule": 484530.4993889356,
+      "coefficient_revalorisation": 1.08285670562808,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 21995.15478678798
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 25562.711799759705,
      "pension_annuelle_euros_constants": 22250.080190139382,
@@ -2463,6 +2882,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 377851.9823285021,
      "cotisations_versees": 341534.37043956656,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 14909.028019350511,
      "pension_annuelle_euros_constants": 12976.990531603227,
@@ -2484,6 +2904,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -2588,6 +3009,14 @@
      "capital_droits_acquis": 336805.31750612514,
      "capital_notionnel": 650714.9824443224,
      "cotisations_versees": 288381.48066680983,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 336805.31750612514,
+      "capital_a_la_bascule": 281575.076946743,
+      "coefficient_revalorisation": 1.196147475686665,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 12782.038301729193
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 24778.12446202134,
      "pension_annuelle_euros_constants": 18132.133500335953,
@@ -2601,6 +3030,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 511863.9446550105,
      "cotisations_versees": 448647.9224237629,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 19490.912105083207,
      "pension_annuelle_euros_constants": 14263.057757836941,
@@ -2622,6 +3052,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -2726,6 +3157,14 @@
      "capital_droits_acquis": 203939.5379940996,
      "capital_notionnel": 758322.0531649184,
      "cotisations_versees": 491528.41385483235,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 203939.5379940996,
+      "capital_a_la_bascule": 154348.6961640633,
+      "coefficient_revalorisation": 1.3212909668982513,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 7006.624902970978
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 28078.99304840656,
      "pension_annuelle_euros_constants": 17274.99093740334,
@@ -2739,6 +3178,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 681913.5468889903,
      "cotisations_versees": 586204.4605888688,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 25249.754590146502,
      "pension_annuelle_euros_constants": 15534.363392749668,
@@ -2760,6 +3200,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -2859,6 +3300,14 @@
      "capital_droits_acquis": 67559.6078969376,
      "capital_notionnel": 923964.1333009184,
      "cotisations_versees": 737658.7031087998,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 67559.6078969376,
+      "capital_a_la_bascule": 46288.69282051216,
+      "coefficient_revalorisation": 1.4595272361417722,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 2101.2649662905733
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 33674.024660695875,
      "pension_annuelle_euros_constants": 17417.55319198198,
@@ -2872,6 +3321,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 903165.6989953298,
      "cotisations_versees": 768844.7622550352,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 32916.02230490297,
      "pension_annuelle_euros_constants": 17025.484038244005,
@@ -2893,6 +3343,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -2992,6 +3443,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 1034987.9559373677,
      "cotisations_versees": 880879.2474553852,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 37588.86064274878,
      "pension_annuelle_euros_constants": 17827.03808997341,
@@ -3005,6 +3457,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 1034987.9559373677,
      "cotisations_versees": 880879.2474553852,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 37588.86064274878,
      "pension_annuelle_euros_constants": 17827.03808997341,
@@ -3026,6 +3479,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -3130,6 +3584,14 @@
      "capital_droits_acquis": 476041.18386063253,
      "capital_notionnel": 699693.5550970908,
      "cotisations_versees": 199632.9231365155,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 476041.18386063253,
+      "capital_a_la_bascule": 379924.3191881915,
+      "coefficient_revalorisation": 1.2529895029563258,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 17246.58038729881
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 27105.561100354633,
      "pension_annuelle_euros_constants": 21632.71203501808,
@@ -3143,6 +3605,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 525847.0888471298,
      "cotisations_versees": 392549.6393954653,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 20370.889930823592,
      "pension_annuelle_euros_constants": 16257.829680743655,
@@ -3164,6 +3627,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -3268,6 +3732,14 @@
      "capital_droits_acquis": 540581.1415299986,
      "capital_notionnel": 779466.6352444246,
      "cotisations_versees": 199632.9231365155,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 540581.1415299986,
+      "capital_a_la_bascule": 379924.3191881915,
+      "coefficient_revalorisation": 1.4228653292979316,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 17246.58038729881
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 30195.905555216734,
      "pension_annuelle_euros_constants": 24099.089005911042,
@@ -3281,6 +3753,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 609806.3836608708,
      "cotisations_versees": 392549.6393954653,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 23623.40494820253,
      "pension_annuelle_euros_constants": 18853.63356394052,
@@ -3302,6 +3775,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -3406,6 +3880,14 @@
      "capital_droits_acquis": 476041.18386063253,
      "capital_notionnel": 699693.5550970908,
      "cotisations_versees": 199632.9231365155,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 476041.18386063253,
+      "capital_a_la_bascule": 379924.3191881915,
+      "coefficient_revalorisation": 1.2529895029563258,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 17246.58038729881
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 27105.561100354633,
      "pension_annuelle_euros_constants": 21632.71203501808,
@@ -3419,6 +3901,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 507175.42371338734,
      "cotisations_versees": 392549.6393954653,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 19647.564760195444,
      "pension_annuelle_euros_constants": 15680.55016729081,
@@ -3440,6 +3923,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -3544,6 +4028,14 @@
      "capital_droits_acquis": 446904.42340453516,
      "capital_notionnel": 570084.5351259775,
      "cotisations_versees": 118004.9681151175,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 446904.42340453516,
+      "capital_a_la_bascule": 412708.73706721986,
+      "coefficient_revalorisation": 1.08285670562808,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 18734.8217812944
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 22494.01010208881,
      "pension_annuelle_euros_constants": 19579.046718117996,
@@ -3557,6 +4049,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 348814.0320969784,
      "cotisations_versees": 316883.414148769,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 13763.26821425861,
      "pension_annuelle_euros_constants": 11979.707937267016,
@@ -3578,6 +4071,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -3682,6 +4176,14 @@
      "capital_droits_acquis": 361194.9796965992,
      "capital_notionnel": 574161.0087904109,
      "cotisations_versees": 199632.9231365155,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 361194.9796965992,
+      "capital_a_la_bascule": 317368.51970436616,
+      "coefficient_revalorisation": 1.1380932804332895,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 14406.873714151807
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 22242.53202253691,
      "pension_annuelle_euros_constants": 17751.57091903602,
@@ -3695,6 +4197,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 416353.9103161338,
      "cotisations_versees": 372305.9836520454,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 16129.212957920614,
      "pension_annuelle_euros_constants": 12872.584263367778,
@@ -3716,6 +4219,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -3820,6 +4324,14 @@
      "capital_droits_acquis": 428219.5294334086,
      "capital_notionnel": 442350.3085781116,
      "cotisations_versees": 13990.870440300001,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 428219.5294334086,
+      "capital_a_la_bascule": 423979.73211228574,
+      "coefficient_revalorisation": 1.01,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 19246.466106945707
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 12334.88463530464,
      "pension_annuelle_euros_constants": 12122.73674231414,
@@ -3833,6 +4345,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 241607.73441917467,
      "cotisations_versees": 230316.32614186412,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 6737.202333230854,
      "pension_annuelle_euros_constants": 6621.329074428357,
@@ -3854,6 +4367,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -3958,6 +4472,14 @@
      "capital_droits_acquis": 427641.1008900721,
      "capital_notionnel": 517193.42531789624,
      "cotisations_versees": 86582.96598396065,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 427641.1008900721,
+      "capital_a_la_bascule": 402857.26149235596,
+      "coefficient_revalorisation": 1.061520150601,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 18287.616227834576
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 16394.446077762408,
      "pension_annuelle_euros_constants": 14773.73280819661,
@@ -3971,6 +4493,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 316133.2954322357,
      "cotisations_versees": 291466.7315474034,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 10021.067576726176,
      "pension_annuelle_euros_constants": 9030.410306588485,
@@ -3992,6 +4515,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -4096,6 +4620,14 @@
      "capital_droits_acquis": 428875.6946335101,
      "capital_notionnel": 568401.2248932469,
      "cotisations_versees": 133080.83091816402,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 428875.6946335101,
+      "capital_a_la_bascule": 392138.12725197425,
+      "coefficient_revalorisation": 1.0936852726843609,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 17801.02350127785
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 19570.582095242084,
      "pension_annuelle_euros_constants": 16741.48515759786,
@@ -4109,6 +4641,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 366639.79294903093,
      "cotisations_versees": 332337.6535515691,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 12623.74860054039,
      "pension_annuelle_euros_constants": 10798.876538300507,
@@ -4130,6 +4663,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -4234,6 +4768,14 @@
      "capital_droits_acquis": 430342.1525949144,
      "capital_notionnel": 605539.9330564388,
      "cotisations_versees": 165644.30959045,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 430342.1525949144,
+      "capital_a_la_bascule": 385725.8780184883,
+      "coefficient_revalorisation": 1.1156683466653166,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 17509.940866438854
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 22090.106141934037,
      "pension_annuelle_euros_constants": 18252.367556111003,
@@ -4247,6 +4789,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 403056.26141963946,
      "cotisations_versees": 361572.576377266,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 14703.498662739887,
      "pension_annuelle_euros_constants": 12149.043568589135,
@@ -4268,6 +4811,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -4372,6 +4916,14 @@
      "capital_droits_acquis": 432389.314741273,
      "capital_notionnel": 645355.3438350847,
      "cotisations_versees": 199632.9231365155,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 432389.314741273,
+      "capital_a_la_bascule": 379924.3191881915,
+      "coefficient_revalorisation": 1.1380932804332895,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 17246.58038729881
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 25000.542846696564,
      "pension_annuelle_euros_constants": 19952.715316217604,
@@ -4385,6 +4937,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 441878.0871816279,
      "cotisations_versees": 392549.6393954653,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 17117.99887787654,
      "pension_annuelle_euros_constants": 13661.72568683778,
@@ -4406,6 +4959,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -4510,6 +5064,14 @@
      "capital_droits_acquis": 436420.76471168234,
      "capital_notionnel": 710364.3369428292,
      "cotisations_versees": 253601.24713037058,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 436420.76471168234,
+      "capital_a_la_bascule": 372188.9074144625,
+      "coefficient_revalorisation": 1.1725786449236986,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 16895.433081778752
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 30250.634493941296,
      "pension_annuelle_euros_constants": 22918.373976801176,
@@ -4523,6 +5085,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 504947.58642099774,
      "cotisations_versees": 442502.56268549873,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 21503.028912118352,
      "pension_annuelle_euros_constants": 16291.04534453977,
@@ -4544,6 +5107,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -4648,6 +5212,14 @@
      "capital_droits_acquis": 441467.68262890365,
      "capital_notionnel": 782131.7293674761,
      "cotisations_versees": 311577.19699807366,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 441467.68262890365,
+      "capital_a_la_bascule": 365420.4221124495,
+      "coefficient_revalorisation": 1.2081089504435316,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 16588.1791894487
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 36824.081256824495,
      "pension_annuelle_euros_constants": 26483.658563031924,
@@ -4661,6 +5233,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 574300.5049544371,
      "cotisations_versees": 496965.0369373579,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 27039.036604972374,
      "pension_annuelle_euros_constants": 19446.31308857703,
@@ -4682,6 +5255,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -4786,6 +5360,7 @@
      "capital_droits_acquis": 741256.2219502078,
      "capital_notionnel": 741256.2219502078,
      "cotisations_versees": 0,
+     "droits_acquis": null,
      "fiabilite": "moyenne",
      "pension_annuelle": 30141.085055632124,
      "pension_annuelle_euros_constants": 30141.085055632124,
@@ -4799,6 +5374,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 289153.8364913488,
      "cotisations_versees": 270119.4336552886,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 11757.621888040658,
      "pension_annuelle_euros_constants": 11757.621888040658,
@@ -4820,6 +5396,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "20.5",
    "enfants": "0",
    "euros": "2026",
@@ -4924,6 +5501,14 @@
      "capital_droits_acquis": 433611.4672970544,
      "capital_notionnel": 666303.9201814814,
      "cotisations_versees": 217206.5790288249,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 433611.4672970544,
+      "capital_a_la_bascule": 377225.91973223945,
+      "coefficient_revalorisation": 1.1494742132376223,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 17124.08714118716
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 26165.157850339263,
      "pension_annuelle_euros_constants": 20523.03135005003,
@@ -4937,6 +5522,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 462237.05382245505,
      "cotisations_versees": 408722.5741120229,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 18151.634878939505,
      "pension_annuelle_euros_constants": 14237.505227598189,
@@ -4958,6 +5544,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -5057,6 +5644,14 @@
      "capital_droits_acquis": 604956.0000845583,
      "capital_notionnel": 817922.02917837,
      "cotisations_versees": 199632.9231365155,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 604956.0000845583,
+      "capital_a_la_bascule": 531552.21147975,
+      "coefficient_revalorisation": 1.1380932804332895,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 24129.695000627118
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 31685.63634138944,
      "pension_annuelle_euros_constants": 25288.03016037228,
@@ -5070,6 +5665,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 280593.93046880927,
      "cotisations_versees": 256890.9385302357,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 10869.981395863499,
      "pension_annuelle_euros_constants": 8675.237398411296,
@@ -5091,6 +5687,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -5195,6 +5792,14 @@
      "capital_droits_acquis": 503597.0385411138,
      "capital_notionnel": 805712.1450644045,
      "cotisations_versees": 283423.1099057164,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 503597.0385411138,
+      "capital_a_la_bascule": 442491.8828704328,
+      "coefficient_revalorisation": 1.1380932804332895,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 20086.821093629333
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 31212.63532906281,
      "pension_annuelle_euros_constants": 24910.5321755842,
@@ -5208,6 +5813,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 571670.5213053933,
      "cotisations_versees": 511445.8932757069,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 22146.05255634339,
      "pension_annuelle_euros_constants": 17674.571498078476,
@@ -5229,6 +5835,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -5333,6 +5940,14 @@
      "capital_droits_acquis": 500558.35387548094,
      "capital_notionnel": 677439.7133959564,
      "cotisations_versees": 165489.62338187822,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 500558.35387548094,
+      "capital_a_la_bascule": 439821.9043037586,
+      "coefficient_revalorisation": 1.1380932804332895,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 19965.618007496534
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 26243.465313486886,
      "pension_annuelle_euros_constants": 20944.68090240787,
@@ -5346,6 +5961,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 440855.5117482719,
      "cotisations_versees": 386632.46621792007,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 17078.385134564716,
      "pension_annuelle_euros_constants": 13630.110303613614,
@@ -5367,6 +5983,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -5471,6 +6088,14 @@
      "capital_droits_acquis": 415987.4333151304,
      "capital_notionnel": 620343.4827697799,
      "cotisations_versees": 195273.5015200905,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 415987.4333151304,
+      "capital_a_la_bascule": 379924.3191881915,
+      "coefficient_revalorisation": 1.094921836548914,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 17246.58038729881
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 24031.603625518335,
      "pension_annuelle_euros_constants": 19179.413370038408,
@@ -5484,6 +6109,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 423930.61130249785,
      "cotisations_versees": 388190.21777904034,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 16422.72821188992,
      "pension_annuelle_euros_constants": 13106.836228988226,
@@ -5505,6 +6131,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -5609,6 +6236,14 @@
      "capital_droits_acquis": 449386.3571278544,
      "capital_notionnel": 671298.2113615775,
      "cotisations_versees": 204100.4829268513,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 449386.3571278544,
+      "capital_a_la_bascule": 379924.3191881915,
+      "coefficient_revalorisation": 1.1828312493606277,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 17246.58038729881
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 26005.548503437505,
      "pension_annuelle_euros_constants": 20754.801570228283,
@@ -5622,6 +6257,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 460529.0140330493,
      "cotisations_versees": 397017.19918580115,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 17840.520664259577,
      "pension_annuelle_euros_constants": 14238.364026327703,
@@ -5643,6 +6279,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -5747,6 +6384,14 @@
      "capital_droits_acquis": 395011.03040680476,
      "capital_notionnel": 588389.4125677309,
      "cotisations_versees": 189624.5849184619,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 395011.03040680476,
+      "capital_a_la_bascule": 379924.3191881915,
+      "coefficient_revalorisation": 1.039709780228994,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 17246.58038729881
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 22793.728850258365,
      "pension_annuelle_euros_constants": 18191.47630245779,
@@ -5760,6 +6405,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 401052.55977531394,
      "cotisations_versees": 382541.30117741163,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 15536.451042392344,
      "pension_annuelle_euros_constants": 12399.506145690259,
@@ -5781,6 +6427,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -5885,6 +6532,14 @@
      "capital_droits_acquis": 86477.86294825462,
      "capital_notionnel": 129071.06876701699,
      "cotisations_versees": 39926.584627303106,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 86477.86294825462,
+      "capital_a_la_bascule": 75984.86383763832,
+      "coefficient_revalorisation": 1.1380932804332895,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 3449.3160774597627
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 5000.108569339314,
      "pension_annuelle_euros_constants": 3990.543063243522,
@@ -5898,6 +6553,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 88375.6174363256,
      "cotisations_versees": 78509.92787909308,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 3423.5997755753087,
      "pension_annuelle_euros_constants": 2732.345137367557,
@@ -5919,6 +6575,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -6023,6 +6680,14 @@
      "capital_droits_acquis": 237814.1231077002,
      "capital_notionnel": 354945.43910929665,
      "cotisations_versees": 109798.10772508354,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 237814.1231077002,
+      "capital_a_la_bascule": 208958.37555350535,
+      "coefficient_revalorisation": 1.1380932804332895,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 9485.619213014346
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 13750.298565683113,
      "pension_annuelle_euros_constants": 10973.993423919685,
@@ -6036,6 +6701,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 243032.94794989537,
      "cotisations_versees": 215902.30166750593,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 9414.899382832098,
      "pension_annuelle_euros_constants": 7513.94912776078,
@@ -6057,6 +6723,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -6161,6 +6828,14 @@
      "capital_droits_acquis": 598424.6287492234,
      "capital_notionnel": 917873.672389941,
      "cotisations_versees": 299449.38470477326,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 598424.6287492234,
+      "capital_a_la_bascule": 525813.3397654312,
+      "coefficient_revalorisation": 1.1380932804332895,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 23869.180189243416
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 35557.6819711025,
      "pension_annuelle_euros_constants": 28378.27602482469,
@@ -6174,6 +6849,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 641531.8330948928,
      "cotisations_versees": 570411.1340054922,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 24852.423140246283,
      "pension_annuelle_euros_constants": 19834.502269659108,
@@ -6195,6 +6871,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -6299,6 +6976,14 @@
      "capital_droits_acquis": 754948.0677053516,
      "capital_notionnel": 1393846.1549867867,
      "cotisations_versees": 598898.7694095465,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 754948.0677053516,
+      "capital_a_la_bascule": 663344.6314856822,
+      "coefficient_revalorisation": 1.1380932804332895,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 30112.382739400342
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 53996.47008788892,
      "pension_annuelle_euros_constants": 43094.11208991671,
@@ -6312,6 +6997,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 1074297.3056814875,
      "cotisations_versees": 965868.8212443534,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 41617.40671608051,
      "pension_annuelle_euros_constants": 33214.489521171294,
@@ -6333,6 +7019,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -6437,6 +7124,14 @@
      "capital_droits_acquis": 1214660.7213303975,
      "capital_notionnel": 2830947.1906803693,
      "cotisations_versees": 1512683.3785478498,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 1214660.7213303975,
+      "capital_a_la_bascule": 1067276.946638291,
+      "coefficient_revalorisation": 1.1380932804332895,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 48448.80079021858
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 109668.5991887066,
      "pension_annuelle_euros_constants": 87525.55303133231,
@@ -6450,6 +7145,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 2392042.4455861934,
      "cotisations_versees": 2170823.9139406676,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 92665.78517288371,
      "pension_annuelle_euros_constants": 73955.75537883311,
@@ -6471,6 +7167,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -6565,6 +7262,14 @@
      "capital_droits_acquis": 588656.9943030999,
      "capital_notionnel": 801623.0233969117,
      "cotisations_versees": 199632.9231365155,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 588656.9943030999,
+      "capital_a_la_bascule": 517230.8846942574,
+      "coefficient_revalorisation": 1.1380932804332895,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 23479.581540697673
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 31054.226070613044,
      "pension_annuelle_euros_constants": 24784.107127268944,
@@ -6578,6 +7283,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 307305.07381215435,
      "cotisations_versees": 279450.5698987594,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 11904.749434927264,
      "pension_annuelle_euros_constants": 9501.076750315135,
@@ -6599,6 +7305,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -6703,6 +7410,14 @@
      "capital_droits_acquis": 575018.8377494453,
      "capital_notionnel": 787984.8668432571,
      "cotisations_versees": 199632.9231365155,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 575018.8377494453,
+      "capital_a_la_bascule": 505247.54660753894,
+      "coefficient_revalorisation": 1.1380932804332895,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 22935.60056032143
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 30525.89494183769,
      "pension_annuelle_euros_constants": 24362.45065885576,
@@ -6716,6 +7431,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 333970.63688360737,
      "cotisations_versees": 302451.237775721,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 12937.75173120872,
      "pension_annuelle_euros_constants": 10325.506878296394,
@@ -6737,6 +7453,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -6841,6 +7558,14 @@
      "capital_droits_acquis": 575018.8377494453,
      "capital_notionnel": 787984.8668432571,
      "cotisations_versees": 199632.9231365155,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 575018.8377494453,
+      "capital_a_la_bascule": 505247.54660753894,
+      "coefficient_revalorisation": 1.1380932804332895,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 22935.60056032143
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 30525.89494183769,
      "pension_annuelle_euros_constants": 24362.45065885576,
@@ -6854,6 +7579,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 333970.63688360737,
      "cotisations_versees": 302451.237775721,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 12937.75173120872,
      "pension_annuelle_euros_constants": 10325.506878296394,
@@ -6875,6 +7601,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -6979,6 +7706,14 @@
      "capital_droits_acquis": 560597.7633790247,
      "capital_notionnel": 773563.7924728364,
      "cotisations_versees": 199632.9231365155,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 560597.7633790247,
+      "capital_a_la_bascule": 492576.2879169241,
+      "coefficient_revalorisation": 1.1380932804332895,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 22360.391576377187
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 29967.23421153276,
      "pension_annuelle_euros_constants": 23916.588399844957,
@@ -6992,6 +7727,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 339967.4531283276,
      "cotisations_versees": 307164.718233274,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 13170.063531059883,
      "pension_annuelle_euros_constants": 10510.912900695655,
@@ -7013,6 +7749,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -7122,6 +7859,14 @@
      "capital_droits_acquis": 370119.6851638664,
      "capital_notionnel": 583085.7142576781,
      "cotisations_versees": 199632.9231365155,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 370119.6851638664,
+      "capital_a_la_bascule": 325210.324607976,
+      "coefficient_revalorisation": 1.1380932804332895,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 14762.850712256604
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 22588.267877302806,
      "pension_annuelle_euros_constants": 18027.49969094525,
@@ -7135,6 +7880,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 410702.98236780014,
      "cotisations_versees": 367017.2670159609,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 15910.300590268456,
      "pension_annuelle_euros_constants": 12697.87221100369,
@@ -7156,6 +7902,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -7250,6 +7997,14 @@
      "capital_droits_acquis": 174102.07266001563,
      "capital_notionnel": 387068.1017538274,
      "cotisations_versees": 199632.9231365155,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 174102.07266001563,
+      "capital_a_la_bascule": 152976.9797021667,
+      "coefficient_revalorisation": 1.1380932804332895,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 6944.356137762077
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 14994.704475491139,
      "pension_annuelle_euros_constants": 11967.142933051207,
@@ -7263,6 +8018,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 314594.85328403907,
      "cotisations_versees": 285458.58883890545,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 12187.149582025751,
      "pension_annuelle_euros_constants": 9726.457846032368,
@@ -7284,6 +8040,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -7378,6 +8135,14 @@
      "capital_droits_acquis": 588656.9943030999,
      "capital_notionnel": 801623.0233969117,
      "cotisations_versees": 199632.9231365155,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 588656.9943030999,
+      "capital_a_la_bascule": 517230.8846942574,
+      "coefficient_revalorisation": 1.1380932804332895,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 23479.581540697673
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 31054.226070613044,
      "pension_annuelle_euros_constants": 24784.107127268944,
@@ -7391,6 +8156,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 331333.93867118354,
      "cotisations_versees": 299607.96308252634,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 12835.608179964871,
      "pension_annuelle_euros_constants": 10243.987000434008,
@@ -7412,6 +8178,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -7521,6 +8288,14 @@
      "capital_droits_acquis": 370119.6851638664,
      "capital_notionnel": 583085.7142576781,
      "cotisations_versees": 199632.9231365155,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 370119.6851638664,
+      "capital_a_la_bascule": 325210.324607976,
+      "coefficient_revalorisation": 1.1380932804332895,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 14762.850712256604
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 22588.267877302806,
      "pension_annuelle_euros_constants": 18027.49969094525,
@@ -7534,6 +8309,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 410702.98236780014,
      "cotisations_versees": 367017.2670159609,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 15910.300590268456,
      "pension_annuelle_euros_constants": 12697.87221100369,
@@ -7555,6 +8331,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -7654,6 +8431,14 @@
      "capital_droits_acquis": 450265.7224097395,
      "capital_notionnel": 663231.7515035513,
      "cotisations_versees": 199632.9231365155,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 450265.7224097395,
+      "capital_a_la_bascule": 395631.6500158199,
+      "coefficient_revalorisation": 1.1380932804332895,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 17959.611193980083
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 25693.060387815305,
      "pension_annuelle_euros_constants": 20505.407529109096,
@@ -7667,6 +8452,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 432786.30825194105,
      "cotisations_versees": 385024.66117369314,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 16765.790732618796,
      "pension_annuelle_euros_constants": 13380.631436305963,
@@ -7688,6 +8474,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -7782,6 +8569,14 @@
      "capital_droits_acquis": 233962.70440596988,
      "capital_notionnel": 446928.73349978164,
      "cotisations_versees": 199632.9231365155,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 233962.70440596988,
+      "capital_a_la_bascule": 205574.27798615655,
+      "coefficient_revalorisation": 1.1380932804332895,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 9331.998852889852
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 17313.656821808865,
      "pension_annuelle_euros_constants": 13817.87858633988,
@@ -7795,6 +8590,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 361781.1773080696,
      "cotisations_versees": 325760.85372159735,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 14015.109521941182,
      "pension_annuelle_euros_constants": 11185.336739752154,
@@ -7816,6 +8612,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -7915,6 +8712,14 @@
      "capital_droits_acquis": 588656.9943030999,
      "capital_notionnel": 801623.0233969117,
      "cotisations_versees": 199632.9231365155,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 588656.9943030999,
+      "capital_a_la_bascule": 517230.8846942574,
+      "coefficient_revalorisation": 1.1380932804332895,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 23479.581540697673
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 31054.226070613044,
      "pension_annuelle_euros_constants": 24784.107127268944,
@@ -7928,6 +8733,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 299668.46675406495,
      "cotisations_versees": 273040.6351797465,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 11608.913468303677,
      "pension_annuelle_euros_constants": 9264.97264415496,
@@ -7949,6 +8755,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -8048,6 +8855,14 @@
      "capital_droits_acquis": 588656.9943030999,
      "capital_notionnel": 801623.0233969117,
      "cotisations_versees": 199632.9231365155,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 588656.9943030999,
+      "capital_a_la_bascule": 517230.8846942574,
+      "coefficient_revalorisation": 1.1380932804332895,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 23479.581540697673
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 31054.226070613044,
      "pension_annuelle_euros_constants": 24784.107127268944,
@@ -8061,6 +8876,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 303212.80142198235,
      "cotisations_versees": 276094.96316816914,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 11746.218120035119,
      "pension_annuelle_euros_constants": 9374.554289817179,
@@ -8082,6 +8898,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -8176,6 +8993,14 @@
      "capital_droits_acquis": 489250.08989257604,
      "capital_notionnel": 702216.1189863877,
      "cotisations_versees": 199632.9231365155,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 489250.08989257604,
+      "capital_a_la_bascule": 429885.75567928056,
+      "coefficient_revalorisation": 1.1380932804332895,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 19514.568739688737
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 27203.283180446393,
      "pension_annuelle_euros_constants": 21710.70317529595,
@@ -8189,6 +9014,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 313205.6142352298,
      "cotisations_versees": 284044.07059978583,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 12133.331587496314,
      "pension_annuelle_euros_constants": 9683.50617372988,
@@ -8210,6 +9036,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -8314,6 +9141,14 @@
      "capital_droits_acquis": 607178.7890682706,
      "capital_notionnel": 820144.8181620823,
      "cotisations_versees": 199632.9231365155,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 607178.7890682706,
+      "capital_a_la_bascule": 533505.2930258127,
+      "coefficient_revalorisation": 1.1380932804332895,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 24218.354705167996
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 31771.745384658887,
      "pension_annuelle_euros_constants": 25356.7530371931,
@@ -8327,6 +9162,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 367712.9089443364,
      "cotisations_versees": 331384.05575609184,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 14244.899996823326,
      "pension_annuelle_euros_constants": 11368.730514672034,
@@ -8348,6 +9184,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -8447,6 +9284,14 @@
      "capital_droits_acquis": 588656.9943030999,
      "capital_notionnel": 801623.0233969117,
      "cotisations_versees": 199632.9231365155,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 588656.9943030999,
+      "capital_a_la_bascule": 517230.8846942574,
+      "coefficient_revalorisation": 1.1380932804332895,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 23479.581540697673
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 31054.226070613044,
      "pension_annuelle_euros_constants": 24784.107127268944,
@@ -8460,6 +9305,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 307669.7178269745,
      "cotisations_versees": 279902.20372594445,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 11918.875448453593,
      "pension_annuelle_euros_constants": 9512.35059857404,
@@ -8481,6 +9327,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -8585,6 +9432,14 @@
      "capital_droits_acquis": 888969.2347110986,
      "capital_notionnel": 1101935.2638049102,
      "cotisations_versees": 199632.9231365155,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 888969.2347110986,
+      "capital_a_la_bascule": 781104.0184444762,
+      "coefficient_revalorisation": 1.1380932804332895,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 35458.04404869352
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 42688.07880837887,
      "pension_annuelle_euros_constants": 34068.98358498603,
@@ -8598,6 +9453,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 335226.6391700939,
      "cotisations_versees": 303043.9137706507,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 12986.408241577496,
      "pension_annuelle_euros_constants": 10364.339215082913,
@@ -8619,6 +9475,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -8723,6 +9580,14 @@
      "capital_droits_acquis": 888969.2347110986,
      "capital_notionnel": 1101935.2638049102,
      "cotisations_versees": 199632.9231365155,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 888969.2347110986,
+      "capital_a_la_bascule": 781104.0184444762,
+      "coefficient_revalorisation": 1.1380932804332895,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 35458.04404869352
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 42688.07880837887,
      "pension_annuelle_euros_constants": 34068.98358498603,
@@ -8736,6 +9601,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 335226.6391700939,
      "cotisations_versees": 303043.9137706507,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 12986.408241577496,
      "pension_annuelle_euros_constants": 10364.339215082913,
@@ -8757,6 +9623,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -8851,6 +9718,14 @@
      "capital_droits_acquis": 149243.89808276124,
      "capital_notionnel": 362209.92717657296,
      "cotisations_versees": 199632.9231365155,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 149243.89808276124,
+      "capital_a_la_bascule": 131135.03141494852,
+      "coefficient_revalorisation": 1.1380932804332895,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 5952.845729174261
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 14031.718944270182,
      "pension_annuelle_euros_constants": 11198.592574928596,
@@ -8864,6 +9739,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 304200.2734333054,
      "cotisations_versees": 276628.9234690111,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 11784.471985234853,
      "pension_annuelle_euros_constants": 9405.084366174146,
@@ -8885,6 +9761,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -8989,6 +9866,14 @@
      "capital_droits_acquis": 432389.314741273,
      "capital_notionnel": 645355.3438350847,
      "cotisations_versees": 199632.9231365155,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 432389.314741273,
+      "capital_a_la_bascule": 379924.3191881915,
+      "coefficient_revalorisation": 1.1380932804332895,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 17246.58038729881
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 25000.542846696564,
      "pension_annuelle_euros_constants": 19952.715316217604,
@@ -9002,6 +9887,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 448517.70069007546,
      "cotisations_versees": 398005.18198578525,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 17375.212122624795,
      "pension_annuelle_euros_constants": 13867.00533534352,
@@ -9023,6 +9909,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -9132,6 +10019,14 @@
      "capital_droits_acquis": 432389.314741273,
      "capital_notionnel": 645355.3438350847,
      "cotisations_versees": 199632.9231365155,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 432389.314741273,
+      "capital_a_la_bascule": 379924.3191881915,
+      "coefficient_revalorisation": 1.1380932804332895,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 17246.58038729881
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 25000.542846696564,
      "pension_annuelle_euros_constants": 19952.715316217604,
@@ -9145,6 +10040,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 441878.0871816279,
      "cotisations_versees": 392549.6393954653,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 17117.99887787654,
      "pension_annuelle_euros_constants": 13661.72568683778,
@@ -9166,6 +10062,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -9270,6 +10167,14 @@
      "capital_droits_acquis": 432389.314741273,
      "capital_notionnel": 645355.3438350847,
      "cotisations_versees": 199632.9231365155,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 432389.314741273,
+      "capital_a_la_bascule": 379924.3191881915,
+      "coefficient_revalorisation": 1.1380932804332895,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 17246.58038729881
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 25000.542846696564,
      "pension_annuelle_euros_constants": 19952.715316217604,
@@ -9283,6 +10188,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 441878.0871816279,
      "cotisations_versees": 392549.6393954653,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 17117.99887787654,
      "pension_annuelle_euros_constants": 13661.72568683778,
@@ -9304,6 +10210,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -9392,6 +10299,14 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 212966.02909381175,
      "cotisations_versees": 199632.9231365155,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 0.0,
+      "capital_a_la_bascule": 0.0,
+      "coefficient_revalorisation": 1.1380932804332895,
+      "diviseur": 22.02896520100794,
+      "pension_figee": 0
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 8250.131320848317,
      "pension_annuelle_euros_constants": 6584.357890774671,
@@ -9405,6 +10320,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 212966.02909381175,
      "cotisations_versees": 199632.9231365155,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 8250.131320848317,
      "pension_annuelle_euros_constants": 6584.357890774671,
@@ -9426,6 +10342,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -9530,6 +10447,14 @@
      "capital_droits_acquis": 398411.63023224246,
      "capital_notionnel": 611377.6593260542,
      "cotisations_versees": 199632.9231365155,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 398411.63023224246,
+      "capital_a_la_bascule": 350069.39860022813,
+      "coefficient_revalorisation": 1.1380932804332895,
+      "diviseur": 20.297902003694347,
+      "pension_figee": 17246.58038729881
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 25299.238395624652,
      "pension_annuelle_euros_constants": 20191.101630088026,
@@ -9543,6 +10468,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 441878.0871816279,
      "cotisations_versees": 392549.6393954653,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 18285.22664981555,
      "pension_annuelle_euros_constants": 14593.279996897869,
@@ -9564,6 +10490,7 @@
   "requete": {
    "age_reference": "cliquet_legal",
    "bascule": "2026",
+   "conversion_acquis": "reference",
    "debut": "21",
    "enfants": "0",
    "euros": "2026",
@@ -9668,6 +10595,14 @@
      "capital_droits_acquis": 466366.9992503032,
      "capital_notionnel": 679333.028344115,
      "cotisations_versees": 199632.9231365155,
+     "droits_acquis": {
+      "age_conversion": 67.0,
+      "capital": 466366.9992503032,
+      "capital_a_la_bascule": 409779.2397761545,
+      "coefficient_revalorisation": 1.1380932804332895,
+      "diviseur": 23.76002839832151,
+      "pension_figee": 17246.58038729881
+     },
      "fiabilite": "estimee",
      "pension_annuelle": 24737.6932360243,
      "pension_annuelle_euros_constants": 19742.937333200116,
@@ -9681,6 +10616,7 @@
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 441878.0871816279,
      "cotisations_versees": 392549.6393954653,
+     "droits_acquis": null,
      "fiabilite": "estimee",
      "pension_annuelle": 16090.848100032626,
      "pension_annuelle_euros_constants": 12841.96560471384,

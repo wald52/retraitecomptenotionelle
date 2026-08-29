@@ -8,8 +8,8 @@
 
 import { CAS_TYPES, GENERATIONS, calculerCasTypes } from "./castypes.js";
 import {
-  ModeAgeReference, ModeIndexation, PARAMETRES_DEFAUT, TableConversion,
-  avec, cleParametres,
+  AgeConversionDroitsAcquis, ModeAgeReference, ModeIndexation, PARAMETRES_DEFAUT,
+  TableConversion, avec, cleParametres,
 } from "./config.js";
 import { echapper, formatFixe, formatG } from "./format.js";
 import * as g from "./gabarit.js";
@@ -37,6 +37,11 @@ export const AGES_REFERENCE = [
 
 export const TABLES = [["unisexe", "Unisexe (défaut)"], ["par_sexe", "Par sexe"]];
 
+export const CONVERSIONS_ACQUIS = [
+  ["reference", "À l'âge de référence (défaut)"],
+  ["liquidation", "À l'âge de départ effectif"],
+];
+
 export const PROJECTIONS = [
   ["cor_central", "COR central"],
   ["cor_favorable", "COR favorable"],
@@ -61,6 +66,7 @@ const DEFAUTS = Object.freeze({
   indexation: "triple_lock_inverse",
   age_reference: "cliquet_legal",
   table: "unisexe",
+  conversion_acquis: "reference",
   projection: "cor_central",
   bascule: 2026,
   euros: 2026,
@@ -89,6 +95,9 @@ export class Saisie {
       indexation: parmi(parametres, "indexation", INDEXATIONS, DEFAUTS.indexation),
       age_reference: parmi(parametres, "age_reference", AGES_REFERENCE, DEFAUTS.age_reference),
       table: parmi(parametres, "table", TABLES, DEFAUTS.table),
+      conversion_acquis: parmi(
+        parametres, "conversion_acquis", CONVERSIONS_ACQUIS, DEFAUTS.conversion_acquis,
+      ),
       projection: parmi(parametres, "projection", PROJECTIONS, DEFAUTS.projection),
       bascule: entier(parametres, "bascule", DEFAUTS.bascule),
       euros: entier(parametres, "euros", DEFAUTS.euros),
@@ -131,6 +140,8 @@ export class Saisie {
       mode_indexation: ModeIndexation[cleEnum(ModeIndexation, this.indexation)],
       mode_age_reference: ModeAgeReference[cleEnum(ModeAgeReference, this.age_reference)],
       table_conversion: TableConversion[cleEnum(TableConversion, this.table)],
+      age_conversion_droits_acquis:
+        AgeConversionDroitsAcquis[cleEnum(AgeConversionDroitsAcquis, this.conversion_acquis)],
       scenario_projection: this.projection,
       annee_bascule: this.bascule,
       annee_euros_constants: this.euros,
@@ -169,6 +180,7 @@ export class Saisie {
       primes: nombreBrut(this.primes), enfants: this.enfants,
       interruptions: this.interruptions, indexation: this.indexation,
       age_reference: this.age_reference, table: this.table,
+      conversion_acquis: this.conversion_acquis,
       projection: this.projection, bascule: this.bascule, euros: this.euros,
       ...remplacements,
     };
@@ -399,6 +411,9 @@ function formulaire(saisie, contexte) {
       "revalorisation des comptes et des pensions"),
     g.liste("age_reference", "Âge de référence", AGES_REFERENCE, saisie.age_reference),
     g.liste("table", "Table de conversion", TABLES, saisie.table),
+    g.liste("conversion_acquis", "Conversion des droits acquis",
+      CONVERSIONS_ACQUIS, saisie.conversion_acquis,
+      "âge auquel les droits figés à la bascule sont convertis"),
     g.liste("projection", "Scénario macroéconomique", PROJECTIONS, saisie.projection,
       "au-delà de la dernière observation"),
     g.champ("bascule", "Année de bascule", saisie.bascule,
@@ -509,6 +524,7 @@ function resultats(contexte, saisie) {
   ${minimum}
 </div>
 ${decomposition(contexte, saisie, comparaison)}
+${cascade(comparaison, saisie)}
 ${detail(contexte, comparaison, saisie)}
 `;
 }
@@ -557,6 +573,89 @@ qui l'emporte, et la valeur réelle des comptes s'effondre. L'écart entre la
 première ligne et la ligne « Prix » mesure l'effet de la règle d'indexation ;
 l'écart entre la ligne « Prix » et le système actuel mesure l'effet propre des
 comptes notionnels.</p>
+`;
+}
+
+/**
+ * Détaille le passage du scénario 1 au scénario 3, étape par étape.
+ *
+ * C'est la partie du modèle la moins intuitive : le scénario 3 n'est pas le
+ * scénario 1 diminué d'un pourcentage, c'est une autre formule appliquée à la
+ * même carrière. Tant qu'on ne voit pas la chaîne de calcul, l'écart affiché
+ * reste un chiffre à croire.
+ */
+function cascade(comparaison, saisie) {
+  const prospectif = comparaison.notionnel_prospectif;
+  const acquis = prospectif.droits_acquis;
+  if (acquis === null || prospectif.capital_notionnel <= 0) {
+    // Rien n'a été cotisé : une cascade de zéros n'explique rien, et le reste
+    // de la page dit déjà que le compte est vide.
+    return "";
+  }
+
+  const liquidation = comparaison.carriere.anneeLiquidation;
+  const ageLiquidation = comparaison.carriere.age_liquidation || 0.0;
+  const diviseur = prospectif.conversion.diviseur;
+  const capitalApres = prospectif.capital_notionnel - acquis.capital;
+  const actuel = comparaison.actuel.pension_annuelle;
+
+  const lignes = [
+    [`a) Droits acquis à ${saisie.bascule}`,
+      "carrière arrêtée à la bascule, règles actuelles, avantages non "
+      + "contributifs retirés, sans décote",
+      `${g.euros(acquis.pension_figee)} par an`],
+    [`b) × diviseur à ${age(acquis.age_conversion)} ans`,
+      `coefficient de conversion en ${saisie.bascule} : `
+      + `${g.nombre(acquis.diviseur, 2)}`,
+      g.euros(acquis.capital_a_la_bascule)],
+    [`c) × revalorisation ${saisie.bascule}-${liquidation}`,
+      "règle d'indexation retenue : ×"
+      + `${g.nombre(acquis.coefficient_revalorisation, 3)}`,
+      g.euros(acquis.capital)],
+    [`d) + cotisations ${saisie.bascule}-${liquidation - 1}`,
+      "versées au régime unique, revalorisées de même",
+      g.euros(capitalApres)],
+    ["e) = capital notionnel", "ce que la carrière a effectivement financé",
+      g.euros(prospectif.capital_notionnel)],
+    [`f) ÷ diviseur à ${age(ageLiquidation)} ans`,
+      `coefficient de conversion en ${liquidation} : ${g.nombre(diviseur, 2)}`,
+      `${g.euros(prospectif.pension_annuelle)} par an`],
+  ];
+
+  const partAcquis = acquis.capital / prospectif.capital_notionnel;
+  let neutralite = "";
+  if (saisie.conversion_acquis === "reference"
+      && acquis.age_conversion > ageLiquidation) {
+    neutralite = `<p>Ligne b) : les droits déjà ouverts sont convertis au diviseur de `
+      + `l'âge de référence (${age(acquis.age_conversion)} ans), alors que la `
+      + `rente sera servie depuis ${age(ageLiquidation)} ans. L'anticipation `
+      + `est donc payée une seconde fois, sur le passé. L'option « conversion `
+      + `des droits acquis à l'âge de départ effectif » supprime cet `
+      + `abattement, et c'est la convention qu'une réforme réelle `
+      + `retiendrait.</p>`;
+  }
+
+  return `
+<h2>Du scénario 1 au scénario 3, ligne à ligne</h2>
+<p>Le scénario 3 n'est pas le scénario 1 diminué d'un pourcentage : c'est une
+autre formule appliquée à la même carrière. Montants en euros courants de
+l'année de liquidation — la chaîne de calcul est arithmétique, la convertir en
+euros constants ligne à ligne la rendrait fausse.</p>
+${g.tableau(
+    ["Étape", "Ce qu'elle fait", "Résultat"],
+    lignes,
+    ["", "", "nombre"],
+  )}
+<p>À comparer aux ${g.euros(actuel)} par an du système actuel. L'écart ne vient
+d'aucun abattement appliqué au scénario 1 : il vient de ce que le capital
+réellement constitué, ${g.euros(prospectif.capital_notionnel)}, ne finance pas
+les ${g.euros(actuel * diviseur)} que le droit en vigueur promet sur
+${g.nombre(diviseur, 1)} années de retraite.</p>
+${neutralite}
+<p class="discret">Les droits acquis avant ${saisie.bascule} pèsent
+${g.pourcentage(partAcquis)} du capital final. Cette part décroît de génération
+en génération : c'est elle qui étale la réforme dans le temps, et non un
+dispositif transitoire.</p>
 `;
 }
 

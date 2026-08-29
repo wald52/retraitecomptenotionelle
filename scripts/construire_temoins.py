@@ -47,7 +47,8 @@ BASE = {
     "debut": "21", "liquidation": "64", "salaire": "1", "profil": "ascendant",
     "primes": "0", "enfants": "0", "interruptions": "",
     "indexation": "triple_lock_inverse", "age_reference": "cliquet_legal",
-    "table": "unisexe", "projection": "cor_central",
+    "table": "unisexe", "conversion_acquis": "reference",
+    "projection": "cor_central",
     "bascule": "2026", "euros": "2026",
 }
 
@@ -87,6 +88,13 @@ def _cas() -> list[dict]:
     for mode in ("cliquet_puis_esperance_vie", "legal_sans_cliquet"):
         cas.append((f"age_reference_{mode}", {"age_reference": mode}))
     cas.append(("table_par_sexe", {"table": "par_sexe"}))
+    # Conversion des droits acquis : à l'âge de référence (défaut) ou à l'âge de
+    # départ effectif, seul endroit du modèle où le passage aux comptes
+    # notionnels peut retirer quelque chose à des droits déjà ouverts.
+    cas.append(("conversion_acquis_liquidation", {"conversion_acquis": "liquidation"}))
+    cas.append(("conversion_acquis_liquidation_tardive", {
+        "conversion_acquis": "liquidation", "liquidation": "70",
+    }))
     cas.append(("table_par_sexe_femme", {"table": "par_sexe", "sexe": "F"}))
     for projection in ("cor_favorable", "cor_defavorable", "stagnation"):
         cas.append((f"projection_{projection}", {"projection": projection}))
@@ -174,6 +182,14 @@ def _pages(contexte: Contexte) -> dict:
             **BASE, "statut": "agent_sncf", "naissance": "1960", "liquidation": "52",
         }),
         ("accueil_indexation_prix", "/", {**BASE, "indexation": "prix"}),
+        ("accueil_conversion_acquis", "/", {
+            **BASE, "conversion_acquis": "liquidation",
+        }),
+        # Carrière entièrement interrompue : capital notionnel nul, donc aucune
+        # cascade à afficher — et surtout aucune division par zéro.
+        ("accueil_carriere_vide", "/", {
+            **BASE, "interruptions": "1996:2038:chomage_indemnise",
+        }),
         ("accueil_saisie_refusee", "/", {**BASE, "liquidation": "12"}),
         ("cas_types", "/cas-types", {}),
         ("methode", "/methode", {}),

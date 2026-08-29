@@ -41,6 +41,19 @@ export const ModeAgeReference = Object.freeze({
   LEGAL_SANS_CLIQUET: "legal_sans_cliquet",
 });
 
+/**
+ * Âge auquel les droits figés à la bascule sont convertis en capital.
+ *
+ * ``REFERENCE`` valorise au diviseur de l'âge de référence : un assuré qui
+ * liquide avant cet âge subit, sur ses droits déjà ouverts, un abattement égal
+ * au rapport des deux diviseurs. ``LIQUIDATION`` valorise au diviseur de l'âge
+ * effectif de départ, ce qui rend la conversion neutre.
+ */
+export const AgeConversionDroitsAcquis = Object.freeze({
+  REFERENCE: "reference",
+  LIQUIDATION: "liquidation",
+});
+
 /** Table de mortalité servant au coefficient de conversion. */
 export const TableConversion = Object.freeze({
   UNISEXE: "unisexe",
@@ -112,6 +125,10 @@ export const PARAMETRES_DEFAUT = Object.freeze({
   //: l'espérance de vie résiduelle actualisée au même taux que l'indexation,
   //: les deux se compensant exactement.
   taux_anticipe_conversion: 0.0,
+  //: Âge de conversion des droits figés à la bascule, dans le scénario
+  //: prospectif. ``reference`` fait payer l'anticipation une seconde fois sur
+  //: des droits déjà ouverts ; ``liquidation`` rend la conversion neutre.
+  age_conversion_droits_acquis: AgeConversionDroitsAcquis.REFERENCE,
   //: Table de génération plutôt que table du moment.
   table_generation: true,
   age_maximal: 120,

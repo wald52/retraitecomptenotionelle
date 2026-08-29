@@ -286,17 +286,48 @@ en capital notionnel d'ouverture, puis le compte fonctionne en notionnel au-del�
 La conversion des droits acquis inverse la formule de liquidation :
 
 ```
-capital d'ouverture = pension de droits figés × G(âge de référence, année de bascule)
+capital d'ouverture = pension de droits figés × G(âge de conversion, année de bascule)
 ```
 
-Deux précisions importantes :
+Trois précisions importantes :
 
 - les droits figés sont calculés **sans décote ni surcote d'âge** : on mesure des
-  droits déjà ouverts, pas une liquidation anticipée. La sanction d'âge
-  s'applique une seule fois, à la liquidation réelle, par le diviseur ;
+  droits déjà ouverts, pas une liquidation anticipée ;
+- **l'âge de conversion est un choix, pas une donnée**, et c'est le seul endroit
+  du modèle où le passage aux comptes notionnels peut, à lui seul, retirer
+  quelque chose à des droits déjà ouverts. Voir ci-dessous ;
 - pour un assuré **déjà retraité** à la bascule, ce scénario renvoie sa pension
   actuelle inchangée. Ses droits sont intégralement acquis ; tout autre résultat
   serait dépourvu de sens.
+
+#### L'âge de conversion des droits acquis
+
+Le capital d'ouverture est obtenu en multipliant une pension par un diviseur,
+puis il sera redivisé par le diviseur de l'âge réel de liquidation. Si les deux
+diviseurs diffèrent, la conversion n'est pas neutre.
+
+| `--conversion-acquis` | Diviseur pris à | Effet sur des droits déjà ouverts |
+|---|---|---|
+| `reference` (défaut) | l'âge de référence | abattement du rapport des diviseurs si l'assuré part avant cet âge |
+| `liquidation` | l'âge de départ effectif | aucun : la conversion est neutre |
+
+Pour un salarié né en 1975 partant à 64 ans, l'âge de référence est de 67 ans :
+les droits acquis sont convertis à `G(67, 2026) = 22,03` puis servis à
+`G(64, 2039) = 25,81`. L'écart entre les deux, environ 10 %, est retiré de
+droits que le système actuel aurait servis sans décote — l'anticipation est
+payée une seconde fois, sur le passé. La pension du scénario 3 passe de
+25 771 € à 27 808 € par an lorsqu'on retient l'autre convention.
+
+Le défaut est la lecture stricte du cahier des charges : dans un système
+notionnel, l'âge de départ se paie, y compris sur le passé. `liquidation` est la
+convention qu'une réforme réelle retiendrait, puisqu'elle seule respecte
+véritablement les droits acquis. Les deux sont fournies, et le modèle affiche la
+cascade de calcul pour que l'écart soit visible plutôt que subi.
+
+Dans les deux cas, l'écart de longévité entre l'année de bascule et l'année de
+liquidation subsiste : `G(64, 2039)` dépasse `G(64, 2026)` parce que l'espérance
+de vie progresse. C'est un effet de table, pas une pénalité d'âge, et il est
+inhérent au principe même des comptes notionnels.
 
 ---
 

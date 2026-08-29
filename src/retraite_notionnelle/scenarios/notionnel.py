@@ -19,10 +19,18 @@ tranche seule : à quel capital notionnel correspond une pension annuelle promis
 de X euros ? La réponse retenue ici est la seule cohérente avec le reste du
 modèle — celle qui inverse la formule de liquidation :
 
-.. math::  K_{\\text{ouverture}} = P_{\\text{acquise}} \\times G(a_{\\text{ref}}, L)
+.. math::  K_{\\text{ouverture}} = P_{\\text{acquise}} \\times G(a_c, B)
 
 où :math:`P_{\\text{acquise}}` est la pension de droits figés à l'année de
-bascule et :math:`G` le coefficient de conversion à l'âge de référence.
+bascule :math:`B` et :math:`G` le coefficient de conversion à l'âge :math:`a_c`.
+
+Le choix de :math:`a_c` est le seul endroit du modèle où le passage aux comptes
+notionnels peut, à lui seul, retirer quelque chose à des droits déjà ouverts. À
+l'âge de référence (défaut), un assuré qui liquide avant cet âge voit son
+capital d'ouverture minoré du rapport des diviseurs — l'anticipation est payée
+une seconde fois, sur le passé. À l'âge effectif de liquidation, la conversion
+est neutre. Le paramètre :attr:`Parametres.age_conversion_droits_acquis` permet
+de mesurer l'écart entre les deux conventions.
 """
 
 from __future__ import annotations
@@ -30,13 +38,37 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from ..carriere import Carriere
-from ..config import Parametres
+from ..config import AgeConversionDroitsAcquis, Parametres
 from ..donnees.chargement import Fiabilite
 from ..moteur.age_reference import AgeReference, EcartAge
 from ..moteur.compte import CompteNotionnel, ConstructeurCompte
 from ..moteur.conversion import CoefficientConversion, Convertisseur
 from ..moteur.fusion import RegimeFusionne
 from .actuel import ScenarioActuel
+
+
+@dataclass(frozen=True)
+class DroitsAcquis:
+    """Étapes de la conversion des droits figés en capital d'ouverture.
+
+    Conservées telles quelles pour que la page de simulation puisse afficher la
+    cascade complète : sans elles, le capital d'ouverture est un nombre qui
+    tombe du ciel.
+    """
+
+    #: Pension que la carrière tronquée à la bascule ouvre selon les règles
+    #: actuelles, avantages non contributifs retirés — en euros de la bascule.
+    pension_figee: float
+    #: Âge auquel le diviseur de conversion est pris.
+    age_conversion: float
+    #: Diviseur correspondant, à l'année de bascule.
+    diviseur: float
+    #: ``pension_figee × diviseur`` — le capital d'ouverture, en euros de la bascule.
+    capital_a_la_bascule: float
+    #: Revalorisation du capital d'ouverture, de la bascule à la liquidation.
+    coefficient_revalorisation: float
+    #: Capital d'ouverture revalorisé, en euros de la liquidation.
+    capital: float
 
 
 @dataclass
@@ -52,6 +84,8 @@ class ResultatNotionnel:
     capital_capitalisation: float
     fiabilite: Fiabilite
     libelle: str
+    #: Détail de la conversion des droits figés — seulement en prospectif.
+    droits_acquis: DroitsAcquis | None = None
 
     @property
     def pension_mensuelle(self) -> float:
@@ -144,7 +178,8 @@ class ScenarioNotionnel:
         if annee_liquidation <= bascule:
             return self._deja_liquide(carriere)
 
-        capital_acquis = self._capital_droits_acquis(carriere, bascule)
+        droits_acquis = self._droits_acquis(carriere, bascule)
+        capital_acquis = droits_acquis.capital if droits_acquis else 0.0
 
         compte = self.constructeur.construire(
             carriere,
@@ -168,6 +203,7 @@ class ScenarioNotionnel:
             capital_capitalisation=compte.capital_hors_repartition,
             fiabilite=min(compte.fiabilite, conversion.fiabilite),
             libelle="Comptes notionnels à compter de la bascule",
+            droits_acquis=droits_acquis,
         )
 
     def _deja_liquide(self, carriere: Carriere) -> ResultatNotionnel:
@@ -195,7 +231,7 @@ class ScenarioNotionnel:
             libelle="Retraite déjà liquidée à la bascule — droits inchangés",
         )
 
-    def _capital_droits_acquis(self, carriere: Carriere, bascule: int) -> float:
+    def _droits_acquis(self, carriere: Carriere, bascule: int) -> DroitsAcquis | None:
         """Convertit les droits figés à la bascule en capital notionnel.
 
         Les droits sont ceux qu'aurait produits la carrière si elle s'était
@@ -204,13 +240,18 @@ class ScenarioNotionnel:
         « seules les cotisations comptent », qui vaut aussi pour le passé.
 
         La valorisation se fait à l'année de bascule, sans décote ni surcote :
-        on mesure des droits déjà ouverts, pas une liquidation anticipée. La
-        sanction d'âge s'appliquera une seule fois, à la liquidation réelle, par
-        le coefficient de conversion.
+        on mesure des droits déjà ouverts, pas une liquidation anticipée.
+
+        Reste l'âge auquel prendre le diviseur, et c'est le paramètre
+        :attr:`Parametres.age_conversion_droits_acquis` qui tranche :
+        l'âge de référence fait payer l'anticipation une seconde fois, sur des
+        droits pourtant déjà ouverts ; l'âge effectif de liquidation rend la
+        conversion neutre. Dans les deux cas, l'écart de longévité entre la
+        bascule et la liquidation subsiste.
         """
         lignes_avant = [l for l in carriere.lignes if l.annee < bascule]
         if not lignes_avant:
-            return 0.0
+            return None
 
         carriere_tronquee = Carriere(
             annee_naissance=carriere.annee_naissance,
@@ -227,12 +268,24 @@ class ScenarioNotionnel:
             carriere_tronquee, ignorer_penalite_age=True
         )
 
-        age_ref = self.age_reference.age(bascule)
-        conversion = self.convertisseur.coefficient(age_ref, bascule, self._sexe(carriere))
+        if self.parametres.age_conversion_droits_acquis is AgeConversionDroitsAcquis.REFERENCE:
+            age_conversion = self.age_reference.age(bascule)
+        else:
+            age_conversion = carriere.age_liquidation or self.age_reference.age(bascule)
+        conversion = self.convertisseur.coefficient(
+            age_conversion, bascule, self._sexe(carriere)
+        )
         capital_a_la_bascule = droits.pension_annuelle * conversion.diviseur
 
         # Le capital d'ouverture se revalorise ensuite comme tout compte notionnel.
         coefficient = self.constructeur.indexation.coefficient(
             bascule, carriere.annee_liquidation
         )
-        return capital_a_la_bascule * coefficient
+        return DroitsAcquis(
+            pension_figee=droits.pension_annuelle,
+            age_conversion=age_conversion,
+            diviseur=conversion.diviseur,
+            capital_a_la_bascule=capital_a_la_bascule,
+            coefficient_revalorisation=coefficient,
+            capital=capital_a_la_bascule * coefficient,
+        )

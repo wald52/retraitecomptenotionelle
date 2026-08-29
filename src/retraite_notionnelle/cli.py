@@ -19,6 +19,7 @@ from pathlib import Path
 
 from .castypes import CAS_TYPES, GENERATIONS, calculer_cas_types
 from .config import (
+    AgeConversionDroitsAcquis,
     ModeAgeReference,
     ModeIndexation,
     Parametres,
@@ -35,6 +36,10 @@ def _parametres(arguments: argparse.Namespace) -> Parametres:
         modifications["mode_indexation"] = ModeIndexation(arguments.indexation)
     if getattr(arguments, "age_reference", None):
         modifications["mode_age_reference"] = ModeAgeReference(arguments.age_reference)
+    if getattr(arguments, "conversion_acquis", None):
+        modifications["age_conversion_droits_acquis"] = AgeConversionDroitsAcquis(
+            arguments.conversion_acquis
+        )
     if getattr(arguments, "table", None):
         modifications["table_conversion"] = TableConversion(arguments.table)
     if getattr(arguments, "cotisations", None):
@@ -265,6 +270,12 @@ def _ajouter_options_communes(analyseur: argparse.ArgumentParser) -> None:
         "--age-reference", dest="age_reference",
         choices=[m.value for m in ModeAgeReference],
         help="construction de l'âge de référence (défaut : cliquet_legal)",
+    )
+    analyseur.add_argument(
+        "--conversion-acquis", dest="conversion_acquis",
+        choices=[a.value for a in AgeConversionDroitsAcquis],
+        help="âge de conversion des droits acquis à la bascule "
+        "(défaut : reference)",
     )
     analyseur.add_argument(
         "--table", choices=[t.value for t in TableConversion],

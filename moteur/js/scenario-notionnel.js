@@ -13,11 +13,15 @@
  * selon les règles actuelles, convertis en capital notionnel d'ouverture, puis
  * le compte fonctionne en notionnel au-delà. C'est la variante qui respecte les
  * droits acquis — celle qu'une réforme réelle retiendrait. La conversion inverse
- * la formule de liquidation : K_ouverture = P_acquise × G(a_réf, L).
+ * la formule de liquidation : K_ouverture = P_acquise × G(a_c, B).
+ *
+ * Le choix de l'âge a_c est le seul endroit du modèle où le passage aux comptes
+ * notionnels peut, à lui seul, retirer quelque chose à des droits déjà ouverts.
+ * Voir ``AgeConversionDroitsAcquis``.
  */
 
 import { Carriere } from "./carriere.js";
-import { TableConversion } from "./config.js";
+import { AgeConversionDroitsAcquis, TableConversion } from "./config.js";
 
 /** Produit les deux variantes de comptes notionnels. */
 export class ScenarioNotionnel {
@@ -81,7 +85,8 @@ export class ScenarioNotionnel {
       return this._dejaLiquide(carriere);
     }
 
-    const capitalAcquis = this._capitalDroitsAcquis(carriere, bascule);
+    const droitsAcquis = this._droitsAcquis(carriere, bascule);
+    const capitalAcquis = droitsAcquis === null ? 0.0 : droitsAcquis.capital;
 
     const compte = this.constructeur.construire(
       carriere, anneeLiquidation, bascule, regimeFusionne,
@@ -101,6 +106,7 @@ export class ScenarioNotionnel {
       capital_capitalisation: compte.capital_hors_repartition,
       fiabilite: Math.min(compte.fiabilite, conversion.fiabilite),
       libelle: "Comptes notionnels à compter de la bascule",
+      droits_acquis: droitsAcquis,
     });
   }
 
@@ -135,13 +141,20 @@ export class ScenarioNotionnel {
    * arrêtée à la bascule, calculés selon les règles actuelles mais DÉBARRASSÉS
    * des avantages non contributifs. La valorisation se fait à l'année de
    * bascule, sans décote ni surcote : on mesure des droits déjà ouverts, pas
-   * une liquidation anticipée. La sanction d'âge s'appliquera une seule fois, à
-   * la liquidation réelle, par le coefficient de conversion.
+   * une liquidation anticipée.
+   *
+   * Reste l'âge auquel prendre le diviseur, et c'est le paramètre
+   * ``age_conversion_droits_acquis`` qui tranche : l'âge de référence fait
+   * payer l'anticipation une seconde fois, sur des droits pourtant déjà
+   * ouverts ; l'âge effectif de liquidation rend la conversion neutre. Dans les
+   * deux cas, l'écart de longévité entre la bascule et la liquidation subsiste.
+   *
+   * Renvoie les étapes de la cascade, ou ``null`` si rien n'a été acquis.
    */
-  _capitalDroitsAcquis(carriere, bascule) {
+  _droitsAcquis(carriere, bascule) {
     const lignesAvant = carriere.lignes.filter((ligne) => ligne.annee < bascule);
     if (lignesAvant.length === 0) {
-      return 0.0;
+      return null;
     }
 
     const carriereTronquee = new Carriere({
@@ -156,21 +169,36 @@ export class ScenarioNotionnel {
     });
     const droits = this.scenarioActuel.calculer(carriereTronquee, true);
 
-    const ageRef = this.ageReference.age(bascule);
-    const conversion = this.convertisseur.coefficient(ageRef, bascule, this._sexe(carriere));
+    const ageConversion = this.parametres.age_conversion_droits_acquis
+        === AgeConversionDroitsAcquis.REFERENCE
+      ? this.ageReference.age(bascule)
+      : (carriere.age_liquidation || this.ageReference.age(bascule));
+    const conversion = this.convertisseur.coefficient(
+      ageConversion, bascule, this._sexe(carriere),
+    );
     const capitalALaBascule = droits.pension_annuelle * conversion.diviseur;
 
     // Le capital d'ouverture se revalorise ensuite comme tout compte notionnel.
     const coefficient = this.constructeur.indexation.coefficient(
       bascule, carriere.anneeLiquidation,
     );
-    return capitalALaBascule * coefficient;
+    return {
+      pension_figee: droits.pension_annuelle,
+      age_conversion: ageConversion,
+      diviseur: conversion.diviseur,
+      capital_a_la_bascule: capitalALaBascule,
+      coefficient_revalorisation: coefficient,
+      capital: capitalALaBascule * coefficient,
+    };
   }
 }
 
 /** Pension issue d'un compte notionnel, et tout ce qui l'explique. */
 function resultat(champs) {
   return {
+    // Le détail de la conversion des droits figés n'existe qu'en prospectif ;
+    // ailleurs il vaut null, comme du côté Python.
+    droits_acquis: null,
     ...champs,
     pension_mensuelle: champs.pension_annuelle / 12.0,
     /**

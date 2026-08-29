@@ -5,7 +5,12 @@ from __future__ import annotations
 import pytest
 
 from retraite_notionnelle.carriere import AnneeCarriere, Carriere
-from retraite_notionnelle.config import ModeIndexation, Neutralisations, Parametres
+from retraite_notionnelle.config import (
+    AgeConversionDroitsAcquis,
+    ModeIndexation,
+    Neutralisations,
+    Parametres,
+)
 from retraite_notionnelle.simulateur import Simulateur
 
 
@@ -82,6 +87,86 @@ def test_retraite_deja_liquidee_est_inchangee_dans_le_scenario_prospectif(simula
         comparaison.actuel.pension_annuelle
     )
     assert comparaison.variation("notionnel_prospectif") == pytest.approx(0.0)
+
+
+def test_convertir_les_droits_acquis_a_l_age_de_depart_les_preserve(simulateur):
+    """La convention de conversion est le seul abattement sur des droits ouverts.
+
+    Converti au diviseur de l'âge de référence, un droit déjà acquis perd le
+    rapport des deux diviseurs dès lors que l'assuré liquide avant cet âge.
+    Converti à l'âge de départ effectif, il ne perd rien : la sanction
+    d'anticipation ne joue plus que sur les cotisations, comme prévu.
+    """
+    neutre = Simulateur(
+        Parametres().avec(
+            age_conversion_droits_acquis=AgeConversionDroitsAcquis.LIQUIDATION
+        )
+    )
+    carriere = simulateur.carriere_simple(
+        annee_naissance=1975, sexe="H", affiliation="salarie_prive_non_cadre",
+        age_debut=20, age_liquidation=64,
+    )
+    reference = simulateur.simuler(carriere).notionnel_prospectif
+    liquidation = neutre.simuler(carriere).notionnel_prospectif
+
+    assert reference.droits_acquis.age_conversion == pytest.approx(67.0)
+    assert liquidation.droits_acquis.age_conversion == pytest.approx(64.0)
+    # Un diviseur plus élevé à 64 ans qu'à 67 : le capital d'ouverture monte.
+    assert liquidation.capital_droits_acquis > reference.capital_droits_acquis
+    assert liquidation.pension_annuelle > reference.pension_annuelle
+    # Les cotisations postérieures à la bascule, elles, ne bougent pas.
+    assert liquidation.compte.capital == pytest.approx(reference.compte.capital)
+
+
+def test_la_cascade_des_droits_acquis_reconstitue_le_capital(simulateur):
+    """Les étapes publiées doivent redonner le capital, sinon elles mentent."""
+    carriere = simulateur.carriere_simple(
+        annee_naissance=1975, sexe="H", affiliation="salarie_prive_non_cadre",
+        age_debut=20, age_liquidation=64,
+    )
+    prospectif = simulateur.simuler(carriere).notionnel_prospectif
+    acquis = prospectif.droits_acquis
+
+    assert acquis.capital_a_la_bascule == pytest.approx(
+        acquis.pension_figee * acquis.diviseur
+    )
+    assert acquis.capital == pytest.approx(
+        acquis.capital_a_la_bascule * acquis.coefficient_revalorisation
+    )
+    assert prospectif.capital_notionnel == pytest.approx(
+        acquis.capital + prospectif.compte.capital
+    )
+    assert prospectif.pension_annuelle == pytest.approx(
+        prospectif.capital_notionnel / prospectif.conversion.diviseur
+    )
+
+
+def test_sans_carriere_avant_la_bascule_il_n_y_a_aucun_droit_acquis(simulateur):
+    """Une carrière entièrement postérieure à 2026 n'a rien à convertir."""
+    carriere = simulateur.carriere_simple(
+        annee_naissance=2010, sexe="H", affiliation="salarie_prive_non_cadre",
+        age_debut=22, age_liquidation=64,
+    )
+    prospectif = simulateur.simuler(carriere).notionnel_prospectif
+    assert prospectif.droits_acquis is None
+    assert prospectif.capital_droits_acquis == 0.0
+
+
+def test_une_carriere_sans_aucune_cotisation_ne_produit_pas_de_capital(simulateur):
+    """Des droits acquis existent formellement, mais ils valent zéro.
+
+    Le cas est réel — une carrière intégralement interrompue — et la page de
+    simulation doit le traverser sans diviser par le capital.
+    """
+    carriere = simulateur.carriere_simple(
+        annee_naissance=1975, sexe="H", affiliation="salarie_prive_non_cadre",
+        age_debut=21, age_liquidation=64,
+        interruptions={annee: "chomage_indemnise" for annee in range(1996, 2039)},
+    )
+    prospectif = simulateur.simuler(carriere).notionnel_prospectif
+    assert prospectif.droits_acquis is not None
+    assert prospectif.capital_notionnel == 0.0
+    assert prospectif.pension_annuelle == 0.0
 
 
 def test_un_depart_plus_tardif_ameliore_la_pension_notionnelle(simulateur):

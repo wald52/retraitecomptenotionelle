@@ -56,9 +56,10 @@ quitte votre machine, puisqu'il n'y a pas de serveur de calcul. Le premier
 chargement transfère 103 Ko compressés (346 Ko bruts) et prend quelques dixièmes
 de seconde ; les suivants sont immédiats.
 
-Quatre pages : **Simuler** (une carrière, avec le détail du calcul et la
-décomposition de l'écart règle par règle), **Cas types** (la grille 12 carrières
-× 7 générations), **Méthode**, **Données** (l'état de fiabilité des séries).
+Quatre pages : **Simuler** (une carrière, avec le détail du calcul, la
+décomposition de l'écart règle par règle et la cascade qui mène du scénario 1 au
+scénario 3), **Cas types** (la grille 12 carrières × 7 générations),
+**Méthode**, **Données** (l'état de fiabilité des séries).
 
 L'adresse d'une simulation contient tous ses paramètres — elle peut être citée
 ou partagée telle quelle — et chaque résultat est consultable en JSON au bas de
@@ -169,6 +170,7 @@ print(simulateur.simuler(carriere).tableau())
 | Trois résultats comparables | Système actuel / notionnel rétroactif / notionnel prospectif |
 | Cas particulier **et** cas général | Simulation individuelle + grille 12 cas types × 7 générations |
 | Fusion des régimes au cas le plus défavorable | Âge 64/67, 172 trimestres, carrière entière, assiette déplafonnée, zéro avantage |
+| Droits acquis respectés à la bascule | Conversion à l'âge de référence ou à l'âge de départ effectif, au choix ; la cascade de calcul est affichée |
 | Capitalisation isolée | RAFP et assurances sociales de 1930 dans un compartiment séparé, jamais convertis |
 | Suppression des minima | Ni minimum contributif, ni minimum garanti, ni ASPA : peu cotisé, peu de retraite |
 | Suppression des avantages | Ni majorations enfants, ni MDA, ni AVPF, ni bonifications, ni réversion, ni trimestres gratuits |
@@ -331,6 +333,7 @@ sous « Options de modélisation ».
 ```bash
 --indexation      triple_lock_inverse | triple_lock_inverse_nominal | prix | salaires
 --age-reference   cliquet_legal | cliquet_puis_esperance_vie | legal_sans_cliquet
+--conversion-acquis  reference | liquidation
 --table           unisexe | par_sexe
 --projection      cor_central | cor_favorable | cor_defavorable | stagnation
 --bascule ANNÉE   année de passage au régime unique (défaut 2026)

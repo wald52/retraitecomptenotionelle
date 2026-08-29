@@ -76,6 +76,34 @@ class ModeAgeReference(str, Enum):
     LEGAL_SANS_CLIQUET = "legal_sans_cliquet"
 
 
+class AgeConversionDroitsAcquis(str, Enum):
+    """Âge auquel les droits figés à la bascule sont convertis en capital.
+
+    Le scénario prospectif transforme une pension déjà acquise en capital
+    notionnel d'ouverture, en la multipliant par un diviseur. Reste à choisir
+    l'âge auquel ce diviseur est pris — et le choix n'est pas neutre, puisque le
+    capital sera ensuite redivisé par le diviseur de l'âge réel de liquidation.
+
+    * ``REFERENCE`` valorise au diviseur de l'âge de référence. Un assuré qui
+      liquide avant cet âge subit donc, sur ses droits déjà ouverts, un
+      abattement égal au rapport des deux diviseurs — de l'ordre de 10 % pour
+      trois ans d'écart. C'est la lecture stricte : dans un système notionnel,
+      l'âge de départ se paie, y compris sur le passé.
+    * ``LIQUIDATION`` valorise au diviseur de l'âge effectif de départ, pris à
+      l'année de bascule. La conversion devient alors neutre : le passage aux
+      comptes notionnels ne retire rien à des droits déjà ouverts, que le
+      système actuel aurait servis sans décote. C'est la convention qu'une
+      réforme réelle retiendrait, et le contrefactuel qui mesure ce que coûte
+      l'autre.
+
+    Dans les deux cas, l'écart de longévité entre l'année de bascule et l'année
+    de liquidation subsiste : c'est un effet de table, pas une pénalité d'âge.
+    """
+
+    REFERENCE = "reference"
+    LIQUIDATION = "liquidation"
+
+
 class TableConversion(str, Enum):
     """Table de mortalité servant au coefficient de conversion."""
 
@@ -190,6 +218,14 @@ class Parametres:
     #: même taux que l'indexation, les deux se compensant exactement. C'est le
     #: choix par défaut, le plus lisible.
     taux_anticipe_conversion: float = 0.0
+
+    #: Âge auquel les droits figés à la bascule sont convertis en capital
+    #: d'ouverture, dans le scénario prospectif. ``REFERENCE`` applique aux
+    #: droits déjà acquis la sanction du départ anticipé ; ``LIQUIDATION`` rend
+    #: la conversion neutre. Voir :class:`AgeConversionDroitsAcquis`.
+    age_conversion_droits_acquis: AgeConversionDroitsAcquis = (
+        AgeConversionDroitsAcquis.REFERENCE
+    )
 
     #: Table de génération (mortalité prospective) plutôt que table du moment.
     #: Une table du moment sous-estime la longévité des générations récentes et
