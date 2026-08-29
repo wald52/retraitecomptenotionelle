@@ -4071,8 +4071,8 @@
        "regime": "agirc_arrco"
       },
       {
-       "detail": "3,035 points × valeur de service 1.6650 €",
-       "montant": 5053.120301079176,
+       "detail": "3,524 points × valeur de service 1.6650 €",
+       "montant": 5867.4111560943165,
        "regime": "arrco"
       },
       {
@@ -4081,46 +4081,46 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 34565.67044349797,
-     "pension_annuelle_euros_constants": 30086.35958572244,
-     "pension_mensuelle": 2880.4725369581643,
-     "taux_remplacement": 0.5257354018631942,
-     "total_contributif": 34565.67044349797
+     "pension_annuelle": 35379.96129851311,
+     "pension_annuelle_euros_constants": 30795.127769791015,
+     "pension_mensuelle": 2948.330108209426,
+     "taux_remplacement": 0.5381205668087056,
+     "total_contributif": 35379.96129851311
     },
     "notionnel_prospectif": {
-     "capital_droits_acquis": 498124.83671091386,
-     "capital_notionnel": 621304.9484323562,
+     "capital_droits_acquis": 515031.9437187266,
+     "capital_notionnel": 638212.055440169,
      "cotisations_versees": 118004.9681151175,
      "droits_acquis": {
       "age_conversion": 67.0,
-      "capital": 498124.83671091386,
-      "capital_a_la_bascule": 460009.92940427037,
+      "capital": 515031.9437187266,
+      "capital_a_la_bascule": 475623.3590666985,
       "coefficient_revalorisation": 1.08285670562808,
       "diviseur": 22.02896520100794,
-      "pension_figee": 20882.048939058768
+      "pension_figee": 21590.81712312734
      },
      "fiabilite": "estimee",
-     "pension_annuelle": 24515.030535650025,
-     "pension_annuelle_euros_constants": 21338.166292946124,
-     "pension_mensuelle": 2042.9192113041688,
+     "pension_annuelle": 25182.13973156392,
+     "pension_annuelle_euros_constants": 21918.825857586016,
+     "pension_mensuelle": 2098.5116442969934,
      "rendement_cumule": 1.0438553027807806,
      "rente_capitalisation": 0.0,
-     "taux_remplacement": 0.37286762458191636,
-     "variation_vs_actuel": -0.2907694188740533
+     "taux_remplacement": 0.3830141924540404,
+     "variation_vs_actuel": -0.2882372165674971
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
-     "capital_notionnel": 348814.0320969784,
-     "cotisations_versees": 316883.414148769,
+     "capital_notionnel": 357901.1032875839,
+     "cotisations_versees": 324596.1941291421,
      "droits_acquis": null,
      "fiabilite": "estimee",
-     "pension_annuelle": 13763.26821425861,
-     "pension_annuelle_euros_constants": 11979.707937267016,
-     "pension_mensuelle": 1146.9390178548842,
-     "rendement_cumule": 1.1007645604740257,
+     "pension_annuelle": 14121.819724719619,
+     "pension_annuelle_euros_constants": 12291.795321522079,
+     "pension_mensuelle": 1176.8183103933015,
+     "rendement_cumule": 1.1026041270995042,
      "rente_capitalisation": 0.0,
-     "taux_remplacement": 0.20933594669896782,
-     "variation_vs_actuel": -0.601822616553715
+     "taux_remplacement": 0.21478942756661093,
+     "variation_vs_actuel": -0.6008525954686924
     }
    },
    "unite": {
@@ -6561,7 +6561,7 @@
     "annees_cotisees": 43,
     "identifiant": "assuré",
     "sexe": "H",
-    "trimestres_actuels": 172
+    "trimestres_actuels": 136
    },
    "conversion": {
     "diviseur": 25.813653239147904,
@@ -6612,7 +6612,7 @@
        "code": "minimum_contributif",
        "detail": "portée au plancher, au prorata de la durée acquise",
        "libelle": "Minimum contributif",
-       "montant": 5318.706830716479
+       "montant": 4904.718277974307
       }
      ],
      "minimum_applique": true,
@@ -6624,41 +6624,41 @@
       },
       {
        "detail": "525 points × valeur de service 1.8159 €",
-       "montant": 952.4570426100644,
+       "montant": 914.3587609056618,
        "regime": "arrco"
       },
       {
-       "detail": "SR 11,791 € × taux 50.00% × 172/172",
-       "montant": 5895.46151147743,
+       "detail": "SR 11,791 € × taux 42.50% × 136/172",
+       "montant": 3962.298550737156,
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 13296.528589454902,
-     "pension_annuelle_euros_constants": 10611.843561404812,
-     "pension_mensuelle": 1108.0440491212419,
-     "taux_remplacement": 0.8829200124899758,
-     "total_contributif": 7977.8217587384215
+     "pension_annuelle": 10911.278794268052,
+     "pension_annuelle_euros_constants": 8708.19649208855,
+     "pension_mensuelle": 909.2732328556709,
+     "taux_remplacement": 0.7245339521893736,
+     "total_contributif": 6006.5605162937445
     },
     "notionnel_prospectif": {
-     "capital_droits_acquis": 86477.86294825462,
-     "capital_notionnel": 129071.06876701699,
+     "capital_droits_acquis": 68262.70347168959,
+     "capital_notionnel": 110855.90929045193,
      "cotisations_versees": 39926.584627303106,
      "droits_acquis": {
       "age_conversion": 67.0,
-      "capital": 86477.86294825462,
-      "capital_a_la_bascule": 75984.86383763832,
+      "capital": 68262.70347168959,
+      "capital_a_la_bascule": 59979.884465797855,
       "coefficient_revalorisation": 1.1380932804332895,
       "diviseur": 22.02896520100794,
-      "pension_figee": 3449.3160774597627
+      "pension_figee": 2722.7735809875203
      },
      "fiabilite": "estimee",
-     "pension_annuelle": 5000.108569339314,
-     "pension_annuelle_euros_constants": 3990.543063243522,
-     "pension_mensuelle": 416.6757141116095,
+     "pension_annuelle": 4294.4680577924755,
+     "pension_annuelle_euros_constants": 3427.377522046299,
+     "pension_mensuelle": 357.872338149373,
      "rendement_cumule": 1.066788111639174,
      "rente_capitalisation": 0.0,
-     "taux_remplacement": 0.3320186837332469,
-     "variation_vs_actuel": -0.6239538360933727
+     "taux_remplacement": 0.28516253439495487,
+     "variation_vs_actuel": -0.6064193630495025
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -6672,7 +6672,7 @@
      "rendement_cumule": 1.1256616815700797,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.2273348819036044,
-     "variation_vs_actuel": -0.7425192784310284
+     "variation_vs_actuel": -0.6862329484813636
     }
    },
    "unite": {

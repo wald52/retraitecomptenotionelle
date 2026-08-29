@@ -1,0 +1,31 @@
+# Ce qu'ouvre une période non travaillée
+# ---------------------------------------
+# source_id: legifrance_textes, agirc_arrco_circulaires, unedic
+#
+# Le modèle enregistrait le motif de chaque interruption sans jamais le lire :
+# toute période non travaillée ne versait rien et n'ouvrait rien, qu'elle fût
+# indemnisée ou non. La méthode annonçait pourtant l'inverse. Deux droits sont
+# à distinguer, et ils ne suivent pas la même règle :
+#
+# `trimestres_assimiles` — trimestres validés au régime de BASE sans cotisation.
+#   C'est le mécanisme des périodes assimilées : elles comptent dans la durée
+#   d'assurance (donc contre la décote et dans la proratisation) mais n'ajoutent
+#   aucun salaire au compte, et n'entrent donc pas dans le salaire de référence.
+#
+# `ouvre_droits_complementaires` — l'UNEDIC et les organismes de sécurité
+#   sociale versent, eux, de véritables cotisations aux régimes COMPLÉMENTAIRES
+#   pendant ces périodes. Des points sont acquis, calculés sur le salaire de
+#   référence d'avant l'interruption. C'est pourquoi une année de chômage
+#   indemnisé n'est pas vide à l'Agirc-Arrco alors qu'elle l'est à la CNAV.
+#
+# Un motif absent de cette table est traité comme `sans_activite`.
+motif,trimestres_assimiles,ouvre_droits_complementaires,fiabilite
+chomage_indemnise,4,oui,haute
+chomage_non_indemnise,4,non,haute
+maladie,4,oui,moyenne
+maternite,4,oui,moyenne
+invalidite,4,oui,moyenne
+accident_travail,4,oui,moyenne
+service_militaire,4,non,haute
+education_enfant,4,non,haute
+sans_activite,0,non,certifiee

@@ -159,7 +159,7 @@ class ConstructeurCompte:
     def cotisation_annuelle(self, carriere: Carriere, annee: int,
                             regime_fusionne: RegimeFusionne | None = None) -> CotisationAnnuelle:
         ligne = carriere.ligne(annee)
-        if ligne is None or not ligne.cotise:
+        if ligne is None or (not ligne.cotise and not ligne.familles_cotisantes):
             return CotisationAnnuelle(
                 annee=annee, revenu=0.0, assiette_retenue=0.0, cotisation=0.0,
                 regimes=(), taux_effectif=0.0, hors_repartition=0.0,
@@ -181,6 +181,11 @@ class ConstructeurCompte:
                 fiabilite=regime_fusionne.fiabilite,
             )
 
+        # Pendant une période indemnisée, seuls les régimes complémentaires
+        # encaissent, et sur le salaire d'avant l'interruption.
+        base_ligne = ligne.revenu if ligne.cotise else ligne.revenu_reference
+        familles_admises = None if ligne.cotise else set(ligne.familles_cotisantes)
+
         codes = self.affiliations.regimes(ligne.affiliation, annee)
         cotisation = 0.0
         assiette_totale = 0.0
@@ -192,16 +197,18 @@ class ConstructeurCompte:
             if code not in self.catalogue:
                 continue
             regime = self.catalogue[code]
+            if familles_admises is not None and regime.famille not in familles_admises:
+                continue
             fiabilite = min(fiabilite, regime.fiabilite)
             for periode in regime.periodes_actives(annee):
                 borne_basse, borne_haute = periode.bornes_assiette_en_pass()
 
                 if periode.assiette == "primes_uniquement":
-                    base = ligne.revenu * ligne.part_primes
+                    base = base_ligne * ligne.part_primes
                 elif periode.assiette == "hors_primes":
-                    base = ligne.revenu * (1.0 - ligne.part_primes)
+                    base = base_ligne * (1.0 - ligne.part_primes)
                 else:
-                    base = ligne.revenu
+                    base = base_ligne
 
                 assiette = self._assiette(base, annee, borne_basse, borne_haute)
                 if assiette <= 0:
@@ -219,10 +226,10 @@ class ConstructeurCompte:
                     assiette_totale += assiette
                 retenus.append(code)
 
-        taux_effectif = cotisation / ligne.revenu if ligne.revenu else 0.0
+        taux_effectif = cotisation / base_ligne if base_ligne else 0.0
         return CotisationAnnuelle(
             annee=annee,
-            revenu=ligne.revenu,
+            revenu=base_ligne,
             assiette_retenue=assiette_totale,
             cotisation=cotisation,
             regimes=tuple(dict.fromkeys(retenus)),

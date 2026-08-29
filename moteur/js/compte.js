@@ -103,7 +103,8 @@ export class ConstructeurCompte {
 
   cotisationAnnuelle(carriere, annee, regimeFusionne = null) {
     const ligne = carriere.ligne(annee);
-    if (ligne === null || !ligne.cotise) {
+    if (ligne === null
+        || (!ligne.cotise && ligne.familles_cotisantes.length === 0)) {
       return {
         annee, revenu: 0.0, assiette_retenue: 0.0, cotisation: 0.0,
         regimes: [], taux_effectif: 0.0, hors_repartition: 0.0,
@@ -125,6 +126,11 @@ export class ConstructeurCompte {
       };
     }
 
+    // Pendant une période indemnisée, seuls les régimes complémentaires
+    // encaissent, et sur le salaire d'avant l'interruption.
+    const baseLigne = ligne.cotise ? ligne.revenu : ligne.revenu_reference;
+    const famillesAdmises = ligne.cotise ? null : new Set(ligne.familles_cotisantes);
+
     const codes = this.affiliations.regimes(ligne.affiliation, annee);
     let cotisation = 0.0;
     let assietteTotale = 0.0;
@@ -137,17 +143,20 @@ export class ConstructeurCompte {
         continue;
       }
       const regime = this.catalogue.obtenir(code);
+      if (famillesAdmises !== null && !famillesAdmises.has(regime.famille)) {
+        continue;
+      }
       fiabilite = Math.min(fiabilite, regime.fiabilite);
       for (const periode of regime.periodesActives(annee)) {
         const [borneBasse, borneHaute] = periode.bornesAssietteEnPass();
 
         let base;
         if (periode.assiette === "primes_uniquement") {
-          base = ligne.revenu * ligne.part_primes;
+          base = baseLigne * ligne.part_primes;
         } else if (periode.assiette === "hors_primes") {
-          base = ligne.revenu * (1.0 - ligne.part_primes);
+          base = baseLigne * (1.0 - ligne.part_primes);
         } else {
-          base = ligne.revenu;
+          base = baseLigne;
         }
 
         const assiette = this._assiette(base, annee, borneBasse, borneHaute);
@@ -172,11 +181,11 @@ export class ConstructeurCompte {
 
     return {
       annee,
-      revenu: ligne.revenu,
+      revenu: baseLigne,
       assiette_retenue: assietteTotale,
       cotisation,
       regimes: [...new Set(retenus)],
-      taux_effectif: ligne.revenu ? cotisation / ligne.revenu : 0.0,
+      taux_effectif: baseLigne ? cotisation / baseLigne : 0.0,
       hors_repartition: horsRepartition,
       fiabilite,
       nulle: cotisation <= 0,

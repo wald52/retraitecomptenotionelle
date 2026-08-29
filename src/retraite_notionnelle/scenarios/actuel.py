@@ -446,20 +446,29 @@ class ScenarioActuel:
                 )
 
         for ligne in carriere.lignes:
-            if not ligne.cotise:
+            if not ligne.cotise and not ligne.familles_cotisantes:
                 continue
+            # Pendant une période indemnisée, seuls les régimes complémentaires
+            # encaissent, et sur le salaire d'avant l'interruption.
+            base_ligne = ligne.revenu if ligne.cotise else ligne.revenu_reference
+            familles_admises = (
+                None if ligne.cotise else set(ligne.familles_cotisantes)
+            )
             for code in self.affiliations.regimes(ligne.affiliation, ligne.annee):
                 if code not in self.catalogue:
                     continue
                 regime = self.catalogue[code]
+                if (familles_admises is not None
+                        and regime.famille not in familles_admises):
+                    continue
                 for periode in regime.periodes_actives(ligne.annee):
                     borne_basse, borne_haute = periode.bornes_assiette_en_pass()
                     pass_annuel = self.macro.plafond_securite_sociale(ligne.annee)
-                    base = ligne.revenu
+                    base = base_ligne
                     if periode.assiette == "primes_uniquement":
-                        base = ligne.revenu * ligne.part_primes
+                        base = base_ligne * ligne.part_primes
                     elif periode.assiette == "hors_primes":
-                        base = ligne.revenu * (1.0 - ligne.part_primes)
+                        base = base_ligne * (1.0 - ligne.part_primes)
                     plafond = (
                         base if borne_haute is None else borne_haute * pass_annuel
                     )

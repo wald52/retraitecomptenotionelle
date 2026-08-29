@@ -75,6 +75,62 @@ class DonneesMacro:
         return self._prolonger(serie, "productivite_reelle")
 
     @cached_property
+    def smic_horaire(self) -> SerieAnnuelle:
+        """SMIC horaire brut, en euros courants, barème du 1er janvier.
+
+        Sert à la validation des trimestres : un trimestre s'acquiert par un
+        montant cotisé, pas par le temps qui passe. Au-delà de la dernière
+        valeur publiée, le SMIC suit la croissance du salaire moyen — c'est son
+        indexation légale, à laquelle s'ajoutent des coups de pouce que le
+        modèle ne prétend pas anticiper.
+        """
+        from .chargement import ValeurAnnuelle
+
+        serie = charger_serie_annuelle(
+            self.racine / "reference" / "macro" / "smic_horaire.csv",
+            colonne_valeur="smic_horaire",
+            nom="smic_horaire",
+        )
+        valeurs = {a: serie.brut(a) for a in serie.annees()}
+        courant = serie(serie.derniere_annee)
+        croissance = float(self.projection["salaire_moyen_nominal"])
+        for annee in range(serie.derniere_annee + 1, self.projection["fin"] + 1):
+            courant *= 1 + croissance
+            valeurs[annee] = ValeurAnnuelle(annee, courant, Fiabilite.ESTIMEE)
+        return SerieAnnuelle(valeurs, "smic_horaire", "escalier")
+
+    @cached_property
+    def heures_par_trimestre(self) -> SerieAnnuelle:
+        """Heures de SMIC à cotiser pour valider un trimestre, par année.
+
+        200 heures depuis 1972, 150 depuis 2014. Avant 1972 la validation ne
+        dépendait pas du montant : la série ne commence donc qu'en 1972, et
+        l'appelant valide quatre trimestres par année travaillée en deçà.
+        """
+        return charger_serie_annuelle(
+            self.racine / "reference" / "legislation" / "validation_trimestres.csv",
+            colonne_valeur="heures",
+            nom="heures_par_trimestre",
+        )
+
+    def trimestres_valides(self, revenu: float, annee: int) -> int:
+        """Trimestres qu'un revenu d'activité valide dans l'année.
+
+        Quatre au plus, et zéro si le revenu n'atteint pas le seuil du premier.
+        Avant 1972, aucun seuil de montant n'existait : une année travaillée
+        vaut quatre trimestres.
+        """
+        if revenu <= 0:
+            return 0
+        heures = self.heures_par_trimestre
+        if annee < heures.premiere_annee:
+            return 4
+        seuil = heures(annee) * self.smic_horaire(annee)
+        if seuil <= 0:
+            return 4
+        return max(0, min(4, int(revenu // seuil)))
+
+    @cached_property
     def plafond_securite_sociale(self) -> SerieAnnuelle:
         """Plafond annuel de la Sécurité sociale, en euros courants.
 

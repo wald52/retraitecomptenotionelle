@@ -209,3 +209,33 @@ def journal_certification(racine: Path) -> dict:
         return json.loads(chemin.read_text(encoding="utf-8"))
     except (json.JSONDecodeError, OSError):  # pragma: no cover - fichier abîmé
         return {}
+
+
+@dataclass(frozen=True)
+class PeriodeNonTravaillee:
+    """Ce qu'ouvre une période non travaillée, selon son motif."""
+
+    motif: str
+    trimestres_assimiles: int
+    ouvre_droits_complementaires: bool
+    fiabilite: Fiabilite
+
+
+def charger_periodes_non_travaillees(racine: Path) -> dict[str, PeriodeNonTravaillee]:
+    """Table des motifs d'interruption et de ce que chacun ouvre."""
+    chemin = racine / "reference" / "legislation" / "periodes_non_travaillees.csv"
+    table: dict[str, PeriodeNonTravaillee] = {}
+    if not chemin.exists():
+        return table
+    with chemin.open(encoding="utf-8") as flux:
+        lignes = (l for l in flux if not l.lstrip().startswith("#"))
+        for ligne in csv.DictReader(lignes):
+            table[ligne["motif"]] = PeriodeNonTravaillee(
+                motif=ligne["motif"],
+                trimestres_assimiles=int(ligne["trimestres_assimiles"]),
+                ouvre_droits_complementaires=(
+                    ligne["ouvre_droits_complementaires"].strip().lower() == "oui"
+                ),
+                fiabilite=Fiabilite.depuis_texte(ligne["fiabilite"]),
+            )
+    return table

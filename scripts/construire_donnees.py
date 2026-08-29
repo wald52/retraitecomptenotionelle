@@ -82,6 +82,11 @@ def _series() -> dict:
             macro / "productivite.csv", "variation_reelle", nom="productivite_reelle"),
         "pass": charger_serie_annuelle(
             macro / "plafond_securite_sociale.csv", "pass_eur", nom="pass"),
+        "smic_horaire": charger_serie_annuelle(
+            macro / "smic_horaire.csv", "smic_horaire", nom="smic_horaire"),
+        "heures_par_trimestre": charger_serie_annuelle(
+            DONNEES / "reference" / "legislation" / "validation_trimestres.csv",
+            "heures", nom="heures_par_trimestre"),
     }
     for sexe in ("H", "F"):
         for mesure in ("e60", "e65"):
@@ -212,6 +217,17 @@ def _durees_requises() -> dict:
             for generation, (trimestres, fiabilite) in sorted(table.items())}
 
 
+def _periodes_non_travaillees() -> dict:
+    """Ce qu'ouvre chaque motif d'interruption."""
+    from retraite_notionnelle.donnees.chargement import charger_periodes_non_travaillees
+
+    return {
+        motif: [regle.trimestres_assimiles,
+                regle.ouvre_droits_complementaires, int(regle.fiabilite)]
+        for motif, regle in sorted(charger_periodes_non_travaillees(DONNEES).items())
+    }
+
+
 def _ages_ouverture() -> dict:
     """Âge légal d'ouverture des droits par génération."""
     from retraite_notionnelle.scenarios.actuel import AgesOuverture
@@ -254,6 +270,7 @@ def construire() -> bytes:
         "rendements_points": _rendements(),
         "durees_requises": _durees_requises(),
         "ages_ouverture": _ages_ouverture(),
+        "periodes_non_travaillees": _periodes_non_travaillees(),
         "minimum_contributif": _minimum_contributif(),
         "certification": journal_certification(DONNEES),
     }

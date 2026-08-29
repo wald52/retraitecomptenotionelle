@@ -17,7 +17,7 @@ from dataclasses import dataclass, field
 from functools import cached_property
 from pathlib import Path
 
-from .donnees.chargement import charger_yaml
+from .donnees.chargement import charger_periodes_non_travaillees, charger_yaml
 from .donnees.macro import DonneesMacro
 
 #: Périodes non cotisées reconnues par le système actuel. Elles ouvrent des
@@ -55,6 +55,13 @@ class AnneeCarriere:
     #: Des cotisations retraite ont-elles réellement été versées ?
     #: C'est le seul critère qui compte pour les comptes notionnels.
     cotisations_versees: bool = True
+    #: Salaire de référence d'avant l'interruption. Les régimes
+    #: complémentaires acquièrent des points sur cette base pendant les
+    #: périodes indemnisées, financés par l'UNEDIC ou la Sécurité sociale.
+    revenu_reference: float = 0.0
+    #: Familles de régimes qui encaissent des cotisations sur
+    #: ``revenu_reference`` alors que l'année n'est pas travaillée.
+    familles_cotisantes: tuple[str, ...] = ()
     #: Part de primes dans le revenu (fonction publique) : assiette du RAFP.
     part_primes: float = 0.0
 
@@ -178,6 +185,7 @@ class Carriere:
             raise ValueError("âge de liquidation antérieur à l'âge de début d'activité")
 
         interruptions = interruptions or {}
+        motifs = charger_periodes_non_travaillees(macro.racine)
         duree = max(annee_fin - annee_debut, 1)
         salaire_moyen_reference = _indice_salaire_moyen(macro, annee_debut, annee_fin)
 
@@ -189,14 +197,37 @@ class Carriere:
 
             type_periode = interruptions.get(annee, "emploi")
             cotise = type_periode == "emploi"
+            regle = None if cotise else motifs.get(
+                type_periode, motifs.get("sans_activite")
+            )
             lignes.append(
                 AnneeCarriere(
                     annee=annee,
                     revenu=revenu if cotise else 0.0,
                     affiliation=affiliation,
                     type_periode=type_periode,
-                    trimestres_valides=4,
+                    # Un trimestre s'acquiert par un montant cotisé — 150 fois
+                    # le SMIC horaire depuis 2014, 200 avant. Une année à temps
+                    # très partiel en valide donc moins de quatre. Les périodes
+                    # assimilées, elles, en valident quatre sans condition de
+                    # montant : c'est tout leur objet.
+                    trimestres_valides=(
+                        macro.trimestres_valides(revenu, annee) if cotise
+                        else (regle.trimestres_assimiles if regle else 4)
+                    ),
                     cotisations_versees=cotise,
+                    # Pendant une période indemnisée, l'UNEDIC ou la Sécurité
+                    # sociale versent de vraies cotisations aux régimes
+                    # complémentaires, assises sur le salaire d'avant.
+                    revenu_reference=(
+                        0.0 if cotise or regle is None
+                        or not regle.ouvre_droits_complementaires else revenu
+                    ),
+                    familles_cotisantes=(
+                        () if cotise or regle is None
+                        or not regle.ouvre_droits_complementaires
+                        else ("complementaire_prive",)
+                    ),
                     part_primes=part_primes,
                 )
             )

@@ -205,22 +205,29 @@ export class ScenarioActuel {
     }
 
     for (const ligne of carriere.lignes) {
-      if (!ligne.cotise) {
+      if (!ligne.cotise && ligne.familles_cotisantes.length === 0) {
         continue;
       }
+      // Pendant une période indemnisée, seuls les régimes complémentaires
+      // encaissent, et sur le salaire d'avant l'interruption.
+      const baseLigne = ligne.cotise ? ligne.revenu : ligne.revenu_reference;
+      const famillesAdmises = ligne.cotise ? null : new Set(ligne.familles_cotisantes);
       for (const code of this.affiliations.regimes(ligne.affiliation, ligne.annee)) {
         if (!this.catalogue.contient(code)) {
           continue;
         }
         const regime = this.catalogue.obtenir(code);
+        if (famillesAdmises !== null && !famillesAdmises.has(regime.famille)) {
+          continue;
+        }
         for (const periode of regime.periodesActives(ligne.annee)) {
           const [borneBasse, borneHaute] = periode.bornesAssietteEnPass();
           const pass = this.macro.plafond_securite_sociale.valeur(ligne.annee);
-          let base = ligne.revenu;
+          let base = baseLigne;
           if (periode.assiette === "primes_uniquement") {
-            base = ligne.revenu * ligne.part_primes;
+            base = baseLigne * ligne.part_primes;
           } else if (periode.assiette === "hors_primes") {
-            base = ligne.revenu * (1.0 - ligne.part_primes);
+            base = baseLigne * (1.0 - ligne.part_primes);
           }
           const plafond = borneHaute === null ? base : borneHaute * pass;
           const assiette = Math.max(0.0, Math.min(base, plafond) - borneBasse * pass);

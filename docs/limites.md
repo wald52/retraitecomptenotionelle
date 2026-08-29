@@ -19,6 +19,15 @@ Le scénario 1 sert d'étalon : ce qui n'y est pas sourcé fragilise tout le res
 | Minimum contributif majoré | 8 796 €/an (2025) | **non confronté à la source** |
 | Plafond d'écrêtement du minimum | 16 410 €/an (2025) | **non confronté à la source** |
 | Durée requise par génération | table 1934-1965, 151 → 172 trimestres | reprise des textes, non recontrôlée automatiquement |
+| Âge légal par génération | table 1930-1968, 60 → 64 ans | reprise des textes, non recontrôlée automatiquement |
+| Droits ouverts par motif d'interruption | 9 motifs | principe sourcé, fractions non recontrôlées |
+
+Le minimum contributif ne figure dans **aucune source machine ouverte** : ni
+l'INSEE, ni OpenFisca-France, qui modélise le socio-fiscal mais pas la
+liquidation des retraites. Ses montants sont publiés dans des circulaires
+CNAV, en PDF. Il n'y a donc pas de chemin de certification automatique à
+écrire, et la vérification reste manuelle à chaque revalorisation. C'est la
+seule grandeur du scénario 1 dans ce cas.
 
 Les deux premières portent la fiabilité `estimee` et la propagent à tout
 résultat où le minimum s'applique — `retraite-notionnelle simuler` l'affiche.
@@ -31,16 +40,10 @@ moyen connu à ce jour.
 
 Ce qui reste approché, après la reprise du moteur :
 
-- **Trimestres validés au forfait.** Chaque année de carrière vaut quatre
-  trimestres. En droit, un trimestre s'acquiert par tranche de 150 SMIC
-  horaires : une année à temps très partiel en valide moins de quatre. Le
-  modèle surestime donc la durée d'assurance des carrières à très bas revenu
-  (en deçà d'environ 0,2 fois le salaire moyen).
-- **Le motif d'interruption n'est pas lu.** `type_periode` est enregistré mais
-  n'influence rien : toute interruption ne verse aucune cotisation, qu'elle
-  soit indemnisée ou non. Les points Agirc-Arrco financés par l'UNEDIC pendant
-  le chômage indemnisé ne sont donc pas acquis, alors que la méthode annonce
-  l'inverse.
+- **Abattement des complémentaires approché.** L'Agirc-Arrco applique un
+  barème de coefficients d'anticipation qui lui est propre ; le modèle retient
+  le taux de décote du régime de base. La condition de déclenchement, elle, est
+  désormais la bonne : pas d'abattement pour un assuré au taux plein.
 - **Montée en charge des réformes par palier.** La durée requise et l'âge légal
   d'ouverture sont désormais lus à la génération. Les autres paramètres — âge
   d'annulation de la décote, taux de cotisation — restent ceux de l'année de

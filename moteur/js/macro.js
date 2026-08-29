@@ -36,8 +36,52 @@ export class DonneesMacro {
     this.salaire_moyen = prolonger(serie("salaire_moyen"), "salaire_moyen_nominal");
     this.productivite = prolonger(serie("productivite"), "productivite_reelle");
     this.plafond_securite_sociale = this._plafond(serie("pass"), hypotheses);
+    this.smic_horaire = this._prolongeParSalaire(serie("smic_horaire"), "smic_horaire");
+    this.heures_par_trimestre = serie("heures_par_trimestre");
 
     this._coefficientsPrix = new Map();
+  }
+
+  /**
+   * Prolonge une série de niveau par la croissance du salaire moyen.
+   *
+   * C'est l'indexation légale du SMIC, à laquelle s'ajoutent des coups de
+   * pouce que le modèle ne prétend pas anticiper.
+   */
+  _prolongeParSalaire(serie, nom) {
+    const annees = serie.annees.slice();
+    const valeurs = serie.valeurs.slice();
+    const fiabilites = serie.fiabilites.slice();
+    let courant = serie.valeur(serie.derniereAnnee);
+    const croissance = Number(this.projection.salaire_moyen_nominal);
+    for (let annee = serie.derniereAnnee + 1; annee <= this.projection.fin; annee += 1) {
+      courant *= 1 + croissance;
+      annees.push(annee);
+      valeurs.push(courant);
+      fiabilites.push(Fiabilite.ESTIMEE);
+    }
+    return new SerieAnnuelle(annees, valeurs, fiabilites, nom, "escalier");
+  }
+
+  /**
+   * Trimestres qu'un revenu d'activité valide dans l'année.
+   *
+   * Quatre au plus, et zéro si le revenu n'atteint pas le seuil du premier.
+   * Avant 1972, aucun seuil de montant n'existait : une année travaillée vaut
+   * quatre trimestres.
+   */
+  trimestresValides(revenu, annee) {
+    if (revenu <= 0) {
+      return 0;
+    }
+    if (annee < this.heures_par_trimestre.premiereAnnee) {
+      return 4;
+    }
+    const seuil = this.heures_par_trimestre.valeur(annee) * this.smic_horaire.valeur(annee);
+    if (seuil <= 0) {
+      return 4;
+    }
+    return Math.max(0, Math.min(4, Math.floor(revenu / seuil)));
   }
 
   /**

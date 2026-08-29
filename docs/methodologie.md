@@ -196,6 +196,7 @@ Sont **supprimés** dans les scénarios notionnels — tous activés par défaut
 | pension de réversion | seules les cotisations comptent |
 | bonifications, catégorie active | avantage sans cotisation |
 | périodes assimilées (chômage, maladie, service militaire) | pas de cotisation, pas de droit |
+| trimestres assimilés au régime de base | pas de cotisation, pas de droit |
 | garantie minimale de points (Agirc) | droit gratuit |
 | carrières longues | dispositif d'âge, remplacé par l'actuariel |
 | décote et surcote | remplacées par le coefficient de conversion |
@@ -218,9 +219,33 @@ du scénario 3 appelle le scénario 1 avec `avantages_non_contributifs=False`,
 parce qu'elle mesure du contributif pur.
 
 Le critère retenu pour une période non cotisée est **le versement effectif de
-cotisations**, pas la nature de la période. Une période de chômage indemnisé
-pour laquelle l'UNEDIC a versé des cotisations retraite ouvre donc des droits ;
-une période de chômage non indemnisé n'en ouvre aucun.
+cotisations**, pas la nature de la période — et c'est bien ainsi que le modèle
+la traite, motif par motif
+(`data/reference/legislation/periodes_non_travaillees.csv`). Deux droits sont à
+distinguer, et ils ne suivent pas la même règle :
+
+- les **trimestres assimilés** comptent dans la durée d'assurance du régime de
+  base sans aucune cotisation. Ils protègent de la décote et entrent dans la
+  proratisation, mais n'ajoutent aucun salaire au compte, donc rien au salaire
+  de référence. Le scénario 1 les conserve, les scénarios notionnels les
+  suppriment ;
+- les **points complémentaires** sont, eux, de vrais droits contributifs :
+  pendant un chômage indemnisé, l'UNEDIC verse des cotisations à l'Agirc-Arrco,
+  calculées sur le salaire d'avant l'interruption. Ils sont donc acquis dans
+  les trois scénarios, y compris en notionnel — puisque des cotisations ont
+  bien été versées.
+
+Une année de chômage indemnisé n'est donc pas vide à l'Agirc-Arrco alors
+qu'elle l'est à la CNAV ; une année de chômage non indemnisé est vide partout.
+
+### La validation des trimestres
+
+Un trimestre ne s'acquiert pas par le temps qui passe mais par un **montant
+cotisé** : 150 fois le SMIC horaire depuis 2014, 200 fois entre 1972 et 2013,
+dans la limite de quatre par année civile. Une année à temps très partiel en
+valide donc moins de quatre. La série du SMIC horaire vient d'OpenFisca-France
+(`scripts/fetch/openfisca_smic.py`), transcription du *Journal officiel* : elle
+plafonne à la fiabilité `haute`.
 
 ---
 

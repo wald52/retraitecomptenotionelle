@@ -162,12 +162,67 @@ def test_une_carriere_sans_aucune_cotisation_ne_produit_pas_de_capital(simulateu
     carriere = simulateur.carriere_simple(
         annee_naissance=1975, sexe="H", affiliation="salarie_prive_non_cadre",
         age_debut=21, age_liquidation=64,
-        interruptions={annee: "chomage_indemnise" for annee in range(1996, 2039)},
+        interruptions={annee: "sans_activite" for annee in range(1996, 2039)},
     )
     prospectif = simulateur.simuler(carriere).notionnel_prospectif
     assert prospectif.droits_acquis is not None
     assert prospectif.capital_notionnel == 0.0
     assert prospectif.pension_annuelle == 0.0
+
+
+def test_le_motif_de_l_interruption_change_les_droits_ouverts(simulateur):
+    """Chômage indemnisé et non indemnisé n'ouvrent pas les mêmes droits.
+
+    Pendant un chômage indemnisé, l'UNEDIC verse de vraies cotisations aux
+    régimes complémentaires : des points sont acquis. Le régime de base, lui,
+    ne reçoit rien — la période y est seulement assimilée. Le modèle
+    enregistrait le motif sans jamais le lire, et traitait les deux à
+    l'identique.
+    """
+    commun = dict(annee_naissance=1975, sexe="F",
+                  affiliation="salarie_prive_non_cadre",
+                  age_debut=22, age_liquidation=64)
+    resultats = {}
+    for motif in ("chomage_indemnise", "chomage_non_indemnise", "sans_activite"):
+        carriere = simulateur.carriere_simple(
+            **commun,
+            interruptions={annee: motif for annee in range(2000, 2005)},
+        )
+        resultats[motif] = simulateur.simuler(carriere)
+
+    def complementaires(comparaison):
+        return sum(p.montant for p in comparaison.actuel.pensions_par_regime
+                   if p.type_calcul == "points")
+
+    # Le chômage indemnisé préserve les points complémentaires, pas les autres.
+    assert complementaires(resultats["chomage_indemnise"]) > complementaires(
+        resultats["chomage_non_indemnise"]
+    )
+    # Et il alimente le compte notionnel, puisque des cotisations sont versées.
+    assert (resultats["chomage_indemnise"].notionnel_retroactif.capital_notionnel
+            > resultats["chomage_non_indemnise"].notionnel_retroactif.capital_notionnel)
+    # « sans_activite » ne valide même pas de trimestre assimilé.
+    assert (resultats["sans_activite"].actuel.trimestres_valides
+            < resultats["chomage_non_indemnise"].actuel.trimestres_valides)
+
+
+def test_un_temps_tres_partiel_ne_valide_pas_quatre_trimestres(simulateur):
+    """Un trimestre s'acquiert par un montant cotisé, pas par le temps.
+
+    150 fois le SMIC horaire depuis 2014, 200 avant. Le modèle validait quatre
+    trimestres par année travaillée quelle que soit la rémunération.
+    """
+    trimestres = {}
+    for niveau in (0.10, 0.20, 1.0):
+        carriere = simulateur.carriere_simple(
+            annee_naissance=1975, sexe="F",
+            affiliation="salarie_prive_non_cadre", age_debut=22,
+            age_liquidation=64, niveau_salaire=niveau, profil_carriere="plat",
+        )
+        trimestres[niveau] = carriere.trimestres_actuels
+    assert trimestres[0.10] < trimestres[0.20] < trimestres[1.0]
+    # Une carrière au salaire moyen valide bien quatre trimestres par an.
+    assert trimestres[1.0] == 4 * 42
 
 
 def test_un_depart_plus_tardif_ameliore_la_pension_notionnelle(simulateur):

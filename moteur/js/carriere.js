@@ -36,6 +36,8 @@ export class AnneeCarriere {
     quotite = 1.0,
     //: Trimestres validés au sens du système ACTUEL.
     trimestres_valides = 4,
+    revenu_reference = 0.0,
+    familles_cotisantes = [],
     //: Des cotisations retraite ont-elles réellement été versées ? C'est le
     //: seul critère qui compte pour les comptes notionnels.
     cotisations_versees = true,
@@ -45,6 +47,7 @@ export class AnneeCarriere {
     Object.assign(this, {
       annee, revenu, affiliation, type_periode, quotite,
       trimestres_valides, cotisations_versees, part_primes,
+      revenu_reference, familles_cotisantes,
     });
   }
 
@@ -161,12 +164,25 @@ export class Carriere {
 
       const typePeriode = plages.get(annee) ?? "emploi";
       const cotise = typePeriode === "emploi";
+      const motifs = macro.paquet.periodes_non_travaillees ?? {};
+      const regle = cotise ? null : (motifs[typePeriode] ?? motifs.sans_activite ?? null);
+      const ouvreComplementaires = regle !== null && regle[1] === true;
       lignes.push(new AnneeCarriere({
         annee,
         revenu: cotise ? revenu : 0.0,
         affiliation,
         type_periode: typePeriode,
-        trimestres_valides: 4,
+        // Un trimestre s'acquiert par un montant cotisé — 150 fois le SMIC
+        // horaire depuis 2014, 200 avant. Les périodes assimilées en valident
+        // quatre sans condition de montant : c'est tout leur objet.
+        trimestres_valides: cotise
+          ? macro.trimestresValides(revenu, annee)
+          : (regle !== null ? regle[0] : 4),
+        // Pendant une période indemnisée, l'UNEDIC ou la Sécurité sociale
+        // versent de vraies cotisations aux régimes complémentaires, assises
+        // sur le salaire d'avant.
+        revenu_reference: ouvreComplementaires ? revenu : 0.0,
+        familles_cotisantes: ouvreComplementaires ? ["complementaire_prive"] : [],
         cotisations_versees: cotise,
         part_primes,
       }));

@@ -1,0 +1,21 @@
+# Nombre d'heures de SMIC à cotiser pour valider UN trimestre
+# ------------------------------------------------------------
+# source_id: legifrance_textes, cnav_circulaires
+#
+# Un trimestre d'assurance ne s'acquiert pas par le temps passé mais par un
+# montant cotisé, exprimé en multiples du SMIC horaire de l'année :
+#
+#   trimestres validés = min(4, revenu cotisé / (heures × SMIC horaire))
+#
+#   - avant 1972 : la validation suivait le nombre de trimestres civils
+#     travaillés, sans condition de montant. Aucune ligne : le modèle valide
+#     alors quatre trimestres par année travaillée.
+#   - 1972 : décret du 29 décembre 1972, 200 heures de SMIC par trimestre.
+#   - 2014 : décret n° 2014-349 du 19 mars 2014, abaissement à 150 heures,
+#     mesure destinée aux temps très partiels et aux carrières hachées.
+#
+# Le plafond de quatre trimestres par année civile n'a jamais varié : une
+# année ne peut pas en valider davantage, quel que soit le revenu.
+annee,heures,fiabilite
+1972,200,haute
+2014,150,haute

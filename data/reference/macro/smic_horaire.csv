@@ -1,0 +1,76 @@
+# SMIC horaire brut, en euros courants de chaque année
+# ---------------------------------------------------------
+# source_id: openfisca_france
+#
+# Barème en vigueur au 1er JANVIER de l'année : c'est celui qu'oppose la
+# caisse pour valider les trimestres de l'année entière.
+#
+# Sert exclusivement à la validation des trimestres du scénario « système
+# actuel » : un trimestre s'acquiert par un montant cotisé, pas par le temps
+# qui passe. Voir data/reference/legislation/validation_trimestres.csv pour le
+# nombre d'heures exigé, qui a changé en 1972 et en 2014.
+#
+# Valeurs en francs jusqu'au barème de juillet 2001, converties en euros par
+# division par 6,55957 — conversion arithmétique, sans revalorisation.
+#
+# Transcription tierce du Journal officiel par OpenFisca-France : fiabilité
+# plafonnée à « haute », jamais « certifiee ».
+# Produit par scripts/fetch/openfisca_smic.py.
+annee,smic_horaire,fiabilite
+1970,0.498508,haute
+1971,0.553390,haute
+1972,0.600649,haute
+1973,0.693643,haute
+1974,0.827798,haute
+1975,1.029031,haute
+1976,1.202823,haute
+1977,1.362894,haute
+1978,1.533637,haute
+1979,1.724198,haute
+1980,1.971166,haute
+1981,2.254721,haute
+1982,2.766950,haute
+1983,3.093191,haute
+1984,3.472789,haute
+1985,3.713658,haute
+1986,3.969772,haute
+1987,4.103928,haute
+1988,4.244181,haute
+1989,4.384434,haute
+1990,4.559750,haute
+1991,4.869222,haute
+1992,4.978985,haute
+1993,5.192414,haute
+1994,5.309799,haute
+1995,5.421087,haute
+1996,5.637565,haute
+1997,5.779342,haute
+1998,6.011065,haute
+1999,6.131499,haute
+2000,6.207724,haute
+2001,6.405908,haute
+2002,6.670000,haute
+2003,6.830000,haute
+2004,7.190000,haute
+2005,7.610000,haute
+2006,8.030000,haute
+2007,8.270000,haute
+2008,8.440000,haute
+2009,8.710000,haute
+2010,8.860000,haute
+2011,9.000000,haute
+2012,9.220000,haute
+2013,9.430000,haute
+2014,9.530000,haute
+2015,9.610000,haute
+2016,9.670000,haute
+2017,9.760000,haute
+2018,9.880000,haute
+2019,10.030000,haute
+2020,10.150000,haute
+2021,10.250000,haute
+2022,10.570000,haute
+2023,11.270000,haute
+2024,11.650000,haute
+2025,11.880000,haute
+2026,12.020000,haute
