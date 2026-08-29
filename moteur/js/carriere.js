@@ -43,11 +43,17 @@ export class AnneeCarriere {
     cotisations_versees = true,
     //: Part de primes dans le revenu (fonction publique) : assiette du RAFP.
     part_primes = 0.0,
+    //: Salaire forfaitaire porté au compte du régime de base au titre de
+    //: l'assurance vieillesse des parents au foyer. Ce n'est pas un revenu
+    //: d'activité — l'année n'est pas cotisée par l'assuré — mais la CNAF
+    //: cotise pour lui sur cette assiette, et le salaire entre dans le salaire
+    //: annuel moyen. Une période assimilée, elle, n'y entre jamais.
+    revenu_avpf = 0.0,
   }) {
     Object.assign(this, {
       annee, revenu, affiliation, type_periode, quotite,
       trimestres_valides, cotisations_versees, part_primes,
-      revenu_reference, familles_cotisantes,
+      revenu_reference, familles_cotisantes, revenu_avpf,
     });
   }
 
@@ -107,9 +113,23 @@ export class Carriere {
     return this.lignes.filter((ligne) => ligne.cotise).map((ligne) => ligne.annee);
   }
 
-  /** Trimestres validés au sens du droit en vigueur, tous régimes. */
+  /**
+   * Trimestres validés au sens du droit en vigueur, tous régimes.
+   *
+   * Bornés à l'année de liquidation : une ligne postérieure décrit une activité
+   * exercée APRÈS le départ, et le droit ne la fait pas entrer dans la durée
+   * d'assurance qui commande la décote.
+   */
   get trimestresActuels() {
-    return this.lignes.reduce((total, ligne) => total + ligne.trimestres_valides, 0);
+    const borne = this.age_liquidation === null || this.age_liquidation === undefined
+      ? null
+      : this.anneeLiquidation;
+    return this.lignes.reduce(
+      (total, ligne) => (borne === null || ligne.annee < borne
+        ? total + ligne.trimestres_valides
+        : total),
+      0,
+    );
   }
 
   ligne(annee) {
@@ -167,6 +187,7 @@ export class Carriere {
       const motifs = macro.paquet.periodes_non_travaillees ?? {};
       const regle = cotise ? null : (motifs[typePeriode] ?? motifs.sans_activite ?? null);
       const ouvreComplementaires = regle !== null && regle[1] === true;
+      const ouvreAvpf = regle !== null && regle[3] === true;
       lignes.push(new AnneeCarriere({
         annee,
         revenu: cotise ? revenu : 0.0,
@@ -185,6 +206,12 @@ export class Carriere {
         familles_cotisantes: ouvreComplementaires ? ["complementaire_prive"] : [],
         cotisations_versees: cotise,
         part_primes,
+        // Assurance vieillesse des parents au foyer : la CNAF cotise au régime
+        // général sur une assiette forfaitaire égale au SMIC — 1 820 heures,
+        // soit le SMIC mensuel multiplié par douze.
+        revenu_avpf: (!cotise && ouvreAvpf)
+          ? 1820.0 * macro.smic_horaire.valeur(annee)
+          : 0.0,
       }));
     }
 

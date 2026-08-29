@@ -462,14 +462,69 @@ def test_le_minimum_contributif_est_ecrete_pour_les_grosses_pensions(simulateur)
 
 
 def test_le_minimum_contributif_releve_les_petites_pensions(simulateur):
-    """Une carrière courte au SMIC relève du minimum : c'est son objet."""
+    """Une carrière courte au SMIC relève du minimum : c'est son objet.
+
+    À condition d'être liquidée au taux plein : ici par l'âge, la génération
+    1965 l'obtenant sans condition de durée à 67 ans.
+    """
+    carriere = simulateur.carriere_simple(
+        annee_naissance=1965, sexe="F", affiliation="salarie_prive_non_cadre",
+        age_debut=37, age_liquidation=67, niveau_salaire=0.4,
+        profil_carriere="plat",
+    )
+    resultat = simulateur.simuler(carriere).actuel
+    assert resultat.minimum_applique is True
+
+
+def test_le_minimum_contributif_est_refuse_a_une_pension_decotee(simulateur):
+    """L'article L. 351-10 réserve le minimum aux pensions au taux plein.
+
+    La même carrière liquidée cinq ans plus tôt n'a ni la durée requise ni
+    l'âge d'annulation de la décote : le droit ne la relève pas. Le modèle la
+    relevait, et faisait ainsi garantir par le système actuel un départ que le
+    droit sanctionne — sur le segment même où l'écart avec les comptes
+    notionnels se mesure.
+    """
     carriere = simulateur.carriere_simple(
         annee_naissance=1965, sexe="F", affiliation="salarie_prive_non_cadre",
         age_debut=37, age_liquidation=62, niveau_salaire=0.4,
         profil_carriere="plat",
     )
     resultat = simulateur.simuler(carriere).actuel
-    assert resultat.minimum_applique is True
+    assert resultat.trimestres_valides < resultat.trimestres_requis
+    assert resultat.minimum_applique is False
+
+
+def test_la_majoration_du_minimum_suit_la_seule_duree_cotisee(simulateur):
+    """Deux durées proratisent le minimum, et ce ne sont pas les mêmes.
+
+    Le montant de base suit la durée d'ASSURANCE acquise dans le régime, sa
+    majoration la seule durée COTISÉE (D. 351-2-2). Deux carrières de même
+    durée d'assurance, dont l'une est pour moitié du chômage indemnisé, ne
+    reçoivent donc pas le même plancher.
+    """
+    commun = dict(
+        annee_naissance=1965, sexe="F", affiliation="salarie_prive_non_cadre",
+        age_debut=42, age_liquidation=67, niveau_salaire=0.4,
+        profil_carriere="plat",
+    )
+    entierement_cotisee = simulateur.simuler(
+        simulateur.carriere_simple(**commun)
+    ).actuel
+    moitie_chomee = simulateur.simuler(simulateur.carriere_simple(
+        interruptions={annee: "chomage_indemnise"
+                       for annee in range(1965 + 42, 1965 + 54)},
+        **commun,
+    )).actuel
+
+    # Même durée d'assurance — le chômage indemnisé valide ses trimestres.
+    assert entierement_cotisee.trimestres_valides == moitie_chomee.trimestres_valides
+    assert entierement_cotisee.minimum_applique
+    assert moitie_chomee.minimum_applique
+    minimum = {r.code: r.montant for r in entierement_cotisee.avantages_appliques}
+    minimum_chome = {r.code: r.montant for r in moitie_chomee.avantages_appliques}
+    assert (minimum["minimum_contributif"]
+            > minimum_chome["minimum_contributif"])
 
 
 # -- restitution -------------------------------------------------------------
@@ -899,9 +954,11 @@ def test_le_nombre_d_annees_du_salaire_de_reference_suit_la_generation(simulateu
         ancien.annee_liquidation)
     periode_recente = catalogue["regime_general"].periode(recent.annee_liquidation)
     dix = scenario.salaire_de_reference(
-        ancien, periode_ancienne, ancien.annee_liquidation, True, 1930)
+        "regime_general", ancien, periode_ancienne,
+        ancien.annee_liquidation, True, 1930)
     vingt_cinq = scenario.salaire_de_reference(
-        ancien, periode_ancienne, ancien.annee_liquidation, True, 1975)
+        "regime_general", ancien, periode_ancienne,
+        ancien.annee_liquidation, True, 1975)
     assert dix > vingt_cinq
     assert periode_recente.salaire_reference_par_generation
 
@@ -1016,12 +1073,13 @@ def test_l_abattement_de_la_complementaire_n_est_pas_celui_de_la_base(simulateur
     scenario = simulateur.scenario_actuel
     periode = simulateur.catalogue["agirc_arrco"].periode(2019)
     requis = scenario.durees_requises.trimestres(1965)[0]
-    abattement = scenario._abattement_points(periode, carriere, 100, requis, 57.0)
+    abattement = scenario._abattement_points(
+        periode, carriere, 100, requis, 57.0, 2022)
     assert abattement == pytest.approx(0.43)
 
     # Au taux plein, aucun abattement, quel que soit l'âge.
     assert scenario._abattement_points(
-        periode, carriere, requis, requis, 57.0) == pytest.approx(1.0)
+        periode, carriere, requis, requis, 57.0, 2022) == pytest.approx(1.0)
 
 
 def test_la_majoration_pour_enfants_de_la_complementaire_est_plafonnee(simulateur):
@@ -1144,11 +1202,9 @@ def test_le_minimum_contributif_distingue_le_montant_majore(simulateur):
     est fait de protéger.
     """
     minimum = simulateur.scenario_actuel.minimum_contributif
-    base, plafond, _ = minimum.valeurs(2025)
-    majore, meme_plafond, _ = minimum.valeurs(2025, majore=True)
+    base, majore, plafond, _ = minimum.valeurs(2025)
 
     assert majore > base * 1.15
-    assert meme_plafond == plafond
 
     # Les montants publiés par les caisses pour 2025 : 8 972 € et 10 721 €
     # par an. L'ancre du code, revalorisée sur le SMIC, doit les retrouver.
@@ -1207,8 +1263,8 @@ def test_les_montants_reellement_servis_priment_sur_toute_projection(simulateur)
     }
     for annee, (base, majore, plafond) in servis.items():
         assert minimum.valeurs(annee)[0] == pytest.approx(base), annee
-        assert minimum.valeurs(annee, majore=True)[0] == pytest.approx(majore), annee
-        assert minimum.valeurs(annee)[1] == pytest.approx(plafond), annee
+        assert minimum.valeurs(annee)[1] == pytest.approx(majore), annee
+        assert minimum.valeurs(annee)[2] == pytest.approx(plafond), annee
 
 
 def test_une_reforme_ne_glisse_pas_dans_le_passe(simulateur):
@@ -1266,3 +1322,330 @@ def test_les_quotients_observes_remontent_avant_eurostat(simulateur):
     # par la loi paramétrique.
     attendu = 1.0 - ages_1950[70]
     assert simulateur.mortalite.survie_annuelle(70, 1950, "H") == pytest.approx(attendu)
+
+
+# -- ce que le droit positif fait, et que l'étalon ne faisait pas -------------
+
+
+def test_le_salaire_de_reference_ne_retient_que_les_annees_du_regime(simulateur):
+    """Un régime ne liquide que ce qui lui a été déclaré.
+
+    Le salaire de référence portait sur TOUTE la carrière, régime par régime
+    confondu : un polypensionné passé de la fonction publique au privé
+    liquidait sa pension civile sur son dernier salaire privé — pendant que le
+    prorata de durée, lui, restait celui du régime. Le modèle rapportait donc
+    une part de carrière publique à une assiette qui ne l'était pas.
+    """
+    from retraite_notionnelle.carriere import AnneeCarriere, Carriere
+
+    publiques = [AnneeCarriere(annee=a, revenu=20_000.0,
+                               affiliation="fonctionnaire_etat")
+                 for a in range(1980, 2000)]
+    privees = [AnneeCarriere(annee=a, revenu=60_000.0,
+                             affiliation="salarie_prive_cadre")
+               for a in range(2000, 2022)]
+
+    melangee = simulateur.scenario_actuel.calculer(Carriere(
+        annee_naissance=1960, sexe="H", lignes=publiques + privees,
+        age_liquidation=62,
+    ))
+    publique_seule = simulateur.scenario_actuel.calculer(Carriere(
+        annee_naissance=1960, sexe="H", lignes=list(publiques), age_liquidation=62,
+    ))
+
+    pension = {p.regime: p for p in melangee.pensions_par_regime}
+    seule = {p.regime: p for p in publique_seule.pensions_par_regime}
+    # Même assiette des deux côtés : la pension civile ne connaît que le
+    # traitement des années passées dans la fonction publique.
+    assert "SR 28,501 €" in pension["fonction_publique_etat"].detail
+    assert "SR 28,501 €" in seule["fonction_publique_etat"].detail
+    # Et le salaire annuel moyen du régime général ne connaît que les années
+    # privées : y verser les années publiques, plus faibles, l'abaissait.
+    privee_seule = simulateur.scenario_actuel.calculer(Carriere(
+        annee_naissance=1960, sexe="H", lignes=list(privees), age_liquidation=62,
+    ))
+    reference = {p.regime: p for p in privee_seule.pensions_par_regime}
+    assert (pension["regime_general"].detail.split("×")[0]
+            == reference["regime_general"].detail.split("×")[0])
+
+
+def test_les_annees_posterieures_a_la_liquidation_n_ouvrent_rien(simulateur):
+    """On ne cotise pas après être parti.
+
+    La boucle d'acquisition ne bornait pas à l'année de liquidation : des
+    années postérieures achetaient des points et validaient des trimestres,
+    ce qui annulait jusqu'à la décote de qui, précisément, part tôt.
+    """
+    from retraite_notionnelle.carriere import AnneeCarriere, Carriere
+
+    avant = [AnneeCarriere(annee=a, revenu=40_000.0,
+                           affiliation="salarie_prive_non_cadre")
+             for a in range(1985, 2022)]
+    apres = [AnneeCarriere(annee=a, revenu=40_000.0,
+                           affiliation="salarie_prive_non_cadre")
+             for a in range(2022, 2030)]
+
+    borne = simulateur.scenario_actuel.calculer(Carriere(
+        annee_naissance=1960, sexe="H", lignes=list(avant), age_liquidation=62))
+    prolongee = simulateur.scenario_actuel.calculer(Carriere(
+        annee_naissance=1960, sexe="H", lignes=avant + apres, age_liquidation=62))
+
+    assert borne.pension_annuelle == pytest.approx(prolongee.pension_annuelle)
+    assert borne.trimestres_valides == prolongee.trimestres_valides
+
+
+def test_la_decote_de_la_fonction_publique_est_celle_de_l_article_l14(simulateur):
+    """Ni le coefficient du privé, ni son âge d'annulation.
+
+    Trois écarts, tous dans le même sens. La décote n'existe qu'à compter de
+    2006 ; son coefficient monte d'un huitième de point par an, de 0,125 % en
+    2006 à 1,25 % en 2015 ; et son âge d'annulation n'est pas un âge en propre
+    mais la LIMITE D'ÂGE du grade, diminuée d'un nombre décroissant de
+    trimestres jusqu'en 2020.
+    """
+    scenario = simulateur.scenario_actuel
+
+    # 2005 : la décote n'existe pas encore dans la fonction publique.
+    carriere = simulateur.carriere_simple(
+        annee_naissance=1945, sexe="H", affiliation="fonctionnaire_etat",
+        age_debut=25, age_liquidation=60, niveau_salaire=1.2,
+    )
+    resultat = scenario.calculer(carriere)
+    assert resultat.trimestres_valides < resultat.trimestres_requis
+    assert resultat.taux_liquidation == pytest.approx(0.75)
+
+    # 2012 : coefficient de 0,875 %, âge d'annulation à la limite d'âge moins
+    # huit trimestres — 63 ans et neuf mois pour la génération 1952, dont la
+    # limite d'âge est de 65 ans et neuf mois.
+    periode = simulateur.catalogue["fonction_publique_etat"].periode(2012)
+    carriere = simulateur.carriere_simple(
+        annee_naissance=1952, sexe="H", affiliation="fonctionnaire_etat",
+        age_debut=25, age_liquidation=60, niveau_salaire=1.2,
+    )
+    coefficient, age_annulation, _ = scenario._decote(periode, carriere, 2012)
+    assert coefficient == pytest.approx(0.00875)
+    assert age_annulation == pytest.approx(65.75 - 2.0)
+
+    # 2020 : la montée en charge est finie, l'âge d'annulation EST la limite
+    # d'âge et le coefficient vaut 1,25 %.
+    periode = simulateur.catalogue["fonction_publique_etat"].periode(2020)
+    carriere = simulateur.carriere_simple(
+        annee_naissance=1960, sexe="H", affiliation="fonctionnaire_etat",
+        age_debut=25, age_liquidation=60, niveau_salaire=1.2,
+    )
+    coefficient, age_annulation, _ = scenario._decote(periode, carriere, 2020)
+    assert coefficient == pytest.approx(0.0125)
+    assert age_annulation == pytest.approx(67.0)
+
+
+def test_le_taux_d_avant_1983_ne_depend_que_de_l_age(simulateur):
+    """Le taux plein par la durée est une création de 1982.
+
+    Le régime général servait 20 % à 60 ans, majorés de quatre points par année
+    différée jusqu'à 40 % à 65 ans ; la loi Boulin a porté ces bornes à 25 % et
+    50 %. Aucune durée, si longue fût-elle, n'ouvrait le taux plein avant
+    l'âge — et le modèle servait pourtant le taux plein à tout âge.
+    """
+    scenario = simulateur.scenario_actuel
+
+    def taux(naissance, age):
+        return scenario.calculer(simulateur.carriere_simple(
+            annee_naissance=naissance, sexe="H",
+            affiliation="salarie_prive_non_cadre",
+            age_debut=20, age_liquidation=age,
+        )).taux_liquidation
+
+    # Ordonnances de 1945 : 20 % à 60 ans, 40 % à 65.
+    assert taux(1905, 60) == pytest.approx(0.20)
+    assert taux(1905, 65) == pytest.approx(0.40)
+    # Loi Boulin : 25 % à 60 ans, 50 % à 65 — malgré quarante ans de carrière.
+    assert taux(1915, 60) == pytest.approx(0.25)
+    assert taux(1915, 65) == pytest.approx(0.50)
+
+
+def test_le_minimum_garanti_de_la_fonction_publique_est_servi(simulateur):
+    """Le plancher de la fonction publique, déclaré mais jamais appliqué.
+
+    Barème de l'article L. 17 : 57,5 % de la référence à quinze ans de
+    services, 95 % à trente, la totalité à quarante. La référence est le
+    traitement de l'indice majoré 227 au 1er janvier 2004 — 997,96 € par mois,
+    soit exactement 227 fois le point d'indice de cette année-là — revalorisé
+    comme les pensions depuis.
+    """
+    minimum = simulateur.scenario_actuel.minimum_garanti
+
+    # 997,96 € est la valeur du traitement à l'indice majoré 227, celle que
+    # l'article désigne comme référence. En 2004 le barème n'en était encore
+    # qu'à l'indice 217 : la montée en charge court jusqu'en 2013.
+    assert minimum.reference(2004)[0] / 12 == pytest.approx(
+        997.96 * 217 / 227, rel=0.001)
+    assert minimum.reference(2013)[0] / 12 > minimum.reference(2004)[0] / 12
+    assert minimum.reference(2024)[0] / 12 == pytest.approx(1325.01, rel=0.001)
+    assert minimum.reference(2025)[0] / 12 == pytest.approx(1354.16, rel=0.001)
+
+    plein = minimum.reference(2025)[0]
+    assert minimum.montant(2025, 15 * 4)[0] == pytest.approx(plein * 0.575)
+    assert minimum.montant(2025, 30 * 4)[0] == pytest.approx(plein * 0.95)
+    assert minimum.montant(2025, 40 * 4)[0] == pytest.approx(plein)
+    assert minimum.montant(2025, 45 * 4)[0] == pytest.approx(plein)
+
+    # Et il relève réellement une petite pension publique liquidée au taux
+    # plein — ici par l'âge, la décote étant nulle à 67 ans.
+    carriere = simulateur.carriere_simple(
+        annee_naissance=1962, sexe="F", affiliation="fonctionnaire_etat",
+        age_debut=40, age_liquidation=67, niveau_salaire=0.5, part_primes=0.15,
+    )
+    resultat = simulateur.scenario_actuel.calculer(carriere)
+    applique = {a.code: a.montant for a in resultat.avantages_appliques}
+    assert applique["minimum_garanti"] > 0
+
+
+def test_le_minimum_garanti_suppose_le_taux_plein_depuis_2011(simulateur):
+    """La loi du 9 novembre 2010 l'a conditionné, et le modèle l'ignorait."""
+    commun = dict(
+        annee_naissance=1962, sexe="F", affiliation="fonctionnaire_etat",
+        age_debut=40, niveau_salaire=0.5, part_primes=0.15,
+    )
+    decotee = simulateur.scenario_actuel.calculer(
+        simulateur.carriere_simple(age_liquidation=64, **commun))
+    taux_plein = simulateur.scenario_actuel.calculer(
+        simulateur.carriere_simple(age_liquidation=67, **commun))
+
+    assert all(a.code != "minimum_garanti" for a in decotee.avantages_appliques)
+    assert any(a.code == "minimum_garanti" for a in taux_plein.avantages_appliques)
+
+
+def test_le_droit_dit_si_la_liquidation_est_ouverte(simulateur):
+    """Le modèle servait une pension à un âge où la loi n'en sert aucune.
+
+    Un salarié du privé né en 1965 n'a pas le droit de liquider à 58 ans, sauf
+    carrière longue — et la carrière longue exige d'avoir commencé tôt ET
+    d'avoir la durée cotisée requise. Le montant reste calculé, parce qu'il
+    faut comparer les trois scénarios sur la même carrière, mais le résultat
+    dit désormais qu'il ne décrit aucune pension servie.
+    """
+    scenario = simulateur.scenario_actuel
+
+    def ouverture(age_debut, age_liquidation):
+        return scenario.calculer(simulateur.carriere_simple(
+            annee_naissance=1965, sexe="H",
+            affiliation="salarie_prive_non_cadre",
+            age_debut=age_debut, age_liquidation=age_liquidation,
+        ))
+
+    tardif = ouverture(23, 60)
+    assert tardif.liquidation_ouverte is False
+    assert tardif.motif_ouverture == "non_ouverte"
+    assert tardif.age_ouverture_opposable == pytest.approx(63.25)
+
+    # À l'âge légal de sa génération, elle l'est.
+    legal = ouverture(23, 64)
+    assert legal.liquidation_ouverte is True
+    assert legal.motif_ouverture == "age_legal"
+
+    # Entré à seize ans et fort de plus de trimestres cotisés que la durée
+    # requise, le même assuré part à 60 ans : c'est la carrière longue.
+    precoce = ouverture(16, 60)
+    assert precoce.liquidation_ouverte is True
+    assert precoce.motif_ouverture == "carriere_longue"
+    assert precoce.age_ouverture_opposable == pytest.approx(60.0)
+
+    # Mais pas à 58 ans : la durée cotisée n'y est pas encore.
+    assert ouverture(16, 58).liquidation_ouverte is False
+
+
+def test_l_avpf_porte_un_salaire_au_compte(simulateur):
+    """Une période assimilée ne porte aucun salaire ; l'AVPF, si.
+
+    C'est toute la différence, et le modèle ne la faisait pas : les années
+    d'éducation d'un enfant validaient des trimestres sans jamais ajouter de
+    salaire au compte, alors que la CNAF y cotise sur une assiette forfaitaire
+    égale au SMIC. Le cas type « carrière interrompue » annonçait cette
+    compensation sans que rien ne la calcule.
+    """
+    from retraite_notionnelle.donnees.chargement import (
+        charger_periodes_non_travaillees,
+    )
+
+    motifs = charger_periodes_non_travaillees(
+        simulateur.parametres.racine_donnees
+    )
+    assert motifs["education_enfant"].avpf is True
+    assert motifs["chomage_indemnise"].avpf is False
+
+    carriere = simulateur.carriere_simple(
+        annee_naissance=1970, sexe="F", affiliation="salarie_prive_non_cadre",
+        age_debut=42, age_liquidation=64, niveau_salaire=1.2,
+        profil_carriere="plat", nombre_enfants=2,
+        interruptions={a: "education_enfant" for a in range(2014, 2019)},
+    )
+    interrompues = [l for l in carriere.lignes if l.revenu_avpf > 0]
+    assert len(interrompues) == 5
+    # L'assiette est le SMIC annuel : 1 820 heures au SMIC horaire de l'année.
+    attendu = 1820.0 * simulateur.macro.smic_horaire(2014)
+    assert interrompues[0].revenu_avpf == pytest.approx(attendu)
+
+    # Sur une carrière de moins de vingt-cinq années portées au compte, ces
+    # années au SMIC entrent dans la moyenne au lieu de la remplacer : le
+    # salaire annuel moyen BAISSE. C'est la règle, et le modèle la montre.
+    resultat = simulateur.scenario_actuel.calculer(carriere)
+    applique = {a.code: a.montant for a in resultat.avantages_appliques}
+    assert applique["avpf"] < 0
+
+
+def test_le_minimum_vieillesse_complete_les_toutes_petites_pensions(simulateur):
+    """L'ASPA, dernier plancher du système actuel, jamais servie jusqu'ici.
+
+    Allocation différentielle : elle porte les ressources au barème d'une
+    personne seule, 1 034,28 € par mois en 2025. Et elle ne s'ouvre qu'à
+    65 ans, ce que le modèle respecte — il ne suit pas l'assuré au-delà de sa
+    liquidation.
+    """
+    plafond = simulateur.scenario_actuel.minimum_vieillesse.plafond(2025)
+    assert plafond[0] / 12 == pytest.approx(1034.28, rel=0.001)
+
+    commun = dict(
+        annee_naissance=1960, sexe="F", affiliation="salarie_prive_non_cadre",
+        age_debut=50, niveau_salaire=0.5,
+    )
+    avant = simulateur.scenario_actuel.calculer(
+        simulateur.carriere_simple(age_liquidation=64, **commun))
+    apres = simulateur.scenario_actuel.calculer(
+        simulateur.carriere_simple(age_liquidation=65, **commun))
+
+    assert all(a.code != "minimum_vieillesse" for a in avant.avantages_appliques)
+    applique = {a.code: a.montant for a in apres.avantages_appliques}
+    assert applique["minimum_vieillesse"] > 0
+    assert apres.pension_annuelle == pytest.approx(
+        simulateur.scenario_actuel.minimum_vieillesse.plafond(2025)[0]
+    )
+
+    # Et le paramètre la retire d'un seul geste : ce n'est pas une pension.
+    from retraite_notionnelle.simulateur import Simulateur
+
+    sans = Simulateur(simulateur.parametres.avec(
+        minimum_vieillesse_dans_le_scenario_actuel=False
+    ))
+    depouillee = sans.scenario_actuel.calculer(
+        sans.carriere_simple(age_liquidation=65, **commun))
+    assert depouillee.pension_annuelle < apres.pension_annuelle
+
+
+def test_la_garantie_minimale_de_points_agirc_est_servie(simulateur):
+    """120 points par an, même quand la tranche B est nulle.
+
+    Un cadre payé sous le plafond de la Sécurité sociale n'acquérait aucun
+    point à l'Agirc, quand l'accord du 9 février 1988 lui en donnait 120 par
+    an. La fiche du régime le déclarait ; le moteur ne le servait pas.
+    """
+    commun = dict(
+        annee_naissance=1958, sexe="H", affiliation="salarie_prive_cadre",
+        age_debut=32, age_liquidation=64, profil_carriere="plat",
+    )
+    sous_plafond = simulateur.scenario_actuel.calculer(
+        simulateur.carriere_simple(niveau_salaire=0.8, **commun))
+    agirc = {p.regime: p for p in sous_plafond.pensions_par_regime}["agirc"]
+
+    # Vingt-neuf années cotisées de 1990 à 2018, toutes garanties.
+    assert agirc.montant > 0
+    assert "3,480 points" in agirc.detail

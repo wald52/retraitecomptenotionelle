@@ -105,6 +105,27 @@ champs_periode:
 
   decote_par_trimestre: "abattement par trimestre manquant (fraction, null si aucun)"
 
+  bareme_decote:
+    description: >-
+      Barème de décote applicable. `regime_aligne` applique le coefficient
+      `decote_par_trimestre` ci-dessus, éventuellement lu à la génération, et
+      annule la décote à `age_taux_plein`. `fonction_publique` applique celui
+      de l'article L. 14 du code des pensions : le coefficient ET l'âge
+      d'annulation y montent en charge de 2006 à 2020, ce dernier étant la
+      LIMITE D'ÂGE du grade diminuée d'un nombre décroissant de trimestres
+      (`legislation/decote_fonction_publique.csv`).
+    valeurs: ["regime_aligne", "fonction_publique"]
+    defaut: regime_aligne
+
+  decote_annulee_par_la_duree:
+    description: >-
+      La durée d'assurance annule-t-elle la décote ? Vrai depuis l'ordonnance
+      du 26 mars 1982, qui ouvre le taux plein à 60 ans à qui a la durée
+      requise ; le nombre de trimestres de décote est alors le plus faible des
+      deux décomptes, durée manquante ou âge manquant. `false` pour les
+      périodes antérieures, où le taux ne dépendait QUE de l'âge.
+    defaut: true
+
   decote_trimestres_maximum:
     description: >-
       Nombre maximal de trimestres de décote opposables. Vingt dans tous les
@@ -130,6 +151,15 @@ champs_periode:
       laquelle il est publié (`plafond_majoration_annee`). Le plafond suit
       ensuite la valeur de service du point. `null` : majoration non plafonnée,
       ce qui est le cas de tous les régimes de base.
+
+  points_minimum_annuels:
+    description: >-
+      Points garantis chaque année à qui cotise au régime, quelle que soit son
+      assiette — la garantie minimale de points de l'Agirc, 120 points par an
+      de 1989 à 2018. Droit gratuit, sans contrepartie de cotisation
+      proportionnelle : un cadre payé sous le plafond de la Sécurité sociale,
+      dont la tranche B est nulle, en acquérait autant qu'un autre.
+      `null` : aucune garantie.
 
   points_maximum:
     description: >-

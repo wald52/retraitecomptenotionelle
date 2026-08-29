@@ -154,6 +154,17 @@ export const PARAMETRES_DEFAUT = Object.freeze({
   // --- Fusion des régimes ---------------------------------------------------
   fusion_au_plus_defavorable: true,
 
+  // --- Scénario « système actuel » ------------------------------------------
+  //: Le minimum vieillesse (ASPA) fait-il partie de l'étalon ? C'est le dernier
+  //: plancher du système actuel et le seul qui ne suppose aucune cotisation :
+  //: l'omettre sous-estime le système en vigueur là même où l'écart avec un
+  //: compte notionnel est le plus grand. Mais ce n'est pas une pension — âge de
+  //: 65 ans, ressources DU FOYER, demande à faire, non-recours de moitié,
+  //: récupération sur succession. Servie par défaut sous le barème d'une
+  //: personne seule sans autre ressource, et toujours comme une ligne SÉPARÉE
+  //: de la cascade.
+  minimum_vieillesse_dans_le_scenario_actuel: true,
+
   // --- Neutralisations ------------------------------------------------------
   neutralisations: NEUTRALISATIONS_DEFAUT,
 

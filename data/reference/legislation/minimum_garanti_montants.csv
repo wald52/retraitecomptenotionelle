@@ -1,0 +1,43 @@
+# Minimum garanti — traitement de référence de l'indice majoré 227
+# ------------------------------------------------------------------
+# source_id: legifrance_textes, sre_rapport_annuel
+#
+# C'est le montant PLEIN du minimum garanti, celui que sert une carrière de
+# quarante ans de services. Le barème de `minimum_garanti.csv` en tire tous les
+# autres, et l'applique après l'avoir ramené à l'indice majoré de l'année de
+# liquidation (217 en 2004, 227 depuis 2013).
+#
+# MÊME PRINCIPE QUE POUR LE MINIMUM CONTRIBUTIF, ET POUR LA MÊME RAISON : les
+# montants réellement servis priment sur toute projection. L'article L. 17
+# renvoie à l'article L. 16, c'est-à-dire à la revalorisation des pensions —
+# laquelle a été gelée en 2014, sous-indexée en 2018 et en 2020, et ne suit
+# donc pas les prix. Projeter l'ancre de 2004 sur l'indice des prix donne pour
+# 2024 un montant supérieur de 4,6 % à celui que l'État a payé. Une valeur
+# transcrite qui dit vrai vaut mieux qu'une valeur calculée qui dit faux.
+#
+# Entre deux valeurs connues, et au-delà de la dernière, le modèle projette sur
+# les prix depuis l'ancre EN VIGUEUR à la date demandée — la dernière fixée
+# avant elle, jamais une postérieure. Avant 2004, aucune projection : la
+# référence est le traitement de l'indice majoré de l'année, pris au point
+# d'indice de cette année-là (`point_indice_fonction_publique.csv`).
+#
+# Montants EN EUROS PAR AN, l'origine des mensuels étant indiquée en regard.
+#
+#   2004  997,96 €/mois — valeur du traitement IM 227 au 1er janvier 2004,
+#         que l'article lui-même désigne comme référence. Recoupée : le point
+#         d'indice de 2004 vaut 52,7558 € par point et par an, et
+#         227 × 52,7558 = 11 975,57 €. Deux chemins indépendants, même chiffre.
+#   2020  1 174,33 €/mois — déduit du montant publié pour quinze ans de
+#         services, 675,24 €, qui en représente 57,5 %.
+#   2023  1 248,33 €/mois — montant publié au 1er mai 2023.
+#   2024  1 325,01 €/mois — montant publié au 1er janvier 2024.
+#   2025  1 354,16 €/mois — montant publié au 1er janvier 2025.
+#
+# Transcriptions de publications, non confrontées à un fichier du producteur :
+# niveau `haute`, jamais `certifiee`.
+annee,valeur,fiabilite
+2004,11975.570000,haute
+2020,14091.960000,haute
+2023,14979.960000,haute
+2024,15900.120000,haute
+2025,16249.920000,haute

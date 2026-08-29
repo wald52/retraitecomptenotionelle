@@ -1,0 +1,95 @@
+# Valeur annuelle du point d'indice de la fonction publique
+# ----------------------------------------------------------
+# source_id: openfisca_france
+#
+# Traitement brut annuel correspondant à UN point d'indice majoré. Le
+# traitement d'un agent à l'indice majoré N vaut donc N fois cette valeur.
+#
+# Une seule grandeur en dépend dans ce modèle, mais elle est décisive : le
+# MINIMUM GARANTI de la fonction publique, dont l'article L. 17 du code des
+# pensions fixe la référence à « la valeur du traitement brut afférent à
+# l'indice majoré 227 au 1er janvier 2004 » — soit 227 × 52,7558 = 11 975,57 €
+# par an, exactement le montant que publie le Service des retraites de l'État.
+# Deux chemins indépendants qui tombent sur le même chiffre.
+#
+# Depuis cette date, la référence ne suit plus le point d'indice : elle est
+# revalorisée comme les pensions, c'est-à-dire sur les prix. C'est ce qui
+# explique qu'elle ait dépassé le point d'indice, gelé de 2010 à 2016 puis de
+# 2017 à 2022. Les liquidations ANTÉRIEURES à 2004, elles, prennent bien le
+# point de leur année : c'est à quoi sert le reste de la série.
+#
+# Valeur EN VIGUEUR AU 1er JANVIER de chaque année, reprise de la série datée
+# d'OpenFisca-France (`marche_travail/remuneration_dans_fonction_publique/
+# indicefp/point_indice_en_euros`), elle-même transcrite des décrets portant
+# majoration de la rémunération des personnels civils et militaires de l'État.
+# Transcription tierce : niveau `haute`, jamais `certifiee`.
+#
+# Récupérée par scripts/fetch/openfisca_point_indice.py.
+annee,valeur,fiabilite
+1960,3.5612,haute
+1961,3.6664,haute
+1962,4.7595,haute
+1963,5.8385,haute
+1964,6.3022,haute
+1965,6.5538,haute
+1966,6.8160,haute
+1967,7.0889,haute
+1968,7.3907,haute
+1969,8.1636,haute
+1970,8.6576,haute
+1971,9.3726,haute
+1972,10.0129,haute
+1973,11.0144,haute
+1974,12.0999,haute
+1975,14.0360,haute
+1976,15.6016,haute
+1977,17.1597,haute
+1978,18.6369,haute
+1979,20.7331,haute
+1980,23.3948,haute
+1981,26.8508,haute
+1982,30.9563,haute
+1983,34.0382,haute
+1984,37.4308,haute
+1985,38.5544,haute
+1986,40.2892,haute
+1987,40.2892,haute
+1988,40.7329,haute
+1989,41.9585,haute
+1990,43.0973,haute
+1991,44.1691,haute
+1992,44.8322,haute
+1993,46.0244,haute
+1994,47.2165,haute
+1995,47.9025,haute
+1996,49.1557,haute
+1997,49.1557,haute
+1998,49.6480,haute
+1999,50.2929,haute
+2000,50.9469,haute
+2001,51.2015,haute
+2002,51.8174,haute
+2003,52.4933,haute
+2004,52.7558,haute
+2005,52.7558,haute
+2006,53.7110,haute
+2007,53.9795,haute
+2008,54.4113,haute
+2009,54.8475,haute
+2010,55.2871,haute
+2011,55.5635,haute
+2012,55.5635,haute
+2013,55.5635,haute
+2014,55.5635,haute
+2015,55.5635,haute
+2016,55.5635,haute
+2017,55.8969,haute
+2018,56.2323,haute
+2019,56.2323,haute
+2020,56.2323,haute
+2021,56.2323,haute
+2022,56.2323,haute
+2023,58.2004,haute
+2024,59.0734,haute
+2025,59.0734,haute
+2026,59.0734,haute

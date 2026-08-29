@@ -218,7 +218,13 @@ class PeriodeNonTravaillee:
     motif: str
     trimestres_assimiles: int
     ouvre_droits_complementaires: bool
-    fiabilite: Fiabilite
+    #: Le parent est-il affilié à l'assurance vieillesse des parents au foyer
+    #: pendant cette période ? La CNAF cotise alors au régime général sur une
+    #: assiette forfaitaire égale au SMIC, et ce salaire est PORTÉ AU COMPTE :
+    #: c'est ce qui distingue l'AVPF d'une période assimilée, laquelle valide
+    #: des trimestres sans jamais ajouter de salaire.
+    avpf: bool = False
+    fiabilite: Fiabilite = Fiabilite.ESTIMEE
 
 
 def charger_periodes_non_travaillees(racine: Path) -> dict[str, PeriodeNonTravaillee]:
@@ -236,6 +242,7 @@ def charger_periodes_non_travaillees(racine: Path) -> dict[str, PeriodeNonTravai
                 ouvre_droits_complementaires=(
                     ligne["ouvre_droits_complementaires"].strip().lower() == "oui"
                 ),
+                avpf=ligne.get("avpf", "non").strip().lower() == "oui",
                 fiabilite=Fiabilite.depuis_texte(ligne["fiabilite"]),
             )
     return table

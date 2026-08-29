@@ -525,6 +525,19 @@ function resultats(contexte, saisie) {
       + "scénario 1 ; il est supprimé dans les scénarios 2 et 3.</p>";
   }
 
+  let ouverture = "";
+  if (!comparaison.actuel.liquidation_ouverte) {
+    const age = comparaison.actuel.age_ouverture_opposable;
+    const attente = age === null ? "" : ` — il faut attendre ${g.nombre(age, 2)} ans`;
+    ouverture = '<p class="note avertissement">Le droit en vigueur <strong>n\'ouvre pas'
+      + "</strong> cette liquidation à "
+      + `${g.nombre(comparaison.carriere.age_liquidation, 2)} ans${attente}. `
+      + "Ni l'âge légal du régime, ni le départ anticipé pour carrière longue "
+      + "ne le permettent. Le montant du scénario 1 reste calculé, parce qu'il "
+      + "faut bien comparer les trois scénarios sur la même carrière, mais il "
+      + "ne décrit aucune pension que le système actuel servirait.</p>";
+  }
+
   return `
 <h2>Résultats</h2>
 <div class="carte">
@@ -538,6 +551,7 @@ function resultats(contexte, saisie) {
   <span class="etiquette-fiabilite">${echapper(nomFiabilite(comparaison.fiabilite))}</span></p>
   ${capitalisation}
   ${minimum}
+  ${ouverture}
 </div>
 ${decomposition(contexte, saisie, comparaison)}
 ${cascade(comparaison, saisie)}

@@ -15,7 +15,7 @@ regimes:
     hors_repartition: false
     periodes:
       - debut: 1947
-        fin: 1993
+        fin: 1988
         type_calcul: points
         age_ouverture: 60
         age_taux_plein: 65
@@ -33,8 +33,35 @@ regimes:
         notes: >-
           Convention collective nationale du 14 mars 1947. Régime par points sur
           les tranches B et C. Taux contractuel monté progressivement de 8 % à
-          16 % ; la garantie minimale de points (GMP) est un droit gratuit,
-          neutralisé dans les scénarios notionnels.
+          16 % ; la garantie minimale de points (GMP) n'existe pas encore : elle
+          est créée par l'accord du 9 février 1988, applicable au 1er janvier
+          1989, d'où la coupure de période à cette date.
+
+      - debut: 1989
+        fin: 1993
+        type_calcul: points
+        age_ouverture: 60
+        age_taux_plein: 65
+        duree_requise_trimestres: null
+        taux_plein: 1.0
+        abattement_points: agirc_arrco
+        plafond_majoration_enfants: 2367
+        plafond_majoration_annee: 2025
+        salaire_reference: carriere_entiere
+        assiette: tranche_b
+        taux_cotisation_retraite: 0.14
+        decote_par_trimestre: 0.01
+        points_minimum_annuels: 120
+        avantages_non_contributifs: [majoration_enfants, reversion, garantie_minimale_points]
+        notes: >-
+          GARANTIE MINIMALE DE POINTS, accord du 9 février 1988 : tout cadre
+          cotisant à l'Agirc acquiert au moins 120 points par an, même quand sa
+          tranche B est nulle — c'est-à-dire même quand son salaire ne dépasse
+          pas le plafond de la Sécurité sociale. C'est un droit GRATUIT, sans
+          contrepartie de cotisation proportionnelle, et le modèle le déclarait
+          sans jamais le servir : un cadre payé sous le plafond n'acquérait
+          aucun point à l'Agirc, quand le droit lui en donnait 120 par an.
+          La garantie disparaît avec la fusion Agirc-Arrco du 1er janvier 2019.
       - debut: 1994
         fin: 2018
         type_calcul: points
@@ -51,6 +78,7 @@ regimes:
         taux_cotisation_retraite: 0.2043
         decote_par_trimestre: 0.01
         surcote_par_trimestre: null
+        points_minimum_annuels: 120
         avantages_non_contributifs: [majoration_enfants, reversion, garantie_minimale_points]
         notes: >-
           Taux contractuel 16,44 % + taux d'appel 125 % = 20,55 % de cotisation

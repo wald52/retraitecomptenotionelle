@@ -105,7 +105,8 @@ regimes:
         salaire_reference: 10_meilleures_annees
         assiette: plafonnee
         taux_cotisation_retraite: 0.085
-        decote_par_trimestre: null
+        decote_par_trimestre: 0.025
+        decote_annulee_par_la_duree: false
         surcote_par_trimestre: null
         avantages_non_contributifs: [minimum_vieillesse, majoration_enfants, reversion]
         notes: >-
@@ -115,6 +116,14 @@ regimes:
           évolue de 8 % (1946) à environ 8,75 % (1971) : la valeur portée ici
           est une moyenne de période, à affiner à partir des Comptes de la
           Sécurité sociale.
+          LES MAJORATIONS D'AJOURNEMENT SONT UNE DÉCOTE, ET LA FICHE N'EN
+          PORTAIT AUCUNE : le taux de 40 % était servi à tout âge, si bien
+          qu'un départ à 60 ans valait autant qu'un départ à 65. Quatre points
+          par année d'ajournement, sur un taux plein de 40 %, font 10 % du taux
+          par année et 2,5 % par trimestre — le même barème que celui que la
+          loi Boulin reprendra en 1972 sur un taux de 50 %. Le plafond de vingt
+          trimestres ramène exactement le taux à 20 % pour un départ à 60 ans,
+          qui est bien ce que servait le droit d'alors.
 
       - debut: 1972
         fin: 1982
@@ -128,6 +137,7 @@ regimes:
         assiette: plafonnee
         taux_cotisation_retraite: 0.1119
         decote_par_trimestre: 0.025
+        decote_annulee_par_la_duree: false
         surcote_par_trimestre: null
         avantages_non_contributifs:
           [minimum_vieillesse, majoration_enfants, mda, reversion, periodes_assimilees]
@@ -139,6 +149,10 @@ regimes:
           du taux par année et 2,5 % par trimestre. La fiche portait 5 % PAR
           TRIMESTRE, quatre fois trop : un départ à 62 ans y perdait 60 % de
           sa pension au lieu de 15 %.
+          Et cet abattement ne s'annule PAS par la durée : le taux plein à
+          60 ans pour 150 trimestres est une création de l'ordonnance du
+          26 mars 1982. Jusque-là, une carrière de quarante ans liquidée à
+          60 ans était servie au même taux réduit qu'une carrière de vingt.
 
       - debut: 1983
         fin: 1993

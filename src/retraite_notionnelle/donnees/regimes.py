@@ -80,6 +80,19 @@ class PeriodeRegime:
     #: publique et des régimes spéciaux).
     perimetre_taux: str
     decote_par_trimestre: float | None
+    #: Barème de décote applicable. ``regime_aligne`` (défaut) applique le
+    #: coefficient ci-dessus, éventuellement lu à la génération ;
+    #: ``fonction_publique`` applique celui de l'article L. 14 du code des
+    #: pensions, dont le coefficient ET l'âge d'annulation montent en charge de
+    #: 2006 à 2020 (``legislation/decote_fonction_publique.csv``).
+    bareme_decote: str
+    #: La durée d'assurance annule-t-elle la décote ? Vrai depuis l'ordonnance
+    #: du 26 mars 1982, qui ouvre le taux plein à 60 ans à qui a la durée
+    #: requise. Avant elle, le taux ne dépendait QUE de l'âge : 20 % à 60 ans
+    #: majorés de 4 points par année différée jusqu'en 1971, 50 % à 65 ans
+    #: diminués de 5 points par année anticipée ensuite. Une carrière longue
+    #: n'y changeait rien.
+    decote_annulee_par_la_duree: bool
     #: Nombre maximal de trimestres de décote opposables. Vingt dans tous les
     #: régimes qui en appliquent une : au-delà, le taux ne descend plus.
     #: ``None`` lève le plafond.
@@ -98,6 +111,11 @@ class PeriodeRegime:
     #: en prix d'achat — le régime de base des libéraux, la complémentaire
     #: agricole. ``None`` : les points s'achètent, cf. ``valeurs_point.csv``.
     points_maximum: float | None
+    #: Nombre de points garantis chaque année à qui cotise au régime, quelle
+    #: que soit son assiette. C'est la garantie minimale de points de l'Agirc :
+    #: 120 points par an de 1989 à 2018, y compris pour un cadre dont la
+    #: tranche B est nulle. Droit GRATUIT, sans contrepartie de cotisation.
+    points_minimum_annuels: float | None
     #: Repère d'assiette, exprimé en heures de SMIC. ``None`` : le repère est
     #: la borne haute de l'assiette, en plafonds de la Sécurité sociale.
     assiette_repere_smic: float | None
@@ -231,6 +249,10 @@ class CatalogueRegimes:
                     None if p.get("decote_par_trimestre") is None
                     else float(p["decote_par_trimestre"])
                 ),
+                bareme_decote=p.get("bareme_decote", "regime_aligne"),
+                decote_annulee_par_la_duree=bool(
+                    p.get("decote_annulee_par_la_duree", True)
+                ),
                 decote_trimestres_maximum=(
                     None if "decote_trimestres_maximum" in p
                     and p["decote_trimestres_maximum"] is None
@@ -252,6 +274,10 @@ class CatalogueRegimes:
                 points_maximum=(
                     None if p.get("points_maximum") is None
                     else float(p["points_maximum"])
+                ),
+                points_minimum_annuels=(
+                    None if p.get("points_minimum_annuels") is None
+                    else float(p["points_minimum_annuels"])
                 ),
                 assiette_repere_smic=(
                     None if p.get("assiette_repere_smic") is None

@@ -110,6 +110,9 @@ export class Comparaison {
             regime: p.regime, montant: p.montant, detail: p.detail,
           })),
           minimum_applique: this.actuel.minimum_applique,
+          liquidation_ouverte: this.actuel.liquidation_ouverte,
+          motif_ouverture: this.actuel.motif_ouverture,
+          age_ouverture_opposable: this.actuel.age_ouverture_opposable,
           total_contributif: this.actuel.total_contributif,
           avantages_appliques: this.actuel.avantages_appliques.map((a) => ({
             code: a.code, libelle: a.libelle, montant: a.montant, detail: a.detail,

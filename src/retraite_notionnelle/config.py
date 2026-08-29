@@ -289,6 +289,24 @@ class Parametres:
     #: l'ensemble des régimes existants.
     fusion_au_plus_defavorable: bool = True
 
+    # --- Scénario « système actuel » ----------------------------------------
+    #: Le minimum vieillesse (ASPA) fait-il partie de l'étalon ?
+    #:
+    #: C'est une décision de modélisation, pas un détail technique. L'ASPA est
+    #: le dernier plancher du système actuel et le seul qui ne suppose aucune
+    #: cotisation : l'omettre sous-estime le système en vigueur là même où
+    #: l'écart avec un compte notionnel est le plus grand. Mais ce n'est pas une
+    #: pension — elle est soumise à condition d'âge (65 ans), de ressources DU
+    #: FOYER, et de demande, avec un non-recours que la DREES estime à la
+    #: moitié des ayants droit ; elle est en outre récupérable sur les
+    #: successions.
+    #:
+    #: Elle est donc servie par défaut, sous le barème d'une personne seule
+    #: sans autre ressource — le cas le plus favorable —, et toujours comme une
+    #: LIGNE SÉPARÉE de la cascade, de sorte qu'on puisse la retrancher d'un
+    #: coup d'œil. Mettre ce paramètre à ``False`` la retire du calcul.
+    minimum_vieillesse_dans_le_scenario_actuel: bool = True
+
     # --- Neutralisations ----------------------------------------------------
     neutralisations: Neutralisations = field(default_factory=Neutralisations)
 

@@ -18,14 +18,28 @@
 #   référence d'avant l'interruption. C'est pourquoi une année de chômage
 #   indemnisé n'est pas vide à l'Agirc-Arrco alors qu'elle l'est à la CNAV.
 #
+# `avpf` — l'assurance vieillesse des PARENTS AU FOYER, créée par la loi du
+#   3 janvier 1972. Ce n'est ni une période assimilée ni une cotisation de
+#   l'assuré : la Caisse nationale des allocations familiales cotise au régime
+#   général pour le parent qui interrompt son activité, sur une assiette
+#   FORFAITAIRE égale au SMIC. La différence avec une période assimilée est
+#   décisive et le modèle l'ignorait : une période assimilée ne porte AUCUN
+#   salaire au compte, quand l'AVPF y porte un salaire au SMIC, qui entre donc
+#   dans le salaire annuel moyen. Le cas type « carrière interrompue » annonçait
+#   cette compensation sans que rien ne la calcule.
+#
+#   Ces cotisations ne sont pas « à la charge de l'assuré » : elles n'ouvrent
+#   donc pas droit à la majoration du minimum contributif au titre des périodes
+#   cotisées, et ne comptent pas pour la carrière longue.
+#
 # Un motif absent de cette table est traité comme `sans_activite`.
-motif,trimestres_assimiles,ouvre_droits_complementaires,fiabilite
-chomage_indemnise,4,oui,haute
-chomage_non_indemnise,4,non,haute
-maladie,4,oui,moyenne
-maternite,4,oui,moyenne
-invalidite,4,oui,moyenne
-accident_travail,4,oui,moyenne
-service_militaire,4,non,haute
-education_enfant,4,non,haute
-sans_activite,0,non,certifiee
+motif,trimestres_assimiles,ouvre_droits_complementaires,avpf,fiabilite
+chomage_indemnise,4,oui,non,haute
+chomage_non_indemnise,4,non,non,haute
+maladie,4,oui,non,moyenne
+maternite,4,oui,non,moyenne
+invalidite,4,oui,non,moyenne
+accident_travail,4,oui,non,moyenne
+service_militaire,4,non,non,haute
+education_enfant,4,non,oui,haute
+sans_activite,0,non,non,certifiee

@@ -1,0 +1,57 @@
+# Minimum vieillesse — allocation de solidarité aux personnes âgées (ASPA)
+# --------------------------------------------------------------------------
+# source_id: legifrance_textes, drees_panorama_retraites
+#
+# Le dernier plancher du système actuel, et le seul qui ne suppose aucune
+# cotisation : une allocation DIFFÉRENTIELLE qui porte les ressources d'une
+# personne âgée au montant ci-dessous. Les fiches de régime la déclarent
+# (`minimum_vieillesse` y figure depuis 1941, l'AVTS en étant l'ancêtre) et les
+# Neutralisations annoncent que les scénarios notionnels la retirent — mais le
+# modèle ne la servait pas. On ne retire pas ce qui n'a jamais été mis.
+#
+# TROIS CONDITIONS, ET LE MODÈLE N'EN CONNAÎT QU'UNE.
+#
+#   * l'ÂGE — 65 ans, et non l'âge légal. Le modèle liquide à l'âge demandé et
+#     s'arrête là : il ne suit pas l'assuré jusqu'à 65 ans. L'allocation n'est
+#     donc servie que si la liquidation a lieu à 65 ans ou plus, ce qui est le
+#     droit à la date de liquidation, mais tait qu'un assuré parti à 62 ans y
+#     aura droit trois ans plus tard.
+#   * les RESSOURCES DU FOYER — l'allocation complète tout ce que perçoit le
+#     ménage, pas seulement les pensions, et le plafond d'un couple n'est pas
+#     le double de celui d'une personne seule. Le modèle ne connaît qu'un
+#     individu et ses pensions : il applique le barème d'une PERSONNE SEULE
+#     sans autre ressource, ce qui est le cas le plus favorable.
+#   * la DEMANDE — l'allocation n'est pas versée d'office, et la DREES estime
+#     le non-recours à la moitié des ayants droit. Le modèle la sert à tous.
+#
+# C'est pourquoi elle apparaît toujours comme une ligne SÉPARÉE de la cascade,
+# et pourquoi le paramètre `minimum_vieillesse_dans_le_scenario_actuel` permet
+# de la retirer d'un seul geste : ce n'est pas une pension, c'est une aide
+# sociale, récupérable sur les successions au-delà d'un seuil.
+#
+# Montants MENSUELS MAXIMAUX d'une personne seule, portés ici à l'année. Ce
+# sont les valeurs au 1er janvier ; la revalorisation supplémentaire du
+# 1er juillet 2022 n'est pas retenue, le modèle travaillant à l'année.
+#
+# Entre deux valeurs connues, et de part et d'autre de la série, le montant est
+# projeté sur les prix depuis l'ancre EN VIGUEUR. Les années 2011-2015 le sont
+# depuis 2010, et les liquidations antérieures à 2007 depuis la création de
+# l'ASPA. Cette projection en arrière n'est qu'indicative : le minimum
+# vieillesse a été relevé bien plus vite que les prix dans les années 1960 et
+# 1970, où il constituait l'essentiel de la politique de la vieillesse.
+#
+# Transcriptions de publications : niveau `haute`, jamais `certifiee`.
+annee,valeur,fiabilite
+2007,7455.240000,moyenne
+2010,8507.400000,haute
+2016,9609.600000,haute
+2017,9638.400000,haute
+2018,9998.400000,haute
+2019,10418.400000,haute
+2020,10838.400000,haute
+2021,10881.720000,haute
+2022,11001.360000,haute
+2023,11532.960000,haute
+2024,12144.240000,haute
+2025,12411.360000,haute
+2026,12523.080000,haute

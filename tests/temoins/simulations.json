@@ -82,8 +82,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 64.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "913 points × valeur de service 1.8341 € + cotisations revalorisées 74,395 € × rendement 5.81%",
@@ -233,8 +236,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 64.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "913 points × valeur de service 1.8341 € + cotisations revalorisées 74,395 € × rendement 5.81%",
@@ -387,8 +393,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 64.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "692 points × valeur de service 2.3792 € + cotisations revalorisées 195,173 € × rendement 5.81%",
@@ -533,8 +542,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 64.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "692 points × valeur de service 2.3792 € + cotisations revalorisées 195,173 € × rendement 5.81%",
@@ -677,8 +689,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 64.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "692 points × valeur de service 2.3792 € + cotisations revalorisées 195,173 € × rendement 5.81%",
@@ -828,8 +843,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 64.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "692 points × valeur de service 2.3792 € + cotisations revalorisées 195,173 € × rendement 5.81%",
@@ -979,8 +997,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 64.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "692 points × valeur de service 2.3792 € + cotisations revalorisées 195,173 € × rendement 5.81%",
@@ -1123,8 +1144,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 64.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "913 points × valeur de service 1.8341 € + cotisations revalorisées 74,395 € × rendement 5.81%",
@@ -1274,8 +1298,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 64.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "913 points × valeur de service 1.8341 € + cotisations revalorisées 74,395 € × rendement 5.81%",
@@ -1425,8 +1452,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 64.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "865 points × valeur de service 2.0353 € + cotisations revalorisées 119,486 € × rendement 5.81%",
@@ -1576,8 +1606,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 60.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "7,188 points × valeur de service 0.3742 €",
@@ -1720,6 +1753,7 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 64.0,
      "avantages_appliques": [
       {
        "code": "majoration_enfants",
@@ -1728,7 +1762,9 @@
        "montant": 3936.423877313022
       }
      ],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "913 points × valeur de service 1.8341 € + cotisations revalorisées 74,395 € × rendement 5.81%",
@@ -1878,8 +1914,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 64.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "913 points × valeur de service 1.8341 € + cotisations revalorisées 74,395 € × rendement 5.81%",
@@ -2029,8 +2068,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 64.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "913 points × valeur de service 1.8341 € + cotisations revalorisées 74,395 € × rendement 5.81%",
@@ -2180,8 +2222,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 64.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "913 points × valeur de service 1.8341 € + cotisations revalorisées 74,395 € × rendement 5.81%",
@@ -2331,8 +2376,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 60.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "7,187 points × valeur de service 0.3698 €",
@@ -2475,8 +2523,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 60.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "8,628 points × valeur de service 1.0886 €",
@@ -2614,8 +2665,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 60.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "7,429 points × valeur de service 1.2513 €",
@@ -2753,8 +2807,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 62.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "923 points × valeur de service 1.4386 €",
@@ -2897,8 +2954,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 64.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "993 points × valeur de service 1.6817 € + cotisations revalorisées 44,017 € × rendement 5.81%",
@@ -3048,8 +3108,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 64.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "840 points × valeur de service 2.0003 € + cotisations revalorisées 109,295 € × rendement 5.81%",
@@ -3199,8 +3262,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 64.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "692 points × valeur de service 2.3792 € + cotisations revalorisées 195,173 € × rendement 5.81%",
@@ -3350,8 +3416,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 64.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "404 points × valeur de service 2.8300 € + cotisations revalorisées 306,541 € × rendement 5.81%",
@@ -3496,8 +3565,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 64.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "cotisations revalorisées 373,501 € × rendement 5.81%",
@@ -3635,8 +3707,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 64.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "913 points × valeur de service 1.8341 € + cotisations revalorisées 74,395 € × rendement 5.81%",
@@ -3786,8 +3861,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 64.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "913 points × valeur de service 1.8341 € + cotisations revalorisées 74,395 € × rendement 5.81%",
@@ -3937,8 +4015,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 64.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "913 points × valeur de service 1.8341 € + cotisations revalorisées 74,395 € × rendement 5.81%",
@@ -4088,8 +4169,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 64.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "993 points × valeur de service 1.6817 € + cotisations revalorisées 44,017 € × rendement 5.81%",
@@ -4239,8 +4323,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 64.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "913 points × valeur de service 1.8341 € + cotisations revalorisées 74,395 € × rendement 5.81%",
@@ -4390,8 +4477,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 64.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": false,
      "minimum_applique": false,
+     "motif_ouverture": "non_ouverte",
      "par_regime": [
       {
        "detail": "1,163 points × valeur de service 1.4894 € + cotisations revalorisées 5,236 € × rendement 5.81%",
@@ -4541,8 +4631,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 64.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": false,
      "minimum_applique": false,
+     "motif_ouverture": "non_ouverte",
      "par_regime": [
       {
        "detail": "1,001 points × valeur de service 1.6244 € + cotisations revalorisées 32,069 € × rendement 5.81%",
@@ -4692,8 +4785,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 64.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": false,
      "minimum_applique": false,
+     "motif_ouverture": "non_ouverte",
      "par_regime": [
       {
        "detail": "954 points × valeur de service 1.7111 € + cotisations revalorisées 49,153 € × rendement 5.81%",
@@ -4843,8 +4939,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 64.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": false,
      "minimum_applique": false,
+     "motif_ouverture": "non_ouverte",
      "par_regime": [
       {
        "detail": "932 points × valeur de service 1.7715 € + cotisations revalorisées 61,351 € × rendement 5.81%",
@@ -4994,8 +5093,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 64.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "913 points × valeur de service 1.8341 € + cotisations revalorisées 74,395 € × rendement 5.81%",
@@ -5145,8 +5247,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 64.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "888 points × valeur de service 1.9321 € + cotisations revalorisées 95,764 € × rendement 5.81%",
@@ -5296,8 +5401,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 64.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "865 points × valeur de service 2.0353 € + cotisations revalorisées 119,486 € × rendement 5.81%",
@@ -5447,8 +5555,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 62.5,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "1,250 points × valeur de service 1.4638 €",
@@ -5591,8 +5702,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 64.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "904 points × valeur de service 1.8662 € + cotisations revalorisées 81,278 € × rendement 5.81%",
@@ -5742,8 +5856,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 64.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "SR 59,761 € × taux 75.00% × 172/172",
@@ -5888,8 +6005,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 64.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "1,531 points × valeur de service 1.8341 € + cotisations revalorisées 152,095 € × rendement 5.81%",
@@ -6039,8 +6159,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 64.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "884 points × valeur de service 1.8341 € + cotisations revalorisées 56,899 € × rendement 5.81%",
@@ -6190,8 +6313,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 64.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "913 points × valeur de service 1.8341 € + cotisations revalorisées 72,533 € × rendement 5.81%",
@@ -6341,8 +6467,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 64.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "913 points × valeur de service 1.8341 € + cotisations revalorisées 76,326 € × rendement 5.81%",
@@ -6492,8 +6621,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 64.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "913 points × valeur de service 1.8341 € + cotisations revalorisées 70,138 € × rendement 5.81%",
@@ -6643,15 +6775,11 @@
    },
    "scenarios": {
     "actuel": {
-     "avantages_appliques": [
-      {
-       "code": "minimum_contributif",
-       "detail": "portée au plancher, au prorata de la durée acquise",
-       "libelle": "Minimum contributif",
-       "montant": 6248.127461287286
-      }
-     ],
-     "minimum_applique": true,
+     "age_ouverture_opposable": 64.0,
+     "avantages_appliques": [],
+     "liquidation_ouverte": true,
+     "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "183 points × valeur de service 1.8341 € + cotisations revalorisées 13,682 € × rendement 5.81%",
@@ -6669,10 +6797,10 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 12119.09959302292,
-     "pension_annuelle_euros_constants": 9672.14774300096,
-     "pension_mensuelle": 1009.9249660852433,
-     "taux_remplacement": 0.8047360250498071,
+     "pension_annuelle": 5870.972131735634,
+     "pension_annuelle_euros_constants": 4685.571681074389,
+     "pension_mensuelle": 489.2476776446362,
+     "taux_remplacement": 0.3898460228176616,
      "total_contributif": 5870.972131735634
     },
     "notionnel_prospectif": {
@@ -6694,7 +6822,7 @@
      "rendement_cumule": 1.066788111639174,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.28516253439495487,
-     "variation_vs_actuel": -0.6456446269106625
+     "variation_vs_actuel": -0.2685252184082668
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -6708,7 +6836,7 @@
      "rendement_cumule": 1.1256616815700797,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.2273348819036044,
-     "variation_vs_actuel": -0.7175037840644277
+     "variation_vs_actuel": -0.4168598149071454
     }
    },
    "unite": {
@@ -6801,8 +6929,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 64.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "502 points × valeur de service 1.8341 € + cotisations revalorisées 37,625 € × rendement 5.81%",
@@ -6952,8 +7083,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 64.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "1,975 points × valeur de service 1.8341 € + cotisations revalorisées 167,526 € × rendement 5.81%",
@@ -7103,8 +7237,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 64.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "5,733 points × valeur de service 1.8341 € + cotisations revalorisées 449,025 € × rendement 5.81%",
@@ -7254,8 +7391,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 64.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "18,260 points × valeur de service 1.8341 € + cotisations revalorisées 1,311,991 € × rendement 5.81%",
@@ -7405,8 +7545,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 64.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "SR 76,616 € × taux 75.00% × 172/172",
@@ -7546,8 +7689,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 57.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "405 points × valeur de service 1.8341 € + cotisations revalorisées 74,395 € × rendement 5.81%",
@@ -7555,42 +7701,42 @@
        "regime": "agirc_arrco"
       },
       {
-       "detail": "SR 76,616 € × taux 75.00% × 108/172",
-       "montant": 36080.94512233703,
+       "detail": "SR 52,970 € × taux 75.00% × 108/172",
+       "montant": 24945.374165150417,
        "regime": "ieg"
       },
       {
-       "detail": "SR 57,209 € × taux 50.00% × 64/172",
-       "montant": 10643.575790547531,
+       "detail": "SR 61,903 € × taux 50.00% × 64/172",
+       "montant": 11516.770697848016,
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 51789.981846922274,
-     "pension_annuelle_euros_constants": 41333.13305875913,
-     "pension_mensuelle": 4315.831820576856,
-     "taux_remplacement": 0.6877947294514832,
-     "total_contributif": 51789.981846922274
+     "pension_annuelle": 41527.60579703614,
+     "pension_annuelle_euros_constants": 33142.820190476596,
+     "pension_mensuelle": 3460.6338164196786,
+     "taux_remplacement": 0.551505665291862,
+     "total_contributif": 41527.60579703614
     },
     "notionnel_prospectif": {
-     "capital_droits_acquis": 575018.8377494453,
-     "capital_notionnel": 787984.8668432571,
+     "capital_droits_acquis": 552354.1297113535,
+     "capital_notionnel": 765320.1588051652,
      "cotisations_versees": 199632.9231365155,
      "droits_acquis": {
       "age_conversion": 67.0,
-      "capital": 575018.8377494453,
-      "capital_a_la_bascule": 505247.54660753894,
+      "capital": 552354.1297113535,
+      "capital_a_la_bascule": 485332.9153310384,
       "coefficient_revalorisation": 1.1380932804332895,
       "diviseur": 22.02896520100794,
-      "pension_figee": 22935.60056032143
+      "pension_figee": 22031.580280894534
      },
      "fiabilite": "estimee",
-     "pension_annuelle": 30525.89494183769,
-     "pension_annuelle_euros_constants": 24362.45065885576,
-     "pension_mensuelle": 2543.8245784864744,
+     "pension_annuelle": 29647.882526155296,
+     "pension_annuelle_euros_constants": 23661.71660353383,
+     "pension_mensuelle": 2470.656877179608,
      "rendement_cumule": 1.066788111639174,
      "rente_capitalisation": 0.0,
-     "taux_remplacement": 0.40539789557839667,
-     "variation_vs_actuel": -0.41058301522359475
+     "taux_remplacement": 0.39373748770869965,
+     "variation_vs_actuel": -0.28606809959000123
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -7604,7 +7750,7 @@
      "rendement_cumule": 1.1256616815700797,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.22733488190360435,
-     "variation_vs_actuel": -0.6694727770233074
+     "variation_vs_actuel": -0.5877922998609695
     }
    },
    "unite": {
@@ -7697,8 +7843,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 52.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "405 points × valeur de service 1.8341 € + cotisations revalorisées 74,395 € × rendement 5.81%",
@@ -7706,42 +7855,42 @@
        "regime": "agirc_arrco"
       },
       {
-       "detail": "SR 76,616 € × taux 75.00% × 108/172",
-       "montant": 36080.94512233703,
+       "detail": "SR 52,970 € × taux 75.00% × 108/172",
+       "montant": 24945.374165150417,
        "regime": "ratp"
       },
       {
-       "detail": "SR 57,209 € × taux 50.00% × 64/172",
-       "montant": 10643.575790547531,
+       "detail": "SR 61,903 € × taux 50.00% × 64/172",
+       "montant": 11516.770697848016,
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 51789.981846922274,
-     "pension_annuelle_euros_constants": 41333.13305875913,
-     "pension_mensuelle": 4315.831820576856,
-     "taux_remplacement": 0.6877947294514832,
-     "total_contributif": 51789.981846922274
+     "pension_annuelle": 41527.60579703614,
+     "pension_annuelle_euros_constants": 33142.820190476596,
+     "pension_mensuelle": 3460.6338164196786,
+     "taux_remplacement": 0.551505665291862,
+     "total_contributif": 41527.60579703614
     },
     "notionnel_prospectif": {
-     "capital_droits_acquis": 575018.8377494453,
-     "capital_notionnel": 787984.8668432571,
+     "capital_droits_acquis": 552354.1297113535,
+     "capital_notionnel": 765320.1588051652,
      "cotisations_versees": 199632.9231365155,
      "droits_acquis": {
       "age_conversion": 67.0,
-      "capital": 575018.8377494453,
-      "capital_a_la_bascule": 505247.54660753894,
+      "capital": 552354.1297113535,
+      "capital_a_la_bascule": 485332.9153310384,
       "coefficient_revalorisation": 1.1380932804332895,
       "diviseur": 22.02896520100794,
-      "pension_figee": 22935.60056032143
+      "pension_figee": 22031.580280894534
      },
      "fiabilite": "estimee",
-     "pension_annuelle": 30525.89494183769,
-     "pension_annuelle_euros_constants": 24362.45065885576,
-     "pension_mensuelle": 2543.8245784864744,
+     "pension_annuelle": 29647.882526155296,
+     "pension_annuelle_euros_constants": 23661.71660353383,
+     "pension_mensuelle": 2470.656877179608,
      "rendement_cumule": 1.066788111639174,
      "rente_capitalisation": 0.0,
-     "taux_remplacement": 0.40539789557839667,
-     "variation_vs_actuel": -0.41058301522359475
+     "taux_remplacement": 0.39373748770869965,
+     "variation_vs_actuel": -0.28606809959000123
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -7755,7 +7904,7 @@
      "rendement_cumule": 1.1256616815700797,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.22733488190360435,
-     "variation_vs_actuel": -0.6694727770233074
+     "variation_vs_actuel": -0.5877922998609695
     }
    },
    "unite": {
@@ -7848,8 +7997,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 52.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "789 points × valeur de service 1.8341 € + cotisations revalorisées 74,395 € × rendement 5.81%",
@@ -7857,42 +8009,42 @@
        "regime": "agirc_arrco"
       },
       {
-       "detail": "SR 57,209 € × taux 50.00% × 76/172",
-       "montant": 12639.246251275194,
+       "detail": "SR 60,247 € × taux 50.00% × 76/172",
+       "montant": 13310.299456357223,
        "regime": "regime_general"
       },
       {
-       "detail": "SR 76,616 € × taux 75.00% × 96/172",
-       "montant": 32071.951219855135,
+       "detail": "SR 50,600 € × taux 75.00% × 96/172",
+       "montant": 21181.294810415577,
        "regime": "sncf"
       }
      ],
-     "pension_annuelle": 50480.644304157526,
-     "pension_annuelle_euros_constants": 40288.16217937388,
-     "pension_mensuelle": 4206.720358679794,
-     "taux_remplacement": 0.6704061259248715,
-     "total_contributif": 50480.644304157526
+     "pension_annuelle": 40261.0410998,
+     "pension_annuelle_euros_constants": 32131.98594625684,
+     "pension_mensuelle": 3355.086758316667,
+     "taux_remplacement": 0.5346851047857164,
+     "total_contributif": 40261.0410998
     },
     "notionnel_prospectif": {
-     "capital_droits_acquis": 560597.7633790247,
-     "capital_notionnel": 773563.7924728364,
+     "capital_droits_acquis": 527011.4869172445,
+     "capital_notionnel": 739977.5160110563,
      "cotisations_versees": 199632.9231365155,
      "droits_acquis": {
       "age_conversion": 67.0,
-      "capital": 560597.7633790247,
-      "capital_a_la_bascule": 492576.2879169241,
+      "capital": 527011.4869172445,
+      "capital_a_la_bascule": 463065.28294113395,
       "coefficient_revalorisation": 1.1380932804332895,
       "diviseur": 22.02896520100794,
-      "pension_figee": 22360.391576377187
+      "pension_figee": 21020.746036674765
      },
      "fiabilite": "estimee",
-     "pension_annuelle": 29967.23421153276,
-     "pension_annuelle_euros_constants": 23916.588399844957,
-     "pension_mensuelle": 2497.26951762773,
+     "pension_annuelle": 28666.12908895969,
+     "pension_annuelle_euros_constants": 22878.18774325269,
+     "pension_mensuelle": 2388.8440907466406,
      "rendement_cumule": 1.066788111639174,
      "rente_capitalisation": 0.0,
-     "taux_remplacement": 0.39797862466629297,
-     "variation_vs_actuel": -0.40636189128305766
+     "taux_remplacement": 0.38069935145833633,
+     "variation_vs_actuel": -0.28799334776511554
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -7906,7 +8058,7 @@
      "rendement_cumule": 1.1256616815700797,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.22733488190360435,
-     "variation_vs_actuel": -0.660899754473484
+     "variation_vs_actuel": -0.5748247335322489
     }
    },
    "unite": {
@@ -7999,12 +8151,15 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 60.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
-       "detail": "SR 57,209 € × taux 50.00% × 40/160",
-       "montant": 7151.152484274123,
+       "detail": "SR 29,819 € × taux 50.00% × 40/160",
+       "montant": 3727.4324142063138,
        "regime": "cancava"
       },
       {
@@ -8013,42 +8168,42 @@
        "regime": "rci"
       },
       {
-       "detail": "SR 57,209 € × taux 50.00% × 84/172",
-       "montant": 13969.693225093635,
+       "detail": "SR 59,262 € × taux 50.00% × 84/172",
+       "montant": 14470.86864648692,
        "regime": "regime_general"
       },
       {
-       "detail": "SR 57,209 € × taux 50.00% × 48/172",
-       "montant": 7982.681842910649,
+       "detail": "SR 42,123 € × taux 50.00% × 48/172",
+       "montant": 5877.689977890211,
        "regime": "rsi"
       }
      ],
-     "pension_annuelle": 35944.55841301644,
-     "pension_annuelle_euros_constants": 28687.038740714277,
-     "pension_mensuelle": 2995.37986775137,
-     "taux_remplacement": 0.4773602335294671,
-     "total_contributif": 35944.55841301644
+     "pension_annuelle": 30917.021899321477,
+     "pension_annuelle_euros_constants": 24674.6056741699,
+     "pension_mensuelle": 2576.418491610123,
+     "taux_remplacement": 0.41059224109291875,
+     "total_contributif": 30917.021899321477
     },
     "notionnel_prospectif": {
-     "capital_droits_acquis": 370119.6851638664,
-     "capital_notionnel": 583085.7142576781,
+     "capital_droits_acquis": 348595.16943945753,
+     "capital_notionnel": 561561.1985332693,
      "cotisations_versees": 199632.9231365155,
      "droits_acquis": {
       "age_conversion": 67.0,
-      "capital": 370119.6851638664,
-      "capital_a_la_bascule": 325210.324607976,
+      "capital": 348595.16943945753,
+      "capital_a_la_bascule": 306297.5376734867,
       "coefficient_revalorisation": 1.1380932804332895,
       "diviseur": 22.02896520100794,
-      "pension_figee": 14762.850712256604
+      "pension_figee": 13904.308935013978
      },
      "fiabilite": "estimee",
-     "pension_annuelle": 22588.267877302806,
-     "pension_annuelle_euros_constants": 18027.49969094525,
-     "pension_mensuelle": 1882.3556564419005,
+     "pension_annuelle": 21754.425587527036,
+     "pension_annuelle_euros_constants": 17362.017428078412,
+     "pension_mensuelle": 1812.8687989605862,
      "rendement_cumule": 1.066788111639174,
      "rente_capitalisation": 0.0,
-     "taux_remplacement": 0.2999825649556658,
-     "variation_vs_actuel": -0.37158032051040535
+     "taux_remplacement": 0.28890875663117777,
+     "variation_vs_actuel": -0.2963608960019376
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -8062,7 +8217,7 @@
      "rendement_cumule": 1.1190290465269566,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.21129609433577698,
-     "variation_vs_actuel": -0.5573655292282871
+     "variation_vs_actuel": -0.48538702588887994
     }
    },
    "unite": {
@@ -8155,8 +8310,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": null,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "cotisations revalorisées 232,957 € × rendement 6.50%",
@@ -8296,8 +8454,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 62.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "SR 76,616 € × taux 75.00% × 172/172",
@@ -8437,12 +8598,15 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 60.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
-       "detail": "SR 57,209 € × taux 50.00% × 40/160",
-       "montant": 7151.152484274123,
+       "detail": "SR 29,819 € × taux 50.00% × 40/160",
+       "montant": 3727.4324142063138,
        "regime": "organic"
       },
       {
@@ -8451,42 +8615,42 @@
        "regime": "rci"
       },
       {
-       "detail": "SR 57,209 € × taux 50.00% × 84/172",
-       "montant": 13969.693225093635,
+       "detail": "SR 59,262 € × taux 50.00% × 84/172",
+       "montant": 14470.86864648692,
        "regime": "regime_general"
       },
       {
-       "detail": "SR 57,209 € × taux 50.00% × 48/172",
-       "montant": 7982.681842910649,
+       "detail": "SR 42,123 € × taux 50.00% × 48/172",
+       "montant": 5877.689977890211,
        "regime": "rsi"
       }
      ],
-     "pension_annuelle": 35944.55841301644,
-     "pension_annuelle_euros_constants": 28687.038740714277,
-     "pension_mensuelle": 2995.37986775137,
-     "taux_remplacement": 0.4773602335294671,
-     "total_contributif": 35944.55841301644
+     "pension_annuelle": 30917.021899321477,
+     "pension_annuelle_euros_constants": 24674.6056741699,
+     "pension_mensuelle": 2576.418491610123,
+     "taux_remplacement": 0.41059224109291875,
+     "total_contributif": 30917.021899321477
     },
     "notionnel_prospectif": {
-     "capital_droits_acquis": 370119.6851638664,
-     "capital_notionnel": 583085.7142576781,
+     "capital_droits_acquis": 348595.16943945753,
+     "capital_notionnel": 561561.1985332693,
      "cotisations_versees": 199632.9231365155,
      "droits_acquis": {
       "age_conversion": 67.0,
-      "capital": 370119.6851638664,
-      "capital_a_la_bascule": 325210.324607976,
+      "capital": 348595.16943945753,
+      "capital_a_la_bascule": 306297.5376734867,
       "coefficient_revalorisation": 1.1380932804332895,
       "diviseur": 22.02896520100794,
-      "pension_figee": 14762.850712256604
+      "pension_figee": 13904.308935013978
      },
      "fiabilite": "estimee",
-     "pension_annuelle": 22588.267877302806,
-     "pension_annuelle_euros_constants": 18027.49969094525,
-     "pension_mensuelle": 1882.3556564419005,
+     "pension_annuelle": 21754.425587527036,
+     "pension_annuelle_euros_constants": 17362.017428078412,
+     "pension_mensuelle": 1812.8687989605862,
      "rendement_cumule": 1.066788111639174,
      "rente_capitalisation": 0.0,
-     "taux_remplacement": 0.2999825649556658,
-     "variation_vs_actuel": -0.37158032051040535
+     "taux_remplacement": 0.28890875663117777,
+     "variation_vs_actuel": -0.2963608960019376
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -8500,7 +8664,7 @@
      "rendement_cumule": 1.1190290465269566,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.21129609433577698,
-     "variation_vs_actuel": -0.5573655292282871
+     "variation_vs_actuel": -0.48538702588887994
     }
    },
    "unite": {
@@ -8593,8 +8757,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 64.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "9,357 points × valeur de service 0.6779 € + cotisations revalorisées 69,628 € × rendement 8.52%",
@@ -8739,8 +8906,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": null,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "cotisations revalorisées 338,287 € × rendement 6.00%",
@@ -8885,8 +9055,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 64.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "SR 76,616 € × taux 75.00% × 172/172",
@@ -9031,8 +9204,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 64.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "SR 76,616 € × taux 75.00% × 172/172",
@@ -9177,8 +9353,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 55.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "SR 48,647 € × taux 75.00% × 150/150",
@@ -9318,8 +9497,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 50.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "913 points × valeur de service 1.8341 € + cotisations revalorisées 74,395 € × rendement 5.81%",
@@ -9327,8 +9509,8 @@
        "regime": "agirc_arrco"
       },
       {
-       "detail": "SR 67,717 € × taux 75.00% × 60/120",
-       "montant": 25394.017741337455,
+       "detail": "SR 40,829 € × taux 75.00% × 60/120",
+       "montant": 15311.055255741627,
        "regime": "mines"
       },
       {
@@ -9337,32 +9519,32 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 50017.61899777904,
-     "pension_annuelle_euros_constants": 39918.62571854479,
-     "pension_mensuelle": 4168.1349164815865,
-     "taux_remplacement": 0.6642569373371813,
-     "total_contributif": 50017.61899777904
+     "pension_annuelle": 39934.65651218321,
+     "pension_annuelle_euros_constants": 31871.501251974314,
+     "pension_mensuelle": 3327.888042681934,
+     "taux_remplacement": 0.530350567658429,
+     "total_contributif": 39934.65651218321
     },
     "notionnel_prospectif": {
-     "capital_droits_acquis": 607178.7890682706,
-     "capital_notionnel": 820144.8181620823,
+     "capital_droits_acquis": 510215.3358552967,
+     "capital_notionnel": 723181.3649491085,
      "cotisations_versees": 199632.9231365155,
      "droits_acquis": {
       "age_conversion": 67.0,
-      "capital": 607178.7890682706,
-      "capital_a_la_bascule": 533505.2930258127,
+      "capital": 510215.3358552967,
+      "capital_a_la_bascule": 448307.1331912705,
       "coefficient_revalorisation": 1.1380932804332895,
       "diviseur": 22.02896520100794,
-      "pension_figee": 24218.354705167996
+      "pension_figee": 20350.803094952375
      },
      "fiabilite": "estimee",
-     "pension_annuelle": 31771.745384658887,
-     "pension_annuelle_euros_constants": 25356.7530371931,
-     "pension_mensuelle": 2647.6454487215738,
+     "pension_annuelle": 28015.45981304041,
+     "pension_annuelle_euros_constants": 22358.89426602556,
+     "pension_mensuelle": 2334.6216510867007,
      "rendement_cumule": 1.066788111639174,
      "rente_capitalisation": 0.0,
-     "taux_remplacement": 0.42194336127849974,
-     "variation_vs_actuel": -0.36478892795617357
+     "taux_remplacement": 0.3720581648304656,
+     "variation_vs_actuel": -0.2984674901487261
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -9376,7 +9558,7 @@
      "rendement_cumule": 1.1245216144235124,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.21690629049771634,
-     "variation_vs_actuel": -0.673460255654638
+     "variation_vs_actuel": -0.5910133716734055
     }
    },
    "unite": {
@@ -9469,8 +9651,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 64.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "SR 76,616 € × taux 75.00% × 172/172",
@@ -9615,8 +9800,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 60.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "405 points × valeur de service 1.8341 € + cotisations revalorisées 74,395 € × rendement 5.81%",
@@ -9624,42 +9812,42 @@
        "regime": "agirc_arrco"
       },
       {
-       "detail": "SR 76,616 € × taux 75.00% × 100/100",
-       "montant": 57462.24593557378,
+       "detail": "SR 52,970 € × taux 75.00% × 100/100",
+       "montant": 39727.81811486918,
        "regime": "comedie_francaise"
       },
       {
-       "detail": "SR 57,209 € × taux 50.00% × 64/172",
-       "montant": 10643.575790547531,
+       "detail": "SR 61,903 € × taux 50.00% × 64/172",
+       "montant": 11516.770697848016,
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 73171.28266015902,
-     "pension_annuelle_euros_constants": 58397.3628570051,
-     "pension_mensuelle": 6097.606888346585,
-     "taux_remplacement": 0.9717482178235761,
-     "total_contributif": 73171.28266015902
+     "pension_annuelle": 56310.049746754914,
+     "pension_annuelle_euros_constants": 44940.55984818387,
+     "pension_mensuelle": 4692.50414556291,
+     "taux_remplacement": 0.7478233057784023,
+     "total_contributif": 56310.049746754914
     },
     "notionnel_prospectif": {
-     "capital_droits_acquis": 888969.2347110986,
-     "capital_notionnel": 1101935.2638049102,
+     "capital_droits_acquis": 848135.4644186535,
+     "capital_notionnel": 1061101.4935124652,
      "cotisations_versees": 199632.9231365155,
      "droits_acquis": {
       "age_conversion": 67.0,
-      "capital": 888969.2347110986,
-      "capital_a_la_bascule": 781104.0184444762,
+      "capital": 848135.4644186535,
+      "capital_a_la_bascule": 745224.9117012231,
       "coefficient_revalorisation": 1.1380932804332895,
       "diviseur": 22.02896520100794,
-      "pension_figee": 35458.04404869352
+      "pension_figee": 33829.3199386018
      },
      "fiabilite": "estimee",
-     "pension_annuelle": 42688.07880837887,
-     "pension_annuelle_euros_constants": 34068.98358498603,
-     "pension_mensuelle": 3557.3399006982395,
+     "pension_annuelle": 41106.21165016826,
+     "pension_annuelle_euros_constants": 32806.509195154096,
+     "pension_mensuelle": 3425.5176375140218,
      "rendement_cumule": 1.066788111639174,
      "rente_capitalisation": 0.0,
-     "taux_remplacement": 0.5669172795154659,
-     "variation_vs_actuel": -0.4166006491010704
+     "taux_remplacement": 0.5459093576103087,
+     "variation_vs_actuel": -0.27000221390255175
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -9673,7 +9861,7 @@
      "rendement_cumule": 1.1256616815700797,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.22733488190360435,
-     "variation_vs_actuel": -0.7660557768628934
+     "variation_vs_actuel": -0.6960045506110917
     }
    },
    "unite": {
@@ -9766,8 +9954,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 40.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "405 points × valeur de service 1.8341 € + cotisations revalorisées 74,395 € × rendement 5.81%",
@@ -9775,42 +9966,42 @@
        "regime": "agirc_arrco"
       },
       {
-       "detail": "SR 76,616 € × taux 75.00% × 100/100",
-       "montant": 57462.24593557378,
+       "detail": "SR 52,970 € × taux 75.00% × 100/100",
+       "montant": 39727.81811486918,
        "regime": "opera_de_paris"
       },
       {
-       "detail": "SR 57,209 € × taux 50.00% × 64/172",
-       "montant": 10643.575790547531,
+       "detail": "SR 61,903 € × taux 50.00% × 64/172",
+       "montant": 11516.770697848016,
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 73171.28266015902,
-     "pension_annuelle_euros_constants": 58397.3628570051,
-     "pension_mensuelle": 6097.606888346585,
-     "taux_remplacement": 0.9717482178235761,
-     "total_contributif": 73171.28266015902
+     "pension_annuelle": 56310.049746754914,
+     "pension_annuelle_euros_constants": 44940.55984818387,
+     "pension_mensuelle": 4692.50414556291,
+     "taux_remplacement": 0.7478233057784023,
+     "total_contributif": 56310.049746754914
     },
     "notionnel_prospectif": {
-     "capital_droits_acquis": 888969.2347110986,
-     "capital_notionnel": 1101935.2638049102,
+     "capital_droits_acquis": 848135.4644186535,
+     "capital_notionnel": 1061101.4935124652,
      "cotisations_versees": 199632.9231365155,
      "droits_acquis": {
       "age_conversion": 67.0,
-      "capital": 888969.2347110986,
-      "capital_a_la_bascule": 781104.0184444762,
+      "capital": 848135.4644186535,
+      "capital_a_la_bascule": 745224.9117012231,
       "coefficient_revalorisation": 1.1380932804332895,
       "diviseur": 22.02896520100794,
-      "pension_figee": 35458.04404869352
+      "pension_figee": 33829.3199386018
      },
      "fiabilite": "estimee",
-     "pension_annuelle": 42688.07880837887,
-     "pension_annuelle_euros_constants": 34068.98358498603,
-     "pension_mensuelle": 3557.3399006982395,
+     "pension_annuelle": 41106.21165016826,
+     "pension_annuelle_euros_constants": 32806.509195154096,
+     "pension_mensuelle": 3425.5176375140218,
      "rendement_cumule": 1.066788111639174,
      "rente_capitalisation": 0.0,
-     "taux_remplacement": 0.5669172795154659,
-     "variation_vs_actuel": -0.4166006491010704
+     "taux_remplacement": 0.5459093576103087,
+     "variation_vs_actuel": -0.27000221390255175
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -9824,7 +10015,7 @@
      "rendement_cumule": 1.1256616815700797,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.22733488190360435,
-     "variation_vs_actuel": -0.7660557768628934
+     "variation_vs_actuel": -0.6960045506110917
     }
    },
    "unite": {
@@ -9917,8 +10108,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": null,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "15,982 points × valeur de service 0.8338 € + cotisations revalorisées 19,512 € × rendement 6.20%",
@@ -10058,8 +10252,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 64.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "913 points × valeur de service 1.8341 € + cotisations revalorisées 74,395 € × rendement 5.81%",
@@ -10209,12 +10406,15 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 64.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
-       "detail": "aucun droit",
-       "montant": 0.0,
+       "detail": "2,760 points × valeur de service 0.6316 €",
+       "montant": 1743.108973872363,
        "regime": "agirc"
       },
       {
@@ -10233,32 +10433,32 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 39364.238773130215,
-     "pension_annuelle_euros_constants": 31416.255826767527,
-     "pension_mensuelle": 3280.3532310941846,
-     "taux_remplacement": 0.5227751582739286,
-     "total_contributif": 39364.238773130215
+     "pension_annuelle": 41107.347747002575,
+     "pension_annuelle_euros_constants": 32807.415904134206,
+     "pension_mensuelle": 3425.6123122502145,
+     "taux_remplacement": 0.5459244454977131,
+     "total_contributif": 41107.347747002575
     },
     "notionnel_prospectif": {
-     "capital_droits_acquis": 432389.314741273,
-     "capital_notionnel": 645355.3438350847,
+     "capital_droits_acquis": 467267.1130664984,
+     "capital_notionnel": 680233.1421603102,
      "cotisations_versees": 199632.9231365155,
      "droits_acquis": {
       "age_conversion": 67.0,
-      "capital": 432389.314741273,
-      "capital_a_la_bascule": 379924.3191881915,
+      "capital": 467267.1130664984,
+      "capital_a_la_bascule": 410570.13612153364,
       "coefficient_revalorisation": 1.1380932804332895,
       "diviseur": 22.02896520100794,
-      "pension_figee": 17246.58038729881
+      "pension_figee": 18637.74046466549
      },
      "fiabilite": "estimee",
-     "pension_annuelle": 25000.542846696564,
-     "pension_annuelle_euros_constants": 19952.715316217604,
-     "pension_mensuelle": 2083.378570558047,
+     "pension_annuelle": 26351.680479254952,
+     "pension_annuelle_euros_constants": 21031.04648289577,
+     "pension_mensuelle": 2195.973373271246,
      "rendement_cumule": 1.066788111639174,
      "rente_capitalisation": 0.0,
-     "taux_remplacement": 0.3320186837332468,
-     "variation_vs_actuel": -0.36489200284594914
+     "taux_remplacement": 0.3499624116376897,
+     "variation_vs_actuel": -0.35895449539975643
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -10272,7 +10472,7 @@
      "rendement_cumule": 1.1256616815700797,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.22733488190360435,
-     "variation_vs_actuel": -0.5651383232244496
+     "variation_vs_actuel": -0.5835781237157356
     }
    },
    "unite": {
@@ -10365,8 +10565,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 64.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "913 points × valeur de service 1.8341 € + cotisations revalorisées 74,395 € × rendement 5.81%",
@@ -10516,8 +10719,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": null,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [],
      "pension_annuelle": 0,
      "pension_annuelle_euros_constants": 0.0,
@@ -10651,8 +10857,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 64.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "913 points × valeur de service 1.8341 € + cotisations revalorisées 74,395 € × rendement 5.81%",
@@ -10802,8 +11011,11 @@
    },
    "scenarios": {
     "actuel": {
+     "age_ouverture_opposable": 64.0,
      "avantages_appliques": [],
+     "liquidation_ouverte": true,
      "minimum_applique": false,
+     "motif_ouverture": "age_legal",
      "par_regime": [
       {
        "detail": "913 points × valeur de service 1.8341 € + cotisations revalorisées 74,395 € × rendement 5.81%",

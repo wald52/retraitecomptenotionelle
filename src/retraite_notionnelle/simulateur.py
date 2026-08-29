@@ -155,6 +155,15 @@ class Comparaison:
                 "Note : le minimum contributif s'applique dans le scénario 1 ; "
                 "il est supprimé dans les scénarios 2 et 3."
             )
+        if not self.actuel.liquidation_ouverte:
+            age = self.actuel.age_ouverture_opposable
+            lignes.append(
+                "ATTENTION : le droit en vigueur N'OUVRE PAS cette liquidation à "
+                f"{self.carriere.age_liquidation:g} ans"
+                + (f" — il faut attendre {age:g} ans" if age is not None else "")
+                + ". Le montant du scénario 1 est un contrefactuel, pas une "
+                "pension que le système actuel servirait."
+            )
         return "\n".join(lignes)
 
     def dictionnaire(self) -> dict:
@@ -193,6 +202,9 @@ class Comparaison:
                         for p in self.actuel.pensions_par_regime
                     ],
                     "minimum_applique": self.actuel.minimum_applique,
+                    "liquidation_ouverte": self.actuel.liquidation_ouverte,
+                    "motif_ouverture": self.actuel.motif_ouverture,
+                    "age_ouverture_opposable": self.actuel.age_ouverture_opposable,
                     "total_contributif": self.actuel.total_contributif,
                     "avantages_appliques": [
                         {"code": a.code, "libelle": a.libelle,

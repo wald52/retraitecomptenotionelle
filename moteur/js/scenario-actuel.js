@@ -18,8 +18,9 @@
 
 import { formatFixe, formatPourcentage } from "./format.js";
 import {
-  AgesAnnulationDecote, AgesOuverture, AnneesSalaireReference,
-  CoefficientsMinoration, DureesRequises, MinimumContributif, Rendements,
+  AgesAnnulationDecote, AgesOuverture, AnneesSalaireReference, CarriereLongue,
+  CoefficientsMinoration, DecoteFonctionPublique, DureesRequises,
+  MinimumContributif, MinimumGaranti, MinimumVieillesse, Rendements,
   ValeursPoint,
 } from "./regimes.js";
 import { Fiabilite } from "./serie.js";
@@ -38,6 +39,10 @@ export class ScenarioActuel {
     this.coefficientsMinoration = new CoefficientsMinoration(paquet);
     this.anneesSalaireReference = new AnneesSalaireReference(paquet);
     this.minimumContributif = new MinimumContributif(paquet, macro);
+    this.decoteFonctionPublique = new DecoteFonctionPublique(paquet);
+    this.minimumGaranti = new MinimumGaranti(paquet, macro);
+    this.minimumVieillesse = new MinimumVieillesse(paquet, macro);
+    this.carriereLongue = new CarriereLongue(paquet);
   }
 
   // -- valorisation des points -----------------------------------------------
@@ -119,13 +124,31 @@ export class ScenarioActuel {
    * rémunération entière : la pension civile porte sur le seul traitement
    * indiciaire, primes exclues.
    */
-  salaireDeReference(carriere, periode, anneeLiquidation, plafonner, generation = null) {
+  salaireDeReference(code, carriere, periode, anneeLiquidation, plafonner,
+    generation = null, avpf = true) {
+    const avpfOuvert = avpf
+      && periode.avantages_non_contributifs.includes("avpf");
     const revenus = [];
     for (const ligne of carriere.lignes) {
-      if (!ligne.cotise || ligne.annee >= anneeLiquidation) {
+      if (ligne.annee >= anneeLiquidation) {
         continue;
       }
-      let revenu = assietteDeReference(periode, ligne);
+      if (!this.affiliations.regimes(ligne.affiliation, ligne.annee).includes(code)) {
+        continue;
+      }
+      let revenu;
+      if (!ligne.cotise) {
+        // Assurance vieillesse des parents au foyer : la CNAF cotise sur une
+        // assiette forfaitaire égale au SMIC, et ce salaire est PORTÉ AU
+        // COMPTE. C'est ce qui la distingue d'une période assimilée, laquelle
+        // valide des trimestres sans jamais ajouter de salaire.
+        if (!(avpfOuvert && ligne.revenu_avpf > 0)) {
+          continue;
+        }
+        revenu = ligne.revenu_avpf;
+      } else {
+        revenu = assietteDeReference(periode, ligne);
+      }
       if (plafonner) {
         revenu = Math.min(revenu, this.macro.plafond_securite_sociale.valeur(ligne.annee));
       }
@@ -203,23 +226,39 @@ export class ScenarioActuel {
   }
 
   /**
-   * Coefficient de minoration opposable à cet assuré dans ce régime.
+   * Décote opposable : coefficient, âge d'annulation, fiabilité.
    *
-   * @returns {[number|null, number|null]} coefficient et fiabilité.
+   * La FONCTION PUBLIQUE n'a pas la décote du régime général. L'article L. 14
+   * du code des pensions lui donne la sienne, montée en charge de 2006 à 2020,
+   * et surtout un âge d'annulation qui n'est pas un âge en propre : c'est la
+   * LIMITE D'ÂGE du grade, diminuée d'un nombre de trimestres décroissant. Un
+   * sédentaire liquidant en 2012 voyait sa décote s'annuler à 63 ans, pas à
+   * 67 — et chaque trimestre manquant lui coûtait 0,875 %, pas 1,25 %.
+   *
+   * @returns {[number|null, number, number|null]} coefficient, âge, fiabilité.
    */
-  decote(periode, carriere) {
+  decote(periode, carriere, anneeLiquidation) {
+    const ageAnnulation = this.ageTauxPlein(periode, carriere);
+    if (periode.bareme_decote === "fonction_publique") {
+      const parametres = this.decoteFonctionPublique.parametres(anneeLiquidation);
+      if (parametres === null || parametres === undefined) {
+        return [null, ageAnnulation, null];
+      }
+      const [trimestresAvant, coefficient, fiabilite] = parametres;
+      return [coefficient, ageAnnulation - trimestresAvant / 4.0, fiabilite];
+    }
     if (periode.decote_par_trimestre === null) {
-      return [null, null];
+      return [null, ageAnnulation, null];
     }
     if (periode.decote_par_generation) {
       const parGeneration = this.coefficientsMinoration.coefficient(
         carriere.annee_naissance,
       );
       if (parGeneration !== null) {
-        return parGeneration;
+        return [parGeneration[0], ageAnnulation, parGeneration[1]];
       }
     }
-    return [periode.decote_par_trimestre, null];
+    return [periode.decote_par_trimestre, ageAnnulation, null];
   }
 
   /**
@@ -228,15 +267,19 @@ export class ScenarioActuel {
    * Le décompte retient le plus favorable des deux : trimestres manquants pour
    * la durée requise, ou trimestres manquants jusqu'à l'âge d'annulation de la
    * décote. Et il est PLAFONNÉ — vingt trimestres partout où une décote
-   * s'applique. Sans ce plafond, un départ dix ans avant l'heure retirait la
-   * moitié de la pension là où le droit n'en retire que le quart.
+   * s'applique.
+   *
+   * Avant l'ordonnance du 26 mars 1982, le taux ne dépendait QUE de l'âge :
+   * aucune durée, si longue fût-elle, n'ouvrait le taux plein avant l'heure.
    */
-  trimestresDeDecote(periode, carriere, trimestres, requis, ageLiquidation) {
-    const manquants = Math.max(0, requis - trimestres);
-    const manquantsAge = Math.max(
-      0.0, (this.ageTauxPlein(periode, carriere) - ageLiquidation) * 4,
-    );
-    let trimestresDecote = Math.min(manquants, manquantsAge);
+  trimestresDeDecote(periode, trimestres, requis, ageLiquidation, ageAnnulation) {
+    const manquantsAge = Math.max(0.0, (ageAnnulation - ageLiquidation) * 4);
+    let trimestresDecote = periode.decote_annulee_par_la_duree
+      ? Math.min(Math.max(0, requis - trimestres), manquantsAge)
+      : manquantsAge;
+    if (trimestresDecote <= 0) {
+      return 0.0;
+    }
     if (periode.decote_trimestres_maximum !== null) {
       trimestresDecote = Math.min(trimestresDecote, periode.decote_trimestres_maximum);
     }
@@ -252,7 +295,8 @@ export class ScenarioActuel {
    * de base : elle publie ses propres COEFFICIENTS D'ANTICIPATION, en deux
    * tables — trimestres manquants, et âge — et retient la plus avantageuse.
    */
-  abattementPoints(periode, carriere, trimestres, requis, ageLiquidation) {
+  abattementPoints(periode, carriere, trimestres, requis, ageLiquidation,
+    anneeLiquidation) {
     if (periode.abattement_points === "agirc_arrco") {
       if (trimestres >= requis) {
         return 1.0;
@@ -269,14 +313,14 @@ export class ScenarioActuel {
       return candidats.length ? Math.max(...candidats) : 1.0;
     }
 
-    if (periode.decote_par_trimestre === null) {
+    const [decote, ageAnnulation] = this.decote(periode, carriere, anneeLiquidation);
+    if (decote === null) {
       return 1.0;
     }
-    const [decote] = this.decote(periode, carriere);
     const trimestresDecote = this.trimestresDeDecote(
-      periode, carriere, trimestres, requis, ageLiquidation,
+      periode, trimestres, requis, ageLiquidation, ageAnnulation,
     );
-    return Math.max(0.0, 1.0 - (decote || 0.0) * trimestresDecote);
+    return Math.max(0.0, 1.0 - decote * trimestresDecote);
   }
 
   /**
@@ -338,7 +382,8 @@ export class ScenarioActuel {
     return candidats[candidats.length - 1][1];
   }
 
-  calculer(carriere, ignorerPenaliteAge = false, avantagesNonContributifs = true) {
+  calculer(carriere, ignorerPenaliteAge = false, avantagesNonContributifs = true,
+    avpf = true) {
     const anneeLiquidation = carriere.anneeLiquidation;
     const ageLiquidation = carriere.age_liquidation || 0.0;
 
@@ -351,9 +396,12 @@ export class ScenarioActuel {
     let trimestresRequis = 0;
     let tauxRetenu = 0.0;
 
-    // Indice dans `pensions` et prorata de durée des régimes de base qui
-    // portent le minimum contributif.
+    // Régimes de base qui portent le minimum contributif : indice dans
+    // `pensions`, prorata de durée d'assurance, prorata de durée COTISÉE,
+    // condition de taux plein, et coefficient de surcote déjà incorporé.
     const eligiblesMinimum = [];
+    // Régimes de la fonction publique qui portent le minimum garanti.
+    const eligiblesGaranti = [];
 
     // Cotisations cumulées par régime, pour les régimes en points dont on n'a
     // pas le prix d'achat du point ; points acquis pour les autres.
@@ -364,6 +412,10 @@ export class ScenarioActuel {
     // COMPRISES : le coefficient de proratisation porte sur la durée
     // d'assurance, pas sur les seules années cotisées.
     const trimestresParRegime = new Map();
+    // Durée COTISÉE dans chaque régime : c'est elle, et non la durée
+    // d'assurance, qui proratise la majoration du minimum contributif au titre
+    // des périodes cotisées (D. 351-2-2).
+    const trimestresCotisesParRegime = new Map();
     for (const ligne of carriere.lignes) {
       if (ligne.annee >= anneeLiquidation) {
         continue;
@@ -375,6 +427,12 @@ export class ScenarioActuel {
         trimestresParRegime.set(
           code, (trimestresParRegime.get(code) ?? 0) + ligne.trimestres_valides,
         );
+        if (ligne.cotise) {
+          trimestresCotisesParRegime.set(
+            code,
+            (trimestresCotisesParRegime.get(code) ?? 0) + ligne.trimestres_valides,
+          );
+        }
       }
     }
 
@@ -394,6 +452,12 @@ export class ScenarioActuel {
     }
 
     for (const ligne of carriere.lignes) {
+      if (ligne.annee >= anneeLiquidation) {
+        // Une ligne postérieure à la liquidation décrit une activité exercée
+        // APRÈS le départ : elle n'ouvre pas de droits dans la pension qu'on
+        // liquide.
+        continue;
+      }
       if (!ligne.cotise && ligne.familles_cotisantes.length === 0) {
         continue;
       }
@@ -447,8 +511,15 @@ export class ScenarioActuel {
             : null;
           if (achat !== null) {
             const [reference, tauxAppel, fiabiliteAchat] = achat;
-            pointsAcquis.set(code,
-              (pointsAcquis.get(code) ?? 0.0) + cotisation / (tauxAppel * reference));
+            let pointsAnnee = cotisation / (tauxAppel * reference);
+            if (periode.points_minimum_annuels !== null
+                && periode.points_minimum_annuels !== undefined) {
+              // Garantie minimale de points de l'Agirc : tout cadre cotisant en
+              // acquiert au moins 120 par an de 1989 à 2018, même quand sa
+              // tranche B est nulle.
+              pointsAnnee = Math.max(pointsAnnee, periode.points_minimum_annuels);
+            }
+            pointsAcquis.set(code, (pointsAcquis.get(code) ?? 0.0) + pointsAnnee);
             fiabilitePoints.set(code, Math.min(
               fiabilitePoints.get(code) ?? Fiabilite.CERTIFIEE, fiabiliteAchat,
             ));
@@ -467,6 +538,11 @@ export class ScenarioActuel {
     // un assuré au taux plein liquide sa complémentaire sans abattement, quel
     // que soit son âge.
     let requisReference = 0;
+    // Âge d'ouverture des droits le plus précoce parmi les régimes de base de
+    // la carrière. Un polypensionné liquide en réalité chaque pension à l'âge
+    // de son régime ; le modèle liquide tout à la fois, et retient donc l'âge
+    // du régime le plus précoce.
+    let ageOuvertureReference = null;
     for (const code of codes) {
       const regime = this.catalogue.obtenir(code);
       const periode = regime.periode(Math.min(anneeLiquidation, derniereAnnee(regime)));
@@ -474,8 +550,40 @@ export class ScenarioActuel {
         continue;
       }
       requisReference = Math.max(requisReference, this.dureeRequise(periode, carriere)[0]);
+      const ageRegime = this.ageOuverture(periode, carriere);
+      ageOuvertureReference = ageOuvertureReference === null
+        ? ageRegime
+        : Math.min(ageOuvertureReference, ageRegime);
     }
     requisReference = requisReference || 160;
+
+    // Trimestres réellement COTISÉS, tous régimes : ils commandent la carrière
+    // longue et la majoration du minimum contributif.
+    let trimestresCotises = 0;
+    for (const ligne of carriere.lignes) {
+      if (ligne.cotise && ligne.annee < anneeLiquidation) {
+        trimestresCotises += ligne.trimestres_valides;
+      }
+    }
+
+    // Le droit ouvre-t-il cette liquidation à cet âge ? La question n'était pas
+    // posée : le modèle servait une pension décotée à qui ne pouvait pas encore
+    // liquider, ce qui n'est ni le droit ni un contrefactuel utile.
+    let motifOuverture = "age_legal";
+    let liquidationOuverte = true;
+    if (ageOuvertureReference !== null && ageLiquidation < ageOuvertureReference) {
+      const anticipe = this.carriereLongue.ageDeDepart(
+        carriere, anneeLiquidation, trimestresCotises, requisReference,
+      );
+      if (anticipe !== null && ageLiquidation >= anticipe[0]) {
+        motifOuverture = "carriere_longue";
+        ageOuvertureReference = anticipe[0];
+        fiabiliteGlobale = Math.min(fiabiliteGlobale, anticipe[1]);
+      } else {
+        motifOuverture = "non_ouverte";
+        liquidationOuverte = false;
+      }
+    }
 
     for (const code of codes) {
       const cumul = cumulCotisations.get(code) ?? 0.0;
@@ -525,6 +633,7 @@ export class ScenarioActuel {
         if (!ignorerPenaliteAge) {
           montant *= this.abattementPoints(
             periode, carriere, trimestres, requisReference, ageLiquidation,
+            anneeLiquidation,
           );
         }
         pensions.push({
@@ -541,7 +650,8 @@ export class ScenarioActuel {
       const plafonner = ["plafonnee", "tranche_1", "tranche_a"].includes(periode.assiette);
       const indicePension = pensions.length;
       const salaireReference = this.salaireDeReference(
-        carriere, periode, anneeLiquidation, plafonner, carriere.annee_naissance,
+        code, carriere, periode, anneeLiquidation, plafonner,
+        carriere.annee_naissance, avpf,
       );
       const [requis, fiabiliteDuree] = this.dureeRequise(periode, carriere);
       if (fiabiliteDuree !== null) {
@@ -551,10 +661,18 @@ export class ScenarioActuel {
       const trimestresRegime = Math.min(trimestresParRegime.get(code) ?? 0, requis);
 
       let taux = periode.taux_plein || 0.5;
+      // Part du taux qui vient de la surcote : le minimum contributif se
+      // compare à la pension AVANT surcote, il faut donc pouvoir la retirer.
+      let coefficientSurcote = 1.0;
+      // Trimestres de décote effectivement retenus : la condition d'ouverture
+      // du minimum garanti en dépend.
+      let trimestresDecote = 0.0;
       if (!ignorerPenaliteAge) {
-        const [decote, fiabiliteDecote] = this.decote(periode, carriere);
-        const trimestresDecote = this.trimestresDeDecote(
-          periode, carriere, trimestres, requis, ageLiquidation,
+        const [decote, ageAnnulation, fiabiliteDecote] = this.decote(
+          periode, carriere, anneeLiquidation,
+        );
+        trimestresDecote = this.trimestresDeDecote(
+          periode, trimestres, requis, ageLiquidation, ageAnnulation,
         );
         if (decote && trimestresDecote > 0) {
           // Les régimes sans décote (fonction publique avant 2004, régimes
@@ -575,16 +693,42 @@ export class ScenarioActuel {
             trimestresCotisesApres(carriere, ageOuverture, anneeLiquidation),
           );
           if (supplementaires > 0) {
-            taux *= 1.0 + periode.surcote_par_trimestre * supplementaires;
+            coefficientSurcote = 1.0 + periode.surcote_par_trimestre * supplementaires;
+            taux *= coefficientSurcote;
           }
         }
       }
 
       tauxRetenu = Math.max(tauxRetenu, taux);
       if (periode.avantages_non_contributifs.includes("minimum_contributif")) {
-        // Le minimum ne relève que les régimes de base qui le portent, et au
-        // prorata de la durée acquise DANS CE régime.
-        eligiblesMinimum.push([indicePension, trimestresRegime / requis]);
+        // Le minimum ne relève que les régimes de base qui le portent, au
+        // prorata de la durée acquise DANS CE régime — durée d'assurance pour
+        // le montant de base, durée COTISÉE pour la majoration —, et seulement
+        // si la pension est liquidée AU TAUX PLEIN (L. 351-10).
+        const cotisesRegime = Math.min(
+          trimestresCotisesParRegime.get(code) ?? 0, requis,
+        );
+        eligiblesMinimum.push({
+          indice: indicePension,
+          prorataAssurance: trimestresRegime / requis,
+          prorataCotise: cotisesRegime / requis,
+          tauxPlein: trimestres >= requis
+            || ageLiquidation >= this.ageTauxPlein(periode, carriere),
+          surcote: coefficientSurcote,
+        });
+      }
+      if (periode.avantages_non_contributifs.includes("minimum_garanti")) {
+        // Depuis la loi du 9 novembre 2010, le minimum garanti n'est dû qu'au
+        // taux plein. Les assurés qui atteignaient l'âge d'ouverture de leurs
+        // droits avant 2011 gardent le droit inconditionnel.
+        const ageOuverturePeriode = this.ageOuverture(periode, carriere);
+        eligiblesGaranti.push({
+          indice: indicePension,
+          trimestresServices: trimestresParRegime.get(code) ?? 0,
+          ouvert: carriere.annee_naissance + ageOuverturePeriode < 2011
+            || trimestresDecote <= 0
+            || trimestres >= requis,
+        });
       }
       pensions.push({
         regime: code,
@@ -598,17 +742,21 @@ export class ScenarioActuel {
 
     let total = pensions.reduce((somme, p) => somme + p.montant, 0.0);
 
-    // Avantages non contributifs du droit positif.
     let totalContributif = total;
     const avantages = [];
 
-    // Avantages non contributifs du droit positif, dans l'ordre où le droit les
-    // applique : durée d'assurance, puis majoration, puis minimum.
+    // Avantages non contributifs du droit positif, DANS L'ORDRE OÙ LE DROIT
+    // LES APPLIQUE, et l'ordre commande le résultat : l'AVPF d'abord, qui
+    // déplace le salaire annuel moyen ; la majoration de durée d'assurance
+    // ensuite, qui change la décote et la proratisation ; puis le minimum
+    // contributif, qui porte la pension de base à son plancher ; puis seulement
+    // la majoration pour enfants, qui se calcule SUR CE plancher ; l'ASPA
+    // enfin, qui est différentielle et complète tout le reste.
     let minimumApplique = false;
 
     if (avantagesNonContributifs && carriere.nombre_enfants > 0) {
       // Effet de la MDA : la même carrière sans les huit trimestres par enfant.
-      const sansMda = this.calculer(carriere, ignorerPenaliteAge, false);
+      const sansMda = this.calculer(carriere, ignorerPenaliteAge, false, avpf);
       const effet = total - sansMda.total_contributif;
       // La MDA est déjà incorporée aux pensions de régime : la base
       // contributive de la cascade est celle d'AVANT.
@@ -621,6 +769,127 @@ export class ScenarioActuel {
           montant: effet,
           detail: `${nombre} trimestres pour ${carriere.nombre_enfants} enfant`
             + `${carriere.nombre_enfants > 1 ? "s" : ""}`,
+        });
+      }
+    }
+
+    if (avantagesNonContributifs && avpf
+        && carriere.lignes.some((ligne) => ligne.revenu_avpf > 0)) {
+      // Effet de l'AVPF, mesuré comme celui de la MDA : la même carrière sans
+      // le salaire forfaitaire porté au compte. Il joue en amont de tout le
+      // reste, et peut jouer dans les deux sens — il relève une carrière longue
+      // à bas salaire, il abaisse la moyenne d'une carrière courte et bien
+      // payée, où les années au SMIC s'ajoutent aux années retenues.
+      const sansAvpf = this.calculer(carriere, ignorerPenaliteAge, false, false);
+      const effetAvpf = totalContributif - sansAvpf.total_contributif;
+      totalContributif = sansAvpf.total_contributif;
+      if (Math.abs(effetAvpf) > 1e-9) {
+        avantages.unshift({
+          code: "avpf",
+          libelle: "Assurance vieillesse des parents au foyer",
+          montant: effetAvpf,
+          detail: "salaire forfaitaire au SMIC porté au compte",
+        });
+      }
+    }
+
+    if (avantagesNonContributifs && eligiblesMinimum.length > 0) {
+      // Le minimum contributif ne relève que les pensions liquidées AU TAUX
+      // PLEIN (L. 351-10). Sa majoration au titre des périodes cotisées demande
+      // en outre 120 trimestres cotisés tous régimes ; elle se proratise
+      // ensuite sur la durée cotisée DANS le régime, quand le montant de base
+      // se proratise sur sa durée d'assurance (D. 351-2-2).
+      const [montantBase, montantMajore, plafond, fiabiliteMinimum] = this
+        .minimumContributif.valeurs(anneeLiquidation);
+      const majorationOuverte = trimestresCotises >= TRIMESTRES_COTISES_MINIMUM_MAJORE;
+      const complements = new Map();
+      for (const eligible of eligiblesMinimum) {
+        if (!eligible.tauxPlein) {
+          continue;
+        }
+        const pension = pensions[eligible.indice];
+        // Le minimum se compare à la pension AVANT surcote : le droit porte la
+        // pension au plancher, puis applique la surcote au montant relevé.
+        const nue = pension.montant / eligible.surcote;
+        let plancher = montantBase * Math.min(1.0, eligible.prorataAssurance);
+        if (majorationOuverte) {
+          plancher += (montantMajore - montantBase)
+            * Math.min(1.0, eligible.prorataCotise);
+        }
+        if (nue > 0 && nue < plancher) {
+          complements.set(eligible.indice, (plancher - nue) * eligible.surcote);
+        }
+      }
+      let releve = [...complements.values()].reduce((a, b) => a + b, 0.0);
+      if (releve > 0) {
+        // Écrêtement de l'article L. 173-2 : le complément est rogné de ce qui
+        // dépasse le plafond, tous régimes confondus, et jamais au-delà. La
+        // comparaison porte sur les pensions PERSONNELLES, majorations pour
+        // enfants exclues — raison de plus pour les calculer après.
+        const admissible = Math.max(0.0, Math.min(releve, plafond - total));
+        if (admissible < releve) {
+          const facteur = admissible / releve;
+          for (const [indice, complement] of complements) {
+            complements.set(indice, complement * facteur);
+          }
+        }
+        releve = admissible;
+      }
+      if (releve > 0) {
+        for (const [indice, complement] of complements) {
+          pensions[indice] = {
+            ...pensions[indice],
+            montant: pensions[indice].montant + complement,
+            detail: `${pensions[indice].detail}, porté au minimum contributif`,
+          };
+        }
+        total += releve;
+        minimumApplique = true;
+        fiabiliteGlobale = Math.min(fiabiliteGlobale, fiabiliteMinimum);
+        avantages.push({
+          code: "minimum_contributif",
+          libelle: "Minimum contributif",
+          montant: releve,
+          detail: "porté au plancher, au prorata de la durée acquise"
+            + (majorationOuverte ? ", majoration des périodes cotisées comprise" : ""),
+        });
+      }
+    }
+
+    if (avantagesNonContributifs && eligiblesGaranti.length > 0) {
+      // Le minimum garanti n'est pas un minimum proratisé mais un BARÈME sur la
+      // durée de services : quinze ans en ouvrent 57,5 % de la référence,
+      // trente ans 95 %, quarante ans la totalité. Il ne s'ajoute pas à la
+      // pension, il s'y substitue quand il lui est supérieur.
+      let releveGaranti = 0.0;
+      for (const eligible of eligiblesGaranti) {
+        if (!eligible.ouvert) {
+          continue;
+        }
+        const plancher = this.minimumGaranti.montant(
+          anneeLiquidation, eligible.trimestresServices,
+        );
+        if (plancher === null) {
+          continue;
+        }
+        const pension = pensions[eligible.indice];
+        if (pension.montant > 0 && pension.montant < plancher[0]) {
+          releveGaranti += plancher[0] - pension.montant;
+          fiabiliteGlobale = Math.min(fiabiliteGlobale, plancher[1]);
+          pensions[eligible.indice] = {
+            ...pension,
+            montant: plancher[0],
+            detail: `${pension.detail}, porté au minimum garanti`,
+          };
+        }
+      }
+      if (releveGaranti > 0) {
+        total += releveGaranti;
+        avantages.push({
+          code: "minimum_garanti",
+          libelle: "Minimum garanti de la fonction publique",
+          montant: releveGaranti,
+          detail: "barème de l'article L. 17, sur la durée de services",
         });
       }
     }
@@ -672,40 +941,24 @@ export class ScenarioActuel {
         });
       }
     }
-    if (avantagesNonContributifs && eligiblesMinimum.length > 0) {
-      // Le minimum MAJORÉ ne récompense que les périodes cotisées : les
-      // trimestres assimilés et ceux de la MDA n'y ouvrent pas droit. C'est
-      // près d'un cinquième de plus, et c'est le montant qui vaut pour une
-      // carrière complète — le cas que le minimum est fait pour protéger.
-      let trimestresCotises = 0;
-      for (const ligne of carriere.lignes) {
-        if (ligne.cotise && ligne.annee < anneeLiquidation) {
-          trimestresCotises += ligne.trimestres_valides;
-        }
-      }
-      const [montantMinimum, plafond, fiabiliteMinimum] = this.minimumContributif
-        .valeurs(anneeLiquidation, trimestresCotises >= requisReference);
-      let releve = 0.0;
-      for (const [indice, prorata] of eligiblesMinimum) {
-        const plancher = montantMinimum * Math.min(1.0, prorata);
-        if (pensions[indice].montant > 0 && pensions[indice].montant < plancher) {
-          releve += plancher - pensions[indice].montant;
-        }
-      }
-      if (releve > 0) {
-        // Écrêtement : le complément est rogné de ce qui dépasse le plafond,
-        // tous régimes confondus, et jamais au-delà.
-        releve = Math.max(0.0, Math.min(releve, plafond - total));
-      }
-      if (releve > 0) {
-        total += releve;
-        minimumApplique = true;
-        fiabiliteGlobale = Math.min(fiabiliteGlobale, fiabiliteMinimum);
+
+    if (avantagesNonContributifs
+        && this.parametres.minimum_vieillesse_dans_le_scenario_actuel
+        && ageLiquidation >= MinimumVieillesse.AGE_OUVERTURE) {
+      // L'ASPA vient en DERNIER, et pour cause : elle est différentielle. Elle
+      // complète tout le reste, majorations comprises, jusqu'au montant du
+      // barème — c'est la seule prestation du système actuel qui ne suppose
+      // aucune cotisation.
+      const bareme = this.minimumVieillesse.plafond(anneeLiquidation);
+      if (bareme !== null && total < bareme[0]) {
+        const complement = bareme[0] - total;
+        total = bareme[0];
+        fiabiliteGlobale = Math.min(fiabiliteGlobale, bareme[1]);
         avantages.push({
-          code: "minimum_contributif",
-          libelle: "Minimum contributif",
-          montant: releve,
-          detail: "portée au plancher, au prorata de la durée acquise",
+          code: "minimum_vieillesse",
+          libelle: "Minimum vieillesse (ASPA)",
+          montant: complement,
+          detail: "allocation différentielle, barème d'une personne seule",
         });
       }
     }
@@ -717,6 +970,9 @@ export class ScenarioActuel {
       trimestres_requis: trimestresRequis,
       taux_liquidation: tauxRetenu,
       minimum_applique: minimumApplique,
+      age_ouverture_opposable: ageOuvertureReference,
+      liquidation_ouverte: liquidationOuverte,
+      motif_ouverture: motifOuverture,
       avantages_appliques: avantages,
       total_contributif: totalContributif,
       fiabilite: fiabiliteGlobale,
@@ -724,6 +980,13 @@ export class ScenarioActuel {
     };
   }
 }
+
+/**
+ * Durée cotisée, tous régimes, qui ouvre la majoration du minimum contributif
+ * au titre des périodes cotisées (article L. 351-10). En deçà, seul le montant
+ * de base est dû.
+ */
+const TRIMESTRES_COTISES_MINIMUM_MAJORE = 120;
 
 /** Dernière année pour laquelle le régime a des paramètres. */
 function derniereAnnee(regime) {

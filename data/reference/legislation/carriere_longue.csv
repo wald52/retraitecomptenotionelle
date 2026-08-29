@@ -1,0 +1,56 @@
+# Départ anticipé pour carrière longue — article L. 351-1-1
+# ----------------------------------------------------------
+# source_id: legifrance_textes, cnav_circulaires
+#
+# À quoi cela sert dans ce modèle. Le scénario « système actuel » calculait une
+# pension à n'importe quel âge, sans jamais dire si le droit ouvrait ce
+# départ-là. Un salarié du privé né en 1962 y liquidait à 55 ans une pension
+# décotée que la loi ne lui aurait pas servie du tout — et l'écart avec les
+# comptes notionnels, qui eux facturent l'anticipation, s'en trouvait faussé
+# dans les deux sens : trop de pension d'un côté, une comparaison sans objet de
+# l'autre. Le modèle dit désormais si la liquidation est OUVERTE, et par quoi.
+#
+# La carrière longue est la principale porte d'entrée avant l'âge légal, et la
+# seule qui se déduise de la carrière elle-même — la pénibilité, l'invalidité
+# et l'inaptitude demandent des informations que le modèle n'a pas.
+#
+# DEUX CONDITIONS, ET ELLES SE LISENT À L'ANNÉE DE LIQUIDATION :
+#
+#   * avoir validé `trimestres_debut` trimestres avant la fin de l'année civile
+#     des `age_debut_maximum` ans ;
+#   * justifier d'une durée d'assurance COTISÉE au moins égale à la durée
+#     requise de sa génération, augmentée de `trimestres_supplementaires`.
+#
+# Le texte demande cinq trimestres avant la fin de l'année civile, ou quatre
+# pour les personnes nées entre le 1er octobre et le 31 décembre. Le modèle ne
+# connaît que l'année de naissance : il retient cinq, valeur de la fraction la
+# plus nombreuse, comme il le fait des autres bornes coupées en cours d'année.
+#
+# Étapes retenues :
+#
+#   2004  loi du 21 août 2003, qui crée le dispositif. Trois portes, toutes
+#         adossées à une durée cotisée supérieure à la durée requise. Reprise
+#         des textes sans recoupement automatique : niveau `moyenne`.
+#   2012  décret du 2 juillet 2012, applicable au 1er novembre : départ à
+#         60 ans pour une entrée avant 20 ans, sans durée supplémentaire. C'est
+#         cette étape qui a fait du dispositif un départ de masse.
+#   2023  loi du 14 avril 2023, applicable au 1er septembre : quatre bornes,
+#         16, 18, 20 et 21 ans, pour 58, 60, 62 et 63 ans.
+#
+# Ce qui n'est PAS modélisé : la distinction entre trimestres cotisés et
+# trimestres « réputés cotisés » que la loi du 20 janvier 2014 a élargie
+# (chômage, maladie, maternité, dans des limites propres à chacun). Le modèle
+# ne retient ici que les trimestres réellement cotisés, ce qui rend la condition
+# plus dure qu'elle ne l'est : quelques carrières hachées sont donc déclarées
+# non ouvertes alors que le droit les ouvrirait.
+annee,age_debut_maximum,trimestres_debut,age_depart,trimestres_supplementaires,fiabilite
+2004,16,5,56,8,moyenne
+2004,16,5,58,4,moyenne
+2004,17,5,59,0,moyenne
+2012,16,5,56,8,moyenne
+2012,16,5,58,4,moyenne
+2012,20,5,60,0,haute
+2023,16,5,58,0,haute
+2023,18,5,60,0,haute
+2023,20,5,62,0,haute
+2023,21,5,63,0,haute

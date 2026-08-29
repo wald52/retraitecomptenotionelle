@@ -245,6 +245,24 @@ institutions:
         statut_integration: saisi
         cible: data/reference/regimes/fonction_publique_etat.yaml
 
+      - id: sre_minimum_garanti
+        titre: Montant du minimum garanti, article L. 17 du code des pensions
+        url: https://retraitesdeletat.gouv.fr/actif/le-calcul-de-ma-retraite/le-minimum-garanti
+        acces: document
+        statut_integration: saisi
+        cible: data/reference/legislation/minimum_garanti_montants.csv
+        note: >-
+          Le montant PLEIN du minimum garanti, celui d'une carrière de quarante
+          ans de services : 997,96 € par mois au 1er janvier 2004, date à
+          laquelle l'article gèle sa référence, puis 1 174,33 € en 2020,
+          1 248,33 € en 2023, 1 325,01 € en 2024 et 1 354,16 € en 2025. Ces
+          montants SERVIS priment sur toute projection, comme ceux du minimum
+          contributif et pour la même raison : la revalorisation des pensions à
+          laquelle renvoie l'article a été gelée en 2014 et sous-indexée
+          depuis, si bien qu'une projection sur les prix dépasse de 4,6 % ce qui
+          a été payé en 2024. Transcriptions de publications, non confrontées à
+          un fichier du producteur : niveau `haute`.
+
   caisse_des_depots:
     nom: Caisse des dépôts (gestionnaire CNRACL, Ircantec, RAFP, FSPOEIE)
     role: Régimes de la fonction publique territoriale et hospitalière, régimes gérés.
@@ -757,6 +775,23 @@ institutions:
           la CNBF : ces régimes ne sont pas modélisés par OpenFisca.
           Recoupé à chaque exécution contre le rendement instantané que
           l'Agirc-Arrco publie pour l'année en cours : 5,61 % en 2025.
+
+      - id: openfisca_point_indice
+        titre: Point d'indice de la fonction publique et barème du minimum garanti
+        url: https://github.com/openfisca/openfisca-france/blob/master/openfisca_france/parameters/marche_travail/remuneration_dans_fonction_publique/indicefp/point_indice_en_euros.yaml
+        acces: api
+        statut_integration: automatise
+        cible: data/reference/legislation/point_indice_fonction_publique.csv
+        recuperation: scripts/fetch/openfisca_point_indice.py
+        note: >-
+          Deux séries pour un seul dispositif, le minimum garanti de l'article
+          L. 17 : le traitement annuel d'un point d'indice majoré, daté décret
+          par décret depuis 1960, et la montée en charge 2004-2013 du barème
+          (`secteur_public/pension_civile/minimum_garanti` d'OpenFisca-France-
+          Pension). L'ancre de l'article se recoupe d'elle-même : 227 points
+          d'indice au 1er janvier 2004 valent 11 975,57 € par an, soit les
+          997,96 € par mois que publie le Service des retraites de l'État.
+          Le montant en euros, lui, ne vient pas d'ici — voir sre_minimum_garanti.
 
       - id: openfisca_cotisations
         titre: Taux de cotisation vieillesse du régime général, 1967-2026

@@ -163,16 +163,265 @@ export class MinimumContributif {
     return [valeur * coefficient, fiabilite];
   }
 
-  /** @returns {[number, number, number]} montant, plafond et fiabilité. */
-  valeurs(annee, majore = false) {
+  /**
+   * Montant de base, montant majoré et plafond d'écrêtement de l'année.
+   *
+   * Les deux montants sont rendus ensemble parce que le droit les ADDITIONNE
+   * plutôt qu'il ne choisit entre eux : la pension est portée au montant de
+   * base au prorata de la durée d'assurance acquise dans le régime, puis
+   * l'écart entre le majoré et le base s'y ajoute au prorata de la seule durée
+   * COTISÉE (D. 351-2-2).
+   *
+   * @returns {[number, number, number, number]} base, majoré, plafond, fiabilité.
+   */
+  valeurs(annee) {
     if (Object.keys(this._table).length === 0) {
-      return [0.0, 0.0, 0];
+      return [0.0, 0.0, 0.0, 0];
     }
-    const [montant, fiabiliteMontant] = this._revalorise(
-      majore ? "montant_majore" : "montant_base", annee,
-    );
+    const [base, fiabiliteBase] = this._revalorise("montant_base", annee);
+    const [majore, fiabiliteMajore] = this._revalorise("montant_majore", annee);
     const [plafond, fiabilitePlafond] = this._revalorise("plafond_ecretement", annee);
-    return [montant, plafond, Math.min(fiabiliteMontant, fiabilitePlafond)];
+    return [base, majore, plafond,
+      Math.min(fiabiliteBase, fiabiliteMajore, fiabilitePlafond)];
+  }
+}
+
+/**
+ * Décote de la fonction publique — article L. 14 du code des pensions.
+ *
+ * Deux paramètres, lus à l'ANNÉE DE LIQUIDATION parce que la montée en charge
+ * voulue par la loi du 21 août 2003 est calendaire et non générationnelle : le
+ * coefficient de minoration par trimestre, d'un huitième de point par an de
+ * 0,125 % en 2006 à 1,25 % en 2015, et le nombre de trimestres retranchés à la
+ * LIMITE D'ÂGE pour obtenir l'âge d'annulation, de seize en 2006 à zéro en
+ * 2020. Rien avant 2006 : la décote n'existait pas dans la fonction publique.
+ */
+export class DecoteFonctionPublique {
+  constructor(paquet) {
+    this._table = paquet.decote_fonction_publique ?? {};
+    this._annees = Object.keys(this._table).map(Number).sort((a, b) => a - b);
+  }
+
+  /** @returns {[number, number, number]|null} trimestres, coefficient, fiabilité. */
+  parametres(annee) {
+    if (this._annees.length === 0 || annee < this._annees[0]) {
+      return null;
+    }
+    let applicable = this._annees[0];
+    for (const candidate of this._annees) {
+      if (candidate > annee) {
+        break;
+      }
+      applicable = candidate;
+    }
+    return this._table[String(applicable)];
+  }
+}
+
+/**
+ * Minimum garanti de la fonction publique — article L. 17 du code des pensions.
+ *
+ * Ce n'est pas un plancher proratisé mais un BARÈME EN ESCALIER sur la durée de
+ * services, rapporté à un traitement de référence gelé : celui de l'indice
+ * majoré 227 au 1er janvier 2004, revalorisé sur les prix depuis. Quinze ans de
+ * services en ouvrent 57,5 %, trente ans 95 %, quarante ans la totalité.
+ */
+export class MinimumGaranti {
+  constructor(paquet, macro) {
+    this.macro = macro;
+    const contenu = paquet.minimum_garanti ?? {};
+    this._bareme = contenu.bareme ?? {};
+    this._point = contenu.point_indice ?? {};
+    this._montants = contenu.montants ?? {};
+    this._anneesBareme = Object.keys(this._bareme).map(Number).sort((a, b) => a - b);
+    this._anneesMontants = Object.keys(this._montants).map(Number).sort((a, b) => a - b);
+  }
+
+  /** Barème en vigueur l'année de liquidation, ou ``null`` avant 1976. */
+  bareme(anneeLiquidation) {
+    if (this._anneesBareme.length === 0 || anneeLiquidation < this._anneesBareme[0]) {
+      return null;
+    }
+    let applicable = this._anneesBareme[0];
+    for (const candidate of this._anneesBareme) {
+      if (candidate > anneeLiquidation) {
+        break;
+      }
+      applicable = candidate;
+    }
+    return this._bareme[String(applicable)];
+  }
+
+  _pointIndice(annee) {
+    const annees = Object.keys(this._point).map(Number).filter((a) => a <= annee);
+    if (annees.length === 0) {
+      return null;
+    }
+    return this._point[String(Math.max(...annees))];
+  }
+
+  /**
+   * Montant plein du minimum garanti, quarante ans de services.
+   *
+   * Un montant SERVI connu prime sur tout calcul ; après 2004 la référence est
+   * le traitement gelé de l'indice majoré 227, projeté sur les prix depuis
+   * l'ancre en vigueur ; avant 2004, le gel n'existe pas et c'est le traitement
+   * de l'indice majoré de l'année, au point d'indice de cette année-là.
+   */
+  reference(anneeLiquidation) {
+    const bareme = this.bareme(anneeLiquidation);
+    if (bareme === null || bareme === undefined) {
+      return null;
+    }
+    const indice = bareme[0];
+    const fiabiliteBareme = bareme[5];
+
+    if (anneeLiquidation <= MinimumGaranti.ANNEE_GEL
+        && this._montants[String(anneeLiquidation)] === undefined) {
+      const point = this._pointIndice(anneeLiquidation);
+      if (point === null) {
+        return null;
+      }
+      return [indice * point[0], Math.min(fiabiliteBareme, point[1])];
+    }
+
+    if (this._anneesMontants.length === 0) {
+      return null;
+    }
+    let valeur;
+    let fiabilite;
+    if (this._montants[String(anneeLiquidation)] !== undefined) {
+      [valeur, fiabilite] = this._montants[String(anneeLiquidation)];
+    } else {
+      const anterieures = this._anneesMontants.filter((a) => a < anneeLiquidation);
+      const ancre = anterieures.length
+        ? anterieures[anterieures.length - 1]
+        : this._anneesMontants[0];
+      [valeur, fiabilite] = this._montants[String(ancre)];
+      valeur *= this.macro.coefficientPrix(ancre, anneeLiquidation);
+    }
+    return [valeur * indice / MinimumGaranti.INDICE_REFERENCE,
+      Math.min(fiabiliteBareme, fiabilite)];
+  }
+
+  /** Plancher opposable pour une durée de services donnée. */
+  montant(anneeLiquidation, trimestresServices) {
+    const bareme = this.bareme(anneeLiquidation);
+    const reference = this.reference(anneeLiquidation);
+    if (bareme === null || bareme === undefined || reference === null) {
+      return null;
+    }
+    const [, part, pointsBas, pointsHaut, seuil] = bareme;
+    const duree = Math.max(0, Math.min(trimestresServices, MinimumGaranti.SEUIL_HAUT));
+    if (duree <= 0) {
+      return null;
+    }
+    let taux;
+    if (duree < MinimumGaranti.SEUIL_BAS) {
+      taux = part * duree / MinimumGaranti.SEUIL_BAS;
+    } else if (duree >= MinimumGaranti.SEUIL_HAUT) {
+      taux = 1.0;
+    } else if (duree < seuil) {
+      taux = part + (duree - MinimumGaranti.SEUIL_BAS) * pointsBas;
+    } else {
+      taux = part + (seuil - MinimumGaranti.SEUIL_BAS) * pointsBas
+        + (duree - seuil) * pointsHaut;
+    }
+    return [reference[0] * taux, reference[1]];
+  }
+}
+
+/** Quinze ans de services, en trimestres : première marche du barème. */
+MinimumGaranti.SEUIL_BAS = 60;
+/** Quarante ans : au-delà, la référence est servie en entier. */
+MinimumGaranti.SEUIL_HAUT = 160;
+/** Année à partir de laquelle la référence est gelée puis indexée sur les prix. */
+MinimumGaranti.ANNEE_GEL = 2004;
+/** Indice majoré auquel se rapportent les montants transcrits. */
+MinimumGaranti.INDICE_REFERENCE = 227;
+
+/**
+ * Minimum vieillesse — allocation de solidarité aux personnes âgées (ASPA).
+ *
+ * Allocation DIFFÉRENTIELLE qui porte les ressources au montant du barème.
+ * Ce n'est pas une pension : condition d'âge, de ressources du foyer et de
+ * demande, et récupérable sur les successions.
+ */
+export class MinimumVieillesse {
+  constructor(paquet, macro) {
+    this.macro = macro;
+    this._table = paquet.minimum_vieillesse ?? {};
+    this._annees = Object.keys(this._table).map(Number).sort((a, b) => a - b);
+  }
+
+  /** Montant maximal d'une personne seule, l'année demandée. */
+  plafond(annee) {
+    if (this._annees.length === 0) {
+      return null;
+    }
+    if (this._table[String(annee)] !== undefined) {
+      return this._table[String(annee)];
+    }
+    const anterieures = this._annees.filter((a) => a < annee);
+    const ancre = anterieures.length
+      ? anterieures[anterieures.length - 1]
+      : this._annees[0];
+    const [valeur, fiabilite] = this._table[String(ancre)];
+    return [valeur * this.macro.coefficientPrix(ancre, annee), fiabilite];
+  }
+}
+
+/** Âge d'ouverture de droit commun de l'ASPA. */
+MinimumVieillesse.AGE_OUVERTURE = 65;
+
+/**
+ * Départ anticipé pour carrière longue — article L. 351-1-1.
+ *
+ * La principale porte d'entrée avant l'âge légal, et la seule qui se déduise de
+ * la carrière elle-même : la pénibilité, l'invalidité et l'inaptitude demandent
+ * des informations que le modèle n'a pas.
+ */
+export class CarriereLongue {
+  constructor(paquet) {
+    this._table = paquet.carriere_longue ?? {};
+    this._annees = Object.keys(this._table).map(Number).sort((a, b) => a - b);
+  }
+
+  /**
+   * Âge le plus précoce ouvert par le dispositif, ou ``null``.
+   *
+   * @returns {[number, number]|null} âge de départ et fiabilité.
+   */
+  ageDeDepart(carriere, anneeLiquidation, trimestresCotises, requis) {
+    if (this._annees.length === 0 || anneeLiquidation < this._annees[0]) {
+      return null;
+    }
+    let applicable = this._annees[0];
+    for (const candidate of this._annees) {
+      if (candidate > anneeLiquidation) {
+        break;
+      }
+      applicable = candidate;
+    }
+
+    let meilleur = null;
+    for (const [ageMax, trimestresDebut, ageDepart, supplement, fiabilite]
+      of this._table[String(applicable)]) {
+      let acquis = 0;
+      for (const ligne of carriere.lignes) {
+        if (ligne.cotise && ligne.annee <= carriere.annee_naissance + ageMax
+            && ligne.annee < anneeLiquidation) {
+          acquis += ligne.trimestres_valides;
+        }
+      }
+      if (acquis < trimestresDebut || trimestresCotises < requis + supplement) {
+        continue;
+      }
+      if (meilleur === null || ageDepart < meilleur[0]) {
+        meilleur = [ageDepart, fiabilite];
+      }
+    }
+    return meilleur;
   }
 }
 

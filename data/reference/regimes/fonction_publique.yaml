@@ -89,6 +89,7 @@ regimes:
         age_ouverture: 60
         age_ouverture_par_generation: true
         age_taux_plein: 65
+        age_taux_plein_par_generation: true
         duree_requise_trimestres: 160
         duree_requise_par_generation: true
         taux_plein: 0.75
@@ -96,6 +97,7 @@ regimes:
         assiette: hors_primes
         taux_cotisation_retraite: 0.0785
         perimetre_taux: agent_seul
+        bareme_decote: fonction_publique
         decote_par_trimestre: 0.0125
         surcote_par_trimestre: 0.0075
         avantages_non_contributifs:
@@ -110,6 +112,7 @@ regimes:
         age_ouverture: 62
         age_ouverture_par_generation: true
         age_taux_plein: 67
+        age_taux_plein_par_generation: true
         duree_requise_trimestres: 172
         duree_requise_par_generation: true
         taux_plein: 0.75
@@ -117,6 +120,7 @@ regimes:
         assiette: hors_primes
         taux_cotisation_retraite: 0.1029
         perimetre_taux: agent_seul
+        bareme_decote: fonction_publique
         decote_par_trimestre: 0.0125
         surcote_par_trimestre: 0.0125
         avantages_non_contributifs:
@@ -131,6 +135,7 @@ regimes:
         age_ouverture: 64
         age_ouverture_par_generation: true
         age_taux_plein: 67
+        age_taux_plein_par_generation: true
         duree_requise_trimestres: 172
         duree_requise_par_generation: true
         taux_plein: 0.75
@@ -138,6 +143,7 @@ regimes:
         assiette: hors_primes
         taux_cotisation_retraite: 0.1110
         perimetre_taux: agent_seul
+        bareme_decote: fonction_publique
         decote_par_trimestre: 0.0125
         surcote_par_trimestre: 0.0125
         avantages_non_contributifs:
@@ -188,6 +194,7 @@ regimes:
         age_ouverture: 60
         age_ouverture_par_generation: true
         age_taux_plein: 65
+        age_taux_plein_par_generation: true
         duree_requise_trimestres: 160
         duree_requise_par_generation: true
         taux_plein: 0.75
@@ -195,6 +202,7 @@ regimes:
         assiette: hors_primes
         taux_cotisation_retraite: 0.0785
         perimetre_taux: agent_seul
+        bareme_decote: fonction_publique
         decote_par_trimestre: 0.0125
         surcote_par_trimestre: 0.0075
         avantages_non_contributifs:
@@ -206,6 +214,7 @@ regimes:
         age_ouverture: 62
         age_ouverture_par_generation: true
         age_taux_plein: 67
+        age_taux_plein_par_generation: true
         duree_requise_trimestres: 172
         duree_requise_par_generation: true
         taux_plein: 0.75
@@ -213,6 +222,7 @@ regimes:
         assiette: hors_primes
         taux_cotisation_retraite: 0.1029
         perimetre_taux: agent_seul
+        bareme_decote: fonction_publique
         decote_par_trimestre: 0.0125
         surcote_par_trimestre: 0.0125
         avantages_non_contributifs:
@@ -229,6 +239,7 @@ regimes:
         age_ouverture: 64
         age_ouverture_par_generation: true
         age_taux_plein: 67
+        age_taux_plein_par_generation: true
         duree_requise_trimestres: 172
         duree_requise_par_generation: true
         taux_plein: 0.75
@@ -236,6 +247,7 @@ regimes:
         assiette: hors_primes
         taux_cotisation_retraite: 0.1110
         perimetre_taux: agent_seul
+        bareme_decote: fonction_publique
         decote_par_trimestre: 0.0125
         surcote_par_trimestre: 0.0125
         avantages_non_contributifs:
@@ -280,6 +292,7 @@ regimes:
         age_ouverture: 64
         age_ouverture_par_generation: true
         age_taux_plein: 67
+        age_taux_plein_par_generation: true
         duree_requise_trimestres: 172
         duree_requise_par_generation: true
         taux_plein: 0.75
@@ -287,6 +300,7 @@ regimes:
         assiette: hors_primes
         taux_cotisation_retraite: 0.1110
         perimetre_taux: agent_seul
+        bareme_decote: fonction_publique
         decote_par_trimestre: 0.0125
         surcote_par_trimestre: 0.0125
         avantages_non_contributifs: [bonifications, categorie_active, reversion, minimum_garanti]

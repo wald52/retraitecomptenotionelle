@@ -64,6 +64,12 @@ class AnneeCarriere:
     familles_cotisantes: tuple[str, ...] = ()
     #: Part de primes dans le revenu (fonction publique) : assiette du RAFP.
     part_primes: float = 0.0
+    #: Salaire forfaitaire porté au compte du régime de base au titre de
+    #: l'assurance vieillesse des parents au foyer. Ce n'est pas un revenu
+    #: d'activité — l'année n'est pas cotisée par l'assuré — mais la CNAF
+    #: cotise pour lui sur cette assiette, et le salaire entre dans le salaire
+    #: annuel moyen. Une période assimilée, elle, n'y entre jamais.
+    revenu_avpf: float = 0.0
 
     @property
     def cotise(self) -> bool:
@@ -127,8 +133,17 @@ class Carriere:
 
     @cached_property
     def trimestres_actuels(self) -> int:
-        """Trimestres validés au sens du droit en vigueur, tous régimes."""
-        return sum(ligne.trimestres_valides for ligne in self.lignes)
+        """Trimestres validés au sens du droit en vigueur, tous régimes.
+
+        Bornés à l'année de liquidation : une ligne postérieure décrit une
+        activité exercée APRÈS le départ en retraite, et le droit ne la fait
+        pas entrer dans la durée d'assurance qui commande la décote. Compter
+        ces années annulait la décote d'un assuré qui, précisément, part tôt.
+        """
+        return sum(
+            ligne.trimestres_valides for ligne in self.lignes
+            if self.age_liquidation is None or ligne.annee < self.annee_liquidation
+        )
 
     def ligne(self, annee: int) -> AnneeCarriere | None:
         for l in self.lignes:
@@ -229,6 +244,14 @@ class Carriere:
                         else ("complementaire_prive",)
                     ),
                     part_primes=part_primes,
+                    # Assurance vieillesse des parents au foyer : la CNAF
+                    # cotise au régime général sur une assiette forfaitaire
+                    # égale au SMIC — 1 820 heures, soit le SMIC mensuel
+                    # multiplié par douze.
+                    revenu_avpf=(
+                        0.0 if cotise or regle is None or not regle.avpf
+                        else 1820.0 * macro.smic_horaire(annee)
+                    ),
                 )
             )
 

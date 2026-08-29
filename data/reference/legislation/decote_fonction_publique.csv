@@ -1,0 +1,50 @@
+# Décote de la fonction publique — article L. 14 du code des pensions
+# ---------------------------------------------------------------------
+# source_id: legifrance_textes, sre_rapport_annuel
+#
+# La fonction publique n'a pas la décote du régime général, et le modèle la lui
+# opposait pourtant : coefficient plat de 1,25 % et âge d'annulation plat de
+# 67 ans, dès 2004. Trois écarts avec le droit, et ils vont tous dans le même
+# sens — ils retirent au fonctionnaire une pension que la loi lui servait.
+#
+#   1. LA DÉCOTE N'EXISTE QU'À COMPTER DE 2006. La loi du 21 août 2003 la crée
+#      pour les pensions liquidées à partir du 1er janvier 2006 ; les
+#      liquidations de 2004 et 2005 n'en subissaient aucune.
+#   2. LE COEFFICIENT MONTE EN CHARGE, d'un huitième de point par an : 0,125 %
+#      par trimestre en 2006, 1,25 % seulement à partir de 2015. Opposer
+#      1,25 % à une liquidation de 2008, c'est décoter dix fois trop.
+#   3. L'ÂGE D'ANNULATION DE LA DÉCOTE MONTE AUSSI. Ce n'est pas un âge en
+#      propre : c'est la LIMITE D'ÂGE du grade, diminuée d'un nombre de
+#      trimestres qui décroît d'année en année jusqu'à s'annuler en 2020. Pour
+#      un sédentaire dont la limite d'âge est de 65 ans, l'âge d'annulation
+#      était de 61 ans en 2006 et de 63 ans en 2012 — et non de 67.
+#
+# Les deux colonnes se lisent à l'ANNÉE DE LIQUIDATION, non à la génération :
+# c'est ainsi que l'article est écrit, la montée en charge étant calendaire.
+# La limite d'âge, elle, suit la génération (65 -> 67 ans, loi du 9 novembre
+# 2010) : elle est lue dans `age_annulation_decote.csv`, que la fiche du
+# régime branche par `age_taux_plein_par_generation`.
+#
+#   âge d'annulation de la décote = limite d'âge − trimestres_avant_limite / 4
+#
+# Le nombre de trimestres de décote reste le plus favorable des deux décomptes
+# — durée manquante ou âge manquant — et reste plafonné à vingt trimestres.
+#
+# Avant 2006 : aucune ligne, donc aucune décote. Après 2020 : la dernière
+# ligne vaut, l'âge d'annulation est la limite d'âge elle-même.
+annee,trimestres_avant_limite,coefficient,fiabilite
+2006,16,0.00125,haute
+2007,14,0.0025,haute
+2008,12,0.00375,haute
+2009,11,0.005,haute
+2010,10,0.00625,haute
+2011,9,0.0075,haute
+2012,8,0.00875,haute
+2013,7,0.01,haute
+2014,6,0.01125,haute
+2015,5,0.0125,haute
+2016,4,0.0125,haute
+2017,3,0.0125,haute
+2018,2,0.0125,haute
+2019,1,0.0125,haute
+2020,0,0.0125,haute

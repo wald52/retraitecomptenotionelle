@@ -179,12 +179,15 @@ def _regimes() -> list[dict]:
                     "decote_par_generation": p.decote_par_generation,
                     "salaire_reference_par_generation": p.salaire_reference_par_generation,
                     "decote_par_trimestre": p.decote_par_trimestre,
+                    "bareme_decote": p.bareme_decote,
+                    "decote_annulee_par_la_duree": p.decote_annulee_par_la_duree,
                     "decote_trimestres_maximum": p.decote_trimestres_maximum,
                     "surcote_par_trimestre": p.surcote_par_trimestre,
                     "abattement_points": p.abattement_points,
                     "plafond_majoration_enfants": p.plafond_majoration_enfants,
                     "plafond_majoration_annee": p.plafond_majoration_annee,
                     "points_maximum": p.points_maximum,
+                    "points_minimum_annuels": p.points_minimum_annuels,
                     "assiette_repere_smic": p.assiette_repere_smic,
                     "assiette_plancher": p.assiette_plancher,
                     "avantages_non_contributifs": list(p.avantages_non_contributifs),
@@ -235,7 +238,8 @@ def _periodes_non_travaillees() -> dict:
 
     return {
         motif: [regle.trimestres_assimiles,
-                regle.ouvre_droits_complementaires, int(regle.fiabilite)]
+                regle.ouvre_droits_complementaires, int(regle.fiabilite),
+                regle.avpf]
         for motif, regle in sorted(charger_periodes_non_travaillees(DONNEES).items())
     }
 
@@ -254,6 +258,60 @@ def _minimum_contributif() -> dict:
     table = MinimumContributif(DONNEES, DonneesMacro(DONNEES))._table
     return {f"{mesure}|{annee}": [valeur, int(fiabilite)]
             for (mesure, annee), (valeur, fiabilite) in sorted(table.items())}
+
+
+def _decote_fonction_publique() -> dict:
+    """Barème de décote de l'article L. 14, par année de liquidation."""
+    from retraite_notionnelle.scenarios.actuel import DecoteFonctionPublique
+
+    return {
+        str(annee): [trimestres, coefficient, int(fiabilite)]
+        for annee, (trimestres, coefficient, fiabilite)
+        in sorted(DecoteFonctionPublique(DONNEES)._table.items())
+    }
+
+
+def _minimum_garanti() -> dict:
+    """Barème de l'article L. 17, point d'indice et montants servis."""
+    from retraite_notionnelle.donnees.macro import DonneesMacro
+    from retraite_notionnelle.scenarios.actuel import MinimumGaranti
+
+    minimum = MinimumGaranti(DONNEES, DonneesMacro(DONNEES))
+    return {
+        "bareme": {
+            str(annee): [indice, part, bas, haut, seuil, int(fiabilite)]
+            for annee, (indice, part, bas, haut, seuil, fiabilite)
+            in sorted(minimum._bareme.items())
+        },
+        "point_indice": {str(annee): [valeur, int(fiabilite)]
+                         for annee, (valeur, fiabilite)
+                         in sorted(minimum._point.items())},
+        "montants": {str(annee): [valeur, int(fiabilite)]
+                     for annee, (valeur, fiabilite)
+                     in sorted(minimum._montants.items())},
+    }
+
+
+def _minimum_vieillesse() -> dict:
+    """Barème de l'ASPA, personne seule, par année."""
+    from retraite_notionnelle.donnees.macro import DonneesMacro
+    from retraite_notionnelle.scenarios.actuel import MinimumVieillesse
+
+    table = MinimumVieillesse(DONNEES, DonneesMacro(DONNEES))._table
+    return {str(annee): [valeur, int(fiabilite)]
+            for annee, (valeur, fiabilite) in sorted(table.items())}
+
+
+def _carriere_longue() -> dict:
+    """Portes du départ anticipé pour carrière longue, par année."""
+    from retraite_notionnelle.scenarios.actuel import CarriereLongue
+
+    return {
+        str(annee): [[age_max, trimestres, age_depart, supplement, int(fiabilite)]
+                     for age_max, trimestres, age_depart, supplement, fiabilite
+                     in portes]
+        for annee, portes in sorted(CarriereLongue(DONNEES)._table.items())
+    }
 
 
 def _hypotheses() -> dict:
@@ -285,6 +343,10 @@ def construire() -> bytes:
         "annees_salaire_reference": _table_par_generation(AnneesSalaireReference),
         "periodes_non_travaillees": _periodes_non_travaillees(),
         "minimum_contributif": _minimum_contributif(),
+        "minimum_garanti": _minimum_garanti(),
+        "minimum_vieillesse": _minimum_vieillesse(),
+        "decote_fonction_publique": _decote_fonction_publique(),
+        "carriere_longue": _carriere_longue(),
         "certification": journal_certification(DONNEES),
     }
     texte = json.dumps(paquet, ensure_ascii=False, sort_keys=True,

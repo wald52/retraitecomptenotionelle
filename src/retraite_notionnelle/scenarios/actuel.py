@@ -38,7 +38,7 @@ tous calculés sur les mêmes carrières et les mêmes séries.
 from __future__ import annotations
 
 import csv
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 
 from ..carriere import Affiliations, Carriere
@@ -76,6 +76,42 @@ class AvantageApplique:
     detail: str = ""
 
 
+@dataclass(frozen=True)
+class _EligibleMinimum:
+    """Régime de base susceptible d'être porté au minimum contributif.
+
+    Quatre grandeurs, et pas une seule, parce que le droit en demande quatre :
+    la pension à relever, les deux fractions de durée qui proratisent le
+    montant de base et sa majoration, la condition de taux plein qui ouvre le
+    droit, et le coefficient de surcote qu'il faut retirer avant de comparer
+    au plancher puis rendre après.
+    """
+
+    #: Indice de la pension dans ``ResultatActuel.pensions_par_regime``.
+    indice: int
+    #: Durée d'assurance acquise dans le régime / durée requise, bornée à 1.
+    prorata_assurance: float
+    #: Durée COTISÉE acquise dans le régime / durée requise, bornée à 1.
+    prorata_cotise: float
+    #: La pension est-elle liquidée au taux plein dans ce régime ?
+    taux_plein: bool
+    #: Coefficient de surcote déjà incorporé au montant de la pension.
+    surcote: float = 1.0
+
+
+@dataclass(frozen=True)
+class _EligibleMinimumGaranti:
+    """Régime de la fonction publique susceptible d'atteindre son plancher."""
+
+    #: Indice de la pension dans ``ResultatActuel.pensions_par_regime``.
+    indice: int
+    #: Durée de services acquise dans le régime, en trimestres.
+    trimestres_services: int
+    #: La pension est-elle liquidée au taux plein, ou l'assuré atteignait-il
+    #: l'âge d'ouverture de ses droits avant 2011 ?
+    ouvert: bool
+
+
 @dataclass
 class ResultatActuel:
     pension_annuelle: float
@@ -88,6 +124,18 @@ class ResultatActuel:
     trimestres_requis: int = 0
     taux_liquidation: float = 0.0
     minimum_applique: bool = False
+    #: Âge le plus précoce auquel le droit ouvre cette liquidation, tous
+    #: dispositifs compris. ``None`` quand aucun régime en annuités n'en fixe.
+    age_ouverture_opposable: float | None = None
+    #: La liquidation demandée est-elle ouverte par le droit à cet âge ?
+    #: Quand elle ne l'est pas, le montant reste calculé — il faut bien
+    #: comparer les scénarios sur la même carrière — mais il ne décrit aucune
+    #: pension que le système actuel servirait. C'est un contrefactuel, et le
+    #: modèle le dit maintenant au lieu de le laisser croire.
+    liquidation_ouverte: bool = True
+    #: Ce qui ouvre la liquidation : ``age_legal``, ``carriere_longue``, ou
+    #: ``non_ouverte``.
+    motif_ouverture: str = "age_legal"
     fiabilite: Fiabilite = Fiabilite.ESTIMEE
 
     @property
@@ -274,6 +322,296 @@ def _coefficient_anticipation(trimestres_manquants: float,
     return max(0.0, coefficient)
 
 
+class DecoteFonctionPublique:
+    """Barème de décote de l'article L. 14 du code des pensions.
+
+    Deux paramètres, lus à l'ANNÉE DE LIQUIDATION parce que la montée en charge
+    voulue par la loi du 21 août 2003 est calendaire et non générationnelle :
+
+    * le **coefficient** de minoration par trimestre, d'un huitième de point
+      par an de 0,125 % en 2006 à 1,25 % en 2015 ;
+    * le nombre de **trimestres retranchés à la limite d'âge** pour obtenir
+      l'âge d'annulation de la décote, de seize en 2006 à zéro en 2020.
+
+    Rien avant 2006 : la décote n'existait pas dans la fonction publique.
+    """
+
+    def __init__(self, racine: Path) -> None:
+        self._table: dict[int, tuple[int, float, Fiabilite]] = {}
+        chemin = racine / "reference" / "legislation" / "decote_fonction_publique.csv"
+        if not chemin.exists():
+            return
+        with chemin.open(encoding="utf-8") as flux:
+            lignes = (l for l in flux if not l.lstrip().startswith("#"))
+            for ligne in csv.DictReader(lignes):
+                self._table[int(ligne["annee"])] = (
+                    int(ligne["trimestres_avant_limite"]),
+                    float(ligne["coefficient"]),
+                    Fiabilite.depuis_texte(ligne["fiabilite"]),
+                )
+        self._annees = sorted(self._table)
+
+    def parametres(self, annee: int) -> tuple[int, float, Fiabilite] | None:
+        """Barème en vigueur l'année demandée, ou ``None`` avant sa création."""
+        if not self._table or annee < self._annees[0]:
+            return None
+        applicable = self._annees[0]
+        for candidate in self._annees:
+            if candidate > annee:
+                break
+            applicable = candidate
+        return self._table[applicable]
+
+
+class MinimumVieillesse:
+    """Allocation de solidarité aux personnes âgées (ASPA).
+
+    Le dernier plancher du système actuel, et le seul qui ne suppose aucune
+    cotisation : une allocation DIFFÉRENTIELLE qui porte les ressources au
+    montant du barème. Ce n'est pas une pension — elle est soumise à condition
+    d'âge, de ressources du foyer et de demande, et récupérable sur les
+    successions —, d'où la ligne séparée dans la cascade et le paramètre qui
+    permet de la retirer.
+    """
+
+    #: Âge d'ouverture de droit commun. L'âge légal suffit en cas d'inaptitude,
+    #: que le modèle ne connaît pas.
+    AGE_OUVERTURE = 65
+
+    def __init__(self, racine: Path, macro: DonneesMacro) -> None:
+        self.macro = macro
+        self._table: dict[int, tuple[float, Fiabilite]] = {}
+        chemin = racine / "reference" / "legislation" / "minimum_vieillesse.csv"
+        if not chemin.exists():
+            return
+        with chemin.open(encoding="utf-8") as flux:
+            lignes = (l for l in flux if not l.lstrip().startswith("#"))
+            for ligne in csv.DictReader(lignes):
+                self._table[int(ligne["annee"])] = (
+                    float(ligne["valeur"]),
+                    Fiabilite.depuis_texte(ligne["fiabilite"]),
+                )
+        self._annees = sorted(self._table)
+
+    def plafond(self, annee: int) -> tuple[float, Fiabilite] | None:
+        """Montant maximal d'une personne seule, l'année demandée."""
+        if not self._table:
+            return None
+        if annee in self._table:
+            return self._table[annee]
+        anterieures = [a for a in self._annees if a < annee]
+        ancre = max(anterieures) if anterieures else self._annees[0]
+        valeur, fiabilite = self._table[ancre]
+        return valeur * self.macro.coefficient_prix(ancre, annee), fiabilite
+
+
+class CarriereLongue:
+    """Départ anticipé pour carrière longue — article L. 351-1-1.
+
+    La principale porte d'entrée avant l'âge légal, et la seule qui se déduise
+    de la carrière elle-même : la pénibilité, l'invalidité et l'inaptitude
+    demandent des informations que le modèle n'a pas.
+    """
+
+    def __init__(self, racine: Path) -> None:
+        self._table: dict[int, list[tuple[int, int, float, int, Fiabilite]]] = {}
+        chemin = racine / "reference" / "legislation" / "carriere_longue.csv"
+        if not chemin.exists():
+            return
+        with chemin.open(encoding="utf-8") as flux:
+            lignes = (l for l in flux if not l.lstrip().startswith("#"))
+            for ligne in csv.DictReader(lignes):
+                self._table.setdefault(int(ligne["annee"]), []).append((
+                    int(ligne["age_debut_maximum"]),
+                    int(ligne["trimestres_debut"]),
+                    float(ligne["age_depart"]),
+                    int(ligne["trimestres_supplementaires"]),
+                    Fiabilite.depuis_texte(ligne["fiabilite"]),
+                ))
+        self._annees = sorted(self._table)
+
+    def age_de_depart(self, carriere: Carriere, annee_liquidation: int,
+                      trimestres_cotises: int,
+                      requis: int) -> tuple[float, Fiabilite] | None:
+        """Âge le plus précoce ouvert par le dispositif, ou ``None``.
+
+        La condition d'entrée précoce se lit sur les trimestres COTISÉS validés
+        avant la fin de l'année civile des seize, dix-huit, vingt ou vingt et un
+        ans. La condition de durée porte, elle aussi, sur les seuls trimestres
+        cotisés — c'est ce qui distingue ce dispositif de la durée d'assurance
+        qui commande la décote.
+        """
+        if not self._table or annee_liquidation < self._annees[0]:
+            return None
+        applicable = self._annees[0]
+        for candidate in self._annees:
+            if candidate > annee_liquidation:
+                break
+            applicable = candidate
+
+        ouvertures = []
+        for age_max, trimestres_debut, age_depart, supplement, fiabilite in \
+                self._table[applicable]:
+            acquis = sum(
+                ligne.trimestres_valides for ligne in carriere.lignes
+                if ligne.cotise
+                and ligne.annee <= carriere.annee_naissance + age_max
+                and ligne.annee < annee_liquidation
+            )
+            if acquis < trimestres_debut:
+                continue
+            if trimestres_cotises < requis + supplement:
+                continue
+            ouvertures.append((age_depart, fiabilite))
+        return min(ouvertures) if ouvertures else None
+
+
+class MinimumGaranti:
+    """Minimum garanti de la fonction publique — article L. 17 du code des
+    pensions civiles et militaires de retraite.
+
+    Le pendant, dans la fonction publique, du minimum contributif du privé. Il
+    n'en a ni la forme ni la logique : ce n'est pas un plancher proratisé, mais
+    un BARÈME EN ESCALIER sur la durée de services, rapporté à un traitement de
+    référence gelé — celui de l'indice majoré 227 au 1er janvier 2004,
+    revalorisé sur les prix depuis. Une durée de quinze ans en ouvre 57,5 %,
+    trente ans 95 %, quarante ans la totalité.
+
+    Le module ne le servait pas, alors que les fiches de régime le déclarent et
+    que les Neutralisations annoncent le retirer dans les scénarios notionnels.
+    On ne retire pas ce qui n'a jamais été mis : le fonctionnaire à carrière
+    courte était servi sans plancher, et l'étalon sous-estimait le système
+    actuel là même où il protège le plus.
+    """
+
+    #: Quinze ans de services, en trimestres : première marche du barème.
+    SEUIL_BAS = 60
+    #: Quarante ans de services : au-delà, la référence est servie en entier.
+    SEUIL_HAUT = 160
+    #: Année à partir de laquelle la référence est gelée puis indexée sur les
+    #: prix, au lieu de suivre le point d'indice.
+    ANNEE_GEL = 2004
+
+    def __init__(self, racine: Path, macro: DonneesMacro) -> None:
+        self.macro = macro
+        self._bareme: dict[int, tuple[int, float, float, float, int, Fiabilite]] = {}
+        self._point: dict[int, tuple[float, Fiabilite]] = {}
+        self._montants: dict[int, tuple[float, Fiabilite]] = {}
+        dossier = racine / "reference" / "legislation"
+        chemin = dossier / "minimum_garanti.csv"
+        if chemin.exists():
+            with chemin.open(encoding="utf-8") as flux:
+                lignes = (l for l in flux if not l.lstrip().startswith("#"))
+                for ligne in csv.DictReader(lignes):
+                    self._bareme[int(ligne["annee"])] = (
+                        int(ligne["indice_majore"]),
+                        float(ligne["part_15_ans"]),
+                        float(ligne["points_15_30"]),
+                        float(ligne["points_30_40"]),
+                        int(ligne["trimestres_seuil"]),
+                        Fiabilite.depuis_texte(ligne["fiabilite"]),
+                    )
+        for fichier, table in (("point_indice_fonction_publique.csv", self._point),
+                               ("minimum_garanti_montants.csv", self._montants)):
+            chemin = dossier / fichier
+            if not chemin.exists():
+                continue
+            with chemin.open(encoding="utf-8") as flux:
+                lignes = (l for l in flux if not l.lstrip().startswith("#"))
+                for ligne in csv.DictReader(lignes):
+                    table[int(ligne["annee"])] = (
+                        float(ligne["valeur"]),
+                        Fiabilite.depuis_texte(ligne["fiabilite"]),
+                    )
+        self._annees_bareme = sorted(self._bareme)
+        self._annees_montants = sorted(self._montants)
+
+    def _point_indice(self, annee: int) -> tuple[float, Fiabilite] | None:
+        """Traitement annuel d'un point d'indice majoré, l'année demandée."""
+        if not self._point:
+            return None
+        anterieures = [a for a in self._point if a <= annee]
+        return self._point[max(anterieures)] if anterieures else None
+
+    #: Indice majoré auquel se rapportent les montants transcrits.
+    INDICE_REFERENCE = 227
+
+    def reference(self, annee_liquidation: int) -> tuple[float, Fiabilite] | None:
+        """Montant plein du minimum garanti, quarante ans de services.
+
+        Trois cas, et dans cet ordre :
+
+        * **un montant servi est connu** pour l'année — il prime sur tout
+          calcul, comme pour le minimum contributif, et pour la même raison :
+          la revalorisation des pensions à laquelle l'article renvoie a été
+          gelée en 2014 et sous-indexée depuis, si bien qu'une projection sur
+          les prix dépasse de plusieurs points ce qui a été payé ;
+        * **après 2004**, la référence est le traitement gelé de l'indice
+          majoré 227 au 1er janvier 2004, projeté sur les prix depuis l'ancre
+          en vigueur ;
+        * **avant 2004**, le gel n'existe pas : c'est le traitement de l'indice
+          majoré de l'année, au point d'indice de cette année-là.
+
+        Le montant est ensuite ramené à l'indice majoré de l'année de
+        liquidation, qui monte de 217 en 2004 à 227 en 2013.
+        """
+        bareme = self.bareme(annee_liquidation)
+        if bareme is None:
+            return None
+        indice, _, _, _, _, fiabilite_bareme = bareme
+
+        if annee_liquidation <= self.ANNEE_GEL and annee_liquidation not in self._montants:
+            point = self._point_indice(annee_liquidation)
+            if point is None:
+                return None
+            return indice * point[0], min(fiabilite_bareme, point[1])
+
+        if not self._annees_montants:
+            return None
+        if annee_liquidation in self._montants:
+            valeur, fiabilite = self._montants[annee_liquidation]
+        else:
+            anterieures = [a for a in self._annees_montants if a < annee_liquidation]
+            ancre = max(anterieures) if anterieures else self._annees_montants[0]
+            valeur, fiabilite = self._montants[ancre]
+            valeur *= self.macro.coefficient_prix(ancre, annee_liquidation)
+        return (valeur * indice / self.INDICE_REFERENCE,
+                min(fiabilite_bareme, fiabilite))
+
+    def bareme(self, annee_liquidation: int):
+        """Paramètres en vigueur l'année de liquidation, ou ``None`` avant 1976."""
+        if not self._bareme or annee_liquidation < self._annees_bareme[0]:
+            return None
+        applicable = self._annees_bareme[0]
+        for candidate in self._annees_bareme:
+            if candidate > annee_liquidation:
+                break
+            applicable = candidate
+        return self._bareme[applicable]
+
+    def montant(self, annee_liquidation: int,
+                trimestres_services: int) -> tuple[float, Fiabilite] | None:
+        """Plancher opposable pour une durée de services donnée."""
+        bareme = self.bareme(annee_liquidation)
+        reference = self.reference(annee_liquidation)
+        if bareme is None or reference is None:
+            return None
+        _, part, points_bas, points_haut, seuil, _ = bareme
+        duree = max(0, min(trimestres_services, self.SEUIL_HAUT))
+        if duree <= 0:
+            return None
+        if duree < self.SEUIL_BAS:
+            taux = part * duree / self.SEUIL_BAS
+        elif duree >= self.SEUIL_HAUT:
+            taux = 1.0
+        elif duree < seuil:
+            taux = part + (duree - self.SEUIL_BAS) * points_bas
+        else:
+            taux = (part + (seuil - self.SEUIL_BAS) * points_bas
+                    + (duree - seuil) * points_haut)
+        return reference[0] * taux, reference[1]
+
+
 class ValeursPoint:
     """Prix d'achat et valeur de service du point, régime par régime et année.
 
@@ -366,7 +704,13 @@ class ScenarioActuel:
         self.ages_annulation_decote = AgesAnnulationDecote(parametres.racine_donnees)
         self.coefficients_minoration = CoefficientsMinoration(parametres.racine_donnees)
         self.annees_salaire_reference = AnneesSalaireReference(parametres.racine_donnees)
+        self.decote_fonction_publique = DecoteFonctionPublique(
+            parametres.racine_donnees
+        )
         self.minimum_contributif = MinimumContributif(parametres.racine_donnees, macro)
+        self.minimum_garanti = MinimumGaranti(parametres.racine_donnees, macro)
+        self.carriere_longue = CarriereLongue(parametres.racine_donnees)
+        self.minimum_vieillesse = MinimumVieillesse(parametres.racine_donnees, macro)
 
     # -- valorisation des points ---------------------------------------------
 
@@ -430,13 +774,26 @@ class ScenarioActuel:
 
     # -- salaire de référence ------------------------------------------------
 
-    def salaire_de_reference(self, carriere: Carriere, periode: PeriodeRegime,
+    def salaire_de_reference(self, code: str, carriere: Carriere,
+                             periode: PeriodeRegime,
                              annee_liquidation: int, plafonner: bool,
-                             generation: int | None = None) -> float:
+                             generation: int | None = None,
+                             avpf: bool = True) -> float:
         """Salaire de référence, exprimé en euros de l'année de liquidation.
 
-        Deux règles de droit commandent ce calcul, et le modèle les applique
-        maintenant l'une et l'autre.
+        **Il porte sur les seules années passées DANS CE régime.** Un régime ne
+        liquide que ce qui lui a été déclaré : la pension civile se calcule sur
+        le traitement des six derniers mois de service, pas sur le dernier
+        salaire d'une carrière poursuivie ailleurs, et le salaire annuel moyen
+        du régime général ne retient que les salaires portés à son compte. Sans
+        cette condition, un polypensionné passé de la fonction publique au privé
+        liquidait sa pension civile sur son salaire privé de fin de carrière —
+        et le prorata de durée, lui, restait celui du régime : le modèle
+        rapportait une part de carrière publique à une assiette qui ne l'était
+        pas.
+
+        Trois autres règles de droit commandent ce calcul, et le modèle les
+        applique toutes.
 
         La première est la **revalorisation des salaires portés au compte** :
         les salaires anciens sont réévalués par les coefficients annuels que
@@ -457,11 +814,27 @@ class ScenarioActuel:
         remplacement d'un fonctionnaire, puisque les primes n'ouvrent de droit
         qu'au RAFP.
         """
+        avpf_ouvert = (
+            avpf and "avpf" in periode.avantages_non_contributifs
+        )
         revenus: list[float] = []
         for ligne in carriere.lignes:
-            if not ligne.cotise or ligne.annee >= annee_liquidation:
+            if ligne.annee >= annee_liquidation:
                 continue
-            revenu = _assiette_de_reference(periode, ligne)
+            if code not in self.affiliations.regimes(ligne.affiliation, ligne.annee):
+                continue
+            if not ligne.cotise:
+                # Assurance vieillesse des parents au foyer : la CNAF cotise
+                # sur une assiette forfaitaire égale au SMIC, et ce salaire est
+                # PORTÉ AU COMPTE. C'est ce qui la distingue d'une période
+                # assimilée, laquelle valide des trimestres sans jamais ajouter
+                # de salaire — et c'est ce que le modèle ne faisait pas, alors
+                # que le cas type « carrière interrompue » l'annonçait.
+                if not (avpf_ouvert and ligne.revenu_avpf > 0):
+                    continue
+                revenu = ligne.revenu_avpf
+            else:
+                revenu = _assiette_de_reference(periode, ligne)
             if plafonner:
                 revenu = min(revenu, self.macro.plafond_securite_sociale(ligne.annee))
             revenus.append(revenu * self.macro.coefficient_revalorisation_salaires(
@@ -512,27 +885,45 @@ class ScenarioActuel:
                 return par_generation[0]
         return periode.age_taux_plein
 
-    def _decote(self, periode: PeriodeRegime,
-                carriere: Carriere) -> tuple[float | None, Fiabilite | None]:
-        """Coefficient de minoration opposable à cet assuré dans ce régime.
+    def _decote(self, periode: PeriodeRegime, carriere: Carriere,
+                annee_liquidation: int
+                ) -> tuple[float | None, float, Fiabilite | None]:
+        """Décote opposable : coefficient, âge d'annulation, fiabilité.
 
-        Un régime sans décote — fonction publique avant 2004, régimes spéciaux
+        Un régime sans décote — fonction publique avant 2006, régimes spéciaux
         avant 2008 — n'en acquiert pas une parce que la table en porte une :
-        ``None`` dans la fiche reste ``None`` ici.
+        ``None`` dans la fiche reste ``None`` ici, et le coefficient renvoyé
+        est ``None``.
+
+        **La fonction publique n'a pas la décote du régime général.** L'article
+        L. 14 du code des pensions lui donne la sienne, montée en charge de
+        2006 à 2020, et surtout un âge d'annulation qui n'est pas un âge en
+        propre : c'est la LIMITE D'ÂGE du grade, diminuée d'un nombre de
+        trimestres décroissant. Un sédentaire liquidant en 2012 voyait sa
+        décote s'annuler à 63 ans, pas à 67 — et chaque trimestre manquant lui
+        coûtait 0,875 %, pas 1,25 %. Lui opposer le barème du privé retirait
+        jusqu'à un sixième de sa pension.
         """
+        age_annulation = self._age_taux_plein(periode, carriere)
+        if periode.bareme_decote == "fonction_publique":
+            parametres = self.decote_fonction_publique.parametres(annee_liquidation)
+            if parametres is None:
+                return None, age_annulation, None
+            trimestres_avant, coefficient, fiabilite = parametres
+            return coefficient, age_annulation - trimestres_avant / 4.0, fiabilite
         if periode.decote_par_trimestre is None:
-            return None, None
+            return None, age_annulation, None
         if periode.decote_par_generation:
             par_generation = self.coefficients_minoration.coefficient(
                 carriere.annee_naissance
             )
             if par_generation is not None:
-                return par_generation
-        return periode.decote_par_trimestre, None
+                return par_generation[0], age_annulation, par_generation[1]
+        return periode.decote_par_trimestre, age_annulation, None
 
-    def _trimestres_de_decote(self, periode: PeriodeRegime, carriere: Carriere,
-                              trimestres: int, requis: int,
-                              age_liquidation: float) -> float:
+    def _trimestres_de_decote(self, periode: PeriodeRegime, trimestres: int,
+                              requis: int, age_liquidation: float,
+                              age_annulation: float) -> float:
         """Trimestres de décote opposables, plafond compris.
 
         Le décompte retient le plus favorable des deux : trimestres manquants
@@ -542,18 +933,29 @@ class ScenarioActuel:
         dix ans avant l'heure retirait la moitié de la pension là où le droit
         n'en retire que le quart.
         """
-        manquants = max(0, requis - trimestres)
-        manquants_age = max(
-            0.0, (self._age_taux_plein(periode, carriere) - age_liquidation) * 4
-        )
-        trimestres_decote = min(manquants, manquants_age)
+        manquants_age = max(0.0, (age_annulation - age_liquidation) * 4)
+        if periode.decote_annulee_par_la_duree:
+            trimestres_decote = min(max(0, requis - trimestres), manquants_age)
+        else:
+            # Avant l'ordonnance du 26 mars 1982, le taux ne dépendait QUE de
+            # l'âge : le régime général servait 20 % à 60 ans, majorés de
+            # 4 points par année différée, puis — loi Boulin — 50 % à 65 ans,
+            # diminués de 5 points par année anticipée. Aucune durée, si longue
+            # fût-elle, n'ouvrait le taux plein avant l'âge. Annuler la décote
+            # par la durée, comme le fait le droit d'après 1982, servait le taux
+            # plein à 60 ans à des générations auxquelles la loi ne l'a jamais
+            # donné.
+            trimestres_decote = manquants_age
+        if trimestres_decote <= 0:
+            return 0.0
         if periode.decote_trimestres_maximum is not None:
             trimestres_decote = min(trimestres_decote, periode.decote_trimestres_maximum)
         return trimestres_decote
 
     def _abattement_points(self, periode: PeriodeRegime, carriere: Carriere,
                            trimestres: int, requis: int,
-                           age_liquidation: float) -> float:
+                           age_liquidation: float,
+                           annee_liquidation: int) -> float:
         """Abattement d'un régime en points liquidé avant le taux plein.
 
         « Avant le taux plein » est une condition de DURÉE autant que d'âge :
@@ -582,13 +984,15 @@ class ScenarioActuel:
             candidats = [c for c in (par_duree, par_age) if c is not None]
             return max(candidats) if candidats else 1.0
 
-        if periode.decote_par_trimestre is None:
-            return 1.0
-        decote, _ = self._decote(periode, carriere)
-        trimestres_decote = self._trimestres_de_decote(
-            periode, carriere, trimestres, requis, age_liquidation
+        decote, age_annulation, _ = self._decote(
+            periode, carriere, annee_liquidation
         )
-        return max(0.0, 1.0 - (decote or 0.0) * trimestres_decote)
+        if decote is None:
+            return 1.0
+        trimestres_decote = self._trimestres_de_decote(
+            periode, trimestres, requis, age_liquidation, age_annulation
+        )
+        return max(0.0, 1.0 - decote * trimestres_decote)
 
     def _plafond_majoration(self, code: str, periode: PeriodeRegime,
                             carriere: Carriere,
@@ -648,7 +1052,8 @@ class ScenarioActuel:
 
     def calculer(self, carriere: Carriere,
                  ignorer_penalite_age: bool = False,
-                 avantages_non_contributifs: bool = True) -> ResultatActuel:
+                 avantages_non_contributifs: bool = True,
+                 avpf: bool = True) -> ResultatActuel:
         """Pension servie par le système en vigueur.
 
         ``ignorer_penalite_age`` neutralise la décote et la surcote liées à
@@ -686,9 +1091,12 @@ class ScenarioActuel:
         trimestres_requis = 0
         taux_retenu = 0.0
 
-        #: Indice dans ``pensions`` et prorata de durée des régimes de base qui
-        #: portent le minimum contributif.
-        eligibles_minimum: list[tuple[int, float]] = []
+        #: Régimes de base qui portent le minimum contributif : indice dans
+        #: ``pensions``, prorata de durée d'assurance, prorata de durée
+        #: COTISÉE, et condition de taux plein remplie ou non.
+        eligibles_minimum: list[_EligibleMinimum] = []
+        #: Régimes de la fonction publique qui portent le minimum garanti.
+        eligibles_garanti: list[_EligibleMinimumGaranti] = []
 
         # Cotisations cumulées par régime, pour les régimes en points dont on
         # n'a pas le prix d'achat du point ; points acquis pour les autres.
@@ -701,6 +1109,10 @@ class ScenarioActuel:
         # année de chômage indemnisé ne verse rien au compte mais compte bien
         # dans le rapport durée acquise / durée requise.
         trimestres_par_regime: dict[str, int] = {}
+        # Durée COTISÉE dans chaque régime : c'est elle, et non la durée
+        # d'assurance, qui proratise la majoration du minimum contributif au
+        # titre des périodes cotisées (D. 351-2-2).
+        trimestres_cotises_par_regime: dict[str, int] = {}
 
         for ligne in carriere.lignes:
             if ligne.annee >= annee_liquidation:
@@ -711,6 +1123,11 @@ class ScenarioActuel:
                 trimestres_par_regime[code] = (
                     trimestres_par_regime.get(code, 0) + ligne.trimestres_valides
                 )
+                if ligne.cotise:
+                    trimestres_cotises_par_regime[code] = (
+                        trimestres_cotises_par_regime.get(code, 0)
+                        + ligne.trimestres_valides
+                    )
 
         # Les trimestres de la majoration de durée d'assurance ne flottent pas
         # au-dessus des régimes : le droit les attribue DANS un régime, et ils
@@ -729,6 +1146,13 @@ class ScenarioActuel:
                 trimestres_par_regime[regime_mda] += trimestres_mda
 
         for ligne in carriere.lignes:
+            if ligne.annee >= annee_liquidation:
+                # Une ligne postérieure à la liquidation décrit une activité
+                # exercée APRÈS le départ : elle n'ouvre pas de droits dans la
+                # pension qu'on liquide. La durée d'assurance et le salaire de
+                # référence l'écartaient déjà ; l'acquisition de points et de
+                # cotisations, elle, l'encaissait encore.
+                continue
             if not ligne.cotise and not ligne.familles_cotisantes:
                 continue
             # Pendant une période indemnisée, seuls les régimes complémentaires
@@ -786,9 +1210,20 @@ class ScenarioActuel:
                              if periode.type_calcul in ("points", "mixte") else None)
                     if achat is not None:
                         reference, taux_appel, fiabilite_achat = achat
-                        points_acquis[code] = points_acquis.get(code, 0.0) + (
-                            cotisation / (taux_appel * reference)
-                        )
+                        points_annee = cotisation / (taux_appel * reference)
+                        if periode.points_minimum_annuels is not None:
+                            # Garantie minimale de points de l'Agirc : tout
+                            # cadre cotisant en acquiert au moins 120 par an de
+                            # 1989 à 2018, même quand sa tranche B est nulle,
+                            # c'est-à-dire même quand son salaire ne dépasse pas
+                            # le plafond de la Sécurité sociale. La fiche la
+                            # déclarait ; le moteur ne la servait pas, et un
+                            # cadre payé sous le plafond n'acquérait rien à
+                            # l'Agirc là où le droit lui donnait ces points.
+                            points_annee = max(
+                                points_annee, periode.points_minimum_annuels
+                            )
+                        points_acquis[code] = points_acquis.get(code, 0.0) + points_annee
                         fiabilite_points[code] = min(
                             fiabilite_points.get(code, Fiabilite.CERTIFIEE),
                             fiabilite_achat,
@@ -804,6 +1239,12 @@ class ScenarioActuel:
         # un assuré au taux plein liquide sa complémentaire sans abattement,
         # quel que soit son âge.
         requis_reference = 0
+        #: Âge d'ouverture des droits le plus précoce parmi les régimes de base
+        #: de la carrière. Un polypensionné liquide en réalité chaque pension à
+        #: l'âge de son régime ; le modèle liquide tout à la fois, et retient
+        #: donc l'âge du régime le plus précoce — celui d'un régime spécial,
+        #: quand il y en a un.
+        age_ouverture_reference: float | None = None
         for code in sorted(set(cumul_cotisations) | set(points_acquis)):
             regime = self.catalogue[code]
             periode = regime.periode(min(annee_liquidation, _derniere_annee(regime)))
@@ -812,7 +1253,37 @@ class ScenarioActuel:
             requis_reference = max(
                 requis_reference, self._duree_requise(periode, carriere)[0]
             )
+            age_regime = self._age_ouverture(periode, carriere)
+            age_ouverture_reference = (
+                age_regime if age_ouverture_reference is None
+                else min(age_ouverture_reference, age_regime)
+            )
         requis_reference = requis_reference or 160
+
+        # Trimestres réellement COTISÉS, tous régimes : ils commandent la
+        # carrière longue et la majoration du minimum contributif.
+        trimestres_cotises = sum(
+            ligne.trimestres_valides for ligne in carriere.lignes
+            if ligne.cotise and ligne.annee < annee_liquidation
+        )
+
+        # Le droit ouvre-t-il cette liquidation à cet âge ? La question n'était
+        # pas posée : le modèle servait une pension décotée à qui ne pouvait
+        # pas encore liquider, ce qui n'est ni le droit ni un contrefactuel
+        # utile. Elle l'est maintenant, et la réponse accompagne le montant.
+        motif_ouverture = "age_legal"
+        liquidation_ouverte = True
+        if age_ouverture_reference is not None and age_liquidation < age_ouverture_reference:
+            anticipe = self.carriere_longue.age_de_depart(
+                carriere, annee_liquidation, trimestres_cotises, requis_reference
+            )
+            if anticipe is not None and age_liquidation >= anticipe[0]:
+                motif_ouverture = "carriere_longue"
+                age_ouverture_reference = anticipe[0]
+                fiabilite_globale = min(fiabilite_globale, anticipe[1])
+            else:
+                motif_ouverture = "non_ouverte"
+                liquidation_ouverte = False
 
         for code in sorted(set(cumul_cotisations) | set(points_acquis)):
             cumul = cumul_cotisations.get(code, 0.0)
@@ -857,7 +1328,7 @@ class ScenarioActuel:
                 if not ignorer_penalite_age:
                     montant *= self._abattement_points(
                         periode, carriere, trimestres, requis_reference,
-                        age_liquidation,
+                        age_liquidation, annee_liquidation,
                     )
                 pensions.append(PensionRegime(
                     regime=code, montant=montant, type_calcul=periode.type_calcul,
@@ -869,8 +1340,8 @@ class ScenarioActuel:
             # Régimes en annuités.
             plafonner = periode.assiette in ("plafonnee", "tranche_1", "tranche_a")
             salaire_reference = self.salaire_de_reference(
-                carriere, periode, annee_liquidation, plafonner,
-                carriere.annee_naissance,
+                code, carriere, periode, annee_liquidation, plafonner,
+                carriere.annee_naissance, avpf,
             )
             requis, fiabilite_duree = self._duree_requise(periode, carriere)
             if fiabilite_duree is not None:
@@ -879,10 +1350,19 @@ class ScenarioActuel:
             trimestres_regime = min(trimestres_par_regime.get(code, 0), requis)
 
             taux = periode.taux_plein or 0.5
+            #: Part du taux qui vient de la surcote. Le minimum contributif se
+            #: compare à la pension AVANT surcote : il faut donc pouvoir la
+            #: retirer, puis la rendre.
+            coefficient_surcote = 1.0
+            #: Trimestres de décote effectivement retenus : la condition
+            #: d'ouverture du minimum garanti en dépend.
+            trimestres_decote = 0.0
             if not ignorer_penalite_age:
-                decote, fiabilite_decote = self._decote(periode, carriere)
+                decote, age_annulation, fiabilite_decote = self._decote(
+                    periode, carriere, annee_liquidation
+                )
                 trimestres_decote = self._trimestres_de_decote(
-                    periode, carriere, trimestres, requis, age_liquidation
+                    periode, trimestres, requis, age_liquidation, age_annulation
                 )
                 if decote and trimestres_decote > 0:
                     # Les régimes sans décote (fonction publique avant 2004,
@@ -906,14 +1386,53 @@ class ScenarioActuel:
                         ),
                     )
                     if supplementaires > 0:
-                        taux *= 1.0 + periode.surcote_par_trimestre * supplementaires
+                        coefficient_surcote = (
+                            1.0 + periode.surcote_par_trimestre * supplementaires
+                        )
+                        taux *= coefficient_surcote
 
             taux_retenu = max(taux_retenu, taux)
             montant = salaire_reference * taux * (trimestres_regime / requis)
             if "minimum_contributif" in periode.avantages_non_contributifs:
                 # Le minimum ne relève que les régimes de base qui le portent,
-                # et au prorata de la durée acquise DANS CE régime.
-                eligibles_minimum.append((len(pensions), trimestres_regime / requis))
+                # et au prorata de la durée acquise DANS CE régime — durée
+                # d'assurance pour le montant de base, durée COTISÉE pour la
+                # majoration au titre des périodes cotisées.
+                #
+                # Et il ne relève que les pensions LIQUIDÉES AU TAUX PLEIN
+                # (L. 351-10) : durée requise atteinte, ou âge d'annulation de
+                # la décote atteint. Le servir à un assuré décoté, comme le
+                # faisait ce module, revenait à faire garantir par le système
+                # actuel un départ que le droit sanctionne — et gonflait
+                # l'étalon de 20 % sur les petites pensions parties tôt.
+                cotises_regime = min(
+                    trimestres_cotises_par_regime.get(code, 0), requis
+                )
+                eligibles_minimum.append(_EligibleMinimum(
+                    indice=len(pensions),
+                    prorata_assurance=trimestres_regime / requis,
+                    prorata_cotise=cotises_regime / requis,
+                    taux_plein=(
+                        trimestres >= requis
+                        or age_liquidation >= self._age_taux_plein(periode, carriere)
+                    ),
+                    surcote=coefficient_surcote,
+                ))
+            if "minimum_garanti" in periode.avantages_non_contributifs:
+                # Depuis la loi du 9 novembre 2010, le minimum garanti n'est dû
+                # qu'au taux plein — décote nulle, ou durée requise atteinte.
+                # Les assurés qui atteignaient l'âge d'ouverture de leurs
+                # droits avant 2011 gardent le droit inconditionnel.
+                age_ouverture = self._age_ouverture(periode, carriere)
+                eligibles_garanti.append(_EligibleMinimumGaranti(
+                    indice=len(pensions),
+                    trimestres_services=trimestres_par_regime.get(code, 0),
+                    ouvert=(
+                        carriere.annee_naissance + age_ouverture < 2011
+                        or trimestres_decote <= 0
+                        or trimestres >= requis
+                    ),
+                ))
             pensions.append(PensionRegime(
                 regime=code, montant=montant, type_calcul="annuites",
                 detail=(
@@ -927,8 +1446,16 @@ class ScenarioActuel:
         total_contributif = total
         avantages: list[AvantageApplique] = []
 
-        # Avantages non contributifs du droit positif, dans l'ordre où le droit
-        # les applique : durée d'assurance, puis majoration, puis minimum.
+        # Avantages non contributifs du droit positif, DANS L'ORDRE OÙ LE DROIT
+        # LES APPLIQUE, et l'ordre commande le résultat : la majoration de durée
+        # d'assurance d'abord, qui change la décote et la proratisation ; puis
+        # le minimum contributif, qui porte la pension de base à son plancher ;
+        # puis seulement la majoration pour enfants, qui se calcule SUR CE
+        # plancher. Ce module prenait les deux derniers dans l'autre sens : les
+        # 10 % portaient sur une pension que le minimum n'avait pas encore
+        # relevée, et l'écrêtement du minimum comparait au plafond un total qui
+        # incluait déjà la majoration, alors que l'article L. 173-2 ne retient
+        # que les pensions personnelles.
         minimum_applique = False
 
         if avantages_non_contributifs and carriere.nombre_enfants > 0:
@@ -936,7 +1463,8 @@ class ScenarioActuel:
             # enfant, tout le reste égal. C'est la seule façon d'isoler un
             # avantage qui agit sur la décote et sur la proratisation.
             sans_mda = self.calculer(
-                carriere, ignorer_penalite_age, avantages_non_contributifs=False
+                carriere, ignorer_penalite_age, avantages_non_contributifs=False,
+                avpf=avpf,
             )
             effet = total - sans_mda.total_contributif
             # La MDA est déjà incorporée aux pensions de régime : la base
@@ -951,6 +1479,136 @@ class ScenarioActuel:
                     detail=f"{8 * carriere.nombre_enfants} trimestres pour "
                            f"{carriere.nombre_enfants} enfant"
                            f"{'s' if carriere.nombre_enfants > 1 else ''}",
+                ))
+
+        if avantages_non_contributifs and eligibles_minimum:
+            # Le minimum contributif ne relève que les pensions liquidées AU
+            # TAUX PLEIN (L. 351-10). Sa majoration au titre des périodes
+            # cotisées demande en outre 120 trimestres cotisés tous régimes ;
+            # elle se proratise sur la durée COTISÉE dans le régime, quand le
+            # montant de base se proratise sur sa durée d'assurance
+            # (D. 351-2-2). Ce n'est pas la même fraction : une carrière
+            # entrecoupée de chômage indemnisé valide sa durée d'assurance
+            # sans cotiser, et n'a donc droit qu'à une part de la majoration.
+            montant_base, montant_majore, plafond, fiabilite_minimum = (
+                self.minimum_contributif.valeurs(annee_liquidation)
+            )
+            majoration_ouverte = (
+                trimestres_cotises >= TRIMESTRES_COTISES_MINIMUM_MAJORE
+            )
+            #: Complément dû à chaque régime, avant écrêtement.
+            complements: dict[int, float] = {}
+            for eligible in eligibles_minimum:
+                if not eligible.taux_plein:
+                    continue
+                pension = pensions[eligible.indice]
+                # Le minimum se compare à la pension AVANT surcote : le droit
+                # porte la pension au plancher, puis applique la surcote au
+                # montant relevé. Comparer une pension déjà surcotée au
+                # plancher refusait le minimum à qui a travaillé plus
+                # longtemps que la durée requise pour un salaire minime.
+                nue = pension.montant / eligible.surcote
+                plancher = montant_base * min(1.0, eligible.prorata_assurance)
+                if majoration_ouverte:
+                    plancher += (montant_majore - montant_base) * min(
+                        1.0, eligible.prorata_cotise
+                    )
+                if 0 < nue < plancher:
+                    complements[eligible.indice] = (
+                        (plancher - nue) * eligible.surcote
+                    )
+            releve = sum(complements.values())
+            if releve > 0:
+                # Écrêtement de l'article L. 173-2 : le complément est rogné de
+                # ce qui dépasse le plafond, tous régimes confondus, et jamais
+                # au-delà. La comparaison porte sur les pensions PERSONNELLES,
+                # majorations pour enfants exclues — raison de plus pour que
+                # celles-ci se calculent après, sur le montant relevé.
+                admissible = max(0.0, min(releve, plafond - total))
+                if admissible < releve:
+                    facteur = admissible / releve
+                    complements = {
+                        indice: complement * facteur
+                        for indice, complement in complements.items()
+                    }
+                releve = admissible
+            if releve > 0:
+                for indice, complement in complements.items():
+                    pensions[indice] = replace(
+                        pensions[indice],
+                        montant=pensions[indice].montant + complement,
+                        detail=(pensions[indice].detail
+                                + ", porté au minimum contributif"),
+                    )
+                total += releve
+                minimum_applique = True
+                fiabilite_globale = min(fiabilite_globale, fiabilite_minimum)
+                avantages.append(AvantageApplique(
+                    code="minimum_contributif",
+                    libelle="Minimum contributif",
+                    montant=releve,
+                    detail=(
+                        "porté au plancher, au prorata de la durée acquise"
+                        + (", majoration des périodes cotisées comprise"
+                           if majoration_ouverte else "")
+                    ),
+                ))
+
+        if (avantages_non_contributifs and avpf
+                and any(ligne.revenu_avpf > 0 for ligne in carriere.lignes)):
+            # Effet de l'AVPF, mesuré comme celui de la MDA : la même carrière
+            # sans le salaire forfaitaire porté au compte. Il joue en amont de
+            # tout le reste, puisqu'il déplace le salaire annuel moyen — et il
+            # peut jouer dans les deux sens : il relève une carrière longue à
+            # bas salaire, il abaisse la moyenne d'une carrière courte et bien
+            # payée, où les années au SMIC viennent s'ajouter aux années
+            # retenues au lieu de les remplacer.
+            sans_avpf = self.calculer(
+                carriere, ignorer_penalite_age,
+                avantages_non_contributifs=False, avpf=False,
+            )
+            effet_avpf = total_contributif - sans_avpf.total_contributif
+            total_contributif = sans_avpf.total_contributif
+            if abs(effet_avpf) > 1e-9:
+                avantages.insert(0, AvantageApplique(
+                    code="avpf",
+                    libelle="Assurance vieillesse des parents au foyer",
+                    montant=effet_avpf,
+                    detail="salaire forfaitaire au SMIC porté au compte",
+                ))
+
+        if avantages_non_contributifs and eligibles_garanti:
+            # Le minimum garanti n'est pas un minimum proratisé mais un BARÈME
+            # sur la durée de services : quinze ans en ouvrent 57,5 % de la
+            # référence, trente ans 95 %, quarante ans la totalité. Il ne
+            # s'ajoute pas à la pension, il s'y substitue quand il lui est
+            # supérieur.
+            releve_garanti = 0.0
+            for eligible in eligibles_garanti:
+                if not eligible.ouvert:
+                    continue
+                plancher = self.minimum_garanti.montant(
+                    annee_liquidation, eligible.trimestres_services
+                )
+                if plancher is None:
+                    continue
+                pension = pensions[eligible.indice]
+                if 0 < pension.montant < plancher[0]:
+                    complement = plancher[0] - pension.montant
+                    releve_garanti += complement
+                    fiabilite_globale = min(fiabilite_globale, plancher[1])
+                    pensions[eligible.indice] = replace(
+                        pension,
+                        montant=plancher[0],
+                        detail=pension.detail + ", porté au minimum garanti",
+                    )
+            if releve_garanti > 0:
+                total += releve_garanti
+                avantages.append(AvantageApplique(
+                    code="minimum_garanti",
+                    libelle="Minimum garanti de la fonction publique",
+                    montant=releve_garanti,
+                    detail="barème de l'article L. 17, sur la durée de services",
                 ))
 
         if avantages_non_contributifs and carriere.nombre_enfants >= 3:
@@ -997,40 +1655,24 @@ class ScenarioActuel:
                     detail=detail,
                 ))
 
-        if avantages_non_contributifs and eligibles_minimum:
-            # Le minimum MAJORÉ ne récompense que les périodes cotisées : les
-            # trimestres assimilés et ceux de la MDA n'y ouvrent pas droit.
-            # C'est près d'un cinquième de plus, et c'est le montant qui vaut
-            # pour une carrière complète — le cas que le minimum est fait pour
-            # protéger.
-            trimestres_cotises = sum(
-                ligne.trimestres_valides for ligne in carriere.lignes
-                if ligne.cotise and ligne.annee < annee_liquidation
-            )
-            montant_minimum, plafond, fiabilite_minimum = (
-                self.minimum_contributif.valeurs(
-                    annee_liquidation, trimestres_cotises >= requis_reference
-                )
-            )
-            releve = 0.0
-            for indice, prorata in eligibles_minimum:
-                pension = pensions[indice]
-                plancher = montant_minimum * min(1.0, prorata)
-                if 0 < pension.montant < plancher:
-                    releve += plancher - pension.montant
-            if releve > 0:
-                # Écrêtement : le complément est rogné de ce qui dépasse le
-                # plafond, tous régimes confondus, et jamais au-delà.
-                releve = max(0.0, min(releve, plafond - total))
-            if releve > 0:
-                total += releve
-                minimum_applique = True
-                fiabilite_globale = min(fiabilite_globale, fiabilite_minimum)
+        if (avantages_non_contributifs
+                and self.parametres.minimum_vieillesse_dans_le_scenario_actuel
+                and age_liquidation >= MinimumVieillesse.AGE_OUVERTURE):
+            # L'ASPA vient en DERNIER, et pour cause : elle est différentielle.
+            # Elle complète tout le reste, majorations comprises, jusqu'au
+            # montant du barème — c'est la seule prestation du système actuel
+            # qui ne suppose aucune cotisation, et donc celle qui creuse le
+            # plus l'écart avec un compte notionnel.
+            barème = self.minimum_vieillesse.plafond(annee_liquidation)
+            if barème is not None and total < barème[0]:
+                complement = barème[0] - total
+                total = barème[0]
+                fiabilite_globale = min(fiabilite_globale, barème[1])
                 avantages.append(AvantageApplique(
-                    code="minimum_contributif",
-                    libelle="Minimum contributif",
-                    montant=releve,
-                    detail="portée au plancher, au prorata de la durée acquise",
+                    code="minimum_vieillesse",
+                    libelle="Minimum vieillesse (ASPA)",
+                    montant=complement,
+                    detail="allocation différentielle, barème d'une personne seule",
                 ))
 
         return ResultatActuel(
@@ -1042,6 +1684,9 @@ class ScenarioActuel:
             trimestres_requis=trimestres_requis,
             taux_liquidation=taux_retenu,
             minimum_applique=minimum_applique,
+            age_ouverture_opposable=age_ouverture_reference,
+            liquidation_ouverte=liquidation_ouverte,
+            motif_ouverture=motif_ouverture,
             fiabilite=fiabilite_globale,
         )
 
@@ -1097,6 +1742,11 @@ def _derniere_annee(regime) -> int:
     annees = [p.fin if p.fin is not None else 9999 for p in regime.periodes]
     return min(max(annees), 2100) if annees else 2100
 
+
+#: Durée cotisée, tous régimes, qui ouvre la majoration du minimum contributif
+#: au titre des périodes cotisées (article L. 351-10 du code de la sécurité
+#: sociale). En deçà, seul le montant de base est dû.
+TRIMESTRES_COTISES_MINIMUM_MAJORE = 120
 
 #: Année à partir de laquelle chaque montant suit le SMIC et non plus les prix.
 #: Le plafond d'écrêtement bascule avec le décret du 14 février 2014, qui le
@@ -1183,20 +1833,22 @@ class MinimumContributif:
                        * self.macro.coefficient_smic(pivot, annee))
         return valeur * coefficient, fiabilite
 
-    def valeurs(self, annee: int,
-                majore: bool = False) -> tuple[float, float, Fiabilite]:
-        """Montant applicable et plafond de l'année.
+    def valeurs(self, annee: int) -> tuple[float, float, float, Fiabilite]:
+        """Montant de base, montant majoré et plafond d'écrêtement de l'année.
 
-        ``majore`` dit si l'assuré remplit la condition de durée COTISÉE qui
-        ouvre le montant majoré. Le distinguer n'est pas un raffinement : entre
-        les deux, il y a près d'un cinquième d'écart, et c'est le majoré qui
-        vaut pour une carrière complète — c'est-à-dire pour le cas que le
-        minimum contributif est fait pour protéger.
+        Les deux montants sont rendus ensemble parce que le droit les additionne
+        plutôt qu'il ne choisit entre eux : la pension est portée au montant de
+        BASE au prorata de la durée d'assurance acquise dans le régime, puis
+        l'écart entre le majoré et le base s'y ajoute au prorata de la seule
+        durée COTISÉE. Servir l'un OU l'autre, comme le faisait ce module,
+        donnait le montant plein de la majoration à qui n'a cotisé qu'une part
+        de sa durée, et rien du tout à qui lui manque un trimestre.
         """
         if not self._table:
-            return 0.0, 0.0, Fiabilite.ESTIMEE
-        montant, fiabilite_montant = self._revalorise(
-            "montant_majore" if majore else "montant_base", annee
-        )
+            return 0.0, 0.0, 0.0, Fiabilite.ESTIMEE
+        base, fiabilite_base = self._revalorise("montant_base", annee)
+        majore, fiabilite_majore = self._revalorise("montant_majore", annee)
         plafond, fiabilite_plafond = self._revalorise("plafond_ecretement", annee)
-        return montant, plafond, min(fiabilite_montant, fiabilite_plafond)
+        return base, majore, plafond, min(
+            fiabilite_base, fiabilite_majore, fiabilite_plafond
+        )

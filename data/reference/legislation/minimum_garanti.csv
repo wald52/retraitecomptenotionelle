@@ -1,0 +1,59 @@
+# Minimum garanti de la fonction publique — article L. 17 du code des pensions
+# -----------------------------------------------------------------------------
+# source_id: legifrance_textes, sre_rapport_annuel, openfisca_france
+#
+# Le pendant, dans la fonction publique, du minimum contributif du privé — et
+# le modèle ne le servait pas. Les fiches de régime le déclaraient pourtant
+# (`minimum_garanti` figure dans leurs avantages non contributifs depuis 2004),
+# et les Neutralisations annonçaient que les scénarios notionnels le
+# retiraient : on ne peut pas retirer ce qui n'a jamais été mis. Un
+# fonctionnaire à carrière courte ou à petit indice était donc servi sans
+# plancher, quand le droit lui en garantit un — et l'étalon sous-estimait le
+# système actuel là même où il protège le plus.
+#
+# LA RÉFÉRENCE EST UN TRAITEMENT GELÉ. L'article fixe le montant plein à « la
+# valeur du traitement brut afférent à l'indice majoré 227 au 1er janvier
+# 2004 », soit 227 × 52,7558 = 11 975,57 € par an, revalorisée ensuite comme
+# les pensions, c'est-à-dire sur les prix. Elle ne suit donc PAS le point
+# d'indice, gelé de 2010 à 2016 puis de 2017 à 2022 : c'est pourquoi le
+# minimum garanti l'a dépassé. Les liquidations antérieures à 2004 prennent le
+# point d'indice de leur année (`point_indice_fonction_publique.csv`).
+#
+# LE BARÈME EST UN ESCALIER À TROIS MARCHES, sur la durée de SERVICES :
+#
+#   moins de 15 ans   part_15_ans, proratisée par durée / 60 trimestres
+#   15 à `trimestres_seuil`   part_15_ans + points_15_30 par trimestre
+#   `trimestres_seuil` à 40 ans   + points_30_40 par trimestre
+#   40 ans et plus    la totalité de la référence
+#
+# À la cible, atteinte en 2013 : 57,5 % à quinze ans, deux points et demi par
+# année jusqu'à trente (95 %), un demi-point par année jusqu'à quarante
+# (100 %). Avant la loi du 21 août 2003, le barème était bien plus généreux —
+# 60 % à quinze ans, quatre points par année, la totalité dès VINGT-CINQ ans de
+# services — et l'indice de référence était 216. La montée en charge court de
+# 2004 à 2013, année par année : c'est elle que porte ce fichier.
+#
+# Les colonnes `points_15_30` et `points_30_40` sont PAR TRIMESTRE, et
+# `trimestres_seuil` est la borne haute de la première marche, en trimestres :
+# 100 (vingt-cinq ans) avant 2004, 120 (trente ans) à partir de 2013.
+#
+# Valeurs reprises d'OpenFisca-France-Pension, le modèle de retraites de
+# l'administration (`secteur_public/pension_civile/minimum_garanti`) :
+# transcription tierce, donc `haute`, jamais `certifiee`.
+#
+# CONDITION D'OUVERTURE. Depuis la loi du 9 novembre 2010, le minimum garanti
+# n'est dû qu'aux pensions liquidées AU TAUX PLEIN — durée requise atteinte,
+# ou décote nulle par l'âge. Les assurés qui atteignaient l'âge d'ouverture de
+# leurs droits avant 2011 y échappent, et le touchent sans condition.
+annee,indice_majore,part_15_ans,points_15_30,points_30_40,trimestres_seuil,fiabilite
+1976,216,0.600,0.010000,0.000000,100,haute
+2004,217,0.597,0.009500,0.000100,102,haute
+2005,218,0.594,0.009000,0.000200,104,haute
+2006,219,0.591,0.008500,0.000325,106,haute
+2007,220,0.588,0.008000,0.000525,108,haute
+2008,221,0.585,0.007750,0.000550,110,haute
+2009,222,0.582,0.007500,0.000575,112,haute
+2010,223,0.579,0.007125,0.000775,114,haute
+2011,224,0.576,0.006875,0.000875,116,haute
+2012,225,0.575,0.006625,0.000950,118,haute
+2013,227,0.575,0.006250,0.001250,120,haute
