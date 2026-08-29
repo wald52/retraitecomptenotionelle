@@ -32,6 +32,7 @@ regimes:
         salaire_reference: derniers_6_mois
         assiette: hors_primes
         taux_cotisation_retraite: 0.079
+        perimetre_taux: agent_seul
         decote_par_trimestre: null
         surcote_par_trimestre: null
         avantages_non_contributifs: [bonifications, categorie_active, majoration_enfants, reversion]
@@ -51,6 +52,7 @@ regimes:
         salaire_reference: derniers_6_mois
         assiette: hors_primes
         taux_cotisation_retraite: 0.0892
+        perimetre_taux: agent_seul
         decote_par_trimestre: 0.0125
         surcote_par_trimestre: 0.0075
         avantages_non_contributifs: [bonifications, categorie_active, majoration_enfants, reversion]
@@ -66,6 +68,7 @@ regimes:
         salaire_reference: derniers_6_mois
         assiette: hors_primes
         taux_cotisation_retraite: 0.1085
+        perimetre_taux: agent_seul
         decote_par_trimestre: 0.0125
         surcote_par_trimestre: 0.0125
         avantages_non_contributifs: [bonifications, categorie_active, majoration_enfants, reversion]
@@ -96,6 +99,7 @@ regimes:
         salaire_reference: derniers_6_mois
         assiette: hors_primes
         taux_cotisation_retraite: 0.0785
+        perimetre_taux: agent_seul
         decote_par_trimestre: null
         surcote_par_trimestre: null
         avantages_non_contributifs: [bonifications, categorie_active, majoration_enfants, reversion]
@@ -111,6 +115,7 @@ regimes:
         salaire_reference: derniers_6_mois
         assiette: hors_primes
         taux_cotisation_retraite: 0.1229
+        perimetre_taux: agent_seul
         decote_par_trimestre: 0.0125
         surcote_par_trimestre: 0.0125
         avantages_non_contributifs: [bonifications, categorie_active, majoration_enfants, reversion]
@@ -141,6 +146,7 @@ regimes:
         salaire_reference: derniers_6_mois
         assiette: hors_primes
         taux_cotisation_retraite: 0.0785
+        perimetre_taux: agent_seul
         decote_par_trimestre: null
         surcote_par_trimestre: null
         avantages_non_contributifs: [bonifications, categorie_active, majoration_enfants, reversion]
@@ -158,6 +164,7 @@ regimes:
         salaire_reference: derniers_6_mois
         assiette: hors_primes
         taux_cotisation_retraite: 0.1229
+        perimetre_taux: agent_seul
         decote_par_trimestre: 0.0125
         surcote_par_trimestre: 0.0125
         avantages_non_contributifs: [bonifications, categorie_active, majoration_enfants, reversion]
@@ -186,6 +193,7 @@ regimes:
         salaire_reference: sans_objet
         assiette: forfaitaire
         taux_cotisation_retraite: 0.1085
+        perimetre_taux: agent_seul
         decote_par_trimestre: null
         surcote_par_trimestre: null
         avantages_non_contributifs: [bonifications, categorie_active, reversion]
@@ -222,6 +230,7 @@ regimes:
         salaire_reference: dernier_salaire
         assiette: plafonnee
         taux_cotisation_retraite: 0.0805
+        perimetre_taux: agent_seul
         decote_par_trimestre: null
         surcote_par_trimestre: null
         avantages_non_contributifs: [bonifications, categorie_active, reversion]
@@ -252,6 +261,7 @@ regimes:
         salaire_reference: derniers_6_mois
         assiette: deplafonnee
         taux_cotisation_retraite: 0.11
+        perimetre_taux: agent_seul
         decote_par_trimestre: null
         surcote_par_trimestre: null
         avantages_non_contributifs: [majoration_enfants, reversion]
@@ -267,6 +277,7 @@ regimes:
         salaire_reference: derniers_6_mois
         assiette: deplafonnee
         taux_cotisation_retraite: 0.1360
+        perimetre_taux: agent_seul
         decote_par_trimestre: 0.0125
         surcote_par_trimestre: 0.0125
         avantages_non_contributifs: [majoration_enfants, reversion]
@@ -295,6 +306,7 @@ regimes:
         salaire_reference: derniers_6_mois
         assiette: hors_primes
         taux_cotisation_retraite: 0.0785
+        perimetre_taux: agent_seul
         decote_par_trimestre: null
         surcote_par_trimestre: null
         avantages_non_contributifs: [bonifications, majoration_enfants, reversion]
@@ -310,6 +322,7 @@ regimes:
         salaire_reference: derniers_6_mois
         assiette: hors_primes
         taux_cotisation_retraite: 0.1110
+        perimetre_taux: agent_seul
         decote_par_trimestre: 0.0125
         surcote_par_trimestre: 0.0125
         avantages_non_contributifs: [majoration_enfants, reversion]
@@ -338,6 +351,7 @@ regimes:
         salaire_reference: derniers_6_mois
         assiette: hors_primes
         taux_cotisation_retraite: 0.1085
+        perimetre_taux: agent_seul
         decote_par_trimestre: null
         surcote_par_trimestre: null
         avantages_non_contributifs: [bonifications, categorie_active, reversion]
@@ -371,6 +385,7 @@ regimes:
         salaire_reference: derniers_6_mois
         assiette: hors_primes
         taux_cotisation_retraite: 0.1085
+        perimetre_taux: agent_seul
         decote_par_trimestre: null
         surcote_par_trimestre: null
         avantages_non_contributifs: [bonifications, reversion]
@@ -399,6 +414,7 @@ regimes:
         salaire_reference: derniers_6_mois
         assiette: hors_primes
         taux_cotisation_retraite: 0.1085
+        perimetre_taux: agent_seul
         decote_par_trimestre: null
         surcote_par_trimestre: null
         avantages_non_contributifs: [bonifications, reversion]
@@ -429,6 +445,7 @@ regimes:
         salaire_reference: derniers_6_mois
         assiette: hors_primes
         taux_cotisation_retraite: 0.07
+        perimetre_taux: agent_seul
         decote_par_trimestre: null
         surcote_par_trimestre: null
         avantages_non_contributifs: [bonifications, reversion]
@@ -460,6 +477,7 @@ regimes:
         salaire_reference: derniers_6_mois
         assiette: hors_primes
         taux_cotisation_retraite: 0.07
+        perimetre_taux: agent_seul
         decote_par_trimestre: null
         surcote_par_trimestre: null
         avantages_non_contributifs: [bonifications, reversion]

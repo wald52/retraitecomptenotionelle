@@ -21,7 +21,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from ..carriere import Affiliations, Carriere
-from ..config import Parametres, SourceCotisations
+from ..config import ContributionEmployeurPublic, Parametres, SourceCotisations
 from ..donnees.chargement import Fiabilite
 from ..donnees.macro import DonneesMacro
 from ..donnees.regimes import CatalogueRegimes
@@ -89,6 +89,54 @@ class ConstructeurCompte:
         self.affiliations = affiliations
         self.indexation = indexation
         self.parametres = parametres
+        self._taux_pivot: dict[int, float] = {}
+
+    # -- taux ----------------------------------------------------------------
+
+    def taux_pivot_prive(self, annee: int) -> float:
+        """Taux total salarié + employeur du statut pivot privé, cette année-là.
+
+        Sert de référence aux régimes dont la fiche ne stocke que la retenue de
+        l'agent. On somme les régimes du statut pivot dont l'assiette commence
+        au premier euro, pour ne pas compter deux fois les tranches hautes.
+        """
+        if annee in self._taux_pivot:
+            return self._taux_pivot[annee]
+        total = 0.0
+        codes = self.affiliations.regimes(
+            self.parametres.statut_pivot_cotisations, annee
+        )
+        for code in codes:
+            if code not in self.catalogue:
+                continue
+            regime = self.catalogue[code]
+            if regime.hors_repartition:
+                continue
+            for periode in regime.periodes_actives(annee):
+                borne_basse, _ = periode.bornes_assiette_en_pass()
+                if borne_basse > 0:
+                    continue
+                total += periode.taux_cotisation_retraite
+        self._taux_pivot[annee] = total
+        return total
+
+    def taux_effectif(self, periode, annee: int) -> float:
+        """Taux à porter au compte notionnel pour cette période et cette année."""
+        if self.parametres.source_cotisations is not SourceCotisations.TAUX_HISTORIQUES:
+            return self.parametres.taux_cotisation_uniforme
+        taux = periode.taux_cotisation_retraite
+        aligne = (
+            self.parametres.traitement_contribution_employeur_etat
+            is ContributionEmployeurPublic.ALIGNEE_SUR_LE_PRIVE
+        )
+        if aligne and periode.perimetre_taux == "agent_seul":
+            # La fiche ne porte que la retenue de l'agent : on lui substitue
+            # l'effort contributif complet d'un salarié de la même année, faute
+            # de quoi on comparerait un demi-effort à un effort entier.
+            pivot = self.taux_pivot_prive(annee)
+            if pivot > 0:
+                return pivot
+        return taux
 
     # -- assiette ------------------------------------------------------------
 
@@ -159,11 +207,7 @@ class ConstructeurCompte:
                 if assiette <= 0:
                     continue
 
-                taux = (
-                    periode.taux_cotisation_retraite
-                    if self.parametres.source_cotisations is SourceCotisations.TAUX_HISTORIQUES
-                    else self.parametres.taux_cotisation_uniforme
-                )
+                taux = self.taux_effectif(periode, annee)
                 montant = assiette * taux
 
                 if regime.hors_repartition and self.parametres.isoler_capitalisation:

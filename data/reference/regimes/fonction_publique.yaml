@@ -24,6 +24,7 @@ regimes:
         salaire_reference: derniers_6_mois
         assiette: hors_primes
         taux_cotisation_retraite: 0.06
+        perimetre_taux: agent_seul
         decote_par_trimestre: null
         surcote_par_trimestre: null
         avantages_non_contributifs: [bonifications, categorie_active, reversion]
@@ -56,6 +57,7 @@ regimes:
         salaire_reference: derniers_6_mois
         assiette: hors_primes
         taux_cotisation_retraite: 0.06
+        perimetre_taux: agent_seul
         decote_par_trimestre: null
         surcote_par_trimestre: null
         avantages_non_contributifs: [bonifications, categorie_active, majoration_enfants, reversion]
@@ -73,6 +75,7 @@ regimes:
         salaire_reference: derniers_6_mois
         assiette: hors_primes
         taux_cotisation_retraite: 0.07
+        perimetre_taux: agent_seul
         decote_par_trimestre: null
         surcote_par_trimestre: null
         avantages_non_contributifs: [bonifications, categorie_active, majoration_enfants, reversion]
@@ -92,6 +95,7 @@ regimes:
         salaire_reference: derniers_6_mois
         assiette: hors_primes
         taux_cotisation_retraite: 0.0785
+        perimetre_taux: agent_seul
         decote_par_trimestre: 0.0125
         surcote_par_trimestre: 0.0075
         avantages_non_contributifs:
@@ -112,6 +116,7 @@ regimes:
         salaire_reference: derniers_6_mois
         assiette: hors_primes
         taux_cotisation_retraite: 0.1029
+        perimetre_taux: agent_seul
         decote_par_trimestre: 0.0125
         surcote_par_trimestre: 0.0125
         avantages_non_contributifs:
@@ -132,6 +137,7 @@ regimes:
         salaire_reference: derniers_6_mois
         assiette: hors_primes
         taux_cotisation_retraite: 0.1110
+        perimetre_taux: agent_seul
         decote_par_trimestre: 0.0125
         surcote_par_trimestre: 0.0125
         avantages_non_contributifs:
@@ -140,8 +146,10 @@ regimes:
           Loi du 14 avril 2023 : catégories actives portées de 57 à 59 ans et de
           52 à 54 ans. Retenue salariale 11,10 % ; contribution employeur de
           l'État 74,28 % (civils) — cette contribution est un taux d'équilibre
-          budgétaire et non un taux de droits : voir
-          `traitement_contribution_employeur_etat` dans la configuration.
+          budgétaire et non un taux de droits, et elle n'existe pas avant la
+          création du compte d'affectation spéciale Pensions en 2006. Elle
+          n'est donc jamais portée au compte notionnel ; le paramètre
+          `traitement_contribution_employeur_etat` dit ce qui l'est à sa place.
 
   - code: cnracl
     nom: Caisse nationale de retraites des agents des collectivités locales
@@ -166,6 +174,7 @@ regimes:
         salaire_reference: derniers_6_mois
         assiette: hors_primes
         taux_cotisation_retraite: 0.07
+        perimetre_taux: agent_seul
         decote_par_trimestre: null
         surcote_par_trimestre: null
         avantages_non_contributifs: [bonifications, categorie_active, majoration_enfants, reversion]
@@ -185,6 +194,7 @@ regimes:
         salaire_reference: derniers_6_mois
         assiette: hors_primes
         taux_cotisation_retraite: 0.0785
+        perimetre_taux: agent_seul
         decote_par_trimestre: 0.0125
         surcote_par_trimestre: 0.0075
         avantages_non_contributifs:
@@ -202,6 +212,7 @@ regimes:
         salaire_reference: derniers_6_mois
         assiette: hors_primes
         taux_cotisation_retraite: 0.1029
+        perimetre_taux: agent_seul
         decote_par_trimestre: 0.0125
         surcote_par_trimestre: 0.0125
         avantages_non_contributifs:
@@ -224,6 +235,7 @@ regimes:
         salaire_reference: derniers_6_mois
         assiette: hors_primes
         taux_cotisation_retraite: 0.1110
+        perimetre_taux: agent_seul
         decote_par_trimestre: 0.0125
         surcote_par_trimestre: 0.0125
         avantages_non_contributifs:
@@ -255,6 +267,7 @@ regimes:
         salaire_reference: derniers_6_mois
         assiette: hors_primes
         taux_cotisation_retraite: 0.06
+        perimetre_taux: agent_seul
         decote_par_trimestre: null
         surcote_par_trimestre: null
         avantages_non_contributifs: [bonifications, categorie_active, reversion]
@@ -273,6 +286,7 @@ regimes:
         salaire_reference: derniers_6_mois
         assiette: hors_primes
         taux_cotisation_retraite: 0.1110
+        perimetre_taux: agent_seul
         decote_par_trimestre: 0.0125
         surcote_par_trimestre: 0.0125
         avantages_non_contributifs: [bonifications, categorie_active, reversion, minimum_garanti]

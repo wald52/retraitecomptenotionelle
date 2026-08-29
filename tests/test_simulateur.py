@@ -7,6 +7,7 @@ import pytest
 from retraite_notionnelle.carriere import AnneeCarriere, Carriere
 from retraite_notionnelle.config import (
     AgeConversionDroitsAcquis,
+    ContributionEmployeurPublic,
     ModeIndexation,
     Neutralisations,
     Parametres,
@@ -285,6 +286,47 @@ def test_le_systeme_actuel_applique_ses_avantages_sans_condition(simulateur):
         neutralise.carriere_simple(**commun, nombre_enfants=3)
     ).actuel
     assert autre.pension_annuelle == pytest.approx(avec.pension_annuelle)
+
+
+def test_a_salaire_egal_le_statut_ne_change_pas_le_compte_notionnel(simulateur):
+    """Un compte notionnel ne connaît que des euros cotisés.
+
+    Les fiches publiques ne portent que la retenue de l'agent, les fiches
+    privées le total salarié + employeur. Comparer les deux faisait apparaître
+    un écart de 37 % entre un fonctionnaire et un salarié de même rémunération,
+    qui ne traduisait aucune règle de retraite mais un périmètre comptable.
+    """
+    commun = dict(annee_naissance=1975, sexe="H", age_debut=22, age_liquidation=64)
+    pensions = {}
+    for affiliation in ("salarie_prive_non_cadre", "fonctionnaire_etat"):
+        carriere = simulateur.carriere_simple(affiliation=affiliation, **commun)
+        pensions[affiliation] = (
+            simulateur.simuler(carriere).notionnel_retroactif.pension_annuelle
+        )
+    assert pensions["fonctionnaire_etat"] == pytest.approx(
+        pensions["salarie_prive_non_cadre"], rel=1e-9
+    )
+
+
+def test_le_perimetre_de_cotisation_publique_est_pilotable():
+    """L'ancienne convention reste accessible, et elle sous-estime bien."""
+    ancienne = Simulateur(Parametres().avec(
+        traitement_contribution_employeur_etat=ContributionEmployeurPublic.EXCLUE
+    ))
+    carriere = ancienne.carriere_simple(
+        annee_naissance=1975, sexe="H", affiliation="fonctionnaire_etat",
+        age_debut=22, age_liquidation=64,
+    )
+    avec_exclusion = ancienne.simuler(carriere).notionnel_retroactif.pension_annuelle
+
+    alignee = Simulateur(Parametres())
+    avec_alignement = alignee.simuler(
+        alignee.carriere_simple(
+            annee_naissance=1975, sexe="H", affiliation="fonctionnaire_etat",
+            age_debut=22, age_liquidation=64,
+        )
+    ).notionnel_retroactif.pension_annuelle
+    assert avec_alignement > avec_exclusion * 1.5
 
 
 def test_la_cascade_des_avantages_est_exactement_additive(simulateur):

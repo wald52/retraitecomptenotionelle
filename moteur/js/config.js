@@ -24,6 +24,20 @@ export const ModeIndexation = Object.freeze({
   SALAIRES: "salaires",
 });
 
+/**
+ * Que faire de la contribution employeur des régimes publics et spéciaux.
+ *
+ * Les fiches ne stockent pas la même chose selon le secteur : total salarié +
+ * employeur pour le privé (25,7 %), retenue de l'agent seule pour la fonction
+ * publique et les régimes spéciaux (11,10 %). `alignee_sur_le_prive` substitue
+ * aux seconds le taux total du statut pivot privé, seul traitement qui rende
+ * les statuts comparables. `exclue` conserve le taux stocké tel quel.
+ */
+export const ContributionEmployeurPublic = Object.freeze({
+  EXCLUE: "exclue",
+  ALIGNEE_SUR_LE_PRIVE: "alignee_sur_le_prive",
+});
+
 /** Origine du flux qui alimente le compte notionnel. */
 export const SourceCotisations = Object.freeze({
   TAUX_HISTORIQUES: "taux_historiques",
@@ -111,6 +125,10 @@ export const PARAMETRES_DEFAUT = Object.freeze({
   //: Ce qui a été prélevé pour la retraite ouvre des droits, taux d'appel
   //: compris.
   taux_appel_ouvre_droits: true,
+  //: Traitement de la contribution employeur des régimes publics et spéciaux.
+  traitement_contribution_employeur_etat:
+    ContributionEmployeurPublic.ALIGNEE_SUR_LE_PRIVE,
+  statut_pivot_cotisations: "salarie_prive_non_cadre",
   //: Plafonnement de l'assiette notionnelle, en multiples du plafond annuel de
   //: la Sécurité sociale. ``null`` = assiette déplafonnée.
   plafond_assiette_en_pass: 8.0,

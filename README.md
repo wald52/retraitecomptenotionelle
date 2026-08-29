@@ -33,7 +33,7 @@ Agent de conduite SNCF né en 1955, parti à 50 ans (quinze ans avant l'âge de 
 Scénario                                      Courants   Constants   Mensuel    Écart
 ------------------------------------------------------------------------------------
 1. Système actuel                              20,435€     28,611€    2,384€     réf.
-2. Notionnel rétroactif (depuis l'origine)      1,284€      1,798€      150€   -93.7%
+2. Notionnel rétroactif (depuis l'origine)      3,399€      4,759€      397€   -83.4%
 3. Notionnel à compter de 2026                 20,435€     28,611€    2,384€    +0.0%
 ```
 
@@ -171,6 +171,7 @@ print(simulateur.simuler(carriere).tableau())
 | Cas particulier **et** cas général | Simulation individuelle + grille 12 cas types × 7 générations |
 | Fusion des régimes au cas le plus défavorable | Âge 64/67, 172 trimestres, carrière entière, assiette déplafonnée, zéro avantage |
 | Droits acquis respectés à la bascule | Conversion à l'âge de référence ou à l'âge de départ effectif, au choix ; la cascade de calcul est affichée |
+| Statuts comparables au même étalon | Les fiches publiques ne portent que la retenue de l'agent ; elle est alignée sur l'effort contributif total du privé, sans quoi on compare un demi-effort à un effort entier |
 | Capitalisation isolée | RAFP et assurances sociales de 1930 dans un compartiment séparé, jamais convertis |
 | Suppression des minima | Ni minimum contributif, ni minimum garanti, ni ASPA : peu cotisé, peu de retraite |
 | Suppression des avantages | Ni majorations enfants, ni MDA, ni AVPF, ni bonifications, ni réversion, ni trimestres gratuits |
@@ -334,6 +335,7 @@ sous « Options de modélisation ».
 --indexation      triple_lock_inverse | triple_lock_inverse_nominal | prix | salaires
 --age-reference   cliquet_legal | cliquet_puis_esperance_vie | legal_sans_cliquet
 --conversion-acquis  reference | liquidation
+--cotisation-publique  alignee_sur_le_prive | exclue
 --table           unisexe | par_sexe
 --projection      cor_central | cor_favorable | cor_defavorable | stagnation
 --bascule ANNÉE   année de passage au régime unique (défaut 2026)

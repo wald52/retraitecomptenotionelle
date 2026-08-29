@@ -344,6 +344,48 @@ liquidation subsiste : `G(64, 2039)` dépasse `G(64, 2026)` parce que l'espéran
 de vie progresse. C'est un effet de table, pas une pénalité d'âge, et il est
 inhérent au principe même des comptes notionnels.
 
+### Le périmètre du taux de cotisation
+
+Les fiches de régime ne stockaient pas la même grandeur selon le secteur, et
+rien ne le disait :
+
+| Secteur | Ce que porte `taux_cotisation_retraite` | Valeur 2023 |
+|---|---|---|
+| Privé (régime général + Agirc-Arrco) | total salarié **+ employeur** | 25,7 % |
+| Fonction publique, régimes spéciaux | retenue de l'agent **seule** | 11,10 %, parfois 7 % |
+
+Alimenter un compte notionnel avec ces deux grandeurs revient à comparer un
+effort contributif complet à un demi-effort. À rémunération et carrière
+identiques, un fonctionnaire affichait une pension notionnelle inférieure de
+37 % à celle d'un salarié — écart qui ne traduisait aucune règle de retraite.
+
+Les périodes concernées portent désormais `perimetre_taux: agent_seul`, et le
+paramètre `traitement_contribution_employeur_etat` dit quoi en faire :
+
+- `alignee_sur_le_prive` (défaut) leur substitue le taux total du statut pivot
+  privé de l'année. C'est déjà ce que fait la fusion des régimes après la
+  bascule, et c'est le seul traitement qui rende les 22 statuts comparables ;
+- `exclue` conserve le taux stocké, et reproduit les chiffres antérieurs.
+
+**Pourquoi il n'existe pas de troisième option.** On aimerait utiliser la
+contribution employeur réelle de l'État — 74,28 % du traitement pour les
+civils. Elle n'est pas utilisable, pour deux raisons distinctes :
+
+1. **Elle n'existe pas avant 2006.** Le compte d'affectation spéciale Pensions
+   a été créé par la LOLF ; auparavant les pensions étaient payées sur crédits
+   budgétaires, sans aucun taux. Il n'y a donc pas de série historique à
+   retrouver — elle n'a jamais été produite.
+2. **Depuis 2006, c'est un taux d'équilibre.** Il est recalculé chaque année
+   pour que le compte tombe juste. L'injecter dans un compte notionnel rendrait
+   le calcul circulaire : les cotisations y seraient égales aux pensions par
+   construction, et le scénario 2 afficherait mécaniquement un écart nul pour
+   les fonctionnaires. Ce ne serait pas un résultat, ce serait une tautologie.
+
+L'alignement sur le privé est donc une convention, et elle est affichée comme
+telle. Elle répond à la question « à effort contributif égal, que donnerait la
+règle notionnelle ? », qui est la seule que ce modèle puisse honnêtement poser
+sur le secteur public.
+
 ---
 
 ## 9. Les données

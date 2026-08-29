@@ -161,6 +161,7 @@ def _regimes() -> list[dict]:
                     "salaire_reference": p.salaire_reference,
                     "assiette": p.assiette,
                     "taux_cotisation_retraite": p.taux_cotisation_retraite,
+                    "perimetre_taux": p.perimetre_taux,
                     "decote_par_trimestre": p.decote_par_trimestre,
                     "surcote_par_trimestre": p.surcote_par_trimestre,
                     "avantages_non_contributifs": list(p.avantages_non_contributifs),

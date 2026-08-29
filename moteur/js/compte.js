@@ -12,7 +12,8 @@
  * partage.
  */
 
-import { SourceCotisations } from "./config.js";
+import { SourceCotisations, ContributionEmployeurPublic,
+} from "./config.js";
 import { Fiabilite } from "./serie.js";
 
 /** Construit un compte notionnel à partir d'une carrière. */
@@ -23,6 +24,60 @@ export class ConstructeurCompte {
     this.affiliations = affiliations;
     this.indexation = indexation;
     this.parametres = parametres;
+    this._tauxPivot = new Map();
+  }
+
+  // -- taux ------------------------------------------------------------------
+
+  /**
+   * Taux total salarié + employeur du statut pivot privé, cette année-là.
+   * Sert de référence aux régimes dont la fiche ne stocke que la retenue de
+   * l'agent. On somme les régimes dont l'assiette commence au premier euro,
+   * pour ne pas compter deux fois les tranches hautes.
+   */
+  tauxPivotPrive(annee) {
+    if (this._tauxPivot.has(annee)) {
+      return this._tauxPivot.get(annee);
+    }
+    let total = 0.0;
+    for (const code of this.affiliations.regimes(
+      this.parametres.statut_pivot_cotisations, annee,
+    )) {
+      if (!this.catalogue.contient(code)) {
+        continue;
+      }
+      const regime = this.catalogue.obtenir(code);
+      if (regime.hors_repartition) {
+        continue;
+      }
+      for (const periode of regime.periodesActives(annee)) {
+        const [borneBasse] = periode.bornesAssietteEnPass();
+        if (borneBasse > 0) {
+          continue;
+        }
+        total += periode.taux_cotisation_retraite;
+      }
+    }
+    this._tauxPivot.set(annee, total);
+    return total;
+  }
+
+  /** Taux à porter au compte notionnel pour cette période et cette année. */
+  tauxEffectif(periode, annee) {
+    if (this.parametres.source_cotisations !== SourceCotisations.TAUX_HISTORIQUES) {
+      return this.parametres.taux_cotisation_uniforme;
+    }
+    const aligne = this.parametres.traitement_contribution_employeur_etat
+      === ContributionEmployeurPublic.ALIGNEE_SUR_LE_PRIVE;
+    if (aligne && periode.perimetre_taux === "agent_seul") {
+      // La fiche ne porte que la retenue de l'agent : on lui substitue l'effort
+      // contributif complet d'un salarié de la même année.
+      const pivot = this.tauxPivotPrive(annee);
+      if (pivot > 0) {
+        return pivot;
+      }
+    }
+    return periode.taux_cotisation_retraite;
   }
 
   // -- assiette --------------------------------------------------------------
@@ -100,9 +155,7 @@ export class ConstructeurCompte {
           continue;
         }
 
-        const taux = this.parametres.source_cotisations === SourceCotisations.TAUX_HISTORIQUES
-          ? periode.taux_cotisation_retraite
-          : this.parametres.taux_cotisation_uniforme;
+        const taux = this.tauxEffectif(periode, annee);
         const montant = assiette * taux;
 
         if (regime.hors_repartition && this.parametres.isoler_capitalisation) {

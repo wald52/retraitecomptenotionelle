@@ -59,6 +59,10 @@ class PeriodeRegime:
     salaire_reference: str
     assiette: str
     taux_cotisation_retraite: float
+    #: Périmètre du taux ci-dessus : ``total`` (salarié + employeur, cas du
+    #: privé) ou ``agent_seul`` (retenue de l'agent seule, cas de la fonction
+    #: publique et des régimes spéciaux).
+    perimetre_taux: str
     decote_par_trimestre: float | None
     surcote_par_trimestre: float | None
     avantages_non_contributifs: tuple[str, ...]
@@ -167,6 +171,7 @@ class CatalogueRegimes:
                 salaire_reference=p.get("salaire_reference", "sans_objet"),
                 assiette=p.get("assiette", "deplafonnee"),
                 taux_cotisation_retraite=float(p["taux_cotisation_retraite"]),
+                perimetre_taux=p.get("perimetre_taux", "total"),
                 decote_par_trimestre=(
                     None if p.get("decote_par_trimestre") is None
                     else float(p["decote_par_trimestre"])

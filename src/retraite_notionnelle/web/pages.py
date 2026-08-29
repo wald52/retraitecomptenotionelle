@@ -16,6 +16,7 @@ from urllib.parse import urlencode
 from ..castypes import CAS_TYPES, GENERATIONS, calculer_cas_types
 from ..config import (
     AgeConversionDroitsAcquis,
+    ContributionEmployeurPublic,
     ModeAgeReference,
     ModeIndexation,
     Parametres,
@@ -45,6 +46,11 @@ AGES_REFERENCE = [
 ]
 
 TABLES = [("unisexe", "Unisexe (défaut)"), ("par_sexe", "Par sexe")]
+
+COTISATIONS_PUBLIQUES = [
+    ("alignee_sur_le_prive", "Alignée sur le privé (défaut)"),
+    ("exclue", "Retenue de l'agent seule"),
+]
 
 CONVERSIONS_ACQUIS = [
     ("reference", "À l'âge de référence (défaut)"),
@@ -81,6 +87,7 @@ class Saisie:
     age_reference: str = "cliquet_legal"
     table: str = "unisexe"
     conversion_acquis: str = "reference"
+    cotisation_publique: str = "alignee_sur_le_prive"
     projection: str = "cor_central"
     bascule: int = 2026
     euros: int = 2026
@@ -109,6 +116,10 @@ class Saisie:
             conversion_acquis=_parmi(
                 parametres, "conversion_acquis", CONVERSIONS_ACQUIS,
                 defauts.conversion_acquis,
+            ),
+            cotisation_publique=_parmi(
+                parametres, "cotisation_publique", COTISATIONS_PUBLIQUES,
+                defauts.cotisation_publique,
             ),
             projection=_parmi(parametres, "projection", PROJECTIONS, defauts.projection),
             bascule=_entier(parametres, "bascule", defauts.bascule),
@@ -147,6 +158,9 @@ class Saisie:
             age_conversion_droits_acquis=AgeConversionDroitsAcquis(
                 self.conversion_acquis
             ),
+            traitement_contribution_employeur_etat=ContributionEmployeurPublic(
+                self.cotisation_publique
+            ),
             scenario_projection=self.projection,
             annee_bascule=self.bascule,
             annee_euros_constants=self.euros,
@@ -180,6 +194,7 @@ class Saisie:
             "interruptions": self.interruptions, "indexation": self.indexation,
             "age_reference": self.age_reference, "table": self.table,
             "conversion_acquis": self.conversion_acquis,
+            "cotisation_publique": self.cotisation_publique,
             "projection": self.projection, "bascule": self.bascule, "euros": self.euros,
         }
         champs.update(remplacements)
@@ -372,6 +387,9 @@ def _formulaire(saisie: Saisie, contexte: Contexte) -> str:
                 "revalorisation des comptes et des pensions"),
         g.liste("age_reference", "Âge de référence", AGES_REFERENCE, saisie.age_reference),
         g.liste("table", "Table de conversion", TABLES, saisie.table),
+        g.liste("cotisation_publique", "Cotisation des régimes publics",
+                COTISATIONS_PUBLIQUES, saisie.cotisation_publique,
+                "les fiches publiques ne portent que la retenue de l'agent"),
         g.liste("conversion_acquis", "Conversion des droits acquis",
                 CONVERSIONS_ACQUIS, saisie.conversion_acquis,
                 "âge auquel les droits figés à la bascule sont convertis"),

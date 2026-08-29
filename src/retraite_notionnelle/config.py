@@ -76,6 +76,42 @@ class ModeAgeReference(str, Enum):
     LEGAL_SANS_CLIQUET = "legal_sans_cliquet"
 
 
+class ContributionEmployeurPublic(str, Enum):
+    """Que faire de la contribution employeur des régimes publics et spéciaux.
+
+    Les fiches de régime ne stockent pas la même chose selon le secteur. Pour
+    le privé, ``taux_cotisation_retraite`` est le total salarié + employeur —
+    25,7 % pour un salarié en 2023. Pour la fonction publique et les régimes
+    spéciaux, c'est la seule retenue de l'agent : 11,10 %, parfois 7 %.
+    Alimenter un compte notionnel avec ces deux grandeurs revient à comparer un
+    effort contributif complet à un demi-effort, et fait apparaître un écart de
+    37 % entre un fonctionnaire et un salarié de même rémunération qui ne
+    traduit rien de réel.
+
+    Trois traitements sont concevables, deux sont disponibles :
+
+    * ``EXCLUE`` — le taux stocké est utilisé tel quel. C'est ce que le modèle
+      faisait sans le dire. Sous-estime massivement les carrières publiques.
+    * ``ALIGNEE_SUR_LE_PRIVE`` (défaut) — les périodes marquées ``agent_seul``
+      reçoivent le taux total du statut pivot privé de l'année. Seul traitement
+      qui rende les 22 statuts comparables, et c'est déjà ce que fait la fusion
+      des régimes après la bascule.
+
+    Un troisième traitement, « contribution réelle de l'État », **n'est pas
+    disponible, et ne peut pas l'être** : avant la création du compte
+    d'affectation spéciale Pensions par la LOLF, en 2006, il n'existait aucun
+    taux de contribution employeur de l'État. Les pensions étaient payées sur
+    crédits budgétaires, sans taux. Le taux de 74,28 % qui existe depuis est un
+    taux d'ÉQUILIBRE, recalculé pour que le compte tombe juste : l'injecter
+    dans un compte notionnel rendrait le calcul circulaire, puisque les
+    cotisations y seraient égales aux pensions par construction. Il n'y a donc
+    pas de série historique de cotisations employeur publiques à retrouver.
+    """
+
+    EXCLUE = "exclue"
+    ALIGNEE_SUR_LE_PRIVE = "alignee_sur_le_prive"
+
+
 class AgeConversionDroitsAcquis(str, Enum):
     """Âge auquel les droits figés à la bascule sont convertis en capital.
 
@@ -198,6 +234,18 @@ class Parametres:
     #: ``True`` est cohérent avec « seules les cotisations comptent » : ce qui a
     #: été prélevé pour la retraite ouvre des droits.
     taux_appel_ouvre_droits: bool = True
+
+    #: Traitement de la contribution employeur des régimes publics et spéciaux,
+    #: dont les fiches ne stockent que la retenue de l'agent. Voir
+    #: :class:`ContributionEmployeurPublic` — c'est le paramètre auquel
+    #: renvoient les notes de `data/reference/regimes/fonction_publique.yaml`.
+    traitement_contribution_employeur_etat: ContributionEmployeurPublic = (
+        ContributionEmployeurPublic.ALIGNEE_SUR_LE_PRIVE
+    )
+
+    #: Statut dont les taux servent de référence quand la contribution
+    #: employeur publique est alignée sur le privé.
+    statut_pivot_cotisations: str = "salarie_prive_non_cadre"
 
     #: Plafonnement de l'assiette notionnelle, en multiples du plafond annuel de
     #: la Sécurité sociale. ``None`` = assiette déplafonnée.
