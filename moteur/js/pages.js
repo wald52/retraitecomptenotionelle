@@ -887,6 +887,48 @@ l'essentiel de la baisse affichée par le scénario rétroactif, non du passage 
 comptes notionnels. Le tableau « D'où vient l'écart » de chaque simulation
 sépare les deux effets.</p>
 
+<h3>Ce que le scénario 1 applique du droit positif</h3>
+<p>L'étalon ne vaut que par ce qu'il reproduit. Il applique la décote et la
+surcote, la proratisation par la durée, le salaire de référence de chaque
+régime — sur ses seules années, jamais sur toute la carrière —, et cinq
+paramètres lus à la GÉNÉRATION et non à l'année de liquidation : durée requise,
+âge légal, âge d'annulation de la décote, coefficient de minoration, nombre
+d'années retenues au salaire de référence.</p>
+<p>Il applique aussi, dans l'ordre où le droit les applique, les avantages non
+contributifs que la carrière suffit à déterminer :</p>
+<ul>
+  <li><strong>l'assurance vieillesse des parents au foyer</strong>, qui porte au
+  compte un salaire forfaitaire égal au SMIC — c'est ce qui la distingue d'une
+  période assimilée, laquelle valide des trimestres sans jamais ajouter de
+  salaire ;</li>
+  <li><strong>la majoration de durée d'assurance</strong>, huit trimestres par
+  enfant, attribués DANS un régime et non au-dessus d'eux : ils comptent donc
+  aussi dans sa proratisation ;</li>
+  <li><strong>le minimum contributif</strong>, réservé aux pensions liquidées au
+  taux plein, proratisé par la durée d'assurance acquise dans le régime, et sa
+  majoration au titre des périodes cotisées proratisée par la seule durée
+  cotisée, puis écrêté quand le total des pensions personnelles dépasse le
+  plafond de l'article L. 173-2 ;</li>
+  <li><strong>le minimum garanti</strong> de la fonction publique, barème en
+  escalier sur la durée de services — 57,5 % de la référence à quinze ans, 95 %
+  à trente, la totalité à quarante ;</li>
+  <li><strong>la majoration pour trois enfants</strong>, calculée sur le montant
+  déjà relevé par les minima, et plafonnée en euros à la complémentaire ;</li>
+  <li><strong>le minimum vieillesse</strong>, allocation différentielle servie à
+  partir de 65 ans sous le barème d'une personne seule. Ce n'est pas une
+  pension : elle apparaît toujours comme une ligne séparée de la cascade.</li>
+</ul>
+<p>Deux barèmes propres complètent l'ensemble : la décote de la fonction
+publique, dont le coefficient et l'âge d'annulation montent en charge de 2006 à
+2020 et dont l'âge d'annulation est la limite d'âge du grade et non 67 ans ; et
+la garantie minimale de points de l'Agirc, 120 points par an de 1989 à 2018
+même quand la tranche B est nulle.</p>
+<p>Enfin, le scénario dit si le droit <strong>ouvre</strong> la liquidation
+demandée — âge légal du régime, ou départ anticipé pour carrière longue. Quand
+il ne l'ouvre pas, le montant reste calculé, parce qu'il faut comparer les trois
+scénarios sur la même carrière, mais la page le signale : il ne décrit alors
+aucune pension que le système actuel servirait.</p>
+
 <h3>Ce qui est supprimé dans les scénarios notionnels</h3>
 <p>Le principe « seules les cotisations comptent » est appliqué sans exception :
 ni minimum contributif, ni minimum garanti, ni ASPA, ni majoration pour enfants,
@@ -978,9 +1020,11 @@ ${g.tableau(["Série", "Valeurs", "Niveau", "Source"], certifications,
 fichier téléchargé depuis le <em>producteur</em> de la donnée. Une transcription
 tierce, même sourcée et reprise automatiquement, plafonne à « haute ». Hors de
 cette liste : les séries d'avant 1950, l'espérance de vie à 65 ans d'avant 1960,
-les quotients de mortalité d'avant 1986, les taux de cotisation d'avant 1967, le
-minimum contributif — qui ne figure dans aucune source ouverte — et les âges,
-durées et coefficients propres à chaque régime, repris des textes.</p>
+les quotients de mortalité d'avant 1986, les taux de cotisation d'avant 1967, les
+montants servis du minimum contributif, du minimum garanti et du minimum
+vieillesse — transcrits de leur publication, et préférés à toute projection
+parce qu'ils disent ce qui a été payé —, et les âges, durées et coefficients
+propres à chaque régime, repris des textes.</p>
 
 <h3>Fiabilité des séries macroéconomiques, par décennie</h3>
 ${g.tableau(

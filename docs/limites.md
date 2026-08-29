@@ -13,133 +13,153 @@ qu'aucun résultat ne soit cité sans savoir sur quoi il repose.
 ## Paramètres du scénario 1, et ce qu'ils valent
 
 Le scénario 1 sert d'étalon : ce qui n'y est pas sourcé fragilise tout le reste.
-Les trois premières lignes viennent d'en sortir : elles sont désormais
-confrontées à la loi elle-même, et non plus saisies de mémoire. Les suivantes
-restent saisies depuis les textes, faute d'un chemin automatisable : Légifrance
-refuse les requêtes non navigateur et son API demande une clé.
+Ce qui suit est le recensement complet de ses paramètres et de leur état.
 
 | Paramètre | Valeur retenue | État |
 |---|---|---|
 | Minimum contributif | ancres du code 2007 et 2023 ; montants servis 2020, 2024-2026 | **certifié** (D. 351-2-1) et transcrit |
 | Minimum contributif majoré | idem, 7 603,41 → 10 170,86 €/an | **certifié**, même article |
 | Plafond d'écrêtement du minimum | ancres 2012 et 2014 ; montants servis 2020, 2024-2026 | **certifié** (D. 173-21-0-0-1) et transcrit |
-| Durée requise par génération | table 1934-1965, 151 → 172 trimestres | reprise des textes, non recontrôlée automatiquement |
-| Âge légal par génération | table 1930-1968, 60 → 64 ans | reprise des textes, non recontrôlée automatiquement |
-| Âge d'annulation de la décote par génération | table 1930-1955, 65 → 67 ans | reprise des textes, non recontrôlée automatiquement |
+| Minimum garanti, barème | montée en charge 2004-2013, indice 216 → 227 | OpenFisca-France-Pension, repris automatiquement |
+| Minimum garanti, référence | 997,96 €/mois au 1er janvier 2004 ; montants servis 2020, 2023-2025 | transcrit, recoupé au point d'indice |
+| Point d'indice de la fonction publique | série datée 1960-2027 | OpenFisca-France, repris automatiquement |
+| Minimum vieillesse (ASPA) | montants servis 2007, 2010, 2016-2026 | transcrit des publications |
+| Décote de la fonction publique | article L. 14, montée en charge 2006-2020 | reprise des textes, non recontrôlée |
+| Carrière longue | trois étapes, 2004, 2012, 2023 | textes ; l'étape de 2004 reste approchée |
+| Durée requise par génération | table 1934-1965, 151 → 172 trimestres | reprise des textes, non recontrôlée |
+| Âge légal par génération | table 1930-1968, 60 → 64 ans | reprise des textes, non recontrôlée |
+| Âge d'annulation de la décote par génération | table 1930-1955, 65 → 67 ans | reprise des textes, non recontrôlée |
 | Coefficient de minoration par génération | table 1900-1953, 2,5 → 1,25 % | textes, recoupé à la DREES |
-| Années retenues au salaire de référence | table 1934-1948, 10 → 25 années | reprise des textes, non recontrôlée automatiquement |
+| Années retenues au salaire de référence | table 1934-1948, 10 → 25 années | reprise des textes, non recontrôlée |
 | Coefficients d'anticipation Agirc-Arrco | deux tables, 1 → 0,78 et 1 → 0,43 | barème publié par la caisse, saisi |
 | Plafond de la majoration familiale Agirc-Arrco | 2 367 €/an (novembre 2025) | publié par la caisse, saisi |
+| Garantie minimale de points de l'Agirc | 120 points par an, 1989-2018 | accord du 9 février 1988, saisi |
+| Assiette de l'AVPF | SMIC annuel, 1 820 heures | principe sourcé, assiette déduite du SMIC |
 | Droits ouverts par motif d'interruption | 9 motifs | principe sourcé, fractions non recontrôlées |
 
-**Le minimum contributif est sorti de cette liste, et c'est la même leçon que
-pour la MSA.** Cette page a longtemps écrit qu'il ne figurait « dans aucune
-source machine ouverte », que ses montants n'étaient publiés que dans des
-circulaires CNAV en PDF, et qu'il n'y avait donc « pas de chemin de
-certification automatique à écrire ». C'était faux, et pour la même raison que
-la fois précédente : *la donnée est dans la loi, et il fallait chercher par le
-numéro d'article.* Deux articles suffisent :
+**Une règle a été appliquée partout : le montant SERVI prime sur la projection.**
+Le minimum contributif, le minimum garanti et le minimum vieillesse sont trois
+grandeurs que la loi ne fixe pas chaque année — elle les revalorise « comme les
+pensions », c'est-à-dire selon une décision annuelle qui a été gelée en 2014 et
+sous-indexée plusieurs fois depuis. Projeter une ancre sur l'indice des prix
+donne donc, pour le minimum garanti de 2024, un montant supérieur de 4,6 % à
+celui que l'État a payé. Les montants transcrits de leur publication, moins bien
+sourcés, l'emportent sur les valeurs calculées depuis une ancre certifiée —
+parce que les premiers disent ce qui a été payé et les seconds ce qui aurait dû
+l'être.
 
-* **D. 351-2-1** du code de la sécurité sociale porte les DEUX montants — le
-  minimum, et le minimum majoré au titre des périodes cotisées ;
-* **D. 173-21-0-0-1** porte le plafond d'écrêtement de l'article L. 173-2, et
-  dit dans la même phrase comment il se revalorise : « aux mêmes dates et dans
-  les mêmes proportions que le salaire minimum de croissance ».
+## Écarts avec le droit positif dans le scénario 1
 
-`scripts/fetch/dila_legi_minimum_contributif.py` les lit dans la base LEGI, en
-flux, comme celui de la MSA.
+### Ce qui vient d'être refermé
 
-Trois corrections en découlent, et aucune n'est cosmétique.
+**Six erreurs de calcul.**
 
-1. **Le montant retenu était le mauvais.** La ligne portait 8 796 €/an sous le
-   libellé « majoré » : c'est en réalité le minimum NON majoré de 2024. Le
-   majoré vaut près d'un cinquième de plus, et c'est lui qui s'applique à une
-   carrière complète — c'est-à-dire au cas même que le minimum contributif est
-   fait de protéger. Le moteur distingue désormais les deux, sur la condition
-   de droit : la durée COTISÉE, dont les trimestres assimilés et ceux de la
-   majoration de durée d'assurance sont exclus.
-2. **La revalorisation se faisait sur le mauvais index.** Les trois montants
-   suivent le SMIC — le plafond depuis février 2014, les deux minima depuis la
-   réforme du 14 avril 2023 — et non les prix. Le modèle les indexe maintenant
-   sur le SMIC à partir de la date d'effet de l'ancre, sur les prix avant elle,
-   règle qui s'appliquait alors.
-3. **Ce ne sont pas des séries mais des ancres datées** : le code n'est pas
-   modifié chaque année, les montants sont revalorisés par l'effet de la loi —
-   et l'article est réécrit plus souvent qu'il n'est revalorisé. Ses versions de
-   2009 et de 2020 répètent le montant de 2007 sans y toucher : les retenir
-   comme des ancres fraîches remettrait le compteur à zéro et perdrait treize
-   ans de revalorisation. Une ancre est donc un montant qui CHANGE.
+- **Le salaire de référence ne portait pas sur les bonnes années.** Il balayait
+  TOUTE la carrière, régimes confondus : un polypensionné passé de la fonction
+  publique au privé liquidait sa pension civile sur son dernier salaire privé,
+  pendant que le prorata de durée restait celui du régime. Sur un cas type
+  d'agent SNCF passé au régime général, vingt pour cent de pension en trop.
+  Chaque régime ne retient plus que les années qui lui ont été déclarées.
+- **Les années postérieures à la liquidation cotisaient encore.** Huit années
+  ajoutées après le départ faisaient passer une pension de 21 812 à 28 583 € et
+  annulaient jusqu'à la décote de qui, précisément, part tôt.
+- **Le minimum contributif était servi à des pensions décotées**, que l'article
+  L. 351-10 réserve au taux plein. Il gonflait l'étalon de 20 % sur les petites
+  pensions parties tôt — le segment même où se mesure l'écart avec le notionnel.
+  Et sa majoration au titre des périodes cotisées était servie en tout ou rien,
+  alors que le droit la proratise par la durée COTISÉE dans le régime quand le
+  montant de base suit la durée d'assurance.
+- **La cascade prenait le minimum et la majoration pour enfants à l'envers.**
+  Les 10 % portaient sur une pension que le minimum n'avait pas encore relevée,
+  et l'écrêtement de l'article L. 173-2 comparait au plafond un total qui
+  incluait déjà la majoration, alors que le texte ne retient que les pensions
+  personnelles.
+- **La fonction publique subissait la décote du privé.** L'article L. 14 lui
+  donne la sienne, et rien n'y coïncide : elle n'existe qu'à compter de 2006,
+  son coefficient monte d'un huitième de point par an jusqu'en 2015, et son âge
+  d'annulation n'est pas un âge en propre mais la limite d'âge du grade,
+  diminuée d'un nombre de trimestres décroissant jusqu'en 2020. Un sédentaire
+  liquidant en 2012 voyait sa décote s'annuler à 63 ans, pas à 67, et chaque
+  trimestre manquant lui coûtait 0,875 %, pas 1,25 %.
+- **Le taux plein par la durée est une création de 1982**, et le modèle
+  l'appliquait depuis 1945. Le régime général servait 20 % à 60 ans majorés de
+  quatre points par année différée, puis — loi Boulin — 25 % à 60 ans et 50 % à
+  65 : aucune durée n'ouvrait le taux plein avant l'âge. La fiche ne portait
+  d'ailleurs aucune minoration, et 40 % étaient servis à tout âge.
 
-   **Et une ancre projetée reste un calcul, que la réalité dément.** Une
-   première version de ce moteur retenait l'ancre la plus proche de l'année
-   demandée, pour minimiser la dérive. Appliquée à 2020, elle ramenait en
-   arrière le minimum MAJORÉ d'après la réforme de 2023 — laquelle l'a relevé
-   de plus de 30 % — et donnait 9 068 €/an quand l'État, répondant à la
-   question écrite n° 32630 de l'Assemblée nationale, rappelle 702,55 €/mois,
-   soit 8 431 €/an. Sept virgule six pour cent de trop, sur le montant même
-   qui protège les plus petites pensions.
+**Cinq dispositifs déclarés mais jamais appliqués.** Les fiches de régime les
+listaient et les *Neutralisations* annonçaient que les scénarios notionnels les
+retiraient. On ne retire pas ce qui n'a jamais été mis.
 
-   Deux corrections en découlent, et la seconde est un principe :
+- **Le minimum garanti** de l'article L. 17, plancher de la fonction publique.
+- **Le minimum vieillesse**, dernier plancher du système et le seul qui ne
+  suppose aucune cotisation.
+- **L'AVPF**, qui distingue une période assimilée d'une période où la CNAF
+  cotise : la première ne porte aucun salaire au compte, la seconde y porte le
+  SMIC.
+- **La garantie minimale de points** de l'Agirc, 120 points par an de 1989 à
+  2018 même quand la tranche B est nulle.
+- **Le départ anticipé pour carrière longue**, qui sert ici à répondre à une
+  question que le modèle ne posait pas : le droit ouvre-t-il cette liquidation ?
 
-   * la projection part désormais de la valeur **en vigueur** à la date
-     demandée, jamais d'une postérieure : une marche créée par une réforme ne
-     glisse pas dans le passé ;
-   * surtout, **les montants réellement servis sont au fichier**, et ils
-     priment sur toute projection. Ils viennent de leur publication et non d'un
-     producteur : ils portent `haute`, pas `certifiee`. Le modèle préfère donc
-     une valeur transcrite, moins bien sourcée, à une valeur calculée depuis
-     une ancre certifiée — parce que la première dit ce qui a été payé et la
-     seconde ce qui aurait dû l'être.
+**Et une question qui n'était pas posée.** Le modèle calculait une pension à
+n'importe quel âge sans jamais dire si la loi ouvrait ce départ-là. Un salarié
+né en 1965 y liquidait à 58 ans une pension décotée que le droit ne lui aurait
+pas servie du tout. Le montant reste calculé — il faut comparer les trois
+scénarios sur la même carrière — mais le résultat porte désormais un drapeau
+`liquidation_ouverte`, et la restitution dit que ce montant ne décrit aucune
+pension servie.
 
-   Sont ainsi renseignés 2020 (réponse ministérielle) et 2024-2026 (montants
-   publiés par les caisses). Le reste est projeté, et l'écart résiduel se
-   mesure : environ 1 % pour 2021, la revalorisation ayant été gelée plusieurs
-   années sans qu'aucun indice ne le reproduise.
+### Ce qui reste hors du modèle, et pourquoi
 
-## Écarts connus avec le droit positif, dans le scénario 1
+Ces lignes ne sont pas des oublis : chacune demande une information que le
+modèle n'a pas, ou décrit un dispositif qu'il représenterait faussement.
 
-**Ce qui vient d'être refermé**, et que ce document annonçait encore comme
-approché :
-
-- **L'abattement des complémentaires est celui de l'Agirc-Arrco**, et non plus
-  la décote du régime de base. Le régime publie deux tables de coefficients
-  d'anticipation — l'une indexée sur les trimestres manquants, l'autre sur
-  l'âge — et retient la plus avantageuse pour l'assuré. Les deux ne se
-  recoupent pas : douze trimestres manquants valent 0,88, quand la décote de la
-  base n'en donnerait que 0,85 ; mais dix ans d'anticipation valent 0,43, là où
-  elle en donnerait 0,50. L'approximation était donc fausse dans les deux sens.
-- **La majoration familiale des complémentaires est plafonnée** : 2 367 € par
-  an, revalorisés comme la valeur de service du point, opposables aux assurés
-  nés à compter du 2 août 1951. Le plafond porte sur la majoration de LA
-  complémentaire, Agirc, Arrco et régime unifié confondus — les plafonner
-  séparément l'aurait triplé.
-- **Les trimestres de la MDA sont attribués dans un régime.** Ils jouaient sur
-  la décote tous régimes confondus mais restaient hors du rapport durée acquise
-  / durée requise du régime qui les accorde, ce qui amputait la mère de famille
-  d'une part de ce que la MDA est censée lui rendre. Faute de connaître l'année
-  de naissance des enfants, ils vont au régime de base où l'assuré a validé le
-  plus de trimestres parmi ceux qui portent la MDA : exact pour une carrière
-  mono-affiliée, approché pour un polypensionné.
-- **La décote est plafonnée à vingt trimestres**, comme le veut le droit. Sans
-  ce plafond, un départ dix ans avant l'heure retirait la moitié de la pension
-  de base là où le droit n'en retire que le quart. C'est le défaut qui déplaçait
-  le plus de chiffres : la pension d'un départ très anticipé monte de 25 %.
-- **La décote de la loi Boulin était quatre fois trop forte.** La fiche portait
-  5 % par trimestre là où le texte retire 5 *points* par année d'anticipation à
-  un taux de 50 %, soit 2,5 % par trimestre. Toutes les liquidations anticipées
-  de 1972 à 1982 en étaient faussées.
-
-Ce qui reste approché :
-
-- **Montée en charge des réformes, ce qui n'est pas lu à la génération.** La
-  durée requise, l'âge légal d'ouverture, l'âge d'annulation de la décote, le
-  coefficient de minoration et le nombre d'années retenues au salaire de
-  référence le sont désormais tous les cinq. Restent lus à l'année de
-  liquidation les taux de cotisation, et la montée en charge propre à chaque
-  régime spécial.
-- **Dispositifs de départ anticipé.** Carrières longues, pénibilité, invalidité
-  et inaptitude ne sont pas modélisés : un assuré qui liquide tôt subit ici la
-  décote, quand le droit l'en dispenserait.
+- **Pension de réversion.** Elle ne concerne pas l'assuré mais son conjoint
+  survivant, et suppose de connaître un ménage. Hors périmètre par
+  construction : le modèle décrit une carrière, pas une famille.
+- **Bonifications et catégorie active.** Bonifications de dépaysement, de
+  campagne militaire, du cinquième pour les emplois de sécurité ; ouverture à
+  57 ans, voire 52, pour les catégories actives. Toutes supposent de connaître
+  le CORPS d'appartenance et le détail des services, que la saisie ne demande
+  pas. Conséquence mesurable : un fonctionnaire de catégorie active est traité
+  comme un sédentaire, ce qui lui oppose l'âge d'ouverture du sédentaire — la
+  décote, elle, est plafonnée à vingt trimestres dans les deux cas, si bien que
+  l'écart de pension reste nul dès que la durée manquante dépasse ce plafond.
+- **Pension majorée de référence (PMR)** du régime des non-salariés agricoles.
+  Le régime agricole est déjà le plus approché du catalogue — sa part
+  forfaitaire, sa complémentaire obligatoire et ses valeurs de point ne sont que
+  partiellement sourcées. Ajouter la PMR sur ce socle donnerait un chiffre plus
+  précis d'apparence et pas davantage de vérité.
+- **Coefficients de solidarité et majorants de l'Agirc-Arrco.** Le malus de
+  10 % pendant trois ans, et le bonus de 10, 20 ou 30 % pendant un an, ne
+  s'appliquent qu'aux pensions prenant effet entre le 1er janvier 2019 et le
+  30 novembre 2023 : le dispositif est éteint. Surtout, leur effet est
+  TEMPORAIRE, quand le modèle ne calcule qu'une pension annuelle unique.
+  L'appliquer à titre permanent créerait une erreur nouvelle, plus grande que
+  celle qu'il corrigerait.
+- **Pénibilité, invalidité, inaptitude, handicap.** Quatre autres portes du
+  départ anticipé, qui demandent des informations médicales ou
+  professionnelles que le modèle ne collecte pas. Un assuré qui en relèverait
+  est ici déclaré « non ouvert » alors que le droit l'ouvrirait, et subit une
+  décote dont le droit le dispenserait.
+- **Trimestres « réputés cotisés » de la carrière longue.** La loi du 20 janvier
+  2014 en a élargi la liste (chômage, maladie, maternité, dans des limites
+  propres à chacun). Le modèle ne compte que les trimestres réellement cotisés,
+  ce qui rend la condition plus dure qu'elle ne l'est : quelques carrières
+  hachées sont déclarées non ouvertes alors que le droit les ouvrirait.
+- **Montée en charge propre aux régimes spéciaux.** La décote créée par la
+  réforme de 2008 y monte en charge comme celle de la fonction publique, mais
+  selon un calendrier qui lui est propre, régime par régime. Le modèle applique
+  d'emblée le coefficient plein à partir de la date d'entrée en vigueur portée
+  par chaque fiche.
+- **Taux de cotisation.** Ils restent lus à l'année de liquidation, quand cinq
+  autres paramètres sont désormais lus à la génération.
+- **Un ménage, un patrimoine, des ressources.** Le minimum vieillesse est servi
+  sous le barème d'une personne seule sans autre ressource — le cas le plus
+  favorable — et à tous, alors que la DREES estime le non-recours à la moitié
+  des ayants droit. C'est pourquoi il apparaît toujours comme une ligne séparée
+  de la cascade, et pourquoi un paramètre le retire d'un seul geste.
 
 ## 1. État de certification des données
 
@@ -525,18 +545,24 @@ l'Institut des politiques publiques (PENSIPP). Écarts connus :
   instantané la CNBF, le RCI et le RAFP — pour le RCI et le RAFP faute d'un prix
   d'achat publié, pour la CNBF parce que sa fiche agrège un régime de base
   forfaitaire et un complémentaire en points qu'il faudrait scinder d'abord ;
-- **montée en charge des réformes** — cinq paramètres sont désormais lus à la
-  génération : durée requise, âge d'ouverture, âge d'annulation de la décote,
-  coefficient de minoration et nombre d'années retenues au salaire de référence.
-  Restent lus à l'année de liquidation les taux de cotisation et la montée en
-  charge propre à chaque régime spécial ;
+- **montée en charge des réformes** — cinq paramètres sont lus à la génération :
+  durée requise, âge d'ouverture, âge d'annulation de la décote, coefficient de
+  minoration et nombre d'années retenues au salaire de référence. La décote de
+  la fonction publique et le barème du minimum garanti, eux, sont lus à l'année
+  de liquidation, comme leurs articles l'écrivent. Restent approchés les taux de
+  cotisation et la montée en charge propre à chaque régime spécial ;
 - **revalorisation des salaires portés au compte** — les coefficients annuels
   suivent désormais les salaires jusqu'en 1986 et les prix depuis 1987, comme
   l'ont fait les arrêtés. La règle des prix appliquée à toute la période
   minorait le salaire de référence des carrières commencées avant 1987 ;
-- **carrières longues, pénibilité, invalidité, inaptitude** — non modélisés ;
-- **polypensionnés** — le modèle gère plusieurs régimes simultanés, mais pas les
-  règles de coordination interrégimes (proratisation croisée, LURA).
+- **départs anticipés** — la carrière longue est modélisée, et sert à dire si le
+  droit ouvre la liquidation demandée. La pénibilité, l'invalidité, l'inaptitude
+  et le handicap ne le sont pas : ils demandent des informations médicales ou
+  professionnelles que le modèle ne collecte pas ;
+- **polypensionnés** — chaque régime liquide désormais sur ses seules années,
+  et la durée acquise dans chacun est comptée séparément. Restent hors du
+  modèle les règles de COORDINATION interrégimes : proratisation croisée du
+  salaire annuel moyen entre régimes alignés, et liquidation unique (LURA).
 
 Un écart de quelques pour cent avec la pension réelle est attendu.
 

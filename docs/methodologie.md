@@ -206,13 +206,35 @@ sous-total contributif, puis chaque avantage, puis le total. Les lignes
 s'additionnent exactement, et l'écart avec les scénarios notionnels devient
 lisible — ce qu'ils retirent, c'est précisément la somme de ces lignes.
 
-Le scénario 1 les conserve **toutes**, sans condition : c'est le droit positif,
-il sert d'étalon. Les drapeaux ci-dessus ne sont pas lus par le scénario 1 —
-ils décrivent ce que les scénarios notionnels retirent, pas ce que le droit en
-vigueur accorde. Les lire des deux côtés amputait l'étalon du minimum
-contributif, de la majoration pour trois enfants et de la MDA, c'est-à-dire
-précisément de ce qui protège les carrières que le notionnel pénalise le plus :
-l'écart mesuré s'en trouvait minoré.
+Les drapeaux ci-dessus ne sont pas lus par le scénario 1 : ils décrivent ce que
+les scénarios notionnels retirent, pas ce que le droit en vigueur accorde. Les
+lire des deux côtés amputait l'étalon du minimum contributif, de la majoration
+pour trois enfants et de la MDA, c'est-à-dire précisément de ce qui protège les
+carrières que le notionnel pénalise le plus : l'écart mesuré s'en trouvait
+minoré.
+
+**Mais ce tableau a longtemps annoncé retirer ce que le scénario 1 ne servait
+pas.** On ne retire pas ce qui n'a jamais été mis, et cinq lignes étaient dans
+ce cas : le minimum garanti, l'ASPA, l'AVPF, la garantie minimale de points et
+la carrière longue. Elles sont désormais calculées. L'état exact, ligne à
+ligne :
+
+| Ligne du tableau | Le scénario 1 la sert-il ? |
+|---|---|
+| minimum contributif | oui, réservé au taux plein, deux prorata, écrêté |
+| minimum garanti | oui, barème de l'article L. 17 |
+| ASPA | oui, à partir de 65 ans, barème d'une personne seule, ligne séparée |
+| PMR (retraite agricole) | **non** — voir `docs/limites.md` |
+| majoration pour trois enfants | oui, plafonnée en euros à la complémentaire |
+| majoration de durée d'assurance | oui, attribuée dans un régime |
+| AVPF | oui, salaire forfaitaire au SMIC porté au compte |
+| pension de réversion | **non** — elle ne concerne pas l'assuré lui-même |
+| bonifications, catégorie active | **non** — elles supposent des informations que le modèle n'a pas |
+| périodes assimilées | oui, motif par motif |
+| garantie minimale de points | oui, 120 points par an de 1989 à 2018 |
+| carrières longues | oui, pour dire si le droit ouvre la liquidation |
+| décote et surcote | oui, barème propre à la fonction publique compris |
+| coefficient de solidarité Agirc-Arrco | **non** — dispositif éteint, voir `docs/limites.md` |
 
 Une seule exception, et elle est explicite : la valorisation des droits acquis
 du scénario 3 appelle le scénario 1 avec `avantages_non_contributifs=False`,
@@ -311,6 +333,94 @@ Les régimes dont le dépôt n'a pas les barèmes — CNAVPL, MSA, CNBF, RCI, RA
 gardent l'ancienne approximation : `pension = cotisations revalorisées ×
 rendement instantané`, où le rendement est `valeur de service / (taux d'appel ×
 salaire de référence)`.
+
+#### Ce que chaque régime liquide, et sur quoi
+
+Le salaire de référence porte sur **les seules années passées dans ce
+régime-là**. Un régime ne liquide que ce qui lui a été déclaré : la pension
+civile se calcule sur le traitement des six derniers mois de service, pas sur le
+dernier salaire d'une carrière poursuivie ailleurs. Le modèle a longtemps pris
+toute la carrière, si bien qu'un agent SNCF passé au régime général liquidait sa
+pension spéciale sur son dernier salaire de salarié — vingt pour cent de trop
+sur un cas type — pendant que le prorata de durée, lui, restait celui du régime.
+
+#### Le taux plein, et ce qui l'ouvre
+
+Trois choses distinctes, que le modèle confondait :
+
+* **l'âge d'OUVERTURE des droits**, en deçà duquel aucune liquidation n'est
+  possible — sauf carrière longue ;
+* **la durée requise**, qui ouvre le taux plein à l'âge d'ouverture ;
+* **l'âge d'ANNULATION de la décote**, qui l'ouvre sans condition de durée.
+
+Le taux plein par la durée est une création de l'ordonnance du 26 mars 1982.
+Avant elle, le taux ne dépendait QUE de l'âge : 20 % à 60 ans majorés de quatre
+points par année différée jusqu'en 1971, puis — loi Boulin — 25 % à 60 ans et
+50 % à 65. Une carrière de quarante ans liquidée à 60 ans en 1975 était servie
+au même taux réduit qu'une carrière de vingt.
+
+La **fonction publique** n'a pas la décote du régime général. L'article L. 14 du
+code des pensions lui donne la sienne, et rien n'y coïncide : elle n'existe qu'à
+compter de 2006, son coefficient monte d'un huitième de point par an jusqu'à
+1,25 % en 2015, et son âge d'annulation n'est pas un âge en propre mais la
+**limite d'âge du grade**, diminuée d'un nombre de trimestres décroissant
+jusqu'à s'annuler en 2020. Un sédentaire liquidant en 2012 voyait sa décote
+s'annuler à 63 ans, pas à 67.
+
+#### La cascade des avantages non contributifs, dans l'ordre du droit
+
+L'ordre n'est pas indifférent : chaque étage se calcule sur le résultat du
+précédent, et le modèle en prenait deux à l'envers.
+
+1. **AVPF** — la Caisse nationale des allocations familiales cotise au régime
+   général pour le parent qui interrompt son activité, sur une assiette
+   forfaitaire égale au SMIC. Ce salaire est PORTÉ AU COMPTE : c'est ce qui
+   distingue l'AVPF d'une période assimilée, laquelle valide des trimestres sans
+   jamais ajouter de salaire. Son effet n'est pas toujours favorable — sur une
+   carrière de moins de vingt-cinq années portées au compte, les années au SMIC
+   s'ajoutent aux années retenues au lieu de les remplacer, et abaissent la
+   moyenne. C'est la règle, et le modèle la montre telle qu'elle est.
+2. **Majoration de durée d'assurance** — huit trimestres par enfant, attribués
+   DANS un régime et non au-dessus d'eux : ils comptent donc aussi dans sa
+   proratisation, pas seulement dans la décote tous régimes confondus.
+3. **Minimum contributif** — réservé aux pensions liquidées AU TAUX PLEIN
+   (L. 351-10). Deux durées le proratisent, et ce ne sont pas les mêmes : le
+   montant de base suit la durée d'assurance acquise dans le régime, sa
+   majoration au titre des périodes cotisées suit la seule durée cotisée
+   (D. 351-2-2), et cette majoration demande en outre 120 trimestres cotisés
+   tous régimes. Il se compare à la pension AVANT surcote, puis est écrêté de ce
+   qui ferait dépasser le plafond de l'article L. 173-2 — plafond auquel se
+   comparent les pensions personnelles, majorations pour enfants exclues.
+4. **Minimum garanti** de la fonction publique (L. 17) — non pas un plancher
+   proratisé mais un barème en escalier sur la durée de services : 57,5 % de la
+   référence à quinze ans, 95 % à trente, la totalité à quarante. La référence
+   est le traitement de l'indice majoré 227 au 1er janvier 2004, revalorisé
+   comme les pensions depuis. Il n'est dû qu'au taux plein depuis la loi du
+   9 novembre 2010.
+5. **Majoration pour trois enfants et plus** — 10 %, davantage dans la fonction
+   publique, calculée sur le montant DÉJÀ RELEVÉ par les minima, et plafonnée en
+   euros à la complémentaire.
+6. **Minimum vieillesse** — allocation différentielle qui complète tout le
+   reste, majorations comprises, jusqu'au barème d'une personne seule. Servie à
+   partir de 65 ans, et toujours affichée comme une ligne séparée : ce n'est pas
+   une pension mais une aide sociale, soumise à condition de ressources du
+   foyer, à demande, et récupérable sur les successions. Le paramètre
+   `minimum_vieillesse_dans_le_scenario_actuel` la retire d'un seul geste.
+
+#### Le droit ouvre-t-il cette liquidation ?
+
+Le modèle calculait une pension à n'importe quel âge sans jamais dire si la loi
+ouvrait ce départ-là. Un salarié né en 1965 y liquidait à 58 ans une pension
+décotée que le droit ne lui aurait pas servie du tout. La question est
+maintenant posée, et sa réponse accompagne le montant : l'âge d'ouverture du
+régime le plus précoce de la carrière, ou le **départ anticipé pour carrière
+longue** de l'article L. 351-1-1 — cinq trimestres validés avant la fin de
+l'année civile des seize, dix-huit, vingt ou vingt et un ans, et une durée
+cotisée au moins égale à la durée requise.
+
+Quand la liquidation n'est pas ouverte, le montant reste calculé : il faut bien
+comparer les trois scénarios sur la même carrière. Mais il ne décrit alors
+aucune pension que le système actuel servirait, et la restitution le dit.
 
 ### Scénario 2 — comptes notionnels rétroactifs
 

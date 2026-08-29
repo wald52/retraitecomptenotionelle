@@ -53,7 +53,7 @@ Scénario                                      Courants   Constants   Mensuel   
 Rien à installer, rien à lancer : une adresse à ouvrir. Le modèle et ses données
 de référence s'exécutent **dans votre navigateur**. Aucune donnée saisie ne
 quitte votre machine, puisqu'il n'y a pas de serveur de calcul. Le premier
-chargement transfère 103 Ko compressés (346 Ko bruts) et prend quelques dixièmes
+chargement transfère 203 Ko compressés (719 Ko bruts) et prend quelques dixièmes
 de seconde ; les suivants sont immédiats.
 
 Quatre pages : **Simuler** (une carrière, avec le détail du calcul, la
@@ -68,7 +68,7 @@ la page.
 <details>
 <summary>Comment la page fonctionne, et comment on sait qu'elle dit vrai</summary>
 
-`index.html` charge deux choses : `moteur/donnees.json` (467 Ko — les séries, les
+`index.html` charge deux choses : `moteur/donnees.json` (482 Ko — les séries, les
 tables de mortalité observées de 1899 à 2024, les 36 fiches de régime) et
 `moteur/js/`, un portage du modèle en JavaScript sans aucune bibliothèque. Le site est servi depuis la racine
 du dépôt, telle quelle : c'est ce que GitHub Pages publie sans aucun réglage, et
@@ -84,9 +84,9 @@ poids de ce qu'on voulait exécuter.
 
 Le risque d'un portage, c'est qu'il déplace un chiffre sans que rien n'échoue.
 Il est traité de front : **le Python de `src/` reste la référence**, et
-`scripts/construire_temoins.py` fige depuis lui 71 simulations complètes et le
+`scripts/construire_temoins.py` fige depuis lui 73 simulations complètes et le
 HTML des quatre pages, dans `tests/temoins/`. `node --test` rejoue le tout côté
-JavaScript et compare valeur par valeur — 3 030 nombres, dont 98,6 % identiques
+JavaScript et compare valeur par valeur — 3 638 nombres, dont 98,5 % identiques
 au bit près, l'écart maximal étant d'un *ulp* (3 · 10⁻¹⁶, la précision d'un
 flottant). Les pages, elles, sont comparées caractère par caractère : le
 formatage à la française reproduit jusqu'à l'arrondi au pair de Python, faute de
@@ -175,6 +175,10 @@ print(simulateur.simuler(carriere).tableau())
 | Capitalisation isolée | RAFP et assurances sociales de 1930 dans un compartiment séparé, jamais convertis |
 | Trimestres acquis par le revenu, pas par le temps | 150 SMIC horaires depuis 2014, 200 avant : un temps très partiel valide moins de quatre trimestres |
 | Motif d'interruption lu, pas seulement enregistré | Un chômage indemnisé ouvre des points complémentaires financés par l'UNEDIC ; un chômage non indemnisé n'ouvre rien |
+| Étalon fidèle au droit, minima compris | Le scénario 1 sert le minimum contributif (au taux plein, deux prorata, écrêté), le minimum garanti de la fonction publique, l'ASPA, la majoration pour enfants, la MDA, l'AVPF et la garantie minimale de points de l'Agirc |
+| Décote propre à la fonction publique | Article L. 14 : coefficient et âge d'annulation montent en charge de 2006 à 2020, et cet âge est la limite d'âge du grade, non 67 ans |
+| Chaque régime liquide sur ses années | Le salaire de référence ne balaie plus toute la carrière : un polypensionné ne liquide pas sa pension civile sur son dernier salaire privé |
+| Le droit ouvre-t-il ce départ ? | Âge légal du régime ou carrière longue ; sinon le montant est marqué comme un contrefactuel, pas une pension servie |
 | Suppression des minima | Ni minimum contributif, ni minimum garanti, ni ASPA : peu cotisé, peu de retraite |
 | Suppression des avantages | Ni majorations enfants, ni MDA, ni AVPF, ni bonifications, ni réversion, ni trimestres gratuits |
 | Tout le monde peut simuler | 22 statuts d'affiliation, cinq informations suffisent |
@@ -246,12 +250,14 @@ sourcée et reprise automatiquement, plafonne à `haute`.
 | Valeurs du point des avocats | 2017-2026 | CNBF, ses barèmes annuels |
 | Valeur du point des professions libérales | 2021-2025 | CNAVPL, ses recueils statistiques |
 | Valeur du point de la complémentaire agricole | 2005-2024 | code rural D. 732-166, base LEGI de la DILA |
+| Minimum contributif et plafond d'écrêtement | ancres 2007-2014 | code de la sécurité sociale, base LEGI de la DILA |
 
-Deux séries de plus sont reprises automatiquement d'**OpenFisca-France**, le
+Trois séries de plus sont reprises automatiquement d'**OpenFisca-France**, le
 modèle socio-fiscal de l'administration — le plafond de la Sécurité sociale
-depuis 1931 et les valeurs d'achat et de service du point depuis 1947. Ce sont
-des transcriptions du *Journal officiel* et des circulaires, pas des sources
-primaires : elles plafonnent au niveau `haute`. Le point de l'Agirc et de
+depuis 1931, les valeurs d'achat et de service du point depuis 1947, et le point
+d'indice de la fonction publique depuis 1960 avec le barème du minimum garanti.
+Ce sont des transcriptions du *Journal officiel* et des circulaires, pas des
+sources primaires : elles plafonnent au niveau `haute`. Le point de l'Agirc et de
 l'Arrco, qui pèse le plus lourd des deux, est en outre recoupé à la série que
 l'INSEE publie depuis 2001 : sur les 42 années communes, les deux ne divergent
 pas une fois.
@@ -263,6 +269,7 @@ python scripts/fetch/eurostat_mortalite.py      # tables de mortalité par âge
 python scripts/fetch/openfisca_plafond.py       # plafond ancien
 python scripts/fetch/openfisca_cotisations.py   # taux de cotisation du RG
 python scripts/fetch/openfisca_points.py        # valeurs du point, depuis 1947
+python scripts/fetch/openfisca_point_indice.py  # point d'indice, minimum garanti
 python scripts/fetch/cdc_ircantec.py            # barèmes Ircantec, par son gestionnaire
 python scripts/fetch/cnbf_baremes.py            # valeurs du point des avocats
 python scripts/fetch/cnavpl_recueils.py         # valeur du point des libéraux
@@ -275,8 +282,10 @@ python scripts/verifier_donnees.py --appliquer  # aligne sur la source et certif
 
 > **Ce qui reste saisi à la main :** les séries d'avant 1950, l'espérance de vie
 > à 65 ans d'avant 1960, les quotients de mortalité d'avant 1986, les taux de
-> cotisation d'avant 1967, les valeurs du point de la CNAVPL et de la MSA, et
-> les âges et durées propres à chaque régime, qui viennent de lois et non de
+> cotisation d'avant 1967, les valeurs du point de la CNAVPL et de la MSA, les
+> montants servis des trois minima — transcrits de leur publication, et préférés
+> à toute projection parce qu'ils disent ce qui a été payé —, et les âges,
+> durées et coefficients propres à chaque régime, qui viennent de lois et non de
 > séries statistiques. `docs/limites.md` recense aussi les sources essayées sans
 > succès, pour éviter de les rechercher deux fois.
 > Lire [`docs/limites.md`](docs/limites.md) avant de citer un chiffre.
@@ -292,7 +301,9 @@ data/
     macro/                      inflation, salaire moyen, productivité, plafond, projections
     mortalite/                  espérances de vie et quotients par âge observés
     regimes/                    35 fiches de régime + schéma + valeurs du point
-    legislation/                âges de référence à cliquet, profils d'affiliation
+    legislation/                âges et durées par génération, barèmes des
+                                minima, décote de la fonction publique,
+                                carrière longue, profils d'affiliation
   brut/                         téléchargements bruts, non versionnés
   derive/                       calibrations et journal de certification
 
@@ -313,7 +324,7 @@ src/retraite_notionnelle/
 index.html                      le site : charge les données, puis le moteur JavaScript
 .nojekyll                       servir les fichiers sans transformation
 moteur/                         ce que le navigateur charge, et rien d'autre
-  donnees.json                  séries, tables et régimes (467 Ko, produit par script)
+  donnees.json                  séries, tables et régimes (482 Ko, produit par script)
   style.css                     extraite de gabarit.py (produite par script)
   js/                           portage du modèle, sans bibliothèque ni étape de build
 
@@ -321,7 +332,7 @@ docs/
   methodologie.md               ce que le modèle calcule, et pourquoi ainsi
   limites.md                    ce qu'il ne calcule pas, et ce qui reste à certifier
 
-tests/                          150 tests Python
+tests/                          194 tests Python
   temoins/                      chiffres et pages figés depuis le modèle Python
   js/                           le portage rejoué contre ces témoins (node --test)
 ```
@@ -354,7 +365,7 @@ sous « Options de modélisation ».
 python -m pytest tests
 ```
 
-150 tests couvrant le chargement et la fiabilité des données, la règle de
+194 tests couvrant le chargement et la fiabilité des données, la règle de
 certification, la calibration des tables de mortalité et sa concordance avec les
 tables observées, les propriétés du moteur
 (monotonie du diviseur, cliquet de l'âge de référence, règles de fusion), le
