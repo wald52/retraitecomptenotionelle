@@ -29,12 +29,25 @@ se rencontre qu'aux âges où le quotient est minuscule et l'écart relatif donc
 trompeur. Deux reconstructions indépendantes qui concordent à ce point valent
 mieux qu'une seule.
 
-**Périmètre repris.** 1899-1985 seulement, tous âges. Le XIXe siècle est hors
-du champ du modèle, dont la répartition commence en 1941 ; et à partir de 1986,
-c'est Eurostat qui est le producteur de la donnée observée — on ne mélange pas
-deux sources sur une même année. L'INED couvre pourtant 1986-1997 lui aussi, et
-jusqu'à 104 ans là où Eurostat s'arrête à 94 : c'est un complément possible,
-laissé de côté pour ne pas panacher.
+**Périmètre repris.** 1899-1985 pour tous les âges, puis 1986-1997 pour les
+seuls âges de 95 à 104 ans. Le XIXe siècle est hors du champ du modèle, dont la
+répartition commence en 1941. À partir de 1986, Eurostat est le producteur de
+la donnée observée et le dépôt lui laisse tout ce qu'il publie — mais il
+s'arrête à 94 ans, et ses classes ouvertes (85 et plus, 95 et plus) ne sont pas
+des quotients à un âge donné. Reprendre le seul complément que l'INED apporte
+là — les dix âges qu'Eurostat ne couvre pas — n'est donc pas panacher deux
+sources sur une même donnée : c'est en ajouter une là où l'autre se tait.
+
+**Ce que ce complément mesure, et qu'il ne corrige pas.** Ces 240 quotients ne
+déplacent aucune simulation : une liquidation de 2004 ou plus tard ne traverse
+les âges de 95 ans et plus qu'après 2035, années où aucune observation
+n'existera jamais et où la loi de Gompertz-Makeham reprend forcément la main.
+Ils servent à AUDITER cette loi, et le verdict est net — sur les douze années
+et vingt-quatre couples (année, sexe) où l'on peut comparer, elle sous-estime
+la mortalité au-delà de 94 ans de 22 % en moyenne. La queue de la table pesant
+de 8 à 12 % du diviseur de conversion, cette sous-estimation gonfle le diviseur
+d'environ 1,5 % et rabote donc les pensions notionnelles d'autant. Un test le
+mesure et le fige, pour que l'écart ne dérive pas en silence.
 """
 
 from __future__ import annotations
@@ -57,6 +70,12 @@ SORTIE = Path("data/brut/ined_vallin_mesle.json")
 
 #: Bornes reprises. Voir la note de périmètre ci-dessus.
 PREMIERE_ANNEE, DERNIERE_ANNEE = 1899, 1985
+
+#: Complément des grands âges : de 1986 à 1997, Eurostat publie les quotients
+#: jusqu'à 94 ans et s'arrête là. L'INED, lui, va jusqu'à 104 ans. On reprend
+#: donc ces dix âges-là, et eux seuls, sur ces douze années.
+PREMIERE_ANNEE_GRANDS_AGES, DERNIERE_ANNEE_GRANDS_AGES = 1986, 1997
+PREMIER_AGE_COMPLEMENT = 95
 
 #: Feuille du classeur -> code de sexe du dépôt.
 SEXES = {"Hommes": "H", "Femmes": "F"}
@@ -84,11 +103,17 @@ def extraire(donnees: bytes) -> dict[str, float]:
         cellules = classeur[feuille]
         lignes = {int(cellules[(ligne, 0)]): ligne
                   for (ligne, colonne) in cellules if colonne == 0}
-        for annee in range(PREMIERE_ANNEE, DERNIERE_ANNEE + 1):
+        plages = [
+            (PREMIERE_ANNEE, DERNIERE_ANNEE, 0),
+            (PREMIERE_ANNEE_GRANDS_AGES, DERNIERE_ANNEE_GRANDS_AGES,
+             PREMIER_AGE_COMPLEMENT),
+        ]
+        for premiere, derniere, premier_age in plages:
+          for annee in range(premiere, derniere + 1):
             ligne = lignes.get(annee)
             if ligne is None:
                 continue
-            for age in range(0, AGE_MAXIMAL + 1):
+            for age in range(premier_age, AGE_MAXIMAL + 1):
                 quotient = cellules.get((ligne, age + 1))
                 # Un quotient est une probabilité : ce qui n'en est pas une
                 # n'est pas une valeur de la table, c'est une cellule de
@@ -158,9 +183,12 @@ def main() -> int:
                            "statistiques n° 4, 2001 — Tableau II-B-1",
             "recupere_le": date.today().isoformat(),
             "note": "quotients du moment par année d'âge, 0 à 104 ans. Le dépôt "
-                    "n'en reprend que 1899-1985 : à partir de 1986 la donnée "
-                    "observée vient d'Eurostat, son producteur, et l'on ne "
-                    "panache pas deux sources sur une même année.",
+                    "en reprend 1899-1985 tous âges, puis 1986-1997 pour les "
+                    "seuls âges de 95 à 104 ans : à partir de 1986 la donnée "
+                    "observée vient d'Eurostat, son producteur, mais Eurostat "
+                    "s'arrête à 94 ans. Ce complément n'est pas un panachage : "
+                    "il ajoute une source là où l'autre se tait, et il sert à "
+                    "auditer la loi paramétrique qui prend le relais au-delà.",
             "serie": dict(sorted(
                 serie.items(),
                 key=lambda kv: (int(kv[0].split("|")[0]), kv[0].split("|")[1],
@@ -170,7 +198,9 @@ def main() -> int:
         encoding="utf-8",
     )
     print(f"\n{len(serie)} quotients écrits dans {SORTIE}")
-    print(f"Couverture {annees[0]}-{annees[-1]}, âges 0-{AGE_MAXIMAL}, "
+    print(f"Couverture {PREMIERE_ANNEE}-{DERNIERE_ANNEE} tous âges, puis "
+          f"{PREMIERE_ANNEE_GRANDS_AGES}-{DERNIERE_ANNEE_GRANDS_AGES} de "
+          f"{PREMIER_AGE_COMPLEMENT} à {AGE_MAXIMAL} ans, "
           f"{len(SEXES)} sexes")
     return 0
 

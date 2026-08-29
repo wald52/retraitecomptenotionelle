@@ -200,6 +200,7 @@ def test_journal_de_certification_decrit_les_series_certifiees():
         "plafond": "macro/plafond_securite_sociale.csv",
         "plafond_ancien": "macro/plafond_securite_sociale.csv",
         "esperances_vie": "mortalite/esperances_vie.csv",
+        "esperance_65_derivee": "mortalite/esperances_vie.csv",
         "minimum_contributif": "legislation/minimum_contributif.csv",
         "point_indice_fonction_publique":
             "legislation/point_indice_fonction_publique.csv",
@@ -352,3 +353,94 @@ def test_unisexe_est_entre_les_deux_sexes(mortalite):
     homme = mortalite.esperance_residuelle(65, 2020, "H")
     femme = mortalite.esperance_residuelle(65, 2020, "F")
     assert homme < unisexe < femme
+
+
+def test_e65_ancienne_derive_des_quotients_certifies(mortalite):
+    """Avant 1960, l'espérance de vie à 65 ans n'est plus saisie mais calculée.
+
+    Personne ne la publie avant l'OCDE, et le dépôt la tirait de quatre valeurs
+    saisies dans les tables TD/TV, les treize autres années étant interpolées
+    entre elles. Il a mieux depuis qu'il porte les quotients du moment de Vallin
+    et Meslé : une espérance de vie est leur somme cumulée.
+
+    Le contrôle qui autorise la méthode est ici : appliquée à e60, que l'INSEE
+    publie et que le dépôt certifie, elle retrouve la valeur publiée à moins
+    d'un dixième d'année.
+    """
+    import csv
+
+    chemin = RACINE_DONNEES / "reference" / "mortalite" / "quotients_periode.csv"
+    lignes = [l for l in chemin.read_text(encoding="utf-8").splitlines()
+              if not l.startswith("#")]
+    quotients: dict[tuple[int, str], dict[int, float]] = {}
+    for ligne in csv.DictReader(lignes):
+        quotients.setdefault(
+            (int(ligne["annee"]), ligne["sexe"]), {}
+        )[int(ligne["age"])] = float(ligne["qx"])
+
+    def esperance(table: dict[int, float], depart: int) -> float:
+        total, survie, age = 0.0, 1.0, depart
+        while age in table:
+            survie *= 1.0 - table[age]
+            total += survie
+            age += 1
+        return total + 0.5
+
+    for annee in (1946, 1950, 1955, 1960, 1970, 1980):
+        for sexe in ("H", "F"):
+            table = quotients[(annee, sexe)]
+            # e60 est certifiée par l'INSEE : c'est l'étalon de la méthode, et
+            # il vaut sur toute la période, pas seulement là où l'on dérive.
+            publiee = mortalite._e60[sexe].brut(annee).valeur
+            assert esperance(table, 60) == pytest.approx(publiee, abs=0.12), (annee, sexe)
+
+            derivee = round(esperance(table, 65), 2)
+            portee = mortalite._e65[sexe].brut(annee).valeur
+            if annee < 1960:
+                # Avant l'OCDE, le fichier porte exactement ce calcul.
+                assert portee == pytest.approx(derivee, abs=0.005), (annee, sexe)
+            else:
+                # À partir de 1960, il porte l'OCDE — et la dérivation la
+                # retrouve dans la même marge que pour e60. C'est ce second
+                # recoupement qui autorise à s'en servir en deçà.
+                assert portee == pytest.approx(derivee, abs=0.4), (annee, sexe)
+
+    # Et plus aucune valeur d'avant 1960 n'est interpolée : toutes sont au
+    # fichier, année par année.
+    for annee in range(1946, 1960):
+        for sexe in ("H", "F"):
+            assert mortalite._e65[sexe].brut(annee).annee == annee, (annee, sexe)
+
+
+def test_la_loi_parametrique_sous_estime_la_mortalite_des_grands_ages(mortalite):
+    """Ce que coûte le raccord au-delà du dernier âge observé, mesuré.
+
+    Eurostat s'arrête à 94 ans ; au-delà, le modèle reprend sa loi de
+    Gompertz-Makeham, calibrée sur e60 et e65. Les tables de Vallin et Meslé
+    couvrent 1986-1997 jusqu'à 104 ans : ces douze années sont le seul endroit
+    où l'on peut confronter la loi à l'observation aux grands âges.
+
+    Le verdict est net et il va toujours dans le même sens — la loi fait mourir
+    les très vieux trop lentement, d'environ un cinquième. La queue de la table
+    pesant de 8 à 12 % du diviseur de conversion, cela gonfle le diviseur
+    d'environ 1,5 % et rabote d'autant les pensions notionnelles.
+
+    Ce test ne corrige rien : il FIGE l'écart, pour qu'il ne dérive pas en
+    silence et que le chiffre cité dans `docs/limites.md` reste vrai.
+    """
+    import statistics
+
+    ecarts = []
+    for annee in range(1986, 1998):
+        for sexe in ("H", "F"):
+            for age in range(95, 105):
+                observe = 1.0 - mortalite.survie_annuelle(age, annee, sexe)
+                loi = 1.0 - mortalite.loi(annee, sexe).survie(age, 1.0)
+                ecarts.append((loi - observe) / observe)
+
+    assert len(ecarts) == 240
+    biais = statistics.mean(ecarts)
+    # La loi sous-estime : le biais est négatif, et d'un ordre stable.
+    assert -0.30 < biais < -0.15, biais
+    # Et jamais dans l'autre sens sur la médiane.
+    assert statistics.median(ecarts) < 0

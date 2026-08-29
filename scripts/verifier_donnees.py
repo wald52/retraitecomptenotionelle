@@ -56,6 +56,16 @@ DONNEES = RACINE / "data"
 BRUT = DONNEES / "brut"
 REFERENCE = DONNEES / "reference"
 
+#: Première année du fichier des espérances de vie : avant elle, aucune série
+#: du dépôt n'en a besoin.
+PREMIERE_ANNEE_ESPERANCE = 1946
+#: Première année où l'OCDE publie e65. En deçà, personne ne la publie et le
+#: dépôt la dérive des quotients observés.
+PREMIERE_ANNEE_OCDE = 1960
+#: Âge auquel la table doit au moins monter pour qu'une espérance à 65 ans
+#: dérivée d'elle ait un sens. Les tables de Vallin et Meslé vont à 104 ans.
+AGE_TERMINAL_MINIMAL = 100
+
 #: Seuil d'alerte du contrôle de vraisemblance IPC / IPCH, en points de taux.
 #: Fixé à 1,5 point : au-dessous, l'écart s'explique par la différence de
 #: méthode entre indice national et indice harmonisé ; au-dessus, il y a
@@ -235,6 +245,53 @@ def source_esperances() -> dict[tuple, float]:
     return dict(sorted(valeurs.items()))
 
 
+def source_esperance_65_derivee() -> dict[tuple, float]:
+    """Espérance de vie à 65 ans d'avant 1960, dérivée des quotients observés.
+
+    L'OCDE ne remonte pas plus haut, et l'INSEE ne publie jamais e65 : ces
+    années restaient saisies depuis les tables TD/TV, et les années qu'aucune
+    saisie ne couvrait — 1947 à 1949, 1951 à 1959 — étaient simplement
+    interpolées. Or le dépôt a mieux depuis qu'il porte les tables de Vallin et
+    Meslé : **les quotients du moment eux-mêmes**, certifiés, de 1899 à 1985 et
+    jusqu'à 104 ans. Une espérance de vie n'est rien d'autre que leur somme
+    cumulée ; il n'y avait donc plus de raison de la saisir.
+
+    La méthode se contrôle d'elle-même : appliquée à e60, que l'INSEE publie et
+    que le dépôt certifie, elle retrouve la valeur publiée à moins d'un dixième
+    d'année sur toute la période. Appliquée à e65 après 1960, elle retrouve
+    l'OCDE dans la même marge. C'est ce double recoupement, et non la formule,
+    qui autorise à s'en servir là où personne ne publie.
+
+    Niveau ``haute`` et non ``certifiee`` : la valeur est calculée, non
+    confrontée à une publication. Elle est en revanche RECALCULÉE à chaque
+    exécution depuis un fichier certifié, ce qu'aucune saisie ne peut offrir.
+    """
+    chemin = REFERENCE / "mortalite" / "quotients_periode.csv"
+    if not chemin.exists():
+        raise SourceAbsente(f"{chemin} absent (lancer scripts/fetch/ined_vallin_mesle.py)")
+
+    quotients: dict[tuple[int, str], dict[int, float]] = {}
+    for ligne in charger_csv(chemin):
+        quotients.setdefault(
+            (int(ligne["annee"]), ligne["sexe"]), {}
+        )[int(ligne["age"])] = float(ligne["qx"])
+
+    valeurs: dict[tuple, float] = {}
+    for (annee, sexe), table in quotients.items():
+        if not (PREMIERE_ANNEE_ESPERANCE <= annee < PREMIERE_ANNEE_OCDE):
+            continue
+        if AGE_TERMINAL_MINIMAL not in table:
+            # Une table tronquée trop bas rendrait une espérance trop courte.
+            continue
+        total, survie, age = 0.0, 1.0, 65
+        while age in table:
+            survie *= 1.0 - table[age]
+            total += survie
+            age += 1
+        valeurs[(str(annee), sexe, "e65")] = round(total + 0.5, 2)
+    return dict(sorted(valeurs.items()))
+
+
 def source_quotients() -> dict[tuple, float]:
     """Quotients de mortalité par âge — les vraies tables du moment.
 
@@ -264,7 +321,14 @@ def source_quotients_anciens() -> dict[tuple, float]:
 
     Les deux sources se recouvrent de 1986 à 1997 et concordent à un demi-point
     de pourcentage près ; le dépôt reprend l'INED jusqu'en 1985 et laisse à
-    Eurostat, producteur de la donnée observée, tout ce qui suit.
+    Eurostat, producteur de la donnée observée, tout ce qu'il publie.
+
+    S'y ajoutent, de 1986 à 1997, les seuls âges de 95 à 104 ans : Eurostat
+    s'arrête à 94 et ses classes ouvertes n'en sont pas des quotients. Ce n'est
+    donc pas un panachage — c'est une source là où l'autre se tait. Ces
+    240 valeurs ne déplacent aucune simulation ; elles servent à AUDITER la loi
+    paramétrique qui prend le relais au-delà du dernier âge observé, et
+    `tests/test_donnees.py` fige l'écart qu'elles révèlent.
     """
     serie = _serie_json("ined_vallin_mesle.json", "scripts/fetch/ined_vallin_mesle.py")
     return {
@@ -789,6 +853,18 @@ CERTIFICATIONS = (
         origine="OpenFisca-France, point_indice_en_euros.yaml",
         decimales=4,
         tolerance=5e-5,
+        niveau="haute",
+    ),
+    Certification(
+        nom="esperance_65_derivee",
+        chemin=REFERENCE / "mortalite" / "esperances_vie.csv",
+        cles=("annee", "sexe", "mesure"),
+        colonne="valeur",
+        source=source_esperance_65_derivee,
+        origine="dérivée des quotients INED de Vallin et Meslé",
+        decimales=2,
+        tolerance=0.005,
+        unite=" ans",
         niveau="haute",
     ),
     Certification(

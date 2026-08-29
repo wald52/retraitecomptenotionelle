@@ -175,10 +175,11 @@ modèle n'a pas, ou décrit un dispositif qu'il représenterait faussement.
 | Productivité réelle | 1930-1949 | estimée | reconstitution |
 | Espérance de vie à 0 et 60 ans | 1946-2025 | **certifiée** | INSEE BDM, quatre idbanks, annuel par sexe |
 | Espérance de vie à 65 ans | 1960-2024 | **certifiée** | OCDE `DSD_HEALTH_STAT@DF_LE` |
-| Espérance de vie à 65 ans | 1946-1959 | haute / moyenne | tables TD/TV, saisies |
+| Espérance de vie à 65 ans | 1946-1959 | haute | **dérivée** des quotients INED, recalculée à chaque exécution |
 | Quotients de mortalité par âge | 1986-2024 | **certifiée** | Eurostat `demo_mlifetable`, âges 0-94 |
 | Quotients de mortalité par âge | 1899-1985 | **certifiée** | INED, tables de Vallin et Meslé, âges 0-104 |
-| Quotients de mortalité par âge | après 1985, au-delà de 94 ans | absents | calibration paramétrique |
+| Quotients de mortalité par âge | 1986-1997, 95 à 104 ans | **certifiée** | INED, là où Eurostat s'arrête |
+| Quotients de mortalité par âge | après 1997, au-delà de 94 ans | absents | calibration paramétrique, dont le biais est mesuré |
 | Minimum contributif et plafond d'écrêtement | ancres de 2007 à 2014 | **certifiée** | DILA, base LEGI, code de la sécurité sociale |
 | Point d'indice de la fonction publique | 1960-2027 | haute | OpenFisca-France, `point_indice_en_euros` |
 | Plafond Sécurité sociale | 2002-2025 | **certifiée** | INSEE BDM, idbank 000822494 |
@@ -304,20 +305,53 @@ qui a été cherché, pour éviter de le rechercher deux fois.
   `scripts/fetch/lecture_xls.py` extrait les nombres d'un fichier composite
   OLE2, en quatre types d'enregistrements BIFF et sans dépendance.
 
-* *Espérance de vie à 65 ans d'avant 1960* — l'INSEE publie e0, e1, e20, e40 et
-  e60, jamais e65 ; ni l'OCDE (1960) ni Eurostat (1986) ne remontent plus haut.
-  La question a toutefois perdu de son poids : sur 1899-1985, le modèle
-  n'estime plus la mortalité, il la lit. L'espérance de vie à 65 ans n'y sert
-  plus qu'à calibrer une loi dont ces années n'ont plus besoin, et elle reste
-  dérivable des mêmes tables INED si le besoin revient.
+* *Espérance de vie à 65 ans d'avant 1960* — **réglée, en la calculant.**
+  L'INSEE publie e0, e1, e20, e40 et e60, jamais e65 ; ni l'OCDE (1960) ni
+  Eurostat (1986) ne remontent plus haut. Ces quatorze années étaient donc
+  saisies — quatre valeurs prises aux tables TD/TV, pour 1946 et 1950 — et les
+  treize autres simplement INTERPOLÉES entre elles.
 
-* *Quotients de mortalité au-delà de 94 ans, depuis 1986* — Eurostat s'arrête à
-  94 ans et ses classes ouvertes (85 et plus, 95 et plus) ne sont pas des
-  quotients à un âge donné. Au-delà, sur ces années-là, le modèle reprend sa
-  loi de Gompertz-Makeham : c'est un raccord assumé, mais il ne concerne plus
-  que les années postérieures à 1986. L'INED couvre 1986-1997 jusqu'à 104 ans
-  et pourrait combler ces douze années ; on s'en est abstenu pour ne pas
-  panacher deux sources sur une même année.
+  Il n'y avait plus lieu de les saisir depuis que le dépôt porte les quotients
+  du moment de Vallin et Meslé : une espérance de vie n'est rien d'autre que
+  leur somme cumulée. Les vingt-huit valeurs sont désormais dérivées, et
+  RECALCULÉES à chaque exécution de `verifier_donnees.py` depuis un fichier
+  certifié — ce qu'aucune saisie ne peut offrir. Elles restent au niveau
+  `haute`, parce qu'elles sont calculées et non confrontées à une publication.
+
+  La méthode se contrôle d'elle-même, et c'est ce contrôle qui l'autorise :
+  appliquée à e60, que l'INSEE publie et que le dépôt certifie, elle retrouve
+  la valeur publiée à moins d'un dixième d'année sur toute la période ;
+  appliquée à e65 après 1960, elle retrouve l'OCDE dans la même marge. Deux des
+  quatre valeurs saisies s'en écartaient — 1946 pour les deux sexes, d'un
+  demi-an chez les hommes — et l'interpolation effaçait les creux réels de 1949
+  et de 1951, deux années de surmortalité.
+
+* *Quotients de mortalité au-delà de 94 ans* — **complétés jusqu'en 1997, et
+  mesurés au-delà.** Eurostat s'arrête à 94 ans et ses classes ouvertes (85 et
+  plus, 95 et plus) ne sont pas des quotients à un âge donné. L'INED, lui, va
+  jusqu'à 104 ans et couvre 1986-1997 : ces dix âges-là sont désormais repris.
+  Ce n'est pas panacher deux sources sur une même donnée — c'est en ajouter une
+  là où l'autre se tait.
+
+  **Ces 240 valeurs ne déplacent aucune simulation, et c'est justement ce qui
+  les rend précieuses.** Une liquidation de 2004 ou plus tard ne traverse les
+  âges de 95 ans et plus qu'après 2035, années où aucune observation n'existera
+  jamais : la loi de Gompertz-Makeham y reprend forcément la main. Les douze
+  années observées sont donc le seul endroit où l'on puisse CONFRONTER cette
+  loi à la réalité — et le verdict est net, toujours dans le même sens :
+
+  > la loi sous-estime la mortalité au-delà de 94 ans de **22 % en moyenne**.
+  > La queue de la table pesant de 8 à 12 % du diviseur de conversion selon la
+  > génération, elle gonfle ce diviseur d'environ **1,5 %** et rabote donc les
+  > pensions notionnelles d'autant.
+
+  L'écart est figé par un test (`test_la_loi_parametrique_sous_estime_la_
+  mortalite_des_grands_ages`), pour qu'il ne dérive pas en silence et que ce
+  chiffre reste vrai. Il n'est pas corrigé : le corriger supposerait de choisir
+  une forme de queue pour des années que personne n'observera, ce qui
+  remplacerait un biais mesuré par un biais inventé. Il joue au demeurant en
+  faveur du système actuel dans la comparaison, puisqu'il abaisse les seules
+  pensions notionnelles.
 
 * *Taux de cotisation d'avant octobre 1967 et des régimes autres que le régime
   général* — aucune transcription machine n'existe. Ils viennent des

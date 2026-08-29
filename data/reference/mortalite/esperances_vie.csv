@@ -1,5 +1,6 @@
 # Espérances de vie observées et projetées, France
-# source_id: insee_bdm_esperance_vie (e0, e60), oecd_health_le (e65),
+# source_id: insee_bdm_esperance_vie (e0, e60), oecd_health_le (e65 depuis 1960),
+#            ined_vallin_mesle (e65 d'avant 1960, dérivée des quotients),
 #            insee_projections (années projetées)
 # unite: années
 # sexe: H | F
@@ -11,13 +12,34 @@
 # fiabilité : l'espérance de vie à 60 ans est certifiée annuellement depuis
 # 1946, celle à 65 ans depuis 1960 seulement.
 #
-# POURQUOI e65 VIENT DE L'OCDE
-# ----------------------------
+# POURQUOI e65 VIENT DE L'OCDE, ET D'OÙ VIENNENT LES ANNÉES D'AVANT 1960
+# ----------------------------------------------------------------------
 # L'INSEE publie l'espérance de vie à 0, 1, 20, 40 et 60 ans — jamais à 65 ans,
 # dont la calibration a pourtant besoin pour fixer la pente de la force de
 # mortalité. L'OCDE la publie depuis 1960 et la tient de l'INSEE ; Eurostat la
 # publie aussi, depuis 1986, et sert de contrôle croisé. Les deux coïncident
 # exactement sur leurs 78 valeurs communes.
+#
+# Avant 1960, personne ne la publie. Ces années étaient saisies depuis les
+# tables TD/TV — quatre valeurs, pour 1946 et 1950 — et les treize autres
+# étaient INTERPOLÉES entre elles. Elles sont désormais DÉRIVÉES des quotients
+# de mortalité du moment que porte `quotients_periode.csv`, certifiés de 1899 à
+# 1985 par les tables de Vallin et Meslé : une espérance de vie n'est rien
+# d'autre que la somme cumulée des survies, et il n'y avait plus de raison de
+# la saisir une fois les quotients acquis.
+#
+# La méthode se contrôle d'elle-même, et c'est ce contrôle qui l'autorise :
+# appliquée à e60, que l'INSEE publie et que ce fichier certifie, elle retrouve
+# la valeur publiée à moins d'un dixième d'année sur toute la période ;
+# appliquée à e65 après 1960, elle retrouve l'OCDE dans la même marge. Deux des
+# quatre valeurs saisies s'en écartaient — 1946 pour les deux sexes, d'un
+# demi-an chez les hommes — et l'interpolation effaçait les creux réels de 1949
+# et 1951.
+#
+# Ces valeurs portent `haute` et non `certifiee` : elles sont calculées, non
+# confrontées à une publication. Elles sont en revanche RECALCULÉES à chaque
+# exécution de scripts/verifier_donnees.py depuis un fichier certifié, ce
+# qu'aucune saisie ne peut offrir.
 #
 # fiabilite:
 #   certifiee : valeur recontrôlée contre la source par scripts/verifier_donnees.py
@@ -39,64 +61,88 @@
 annee,sexe,mesure,valeur,fiabilite
 1946,F,e0,65.20,certifiee
 1946,F,e60,18.00,certifiee
-1946,F,e65,13.9,moyenne
+1946,F,e65,14.23,haute
 1946,H,e0,59.90,certifiee
 1946,H,e60,15.40,certifiee
-1946,H,e65,11.6,moyenne
+1946,H,e65,12.15,haute
 1947,F,e0,66.70,certifiee
 1947,F,e60,18.20,certifiee
+1947,F,e65,14.43,haute
 1947,H,e0,61.20,certifiee
 1947,H,e60,15.50,certifiee
+1947,H,e65,12.25,haute
 1948,F,e0,68.80,certifiee
 1948,F,e60,18.70,certifiee
+1948,F,e65,14.98,haute
 1948,H,e0,62.70,certifiee
 1948,H,e60,15.60,certifiee
+1948,H,e65,12.50,haute
 1949,F,e0,67.60,certifiee
 1949,F,e60,17.70,certifiee
+1949,F,e65,13.88,haute
 1949,H,e0,62.20,certifiee
 1949,H,e60,14.90,certifiee
+1949,H,e65,11.68,haute
 1950,F,e0,69.20,certifiee
 1950,F,e60,18.40,certifiee
-1950,F,e65,14.6,moyenne
+1950,F,e65,14.60,haute
 1950,H,e0,63.40,certifiee
 1950,H,e60,15.40,certifiee
-1950,H,e65,12.2,moyenne
+1950,H,e65,12.18,haute
 1951,F,e0,68.90,certifiee
 1951,F,e60,17.90,certifiee
+1951,F,e65,14.15,haute
 1951,H,e0,63.10,certifiee
 1951,H,e60,14.90,certifiee
+1951,H,e65,11.74,haute
 1952,F,e0,70.20,certifiee
 1952,F,e60,18.60,certifiee
+1952,F,e65,14.80,haute
 1952,H,e0,64.40,certifiee
 1952,H,e60,15.50,certifiee
+1952,H,e65,12.26,haute
 1953,F,e0,70.30,certifiee
 1953,F,e60,18.10,certifiee
+1953,F,e65,14.27,haute
 1953,H,e0,64.30,certifiee
 1953,H,e60,15.00,certifiee
+1953,H,e65,11.75,haute
 1954,F,e0,71.20,certifiee
 1954,F,e60,18.90,certifiee
+1954,F,e65,15.04,haute
 1954,H,e0,65.00,certifiee
 1954,H,e60,15.50,certifiee
+1954,H,e65,12.35,haute
 1955,F,e0,71.50,certifiee
 1955,F,e60,18.90,certifiee
+1955,F,e65,15.03,haute
 1955,H,e0,65.20,certifiee
 1955,H,e60,15.40,certifiee
+1955,H,e65,12.27,haute
 1956,F,e0,71.70,certifiee
 1956,F,e60,18.70,certifiee
+1956,F,e65,14.81,haute
 1956,H,e0,65.20,certifiee
 1956,H,e60,15.20,certifiee
+1956,H,e65,12.01,haute
 1957,F,e0,72.20,certifiee
 1957,F,e60,19.00,certifiee
+1957,F,e65,15.18,haute
 1957,H,e0,65.50,certifiee
 1957,H,e60,15.30,certifiee
+1957,H,e65,12.22,haute
 1958,F,e0,73.20,certifiee
 1958,F,e60,19.50,certifiee
+1958,F,e65,15.59,haute
 1958,H,e0,66.80,certifiee
 1958,H,e60,16.00,certifiee
+1958,H,e65,12.79,haute
 1959,F,e0,73.40,certifiee
 1959,F,e60,19.60,certifiee
+1959,F,e65,15.65,haute
 1959,H,e0,66.80,certifiee
 1959,H,e60,15.90,certifiee
+1959,H,e65,12.75,haute
 1960,F,e0,73.60,certifiee
 1960,F,e60,19.50,certifiee
 1960,F,e65,15.60,certifiee

@@ -1,6 +1,15 @@
 {
  "certifie_le": "2026-08-29",
  "series": {
+  "esperance_65_derivee": {
+   "ajoutees": 0,
+   "corrigees": 0,
+   "empreinte": "eb9ed5da75656a7a",
+   "identiques": 28,
+   "niveau": "haute",
+   "source": "dérivée des quotients INED de Vallin et Meslé",
+   "valeurs": 28
+  },
   "esperances_vie": {
    "ajoutees": 0,
    "corrigees": 0,
@@ -47,10 +56,10 @@
    "valeurs": 71
   },
   "point_indice_fonction_publique": {
-   "ajoutees": 1,
+   "ajoutees": 0,
    "corrigees": 0,
    "empreinte": "eea496d8ddd4ee78",
-   "identiques": 67,
+   "identiques": 68,
    "niveau": "haute",
    "source": "OpenFisca-France, point_indice_en_euros.yaml",
    "valeurs": 68
@@ -74,13 +83,13 @@
    "valeurs": 6850
   },
   "quotients_mortalite_anciens": {
-   "ajoutees": 0,
+   "ajoutees": 240,
    "corrigees": 0,
-   "empreinte": "f8ebae8e98ffe4d9",
+   "empreinte": "ccd29a507d00e837",
    "identiques": 18226,
    "niveau": "certifiee",
    "source": "INED, tables de Vallin et Meslé, quotients du moment par âge",
-   "valeurs": 18226
+   "valeurs": 18466
   },
   "salaire_moyen": {
    "ajoutees": 0,

@@ -245,6 +245,7 @@ sourcée et reprise automatiquement, plafonne à `haute`.
 | Espérance de vie à 0 et 60 ans | 1946-2025 | INSEE |
 | Espérance de vie à 65 ans | 1960-2024 | OCDE (l'INSEE ne la publie pas) |
 | Quotients de mortalité par âge | 1986-2024 | Eurostat |
+| Quotients de mortalité par âge | 1899-1985, et 95-104 ans jusqu'en 1997 | INED, tables de Vallin et Meslé |
 | Plafond de la Sécurité sociale | 2002-2025 | INSEE |
 | Valeurs du point de l'Ircantec | 1971-2021 | Caisse des dépôts, qui gère le régime |
 | Valeurs du point des avocats | 2017-2026 | CNBF, ses barèmes annuels |
@@ -280,8 +281,7 @@ python scripts/verifier_donnees.py              # confronte, sans rien écrire
 python scripts/verifier_donnees.py --appliquer  # aligne sur la source et certifie
 ```
 
-> **Ce qui reste saisi à la main :** les séries d'avant 1950, l'espérance de vie
-> à 65 ans d'avant 1960, les quotients de mortalité d'avant 1986, les taux de
+> **Ce qui reste saisi à la main :** les séries d'avant 1950, les taux de
 > cotisation d'avant 1967, les valeurs du point de la CNAVPL et de la MSA, les
 > montants servis des trois minima — transcrits de leur publication, et préférés
 > à toute projection parce qu'ils disent ce qui a été payé —, et les âges,
