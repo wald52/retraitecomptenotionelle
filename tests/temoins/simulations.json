@@ -90,7 +90,7 @@
       },
       {
        "detail": "2,623 points × valeur de service 1.8159 €",
-       "montant": 4571.793804528307,
+       "montant": 4762.285213050321,
        "regime": "arrco"
       },
       {
@@ -99,10 +99,10 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 39173.7473646082,
-     "pension_annuelle_euros_constants": 31264.226294139706,
-     "pension_mensuelle": 3264.4789470506835,
-     "taux_remplacement": 0.5202453449371622
+     "pension_annuelle": 39364.238773130215,
+     "pension_annuelle_euros_constants": 31416.255826767527,
+     "pension_mensuelle": 3280.3532310941846,
+     "taux_remplacement": 0.5227751582739286
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 432389.314741273,
@@ -123,7 +123,7 @@
      "rendement_cumule": 1.066788111639174,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.3320186837332468,
-     "variation_vs_actuel": -0.36180364329189807
+     "variation_vs_actuel": -0.36489200284594914
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -137,7 +137,7 @@
      "rendement_cumule": 1.1256616815700797,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.22733488190360435,
-     "variation_vs_actuel": -0.5630237077257021
+     "variation_vs_actuel": -0.5651383232244496
     }
    },
    "unite": {
@@ -238,7 +238,7 @@
       },
       {
        "detail": "2,623 points × valeur de service 1.8159 €",
-       "montant": 4571.793804528307,
+       "montant": 4762.285213050321,
        "regime": "arrco"
       },
       {
@@ -247,10 +247,10 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 39173.7473646082,
-     "pension_annuelle_euros_constants": 31264.226294139706,
-     "pension_mensuelle": 3264.4789470506835,
-     "taux_remplacement": 0.5202453449371622
+     "pension_annuelle": 39364.238773130215,
+     "pension_annuelle_euros_constants": 31416.255826767527,
+     "pension_mensuelle": 3280.3532310941846,
+     "taux_remplacement": 0.5227751582739286
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 432389.314741273,
@@ -271,7 +271,7 @@
      "rendement_cumule": 1.066788111639174,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.3320186837332468,
-     "variation_vs_actuel": -0.36180364329189807
+     "variation_vs_actuel": -0.36489200284594914
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -285,7 +285,7 @@
      "rendement_cumule": 1.1256616815700797,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.22733488190360435,
-     "variation_vs_actuel": -0.5630237077257021
+     "variation_vs_actuel": -0.5651383232244496
     }
    },
    "unite": {
@@ -390,7 +390,7 @@
       },
       {
        "detail": "658 points × valeur de service 2.3557 €",
-       "montant": 1488.2428189324917,
+       "montant": 1550.2529363880121,
        "regime": "arrco"
       },
       {
@@ -399,10 +399,10 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 56907.12649781106,
-     "pension_annuelle_euros_constants": 35010.874244264945,
-     "pension_mensuelle": 4742.260541484256,
-     "taux_remplacement": 0.5030976435422186
+     "pension_annuelle": 56969.13661526659,
+     "pension_annuelle_euros_constants": 35049.02462292079,
+     "pension_mensuelle": 4747.428051272215,
+     "taux_remplacement": 0.5036458550912388
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 0.0,
@@ -416,7 +416,7 @@
      "rendement_cumule": 1.1638265637746303,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.09742929737800254,
-     "variation_vs_actuel": -0.8063411772473815
+     "variation_vs_actuel": -0.8065519721980983
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -430,7 +430,7 @@
      "rendement_cumule": 1.1638265637746303,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.09742929737800254,
-     "variation_vs_actuel": -0.8063411772473815
+     "variation_vs_actuel": -0.8065519721980983
     }
    },
    "unite": {
@@ -534,7 +534,7 @@
       },
       {
        "detail": "658 points × valeur de service 2.3557 €",
-       "montant": 1488.2428189324917,
+       "montant": 1550.2529363880121,
        "regime": "arrco"
       },
       {
@@ -543,10 +543,10 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 56907.12649781106,
-     "pension_annuelle_euros_constants": 35010.874244264945,
-     "pension_mensuelle": 4742.260541484256,
-     "taux_remplacement": 0.5030976435422186
+     "pension_annuelle": 56969.13661526659,
+     "pension_annuelle_euros_constants": 35049.02462292079,
+     "pension_mensuelle": 4747.428051272215,
+     "taux_remplacement": 0.5036458550912388
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 0.0,
@@ -560,7 +560,7 @@
      "rendement_cumule": 1.1638265637746303,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.14235648008314045,
-     "variation_vs_actuel": -0.7170400579083724
+     "variation_vs_actuel": -0.7173480558926637
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -574,7 +574,7 @@
      "rendement_cumule": 1.1638265637746303,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.14235648008314045,
-     "variation_vs_actuel": -0.7170400579083724
+     "variation_vs_actuel": -0.7173480558926637
     }
    },
    "unite": {
@@ -675,7 +675,7 @@
       },
       {
        "detail": "658 points × valeur de service 2.3557 €",
-       "montant": 1488.2428189324917,
+       "montant": 1550.2529363880121,
        "regime": "arrco"
       },
       {
@@ -684,10 +684,10 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 56907.12649781106,
-     "pension_annuelle_euros_constants": 35010.874244264945,
-     "pension_mensuelle": 4742.260541484256,
-     "taux_remplacement": 0.5030976435422186
+     "pension_annuelle": 56969.13661526659,
+     "pension_annuelle_euros_constants": 35049.02462292079,
+     "pension_mensuelle": 4747.428051272215,
+     "taux_remplacement": 0.5036458550912388
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 203939.5379940996,
@@ -708,7 +708,7 @@
      "rendement_cumule": 1.1278748075275051,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.24823736683023442,
-     "variation_vs_actuel": -0.5065821316863255
+     "variation_vs_actuel": -0.5071192102131674
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -722,7 +722,7 @@
      "rendement_cumule": 1.1632691197947853,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.2232249775396874,
-     "variation_vs_actuel": -0.5562989006110204
+     "variation_vs_actuel": -0.5567818631223547
     }
    },
    "unite": {
@@ -823,7 +823,7 @@
       },
       {
        "detail": "658 points × valeur de service 2.3557 €",
-       "montant": 1488.2428189324917,
+       "montant": 1550.2529363880121,
        "regime": "arrco"
       },
       {
@@ -832,10 +832,10 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 56907.12649781106,
-     "pension_annuelle_euros_constants": 35010.874244264945,
-     "pension_mensuelle": 4742.260541484256,
-     "taux_remplacement": 0.5030976435422186
+     "pension_annuelle": 56969.13661526659,
+     "pension_annuelle_euros_constants": 35049.02462292079,
+     "pension_mensuelle": 4747.428051272215,
+     "taux_remplacement": 0.5036458550912388
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 591859.1276374261,
@@ -856,7 +856,7 @@
      "rendement_cumule": 1.071235171882908,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.30488469680526725,
-     "variation_vs_actuel": -0.3939850430253863
+     "variation_vs_actuel": -0.39464468192628066
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -870,7 +870,7 @@
      "rendement_cumule": 1.1632691197947853,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.2232249775396874,
-     "variation_vs_actuel": -0.5562989006110204
+     "variation_vs_actuel": -0.5567818631223547
     }
    },
    "unite": {
@@ -971,7 +971,7 @@
       },
       {
        "detail": "658 points × valeur de service 2.3557 €",
-       "montant": 1488.2428189324917,
+       "montant": 1550.2529363880121,
        "regime": "arrco"
       },
       {
@@ -980,23 +980,23 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 56907.12649781106,
-     "pension_annuelle_euros_constants": 35010.874244264945,
-     "pension_mensuelle": 4742.260541484256,
-     "taux_remplacement": 0.5030976435422186
+     "pension_annuelle": 56969.13661526659,
+     "pension_annuelle_euros_constants": 35049.02462292079,
+     "pension_mensuelle": 4747.428051272215,
+     "taux_remplacement": 0.5036458550912388
     },
     "notionnel_prospectif": {
-     "capital_droits_acquis": 1536875.9460547941,
-     "capital_notionnel": 1536875.9460547941,
+     "capital_droits_acquis": 1538550.6371487663,
+     "capital_notionnel": 1538550.6371487663,
      "cotisations_versees": 0,
      "droits_acquis": null,
      "fiabilite": "moyenne",
-     "pension_annuelle": 56907.12649781106,
-     "pension_annuelle_euros_constants": 35010.874244264945,
-     "pension_mensuelle": 4742.260541484256,
+     "pension_annuelle": 56969.13661526659,
+     "pension_annuelle_euros_constants": 35049.02462292079,
+     "pension_mensuelle": 4747.428051272215,
      "rendement_cumule": 0.0,
      "rente_capitalisation": 0.0,
-     "taux_remplacement": 0.5030976435422186,
+     "taux_remplacement": 0.5036458550912388,
      "variation_vs_actuel": 0.0
     },
     "notionnel_retroactif": {
@@ -1011,7 +1011,7 @@
      "rendement_cumule": 1.1638237832961182,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.22236014822328576,
-     "variation_vs_actuel": -0.5580179094903157
+     "variation_vs_actuel": -0.5584990008842547
     }
    },
    "unite": {
@@ -1112,7 +1112,7 @@
       },
       {
        "detail": "2,623 points × valeur de service 1.8159 €",
-       "montant": 4571.793804528307,
+       "montant": 4762.285213050321,
        "regime": "arrco"
       },
       {
@@ -1121,10 +1121,10 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 39173.7473646082,
-     "pension_annuelle_euros_constants": 31264.226294139706,
-     "pension_mensuelle": 3264.4789470506835,
-     "taux_remplacement": 0.5202453449371622
+     "pension_annuelle": 39364.238773130215,
+     "pension_annuelle_euros_constants": 31416.255826767527,
+     "pension_mensuelle": 3280.3532310941846,
+     "taux_remplacement": 0.5227751582739286
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 432389.314741273,
@@ -1145,7 +1145,7 @@
      "rendement_cumule": 1.066788111639174,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.3320186837332468,
-     "variation_vs_actuel": -0.36180364329189807
+     "variation_vs_actuel": -0.36489200284594914
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -1159,7 +1159,7 @@
      "rendement_cumule": 1.1256616815700797,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.22733488190360435,
-     "variation_vs_actuel": -0.5630237077257021
+     "variation_vs_actuel": -0.5651383232244496
     }
    },
    "unite": {
@@ -1260,7 +1260,7 @@
       },
       {
        "detail": "2,623 points × valeur de service 1.8159 €",
-       "montant": 4571.793804528307,
+       "montant": 4762.285213050321,
        "regime": "arrco"
       },
       {
@@ -1269,10 +1269,10 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 39173.7473646082,
-     "pension_annuelle_euros_constants": 31264.226294139706,
-     "pension_mensuelle": 3264.4789470506835,
-     "taux_remplacement": 0.5202453449371622
+     "pension_annuelle": 39364.238773130215,
+     "pension_annuelle_euros_constants": 31416.255826767527,
+     "pension_mensuelle": 3280.3532310941846,
+     "taux_remplacement": 0.5227751582739286
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 482714.47875659214,
@@ -1293,7 +1293,7 @@
      "rendement_cumule": 1.066788111639174,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.35790968297055353,
-     "variation_vs_actuel": -0.3120367410230579
+     "variation_vs_actuel": -0.3153659325506576
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -1307,7 +1307,7 @@
      "rendement_cumule": 1.1256616815700797,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.22733488190360435,
-     "variation_vs_actuel": -0.5630237077257021
+     "variation_vs_actuel": -0.5651383232244496
     }
    },
    "unite": {
@@ -1551,7 +1551,7 @@
      "par_regime": [
       {
        "detail": "7,188 points × valeur de service 0.3742 €",
-       "montant": 2151.980483277059,
+       "montant": 2689.975604096324,
        "regime": "arrco"
       },
       {
@@ -1565,23 +1565,23 @@
        "regime": "unirs"
       }
      ],
-     "pension_annuelle": 11950.420315391086,
-     "pension_annuelle_euros_constants": 19531.432529086982,
-     "pension_mensuelle": 995.8683596159239,
-     "taux_remplacement": 0.4596749640216959
+     "pension_annuelle": 12488.41543621035,
+     "pension_annuelle_euros_constants": 20410.716698676093,
+     "pension_mensuelle": 1040.7012863508626,
+     "taux_remplacement": 0.48036903847930634
     },
     "notionnel_prospectif": {
-     "capital_droits_acquis": 305767.6427116012,
-     "capital_notionnel": 305767.6427116012,
+     "capital_droits_acquis": 319532.9744356567,
+     "capital_notionnel": 319532.9744356567,
      "cotisations_versees": 0,
      "droits_acquis": null,
      "fiabilite": "estimee",
-     "pension_annuelle": 11950.420315391086,
-     "pension_annuelle_euros_constants": 19531.432529086982,
-     "pension_mensuelle": 995.8683596159239,
+     "pension_annuelle": 12488.41543621035,
+     "pension_annuelle_euros_constants": 20410.716698676093,
+     "pension_mensuelle": 1040.7012863508626,
      "rendement_cumule": 0.0,
      "rente_capitalisation": 0.0,
-     "taux_remplacement": 0.4596749640216959,
+     "taux_remplacement": 0.48036903847930634,
      "variation_vs_actuel": 0.0
     },
     "notionnel_retroactif": {
@@ -1596,7 +1596,7 @@
      "rendement_cumule": 1.1907387113894496,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.1027460719477891,
-     "variation_vs_actuel": -0.776481035536798
+     "variation_vs_actuel": -0.7861101284274064
     }
    },
    "unite": {
@@ -1697,7 +1697,7 @@
       },
       {
        "detail": "2,623 points × valeur de service 1.8159 €",
-       "montant": 4571.793804528307,
+       "montant": 4762.285213050321,
        "regime": "arrco"
       },
       {
@@ -1706,10 +1706,10 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 43091.12210106902,
-     "pension_annuelle_euros_constants": 34390.64892355368,
-     "pension_mensuelle": 3590.926841755752,
-     "taux_remplacement": 0.5722698794308785
+     "pension_annuelle": 43300.66265044324,
+     "pension_annuelle_euros_constants": 34557.881409444286,
+     "pension_mensuelle": 3608.3885542036037,
+     "taux_remplacement": 0.5750526741013215
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 432389.314741273,
@@ -1730,7 +1730,7 @@
      "rendement_cumule": 1.066788111639174,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.3320186837332468,
-     "variation_vs_actuel": -0.4198214939017255
+     "variation_vs_actuel": -0.4226290934963175
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -1744,7 +1744,7 @@
      "rendement_cumule": 1.1256616815700797,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.22733488190360435,
-     "variation_vs_actuel": -0.6027488252051838
+     "variation_vs_actuel": -0.6046712029313179
     }
    },
    "unite": {
@@ -1845,7 +1845,7 @@
       },
       {
        "detail": "2,623 points × valeur de service 1.8159 €",
-       "montant": 4571.793804528307,
+       "montant": 4762.285213050321,
        "regime": "arrco"
       },
       {
@@ -1854,10 +1854,10 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 39173.7473646082,
-     "pension_annuelle_euros_constants": 9305.58496825237,
-     "pension_mensuelle": 3264.4789470506835,
-     "taux_remplacement": 0.5202453449371622
+     "pension_annuelle": 39364.238773130215,
+     "pension_annuelle_euros_constants": 9350.835527797388,
+     "pension_mensuelle": 3280.3532310941846,
+     "taux_remplacement": 0.5227751582739286
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 432389.314741273,
@@ -1878,7 +1878,7 @@
      "rendement_cumule": 1.066788111639174,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.3320186837332468,
-     "variation_vs_actuel": -0.36180364329189807
+     "variation_vs_actuel": -0.36489200284594914
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -1892,7 +1892,7 @@
      "rendement_cumule": 1.1256616815700797,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.22733488190360435,
-     "variation_vs_actuel": -0.5630237077257021
+     "variation_vs_actuel": -0.5651383232244496
     }
    },
    "unite": {
@@ -1993,7 +1993,7 @@
       },
       {
        "detail": "2,623 points × valeur de service 1.8159 €",
-       "montant": 4571.793804528307,
+       "montant": 4762.285213050321,
        "regime": "arrco"
       },
       {
@@ -2002,10 +2002,10 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 39173.7473646082,
-     "pension_annuelle_euros_constants": 20298.011203969043,
-     "pension_mensuelle": 3264.4789470506835,
-     "taux_remplacement": 0.5202453449371622
+     "pension_annuelle": 39364.238773130215,
+     "pension_annuelle_euros_constants": 20396.714978934746,
+     "pension_mensuelle": 3280.3532310941846,
+     "taux_remplacement": 0.5227751582739286
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 432389.314741273,
@@ -2026,7 +2026,7 @@
      "rendement_cumule": 1.066788111639174,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.3320186837332468,
-     "variation_vs_actuel": -0.36180364329189807
+     "variation_vs_actuel": -0.36489200284594914
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -2040,7 +2040,7 @@
      "rendement_cumule": 1.1256616815700797,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.22733488190360435,
-     "variation_vs_actuel": -0.5630237077257021
+     "variation_vs_actuel": -0.5651383232244496
     }
    },
    "unite": {
@@ -2141,7 +2141,7 @@
       },
       {
        "detail": "2,623 points × valeur de service 1.8159 €",
-       "montant": 4571.793804528307,
+       "montant": 4762.285213050321,
        "regime": "arrco"
       },
       {
@@ -2150,10 +2150,10 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 39173.7473646082,
-     "pension_annuelle_euros_constants": 47410.41043586582,
-     "pension_mensuelle": 3264.4789470506835,
-     "taux_remplacement": 0.5202453449371622
+     "pension_annuelle": 39364.238773130215,
+     "pension_annuelle_euros_constants": 47640.95452393778,
+     "pension_mensuelle": 3280.3532310941846,
+     "taux_remplacement": 0.5227751582739286
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 432389.314741273,
@@ -2174,7 +2174,7 @@
      "rendement_cumule": 1.066788111639174,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.3320186837332468,
-     "variation_vs_actuel": -0.36180364329189807
+     "variation_vs_actuel": -0.36489200284594914
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -2188,7 +2188,7 @@
      "rendement_cumule": 1.1256616815700797,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.22733488190360435,
-     "variation_vs_actuel": -0.5630237077257021
+     "variation_vs_actuel": -0.5651383232244496
     }
    },
    "unite": {
@@ -2284,7 +2284,7 @@
      "par_regime": [
       {
        "detail": "7,187 points × valeur de service 0.3698 €",
-       "montant": 2551.261153698799,
+       "montant": 2657.563701769582,
        "regime": "arrco"
       },
       {
@@ -2298,23 +2298,23 @@
        "regime": "unirs"
       }
      ],
-     "pension_annuelle": 12066.440147528341,
-     "pension_annuelle_euros_constants": 20094.568822595247,
-     "pension_mensuelle": 1005.5366789606951,
-     "taux_remplacement": 0.46914573237389534
+     "pension_annuelle": 12172.742695599125,
+     "pension_annuelle_euros_constants": 20271.597328277858,
+     "pension_mensuelle": 1014.3952246332605,
+     "taux_remplacement": 0.473278797814749
     },
     "notionnel_prospectif": {
-     "capital_droits_acquis": 255530.6534028488,
-     "capital_notionnel": 255530.6534028488,
+     "capital_droits_acquis": 257781.81938343667,
+     "capital_notionnel": 257781.81938343667,
      "cotisations_versees": 0,
      "droits_acquis": null,
      "fiabilite": "estimee",
-     "pension_annuelle": 12066.440147528341,
-     "pension_annuelle_euros_constants": 20094.568822595247,
-     "pension_mensuelle": 1005.5366789606951,
+     "pension_annuelle": 12172.742695599125,
+     "pension_annuelle_euros_constants": 20271.597328277858,
+     "pension_mensuelle": 1014.3952246332605,
      "rendement_cumule": 0.0,
      "rente_capitalisation": 0.0,
-     "taux_remplacement": 0.46914573237389534,
+     "taux_remplacement": 0.473278797814749,
      "variation_vs_actuel": 0.0
     },
     "notionnel_retroactif": {
@@ -2329,7 +2329,7 @@
      "rendement_cumule": 1.1996337094207148,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.11716952578458324,
-     "variation_vs_actuel": -0.7502491918839356
+     "variation_vs_actuel": -0.7524302243717966
     }
    },
    "unite": {
@@ -2425,7 +2425,7 @@
      "par_regime": [
       {
        "detail": "8,628 points × valeur de service 1.0886 €",
-       "montant": 9016.247544530965,
+       "montant": 9391.924525553088,
        "regime": "arrco"
       },
       {
@@ -2434,23 +2434,23 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 22950.82588348676,
-     "pension_annuelle_euros_constants": 32728.935719368124,
-     "pension_mensuelle": 1912.5688236238966,
-     "taux_remplacement": 0.7109264401409543
+     "pension_annuelle": 23326.502864508882,
+     "pension_annuelle_euros_constants": 33264.6684126289,
+     "pension_mensuelle": 1943.8752387090735,
+     "taux_remplacement": 0.7225634374375581
     },
     "notionnel_prospectif": {
-     "capital_droits_acquis": 537272.5283050735,
-     "capital_notionnel": 537272.5283050735,
+     "capital_droits_acquis": 546067.0232153852,
+     "capital_notionnel": 546067.0232153852,
      "cotisations_versees": 0,
      "droits_acquis": null,
      "fiabilite": "moyenne",
-     "pension_annuelle": 22950.82588348676,
-     "pension_annuelle_euros_constants": 32728.935719368124,
-     "pension_mensuelle": 1912.5688236238966,
+     "pension_annuelle": 23326.502864508882,
+     "pension_annuelle_euros_constants": 33264.6684126289,
+     "pension_mensuelle": 1943.8752387090735,
      "rendement_cumule": 0.0,
      "rente_capitalisation": 0.0,
-     "taux_remplacement": 0.7109264401409543,
+     "taux_remplacement": 0.7225634374375581,
      "variation_vs_actuel": 0.0
     },
     "notionnel_retroactif": {
@@ -2465,7 +2465,7 @@
      "rendement_cumule": 1.1641360994556293,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.1680942257770961,
-     "variation_vs_actuel": -0.7635560920427038
+     "variation_vs_actuel": -0.7673640582019868
     }
    },
    "unite": {
@@ -2561,7 +2561,7 @@
      "par_regime": [
       {
        "detail": "7,429 points × valeur de service 1.2513 €",
-       "montant": 8924.640898453055,
+       "montant": 9296.5009358886,
        "regime": "arrco"
       },
       {
@@ -2570,23 +2570,23 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 26092.0392537811,
-     "pension_annuelle_euros_constants": 32123.523979065936,
-     "pension_mensuelle": 2174.336604481758,
-     "taux_remplacement": 0.6318506469293381
+     "pension_annuelle": 26463.899291216643,
+     "pension_annuelle_euros_constants": 32581.34388011817,
+     "pension_mensuelle": 2205.3249409347204,
+     "taux_remplacement": 0.6408556926038256
     },
     "notionnel_prospectif": {
-     "capital_droits_acquis": 624735.9310781446,
-     "capital_notionnel": 624735.9310781446,
+     "capital_droits_acquis": 633639.5788328666,
+     "capital_notionnel": 633639.5788328666,
      "cotisations_versees": 0,
      "droits_acquis": null,
      "fiabilite": "moyenne",
-     "pension_annuelle": 26092.0392537811,
-     "pension_annuelle_euros_constants": 32123.523979065936,
-     "pension_mensuelle": 2174.336604481758,
+     "pension_annuelle": 26463.899291216643,
+     "pension_annuelle_euros_constants": 32581.34388011817,
+     "pension_mensuelle": 2205.3249409347204,
      "rendement_cumule": 0.0,
      "rente_capitalisation": 0.0,
-     "taux_remplacement": 0.6318506469293381,
+     "taux_remplacement": 0.6408556926038256,
      "variation_vs_actuel": 0.0
     },
     "notionnel_retroactif": {
@@ -2601,7 +2601,7 @@
      "rendement_cumule": 1.1348523898358187,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.20120197877345125,
-     "variation_vs_actuel": -0.681567187196451
+     "variation_vs_actuel": -0.6860416766277623
     }
    },
    "unite": {
@@ -2702,7 +2702,7 @@
       },
       {
        "detail": "5,703 points × valeur de service 1.4243 €",
-       "montant": 7798.526234125924,
+       "montant": 8123.464827214504,
        "regime": "arrco"
       },
       {
@@ -2711,23 +2711,23 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 29381.85529202736,
-     "pension_annuelle_euros_constants": 30177.95739571123,
-     "pension_mensuelle": 2448.48794100228,
-     "taux_remplacement": 0.5799469702535378
+     "pension_annuelle": 29706.79388511594,
+     "pension_annuelle_euros_constants": 30511.70020810301,
+     "pension_mensuelle": 2475.566157092995,
+     "taux_remplacement": 0.5863606956873876
     },
     "notionnel_prospectif": {
-     "capital_droits_acquis": 717925.1107280698,
-     "capital_notionnel": 717925.1107280698,
+     "capital_droits_acquis": 725864.7582794019,
+     "capital_notionnel": 725864.7582794019,
      "cotisations_versees": 0,
      "droits_acquis": null,
      "fiabilite": "moyenne",
-     "pension_annuelle": 29381.85529202736,
-     "pension_annuelle_euros_constants": 30177.95739571123,
-     "pension_mensuelle": 2448.48794100228,
+     "pension_annuelle": 29706.79388511594,
+     "pension_annuelle_euros_constants": 30511.70020810301,
+     "pension_mensuelle": 2475.566157092995,
      "rendement_cumule": 0.0,
      "rente_capitalisation": 0.0,
-     "taux_remplacement": 0.5799469702535378,
+     "taux_remplacement": 0.5863606956873876,
      "variation_vs_actuel": 0.0
     },
     "notionnel_retroactif": {
@@ -2742,7 +2742,7 @@
      "rendement_cumule": 1.0626040288174368,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.21728923455253438,
-     "variation_vs_actuel": -0.625329132321286
+     "variation_vs_actuel": -0.6294273539296366
     }
    },
    "unite": {
@@ -2843,7 +2843,7 @@
       },
       {
        "detail": "3,524 points × valeur de service 1.6650 €",
-       "montant": 5632.714709850544,
+       "montant": 5867.4111560943165,
        "regime": "arrco"
       },
       {
@@ -2852,10 +2852,10 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 35183.11853124919,
-     "pension_annuelle_euros_constants": 30623.79354708494,
-     "pension_mensuelle": 2931.9265442707656,
-     "taux_remplacement": 0.5351266364140811
+     "pension_annuelle": 35417.814977492955,
+     "pension_annuelle_euros_constants": 30828.0760500592,
+     "pension_mensuelle": 2951.484581457746,
+     "taux_remplacement": 0.5386963120170329
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 524677.1003446312,
@@ -2876,7 +2876,7 @@
      "rendement_cumule": 1.0438553027807806,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.38880260062444966,
-     "variation_vs_actuel": -0.2734381468471807
+     "variation_vs_actuel": -0.27825271502479465
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -2890,7 +2890,7 @@
      "rendement_cumule": 1.1063366238724188,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.22676267338587905,
-     "variation_vs_actuel": -0.5762448400897576
+     "variation_vs_actuel": -0.579052857189954
     }
    },
    "unite": {
@@ -2991,7 +2991,7 @@
       },
       {
        "detail": "1,662 points × valeur de service 1.9805 €",
-       "montant": 3159.8852299061446,
+       "montant": 3291.5471144855674,
        "regime": "arrco"
       },
       {
@@ -3000,10 +3000,10 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 43636.42010932247,
-     "pension_annuelle_euros_constants": 31932.25524844399,
-     "pension_mensuelle": 3636.368342443539,
-     "taux_remplacement": 0.5060029470455084
+     "pension_annuelle": 43768.08199390189,
+     "pension_annuelle_euros_constants": 32028.602769490593,
+     "pension_mensuelle": 3647.340166158491,
+     "taux_remplacement": 0.5075296832315623
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 336805.31750612514,
@@ -3024,7 +3024,7 @@
      "rendement_cumule": 1.0885222733871815,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.28732430315392965,
-     "variation_vs_actuel": -0.43216871595001094
+     "variation_vs_actuel": -0.4338768496761265
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -3038,7 +3038,7 @@
      "rendement_cumule": 1.1409034101612041,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.22601439213089952,
-     "variation_vs_actuel": -0.5533338423213325
+     "variation_vs_actuel": -0.5546774906015111
     }
    },
    "unite": {
@@ -3139,7 +3139,7 @@
       },
       {
        "detail": "658 points × valeur de service 2.3557 €",
-       "montant": 1488.2428189324917,
+       "montant": 1550.2529363880121,
        "regime": "arrco"
       },
       {
@@ -3148,10 +3148,10 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 56907.12649781106,
-     "pension_annuelle_euros_constants": 35010.874244264945,
-     "pension_mensuelle": 4742.260541484256,
-     "taux_remplacement": 0.5030976435422186
+     "pension_annuelle": 56969.13661526659,
+     "pension_annuelle_euros_constants": 35049.02462292079,
+     "pension_mensuelle": 4747.428051272215,
+     "taux_remplacement": 0.5036458550912388
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 203939.5379940996,
@@ -3172,7 +3172,7 @@
      "rendement_cumule": 1.1278748075275051,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.24823736683023442,
-     "variation_vs_actuel": -0.5065821316863255
+     "variation_vs_actuel": -0.5071192102131674
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -3186,7 +3186,7 @@
      "rendement_cumule": 1.1632691197947853,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.2232249775396874,
-     "variation_vs_actuel": -0.5562989006110204
+     "variation_vs_actuel": -0.5567818631223547
     }
    },
    "unite": {
@@ -3566,7 +3566,7 @@
       },
       {
        "detail": "2,623 points × valeur de service 1.8159 €",
-       "montant": 4571.793804528307,
+       "montant": 4762.285213050321,
        "regime": "arrco"
       },
       {
@@ -3575,10 +3575,10 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 39173.7473646082,
-     "pension_annuelle_euros_constants": 31264.226294139706,
-     "pension_mensuelle": 3264.4789470506835,
-     "taux_remplacement": 0.5202453449371622
+     "pension_annuelle": 39364.238773130215,
+     "pension_annuelle_euros_constants": 31416.255826767527,
+     "pension_mensuelle": 3280.3532310941846,
+     "taux_remplacement": 0.5227751582739286
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 476041.18386063253,
@@ -3599,7 +3599,7 @@
      "rendement_cumule": 1.1203180703992266,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.3599742923014167,
-     "variation_vs_actuel": -0.3080682108844316
+     "variation_vs_actuel": -0.3114166069214903
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -3613,7 +3613,7 @@
      "rendement_cumule": 1.3395683910369791,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.2705347680960693,
-     "variation_vs_actuel": -0.4799861820411948
+     "variation_vs_actuel": -0.482502632701013
     }
    },
    "unite": {
@@ -3714,7 +3714,7 @@
       },
       {
        "detail": "2,623 points × valeur de service 1.8159 €",
-       "montant": 4571.793804528307,
+       "montant": 4762.285213050321,
        "regime": "arrco"
       },
       {
@@ -3723,10 +3723,10 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 39173.7473646082,
-     "pension_annuelle_euros_constants": 31264.226294139706,
-     "pension_mensuelle": 3264.4789470506835,
-     "taux_remplacement": 0.5202453449371622
+     "pension_annuelle": 39364.238773130215,
+     "pension_annuelle_euros_constants": 31416.255826767527,
+     "pension_mensuelle": 3280.3532310941846,
+     "taux_remplacement": 0.5227751582739286
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 540581.1415299986,
@@ -3747,7 +3747,7 @@
      "rendement_cumule": 1.1966237330055434,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.4010154850658062,
-     "variation_vs_actuel": -0.22918006096865173
+     "variation_vs_actuel": -0.23291021250922117
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -3761,7 +3761,7 @@
      "rendement_cumule": 1.5534503727986746,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.3137296603635972,
-     "variation_vs_actuel": -0.396958255529435
+     "variation_vs_actuel": -0.3998764948980109
     }
    },
    "unite": {
@@ -3862,7 +3862,7 @@
       },
       {
        "detail": "2,623 points × valeur de service 1.8159 €",
-       "montant": 4571.793804528307,
+       "montant": 4762.285213050321,
        "regime": "arrco"
       },
       {
@@ -3871,10 +3871,10 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 39173.7473646082,
-     "pension_annuelle_euros_constants": 31264.226294139706,
-     "pension_mensuelle": 3264.4789470506835,
-     "taux_remplacement": 0.5202453449371622
+     "pension_annuelle": 39364.238773130215,
+     "pension_annuelle_euros_constants": 31416.255826767527,
+     "pension_mensuelle": 3280.3532310941846,
+     "taux_remplacement": 0.5227751582739286
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 476041.18386063253,
@@ -3895,7 +3895,7 @@
      "rendement_cumule": 1.1203180703992266,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.3599742923014167,
-     "variation_vs_actuel": -0.3080682108844316
+     "variation_vs_actuel": -0.3114166069214903
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -3909,7 +3909,7 @@
      "rendement_cumule": 1.2920032852264192,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.2609286778389205,
-     "variation_vs_actuel": -0.4984507206490494
+     "variation_vs_actuel": -0.5008778177210238
     }
    },
    "unite": {
@@ -4010,7 +4010,7 @@
       },
       {
        "detail": "3,035 points × valeur de service 1.6650 €",
-       "montant": 4850.995489036009,
+       "montant": 5053.120301079176,
        "regime": "arrco"
       },
       {
@@ -4019,10 +4019,10 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 34363.54563145481,
-     "pension_annuelle_euros_constants": 29910.42781011092,
-     "pension_mensuelle": 2863.6288026212337,
-     "taux_remplacement": 0.5226611328580627
+     "pension_annuelle": 34565.67044349797,
+     "pension_annuelle_euros_constants": 30086.35958572244,
+     "pension_mensuelle": 2880.4725369581643,
+     "taux_remplacement": 0.5257354018631942
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 498124.83671091386,
@@ -4043,7 +4043,7 @@
      "rendement_cumule": 1.0438553027807806,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.37286762458191636,
-     "variation_vs_actuel": -0.2865977568621413
+     "variation_vs_actuel": -0.2907694188740533
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -4057,7 +4057,7 @@
      "rendement_cumule": 1.1007645604740257,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.20933594669896782,
-     "variation_vs_actuel": -0.599480555299266
+     "variation_vs_actuel": -0.601822616553715
     }
    },
    "unite": {
@@ -4158,7 +4158,7 @@
       },
       {
        "detail": "2,197 points × valeur de service 1.8159 €",
-       "montant": 3829.429740872795,
+       "montant": 3988.9893134091612,
        "regime": "arrco"
       },
       {
@@ -4167,10 +4167,10 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 38431.383300952686,
-     "pension_annuelle_euros_constants": 30671.752006123752,
-     "pension_mensuelle": 3202.6152750793904,
-     "taux_remplacement": 0.5103864094421542
+     "pension_annuelle": 38590.94287348905,
+     "pension_annuelle_euros_constants": 30799.09511008424,
+     "pension_mensuelle": 3215.9119061240876,
+     "taux_remplacement": 0.5125054337999618
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 410767.8803401681,
@@ -4191,7 +4191,7 @@
      "rendement_cumule": 1.066788111639174,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.32089501324867403,
-     "variation_vs_actuel": -0.37127045839757333
+     "variation_vs_actuel": -0.37387002734897057
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -4205,7 +4205,7 @@
      "rendement_cumule": 1.1183110897977275,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.21420335105442068,
-     "variation_vs_actuel": -0.5803114128988227
+     "variation_vs_actuel": -0.5820466732104399
     }
    },
    "unite": {
@@ -4306,7 +4306,7 @@
       },
       {
        "detail": "2,837 points × valeur de service 1.4746 €",
-       "montant": 2007.7766713342644,
+       "montant": 2175.091393945453,
        "regime": "arrco"
       },
       {
@@ -4315,10 +4315,10 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 10609.628998114125,
-     "pension_annuelle_euros_constants": 10427.153806500368,
-     "pension_mensuelle": 884.1357498428438,
-     "taux_remplacement": 0.195117062434625
+     "pension_annuelle": 10776.943720725314,
+     "pension_annuelle_euros_constants": 10591.590880319718,
+     "pension_mensuelle": 898.0786433937761,
+     "taux_remplacement": 0.19819407456989968
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 428219.5294334086,
@@ -4339,7 +4339,7 @@
      "rendement_cumule": 1.01,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.22684548686277667,
-     "variation_vs_actuel": 0.16261224944785346
+     "variation_vs_actuel": 0.14456240609136928
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -4353,7 +4353,7 @@
      "rendement_cumule": 1.0490256529637225,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.12390095153387243,
-     "variation_vs_actuel": -0.36499171324196167
+     "variation_vs_actuel": -0.37485037429726653
     }
    },
    "unite": {
@@ -4454,7 +4454,7 @@
       },
       {
        "detail": "2,730 points × valeur de service 1.6083 €",
-       "montant": 2985.061774734574,
+       "montant": 3160.653643836608,
        "regime": "arrco"
       },
       {
@@ -4463,10 +4463,10 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 19193.20929722368,
-     "pension_annuelle_euros_constants": 17295.81740938445,
-     "pension_mensuelle": 1599.4341081019732,
-     "taux_remplacement": 0.3082006127042168
+     "pension_annuelle": 19368.801166325713,
+     "pension_annuelle_euros_constants": 17454.050712608034,
+     "pension_mensuelle": 1614.0667638604762,
+     "taux_remplacement": 0.31102023087255265
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 427641.1008900721,
@@ -4487,7 +4487,7 @@
      "rendement_cumule": 1.0342949494755531,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.26325864777828,
-     "variation_vs_actuel": -0.14582049182708157
+     "variation_vs_actuel": -0.15356423265547647
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -4501,7 +4501,7 @@
      "rendement_cumule": 1.0846290887261025,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.16091624486917483,
-     "variation_vs_actuel": -0.4778847340462371
+     "variation_vs_actuel": -0.48261807787316
     }
    },
    "unite": {
@@ -4602,7 +4602,7 @@
       },
       {
        "detail": "2,679 points × valeur de service 1.6942 €",
-       "montant": 3630.749791125867,
+       "montant": 3812.2872806821597,
        "regime": "arrco"
       },
       {
@@ -4611,10 +4611,10 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 26628.96274091652,
-     "pension_annuelle_euros_constants": 22779.515822253616,
-     "pension_mensuelle": 2219.08022840971,
-     "taux_remplacement": 0.39418006512667525
+     "pension_annuelle": 26810.50023047281,
+     "pension_annuelle_euros_constants": 22934.81049730026,
+     "pension_mensuelle": 2234.208352539401,
+     "taux_remplacement": 0.39686730683986
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 428875.6946335101,
@@ -4635,7 +4635,7 @@
      "rendement_cumule": 1.0484269544840445,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.2896971016079448,
-     "variation_vs_actuel": -0.26506404753156
+     "variation_vs_actuel": -0.27004039734409124
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -4649,7 +4649,7 @@
      "rendement_cumule": 1.1032147246358865,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.18686533508336423,
-     "variation_vs_actuel": -0.5259391541697765
+     "variation_vs_actuel": -0.5291490836790789
     }
    },
    "unite": {
@@ -4750,7 +4750,7 @@
       },
       {
        "detail": "2,649 points × valeur de service 1.7540 €",
-       "montant": 4089.1899516477583,
+       "montant": 4275.062222177202,
        "regime": "arrco"
       },
       {
@@ -4759,10 +4759,10 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 32483.548479595647,
-     "pension_annuelle_euros_constants": 26840.145654656448,
-     "pension_mensuelle": 2706.9623732996374,
-     "taux_remplacement": 0.4554494804541064
+     "pension_annuelle": 32669.42075012509,
+     "pension_annuelle_euros_constants": 26993.726129933206,
+     "pension_mensuelle": 2722.451729177091,
+     "taux_remplacement": 0.4580555820965004
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 430342.1525949144,
@@ -4783,7 +4783,7 @@
      "rendement_cumule": 1.057674609497272,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.30972377823314573,
-     "variation_vs_actuel": -0.3199601898231713
+     "variation_vs_actuel": -0.3238292680212441
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -4797,7 +4797,7 @@
      "rendement_cumule": 1.1147312814982109,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.2061566897781818,
-     "variation_vs_actuel": -0.5473555276149771
+     "variation_vs_actuel": -0.5499308428147265
     }
    },
    "unite": {
@@ -4898,7 +4898,7 @@
       },
       {
        "detail": "2,623 points × valeur de service 1.8159 €",
-       "montant": 4571.793804528307,
+       "montant": 4762.285213050321,
        "regime": "arrco"
       },
       {
@@ -4907,10 +4907,10 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 39173.7473646082,
-     "pension_annuelle_euros_constants": 31264.226294139706,
-     "pension_mensuelle": 3264.4789470506835,
-     "taux_remplacement": 0.5202453449371622
+     "pension_annuelle": 39364.238773130215,
+     "pension_annuelle_euros_constants": 31416.255826767527,
+     "pension_mensuelle": 3280.3532310941846,
+     "taux_remplacement": 0.5227751582739286
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 432389.314741273,
@@ -4931,7 +4931,7 @@
      "rendement_cumule": 1.066788111639174,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.3320186837332468,
-     "variation_vs_actuel": -0.36180364329189807
+     "variation_vs_actuel": -0.36489200284594914
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -4945,7 +4945,7 @@
      "rendement_cumule": 1.1256616815700797,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.22733488190360435,
-     "variation_vs_actuel": -0.5630237077257021
+     "variation_vs_actuel": -0.5651383232244496
     }
    },
    "unite": {
@@ -5342,7 +5342,7 @@
       },
       {
        "detail": "5,225 points × valeur de service 1.4493 €",
-       "montant": 7270.188593972413,
+       "montant": 7573.113118721264,
        "regime": "arrco"
       },
       {
@@ -5351,23 +5351,23 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 30141.085055632124,
-     "pension_annuelle_euros_constants": 30141.085055632124,
-     "pension_mensuelle": 2511.7570879693435,
-     "taux_remplacement": 0.5695551253511335
+     "pension_annuelle": 30444.009580380975,
+     "pension_annuelle_euros_constants": 30444.009580380975,
+     "pension_mensuelle": 2537.000798365081,
+     "taux_remplacement": 0.5752792794533106
     },
     "notionnel_prospectif": {
-     "capital_droits_acquis": 741256.2219502078,
-     "capital_notionnel": 741256.2219502078,
+     "capital_droits_acquis": 748706.0097842207,
+     "capital_notionnel": 748706.0097842207,
      "cotisations_versees": 0,
      "droits_acquis": null,
      "fiabilite": "moyenne",
-     "pension_annuelle": 30141.085055632124,
-     "pension_annuelle_euros_constants": 30141.085055632124,
-     "pension_mensuelle": 2511.7570879693435,
+     "pension_annuelle": 30444.009580380975,
+     "pension_annuelle_euros_constants": 30444.009580380975,
+     "pension_mensuelle": 2537.000798365081,
      "rendement_cumule": 0.0,
      "rente_capitalisation": 0.0,
-     "taux_remplacement": 0.5695551253511335,
+     "taux_remplacement": 0.5752792794533106,
      "variation_vs_actuel": 0.0
     },
     "notionnel_retroactif": {
@@ -5382,7 +5382,7 @@
      "rendement_cumule": 1.0704666175938709,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.2221756050226502,
-     "variation_vs_actuel": -0.6099137815928215
+     "variation_vs_actuel": -0.6137952244103346
     }
    },
    "unite": {
@@ -5483,7 +5483,7 @@
       },
       {
        "detail": "2,610 points × valeur de service 1.8477 €",
-       "montant": 4726.180416338904,
+       "montant": 4822.633077896841,
        "regime": "arrco"
       },
       {
@@ -5492,10 +5492,10 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 42042.51070699322,
-     "pension_annuelle_euros_constants": 32976.66959281303,
-     "pension_mensuelle": 3503.542558916102,
-     "taux_remplacement": 0.5434003297583793
+     "pension_annuelle": 42138.96336855115,
+     "pension_annuelle_euros_constants": 33052.32367478997,
+     "pension_mensuelle": 3511.580280712596,
+     "taux_remplacement": 0.5446469824252937
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 433611.4672970544,
@@ -5516,7 +5516,7 @@
      "rendement_cumule": 1.0712956022089324,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.33818521218071307,
-     "variation_vs_actuel": -0.3776499687972481
+     "variation_vs_actuel": -0.37907447742611877
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -5530,7 +5530,7 @@
      "rendement_cumule": 1.13093105959879,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.23461026025804746,
-     "variation_vs_actuel": -0.5682552118391868
+     "variation_vs_actuel": -0.5692434405615611
     }
    },
    "unite": {
@@ -5774,7 +5774,7 @@
       },
       {
        "detail": "2,798 points × valeur de service 1.8159 €",
-       "montant": 4877.912368008577,
+       "montant": 5081.158716675601,
        "regime": "arrco"
       },
       {
@@ -5783,10 +5783,10 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 47199.71627442328,
-     "pension_annuelle_euros_constants": 37669.68211869248,
-     "pension_mensuelle": 3933.3096895352733,
-     "taux_remplacement": 0.42888634976629914
+     "pension_annuelle": 47402.962623090294,
+     "pension_annuelle_euros_constants": 37831.89125786521,
+     "pension_mensuelle": 3950.2468852575244,
+     "taux_remplacement": 0.43073317410050305
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 503597.0385411138,
@@ -5807,7 +5807,7 @@
      "rendement_cumule": 1.0659508556793145,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.28361766318757275,
-     "variation_vs_actuel": -0.33871137810257546
+     "variation_vs_actuel": -0.3415467388137692
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -5821,7 +5821,7 @@
      "rendement_cumule": 1.1177536643103338,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.20123298172810447,
-     "variation_vs_actuel": -0.5308011508462401
+     "variation_vs_actuel": -0.532812901749818
     }
    },
    "unite": {
@@ -5922,7 +5922,7 @@
       },
       {
        "detail": "3,479 points × valeur de service 1.8159 €",
-       "montant": 6065.00445383179,
+       "montant": 6317.712972741448,
        "regime": "arrco"
       },
       {
@@ -5931,10 +5931,10 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 37637.59361561325,
-     "pension_annuelle_euros_constants": 30038.235377719,
-     "pension_mensuelle": 3136.466134634438,
-     "taux_remplacement": 0.6497978735142608
+     "pension_annuelle": 37890.302134522906,
+     "pension_annuelle_euros_constants": 30239.91984380065,
+     "pension_mensuelle": 3157.525177876909,
+     "taux_remplacement": 0.6541607841690564
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 500558.35387548094,
@@ -5955,7 +5955,7 @@
      "rendement_cumule": 1.06883655848506,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.4530828439381136,
-     "variation_vs_actuel": -0.3027326459415228
+     "variation_vs_actuel": -0.30738305489584006
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -5969,7 +5969,7 @@
      "rendement_cumule": 1.1402444188424408,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.2948514311737009,
-     "variation_vs_actuel": -0.5462413110417328
+     "variation_vs_actuel": -0.5492676444243993
     }
    },
    "unite": {
@@ -6070,7 +6070,7 @@
       },
       {
        "detail": "2,623 points × valeur de service 1.8159 €",
-       "montant": 4571.793804528307,
+       "montant": 4762.285213050321,
        "regime": "arrco"
       },
       {
@@ -6079,10 +6079,10 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 38758.4250419396,
-     "pension_annuelle_euros_constants": 30932.761168782563,
-     "pension_mensuelle": 3229.8687534949663,
-     "taux_remplacement": 0.5346720566535811
+     "pension_annuelle": 38948.91645046161,
+     "pension_annuelle_euros_constants": 31084.790701410384,
+     "pension_mensuelle": 3245.743037538468,
+     "taux_remplacement": 0.5372998835856376
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 415987.4333151304,
@@ -6103,7 +6103,7 @@
      "rendement_cumule": 1.0465119325656405,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.3315157135831992,
-     "variation_vs_actuel": -0.3799643922704731
+     "variation_vs_actuel": -0.38299686318402015
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -6117,7 +6117,7 @@
      "rendement_cumule": 1.0920692791486084,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.22655135907644594,
-     "variation_vs_actuel": -0.5762797844824896
+     "variation_vs_actuel": -0.578352115834142
     }
    },
    "unite": {
@@ -6218,7 +6218,7 @@
       },
       {
        "detail": "2,623 points × valeur de service 1.8159 €",
-       "montant": 4571.793804528307,
+       "montant": 4762.285213050321,
        "regime": "arrco"
       },
       {
@@ -6227,10 +6227,10 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 39597.070385786246,
-     "pension_annuelle_euros_constants": 31602.07670723515,
-     "pension_mensuelle": 3299.7558654821873,
-     "taux_remplacement": 0.5063093970390292
+     "pension_annuelle": 39787.56179430826,
+     "pension_annuelle_euros_constants": 31754.106239862966,
+     "pension_mensuelle": 3315.6301495256885,
+     "taux_remplacement": 0.5087451224411923
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 449386.3571278544,
@@ -6251,7 +6251,7 @@
      "rendement_cumule": 1.0872676588092898,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.3325209025355331,
-     "variation_vs_actuel": -0.3432456429207841
+     "variation_vs_actuel": -0.34638999399159753
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -6265,7 +6265,7 @@
      "rendement_cumule": 1.1599724520184453,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.22811847372491548,
-     "variation_vs_actuel": -0.5494484695346653
+     "variation_vs_actuel": -0.5516055807468021
     }
    },
    "unite": {
@@ -6366,7 +6366,7 @@
       },
       {
        "detail": "2,623 points × valeur de service 1.8159 €",
-       "montant": 4571.793804528307,
+       "montant": 4762.285213050321,
        "regime": "arrco"
       },
       {
@@ -6375,10 +6375,10 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 38218.291118660134,
-     "pension_annuelle_euros_constants": 30501.68499296061,
-     "pension_mensuelle": 3184.8575932216777,
-     "taux_remplacement": 0.5547266471805377
+     "pension_annuelle": 38408.78252718215,
+     "pension_annuelle_euros_constants": 30653.714525588428,
+     "pension_mensuelle": 3200.7318772651793,
+     "taux_remplacement": 0.5574915709192267
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 395011.03040680476,
@@ -6399,7 +6399,7 @@
      "rendement_cumule": 1.0197959417766338,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.3308439077662612,
-     "variation_vs_actuel": -0.4035911030273853
+     "variation_vs_actuel": -0.40654904033661854
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -6413,7 +6413,7 @@
      "rendement_cumule": 1.0483902222869192,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.22550677028107327,
-     "variation_vs_actuel": -0.5934812732951671
+     "variation_vs_actuel": -0.5954974352181797
     }
    },
    "unite": {
@@ -6514,7 +6514,7 @@
       },
       {
        "detail": "525 points × valeur de service 1.8159 €",
-       "montant": 914.3587609056618,
+       "montant": 952.4570426100644,
        "regime": "arrco"
       },
       {
@@ -6523,10 +6523,10 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 13258.430307750497,
-     "pension_annuelle_euros_constants": 10581.437654879248,
-     "pension_mensuelle": 1104.8691923125414,
-     "taux_remplacement": 0.8803901991532093
+     "pension_annuelle": 13296.528589454902,
+     "pension_annuelle_euros_constants": 10611.843561404812,
+     "pension_mensuelle": 1108.0440491212419,
+     "taux_remplacement": 0.8829200124899758
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 86477.86294825462,
@@ -6547,7 +6547,7 @@
      "rendement_cumule": 1.066788111639174,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.3320186837332469,
-     "variation_vs_actuel": -0.6228732622732576
+     "variation_vs_actuel": -0.6239538360933727
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -6561,7 +6561,7 @@
      "rendement_cumule": 1.1256616815700797,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.2273348819036044,
-     "variation_vs_actuel": -0.7417794040389554
+     "variation_vs_actuel": -0.7425192784310284
     }
    },
    "unite": {
@@ -6662,7 +6662,7 @@
       },
       {
        "detail": "1,442 points × valeur de service 1.8159 €",
-       "montant": 2514.4865924905694,
+       "montant": 2619.2568671776767,
        "regime": "arrco"
       },
       {
@@ -6671,10 +6671,10 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 21834.239561843555,
-     "pension_annuelle_euros_constants": 17425.716265242016,
-     "pension_mensuelle": 1819.519963486963,
-     "taux_remplacement": 0.5272158597146456
+     "pension_annuelle": 21939.009836530662,
+     "pension_annuelle_euros_constants": 17509.332508187315,
+     "pension_mensuelle": 1828.2508197108884,
+     "taux_remplacement": 0.5297456730514118
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 237814.1231077002,
@@ -6695,7 +6695,7 @@
      "rendement_cumule": 1.0667881116391742,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.3320186837332468,
-     "variation_vs_actuel": -0.3702414720358542
+     "variation_vs_actuel": -0.3732488991920009
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -6709,7 +6709,7 @@
      "rendement_cumule": 1.1256616815700797,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.22733488190360435,
-     "variation_vs_actuel": -0.5688011319943052
+     "variation_vs_actuel": -0.5708603326684625
     }
    },
    "unite": {
@@ -6810,7 +6810,7 @@
       },
       {
        "detail": "3,709 points × valeur de service 1.8159 €",
-       "montant": 6466.218945131376,
+       "montant": 6735.64473451185,
        "regime": "arrco"
       },
       {
@@ -6819,10 +6819,10 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 50640.41674156021,
-     "pension_annuelle_euros_constants": 40415.67516892864,
-     "pension_mensuelle": 4220.034728463351,
-     "taux_remplacement": 0.44835198481720295
+     "pension_annuelle": 50909.84253094069,
+     "pension_annuelle_euros_constants": 40630.701542848605,
+     "pension_mensuelle": 4242.486877578391,
+     "taux_remplacement": 0.45073738357973997
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 598424.6287492234,
@@ -6843,7 +6843,7 @@
      "rendement_cumule": 1.0667881116391738,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.31481489120840717,
-     "variation_vs_actuel": -0.29783986272133944
+     "variation_vs_actuel": -0.3015558445404313
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -6857,7 +6857,7 @@
      "rendement_cumule": 1.1246832238178504,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.2200343906984819,
-     "variation_vs_actuel": -0.5092373890389001
+     "variation_vs_actuel": -0.5118346098764279
     }
    },
    "unite": {
@@ -6958,7 +6958,7 @@
       },
       {
        "detail": "4,073 points × valeur de service 1.8159 €",
-       "montant": 7099.977138137625,
+       "montant": 7395.809518893359,
        "regime": "arrco"
       },
       {
@@ -6967,10 +6967,10 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 74521.89747752725,
-     "pension_annuelle_euros_constants": 59475.27676943738,
-     "pension_mensuelle": 6210.158123127271,
-     "taux_remplacement": 0.32989500083411083
+     "pension_annuelle": 74817.72985828298,
+     "pension_annuelle_euros_constants": 59711.37801374768,
+     "pension_mensuelle": 6234.810821523582,
+     "taux_remplacement": 0.33120459743322583
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 754948.0677053516,
@@ -6991,7 +6991,7 @@
      "rendement_cumule": 1.0667881116391738,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.2390326353412415,
-     "variation_vs_actuel": -0.27542813702278524
+     "variation_vs_actuel": -0.2782931239671791
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -7005,7 +7005,7 @@
      "rendement_cumule": 1.112260052351046,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.18423275423784166,
-     "variation_vs_actuel": -0.4415412365388225
+     "variation_vs_actuel": -0.44374940545629105
     }
    },
    "unite": {
@@ -7106,7 +7106,7 @@
       },
       {
        "detail": "4,073 points × valeur de service 1.8159 €",
-       "montant": 7099.977138137625,
+       "montant": 7395.809518893359,
        "regime": "arrco"
       },
       {
@@ -7115,10 +7115,10 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 147635.53168109292,
-     "pension_annuelle_euros_constants": 117826.63089575693,
-     "pension_mensuelle": 12302.96097342441,
-     "taux_remplacement": 0.2450834527953633
+     "pension_annuelle": 147931.36406184867,
+     "pension_annuelle_euros_constants": 118062.73214006724,
+     "pension_mensuelle": 12327.613671820722,
+     "taux_remplacement": 0.24557455152003146
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 1214660.7213303975,
@@ -7139,7 +7139,7 @@
      "rendement_cumule": 1.0684896074561083,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.1820561666039717,
-     "variation_vs_actuel": -0.2571666323144931
+     "variation_vs_actuel": -0.2586521466613718
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -7153,7 +7153,7 @@
      "rendement_cumule": 1.101905331991645,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.15383051984546217,
-     "variation_vs_actuel": -0.3723341250055522
+     "variation_vs_actuel": -0.37358932799307487
     }
    },
    "unite": {
@@ -7836,7 +7836,7 @@
       },
       {
        "detail": "1,441 points × valeur de service 1.6802 € + cotisations revalorisées 65,571 € × rendement 6.74%",
-       "montant": 5814.876231627327,
+       "montant": 6841.030860738032,
        "regime": "rci"
       },
       {
@@ -7850,10 +7850,10 @@
        "regime": "rsi"
       }
      ],
-     "pension_annuelle": 34918.403783905735,
-     "pension_annuelle_euros_constants": 27868.07367621088,
-     "pension_mensuelle": 2909.8669819921447,
-     "taux_remplacement": 0.46373242907124773
+     "pension_annuelle": 35944.55841301644,
+     "pension_annuelle_euros_constants": 28687.038740714277,
+     "pension_mensuelle": 2995.37986775137,
+     "taux_remplacement": 0.4773602335294671
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 370119.6851638664,
@@ -7874,7 +7874,7 @@
      "rendement_cumule": 1.066788111639174,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.2999825649556658,
-     "variation_vs_actuel": -0.3531128164651679
+     "variation_vs_actuel": -0.37158032051040535
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -7888,7 +7888,7 @@
      "rendement_cumule": 1.1190290465269566,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.21129609433577698,
-     "variation_vs_actuel": -0.5443577350004274
+     "variation_vs_actuel": -0.5573655292282871
     }
    },
    "unite": {
@@ -7984,14 +7984,14 @@
      "par_regime": [
       {
        "detail": "cotisations revalorisées 232,957 € × rendement 6.50%",
-       "montant": 12870.857268946365,
+       "montant": 15142.185022289843,
        "regime": "cnbf"
       }
      ],
-     "pension_annuelle": 12870.857268946365,
-     "pension_annuelle_euros_constants": 10272.118991083833,
-     "pension_mensuelle": 1072.5714390788637,
-     "taux_remplacement": 0.17093089198736028
+     "pension_annuelle": 15142.185022289843,
+     "pension_annuelle_euros_constants": 12084.845871863334,
+     "pension_mensuelle": 1261.8487518574868,
+     "taux_remplacement": 0.2010951670439533
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 174102.07266001563,
@@ -8012,7 +8012,7 @@
      "rendement_cumule": 1.066788111639174,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.19913655769196334,
-     "variation_vs_actuel": 0.1650121015380226
+     "variation_vs_actuel": -0.009739713692680896
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -8026,7 +8026,7 @@
      "rendement_cumule": 1.1020682704403624,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.16185094009744844,
-     "variation_vs_actuel": -0.05312060204180813
+     "variation_vs_actuel": -0.19515251173553705
     }
    },
    "unite": {
@@ -8265,7 +8265,7 @@
       },
       {
        "detail": "1,441 points × valeur de service 1.6802 € + cotisations revalorisées 65,571 € × rendement 6.74%",
-       "montant": 5814.876231627327,
+       "montant": 6841.030860738032,
        "regime": "rci"
       },
       {
@@ -8279,10 +8279,10 @@
        "regime": "rsi"
       }
      ],
-     "pension_annuelle": 34918.403783905735,
-     "pension_annuelle_euros_constants": 27868.07367621088,
-     "pension_mensuelle": 2909.8669819921447,
-     "taux_remplacement": 0.46373242907124773
+     "pension_annuelle": 35944.55841301644,
+     "pension_annuelle_euros_constants": 28687.038740714277,
+     "pension_mensuelle": 2995.37986775137,
+     "taux_remplacement": 0.4773602335294671
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 370119.6851638664,
@@ -8303,7 +8303,7 @@
      "rendement_cumule": 1.066788111639174,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.2999825649556658,
-     "variation_vs_actuel": -0.3531128164651679
+     "variation_vs_actuel": -0.37158032051040535
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -8317,7 +8317,7 @@
      "rendement_cumule": 1.1190290465269566,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.21129609433577698,
-     "variation_vs_actuel": -0.5443577350004274
+     "variation_vs_actuel": -0.5573655292282871
     }
    },
    "unite": {
@@ -8413,7 +8413,7 @@
      "par_regime": [
       {
        "detail": "9,357 points × valeur de service 0.6779 € + cotisations revalorisées 69,628 € × rendement 8.52%",
-       "montant": 11465.44958933589,
+       "montant": 12275.641958603737,
        "regime": "ircantec"
       },
       {
@@ -8422,10 +8422,10 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 40070.05952643238,
-     "pension_annuelle_euros_constants": 31979.565217338506,
-     "pension_mensuelle": 3339.1716272026983,
-     "taux_remplacement": 0.532148781834825
+     "pension_annuelle": 40880.25189570023,
+     "pension_annuelle_euros_constants": 32626.172684804333,
+     "pension_mensuelle": 3406.687657975019,
+     "taux_remplacement": 0.5429085083601463
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 450265.7224097395,
@@ -8446,7 +8446,7 @@
      "rendement_cumule": 1.066788111639174,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.34121563453044956,
-     "variation_vs_actuel": -0.3587965505549905
+     "variation_vs_actuel": -0.37150435243483193
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -8460,7 +8460,7 @@
      "rendement_cumule": 1.124048280265096,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.22265739607836932,
-     "variation_vs_actuel": -0.5815880752171287
+     "variation_vs_actuel": -0.5898804445874215
     }
    },
    "unite": {
@@ -8556,14 +8556,14 @@
      "par_regime": [
       {
        "detail": "cotisations revalorisées 338,287 € × rendement 6.00%",
-       "montant": 17252.644112162863,
+       "montant": 20297.228367250427,
        "regime": "msa_non_salaries"
       }
      ],
-     "pension_annuelle": 17252.644112162863,
-     "pension_annuelle_euros_constants": 13769.184874619194,
-     "pension_mensuelle": 1437.7203426802387,
-     "taux_remplacement": 0.2291230324142884
+     "pension_annuelle": 20297.228367250427,
+     "pension_annuelle_euros_constants": 16199.041028963758,
+     "pension_mensuelle": 1691.435697270869,
+     "taux_remplacement": 0.26955650872269227
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 233962.70440596988,
@@ -8584,7 +8584,7 @@
      "rendement_cumule": 1.066788111639174,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.2299333092019519,
-     "variation_vs_actuel": 0.0035364266050668114
+     "variation_vs_actuel": -0.14699403738569317
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -8598,7 +8598,7 @@
      "rendement_cumule": 1.11057290394154,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.18612708709511336,
-     "variation_vs_actuel": -0.18765440063411887
+     "variation_vs_actuel": -0.309506240539001
     }
    },
    "unite": {
@@ -8874,17 +8874,17 @@
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
-     "capital_notionnel": 303212.80142198235,
-     "cotisations_versees": 276094.96316816914,
+     "capital_notionnel": 299668.46675406495,
+     "cotisations_versees": 273040.6351797465,
      "droits_acquis": null,
      "fiabilite": "estimee",
-     "pension_annuelle": 11746.218120035119,
-     "pension_annuelle_euros_constants": 9374.554289817179,
-     "pension_mensuelle": 978.8515100029266,
-     "rendement_cumule": 1.0982192429106206,
+     "pension_annuelle": 11608.913468303677,
+     "pension_annuelle_euros_constants": 9264.97264415496,
+     "pension_mensuelle": 967.4094556919731,
+     "rendement_cumule": 1.0975233285579964,
      "rente_capitalisation": 0.0,
-     "taux_remplacement": 0.15599516790384382,
-     "variation_vs_actuel": -0.7955837275625306
+     "taux_remplacement": 0.1541716991088713,
+     "variation_vs_actuel": -0.7979732034609385
     }
    },
    "unite": {
@@ -9705,14 +9705,14 @@
      "par_regime": [
       {
        "detail": "cotisations revalorisées 204,102 € × rendement 6.20%",
-       "montant": 10756.164244901094,
+       "montant": 12654.31087635423,
        "regime": "cnavpl"
       }
      ],
-     "pension_annuelle": 10756.164244901094,
-     "pension_annuelle_euros_constants": 8584.4009223723,
-     "pension_mensuelle": 896.3470204084246,
-     "taux_remplacement": 0.14284679802792996
+     "pension_annuelle": 12654.31087635423,
+     "pension_annuelle_euros_constants": 10099.295202790943,
+     "pension_mensuelle": 1054.5259063628525,
+     "taux_remplacement": 0.16805505650344701
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 149243.89808276124,
@@ -9733,7 +9733,7 @@
      "rendement_cumule": 1.066788111639174,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.1863476678470218,
-     "variation_vs_actuel": 0.30452814077489077
+     "variation_vs_actuel": 0.10884891965865706
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -9747,7 +9747,7 @@
      "rendement_cumule": 1.099669078773619,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.1565031967914247,
-     "variation_vs_actuel": 0.0956017142283061
+     "variation_vs_actuel": -0.06873854290593984
     }
    },
    "unite": {
@@ -9848,7 +9848,7 @@
       },
       {
        "detail": "2,623 points × valeur de service 1.8159 €",
-       "montant": 4571.793804528307,
+       "montant": 4762.285213050321,
        "regime": "arrco"
       },
       {
@@ -9857,10 +9857,10 @@
        "regime": "msa_salaries"
       }
      ],
-     "pension_annuelle": 39173.7473646082,
-     "pension_annuelle_euros_constants": 31264.226294139706,
-     "pension_mensuelle": 3264.4789470506835,
-     "taux_remplacement": 0.5202453449371622
+     "pension_annuelle": 39364.238773130215,
+     "pension_annuelle_euros_constants": 31416.255826767527,
+     "pension_mensuelle": 3280.3532310941846,
+     "taux_remplacement": 0.5227751582739286
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 432389.314741273,
@@ -9881,7 +9881,7 @@
      "rendement_cumule": 1.066788111639174,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.3320186837332468,
-     "variation_vs_actuel": -0.36180364329189807
+     "variation_vs_actuel": -0.36489200284594914
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -9895,7 +9895,7 @@
      "rendement_cumule": 1.1269142237100176,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.23075079184939007,
-     "variation_vs_actuel": -0.5564577480702662
+     "variation_vs_actuel": -0.5586041375583515
     }
    },
    "unite": {
@@ -10001,7 +10001,7 @@
       },
       {
        "detail": "2,623 points × valeur de service 1.8159 €",
-       "montant": 4571.793804528307,
+       "montant": 4762.285213050321,
        "regime": "arrco"
       },
       {
@@ -10010,10 +10010,10 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 39173.7473646082,
-     "pension_annuelle_euros_constants": 31264.226294139706,
-     "pension_mensuelle": 3264.4789470506835,
-     "taux_remplacement": 0.5202453449371622
+     "pension_annuelle": 39364.238773130215,
+     "pension_annuelle_euros_constants": 31416.255826767527,
+     "pension_mensuelle": 3280.3532310941846,
+     "taux_remplacement": 0.5227751582739286
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 432389.314741273,
@@ -10034,7 +10034,7 @@
      "rendement_cumule": 1.066788111639174,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.3320186837332468,
-     "variation_vs_actuel": -0.36180364329189807
+     "variation_vs_actuel": -0.36489200284594914
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -10048,7 +10048,7 @@
      "rendement_cumule": 1.1256616815700797,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.22733488190360435,
-     "variation_vs_actuel": -0.5630237077257021
+     "variation_vs_actuel": -0.5651383232244496
     }
    },
    "unite": {
@@ -10149,7 +10149,7 @@
       },
       {
        "detail": "2,623 points × valeur de service 1.8159 €",
-       "montant": 4571.793804528307,
+       "montant": 4762.285213050321,
        "regime": "arrco"
       },
       {
@@ -10158,10 +10158,10 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 39173.7473646082,
-     "pension_annuelle_euros_constants": 31264.226294139706,
-     "pension_mensuelle": 3264.4789470506835,
-     "taux_remplacement": 0.5202453449371622
+     "pension_annuelle": 39364.238773130215,
+     "pension_annuelle_euros_constants": 31416.255826767527,
+     "pension_mensuelle": 3280.3532310941846,
+     "taux_remplacement": 0.5227751582739286
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 432389.314741273,
@@ -10182,7 +10182,7 @@
      "rendement_cumule": 1.066788111639174,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.3320186837332468,
-     "variation_vs_actuel": -0.36180364329189807
+     "variation_vs_actuel": -0.36489200284594914
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -10196,7 +10196,7 @@
      "rendement_cumule": 1.1256616815700797,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.22733488190360435,
-     "variation_vs_actuel": -0.5630237077257021
+     "variation_vs_actuel": -0.5651383232244496
     }
    },
    "unite": {
@@ -10429,7 +10429,7 @@
       },
       {
        "detail": "2,623 points × valeur de service 1.8159 €",
-       "montant": 4571.793804528307,
+       "montant": 4762.285213050321,
        "regime": "arrco"
       },
       {
@@ -10438,10 +10438,10 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 39173.7473646082,
-     "pension_annuelle_euros_constants": 31264.226294139706,
-     "pension_mensuelle": 3264.4789470506835,
-     "taux_remplacement": 0.5202453449371622
+     "pension_annuelle": 39364.238773130215,
+     "pension_annuelle_euros_constants": 31416.255826767527,
+     "pension_mensuelle": 3280.3532310941846,
+     "taux_remplacement": 0.5227751582739286
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 398411.63023224246,
@@ -10462,7 +10462,7 @@
      "rendement_cumule": 1.066788111639174,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.33598549771805536,
-     "variation_vs_actuel": -0.35417875241413777
+     "variation_vs_actuel": -0.35730401033707393
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -10476,7 +10476,7 @@
      "rendement_cumule": 1.1256616815700797,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.24283620244822157,
-     "variation_vs_actuel": -0.5332275342558759
+     "variation_vs_actuel": -0.5354863393853577
     }
    },
    "unite": {
@@ -10577,7 +10577,7 @@
       },
       {
        "detail": "2,623 points × valeur de service 1.8159 €",
-       "montant": 4571.793804528307,
+       "montant": 4762.285213050321,
        "regime": "arrco"
       },
       {
@@ -10586,10 +10586,10 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 39173.7473646082,
-     "pension_annuelle_euros_constants": 31264.226294139706,
-     "pension_mensuelle": 3264.4789470506835,
-     "taux_remplacement": 0.5202453449371622
+     "pension_annuelle": 39364.238773130215,
+     "pension_annuelle_euros_constants": 31416.255826767527,
+     "pension_mensuelle": 3280.3532310941846,
+     "taux_remplacement": 0.5227751582739286
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 466366.9992503032,
@@ -10610,7 +10610,7 @@
      "rendement_cumule": 1.066788111639174,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.32852792026101546,
-     "variation_vs_actuel": -0.36851348415102747
+     "variation_vs_actuel": -0.3715693734458776
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -10624,7 +10624,7 @@
      "rendement_cumule": 1.1256616815700797,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.21369384813299647,
-     "variation_vs_actuel": -0.5892440937480998
+     "variation_vs_actuel": -0.591231823565298
     }
    },
    "unite": {

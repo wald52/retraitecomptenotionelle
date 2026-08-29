@@ -140,6 +140,17 @@ export class ScenarioActuel {
    * lui a-t-elle déjà ouverts ». La proratisation par la durée continue de
    * s'appliquer.
    */
+  /** @returns {[number, number|null]} durée requise opposable, et fiabilité. */
+  dureeRequise(periode, carriere) {
+    if (periode.duree_requise_par_generation) {
+      const parGeneration = this.dureesRequises.trimestres(carriere.annee_naissance);
+      if (parGeneration !== null) {
+        return parGeneration;
+      }
+    }
+    return [periode.duree_requise_trimestres || 160, null];
+  }
+
   calculer(carriere, ignorerPenaliteAge = false, avantagesNonContributifs = true) {
     const anneeLiquidation = carriere.anneeLiquidation;
     const ageLiquidation = carriere.age_liquidation || 0.0;
@@ -221,6 +232,22 @@ export class ScenarioActuel {
     }
 
     const codes = [...new Set([...cumulCotisations.keys(), ...pointsAcquis.keys()])].sort();
+
+    // Durée requise de référence : celle du régime de base. C'est elle qui
+    // commande le taux plein, donc aussi l'abattement des complémentaires —
+    // un assuré au taux plein liquide sa complémentaire sans abattement, quel
+    // que soit son âge.
+    let requisReference = 0;
+    for (const code of codes) {
+      const regime = this.catalogue.obtenir(code);
+      const periode = regime.periode(Math.min(anneeLiquidation, derniereAnnee(regime)));
+      if (periode === null || periode.type_calcul !== "annuites") {
+        continue;
+      }
+      requisReference = Math.max(requisReference, this.dureeRequise(periode, carriere)[0]);
+    }
+    requisReference = requisReference || 160;
+
     for (const code of codes) {
       const cumul = cumulCotisations.get(code) ?? 0.0;
       const regime = this.catalogue.obtenir(code);
@@ -267,7 +294,9 @@ export class ScenarioActuel {
 
         fiabiliteGlobale = Math.min(fiabiliteGlobale, fiabiliteRegime);
         if (!ignorerPenaliteAge) {
-          montant *= ajustementAgePoints(periode, ageLiquidation);
+          montant *= ajustementAgePoints(
+            periode, ageLiquidation, trimestres, requisReference,
+          );
         }
         pensions.push({
           regime: code,
@@ -285,13 +314,9 @@ export class ScenarioActuel {
       const salaireReference = this.salaireDeReference(
         carriere, periode, anneeLiquidation, plafonner,
       );
-      let requis = periode.duree_requise_trimestres || 160;
-      if (periode.duree_requise_par_generation) {
-        const parGeneration = this.dureesRequises.trimestres(carriere.annee_naissance);
-        if (parGeneration !== null) {
-          requis = parGeneration[0];
-          fiabiliteGlobale = Math.min(fiabiliteGlobale, parGeneration[1]);
-        }
+      const [requis, fiabiliteDuree] = this.dureeRequise(periode, carriere);
+      if (fiabiliteDuree !== null) {
+        fiabiliteGlobale = Math.min(fiabiliteGlobale, fiabiliteDuree);
       }
       trimestresRequis = Math.max(trimestresRequis, requis);
       const trimestresRegime = Math.min(trimestresParRegime.get(code) ?? 0, requis);
@@ -392,12 +417,18 @@ function derniereAnnee(regime) {
 }
 
 /** Abattement des régimes en points pour liquidation avant le taux plein. */
-function ajustementAgePoints(periode, ageLiquidation) {
+function ajustementAgePoints(periode, ageLiquidation, trimestres, requis) {
   if (periode.decote_par_trimestre === null) {
     return 1.0;
   }
-  const trimestresManquants = Math.max(0.0, (periode.age_taux_plein - ageLiquidation) * 4);
-  return Math.max(0.0, 1.0 - periode.decote_par_trimestre * trimestresManquants);
+  // « Avant le taux plein » est une condition de DURÉE autant que d'âge : une
+  // complémentaire est servie sans abattement dès que l'assuré a le taux plein
+  // au régime de base, même s'il liquide avant l'âge d'annulation de la décote.
+  const manquants = Math.max(0, requis - trimestres);
+  const manquantsAge = Math.max(0.0, (periode.age_taux_plein - ageLiquidation) * 4);
+  return Math.max(
+    0.0, 1.0 - periode.decote_par_trimestre * Math.min(manquants, manquantsAge),
+  );
 }
 
 /** Part de la rémunération que ce régime prend en compte. */

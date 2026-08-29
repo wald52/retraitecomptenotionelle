@@ -187,6 +187,27 @@ regimes:
           [bonifications, categorie_active, majoration_enfants, reversion, minimum_garanti]
         notes: Alignement Fillon.
       - debut: 2011
+        fin: 2022
+        type_calcul: annuites
+        age_ouverture: 62
+        age_taux_plein: 67
+        duree_requise_trimestres: 172
+        duree_requise_par_generation: true
+        taux_plein: 0.75
+        salaire_reference: derniers_6_mois
+        assiette: hors_primes
+        taux_cotisation_retraite: 0.1029
+        decote_par_trimestre: 0.0125
+        surcote_par_trimestre: 0.0125
+        avantages_non_contributifs:
+          [bonifications, categorie_active, majoration_enfants, reversion, minimum_garanti]
+        notes: >-
+          Réforme de 2010 : âge d'ouverture porté à 62 ans, âge d'annulation de
+          la décote à 67. La période s'arrêtait à tort en 2011 avec les
+          paramètres de 2023, ce qui opposait l'âge légal de 64 ans à des
+          liquidations de 2011. Paramètres alignés sur ceux de l'État, dont ce
+          régime partage le code des pensions.
+      - debut: 2023
         fin: null
         type_calcul: annuites
         age_ouverture: 64
@@ -202,7 +223,7 @@ regimes:
         avantages_non_contributifs:
           [bonifications, categorie_active, majoration_enfants, reversion, minimum_garanti]
         notes: >-
-          Réformes 2010 puis 2023. Taux employeur 31,65 % puis 43,65 % en 2025 :
+          Réforme de 2023. Taux employeur 31,65 % puis 43,65 % en 2025 :
           taux d'équilibre, non générateur de droits supplémentaires.
 
   - code: fspoeie

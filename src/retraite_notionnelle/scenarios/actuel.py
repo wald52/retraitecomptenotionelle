@@ -310,6 +310,16 @@ class ScenarioActuel:
             retenus = revenus
         return sum(retenus) / len(retenus)
 
+    def _duree_requise(self, periode: PeriodeRegime,
+                       carriere: Carriere) -> tuple[int, Fiabilite | None]:
+        """Durée requise opposable à cet assuré dans ce régime."""
+        requis = periode.duree_requise_trimestres or 160
+        if periode.duree_requise_par_generation:
+            par_generation = self.durees_requises.trimestres(carriere.annee_naissance)
+            if par_generation is not None:
+                return par_generation
+        return requis, None
+
     # -- calcul --------------------------------------------------------------
 
     def calculer(self, carriere: Carriere,
@@ -413,6 +423,21 @@ class ScenarioActuel:
                             * self.macro.coefficient_prix(ligne.annee, annee_liquidation)
                         )
 
+        # Durée requise de référence : celle du régime de base. C'est elle qui
+        # commande le taux plein, donc aussi l'abattement des complémentaires —
+        # un assuré au taux plein liquide sa complémentaire sans abattement,
+        # quel que soit son âge.
+        requis_reference = 0
+        for code in sorted(set(cumul_cotisations) | set(points_acquis)):
+            regime = self.catalogue[code]
+            periode = regime.periode(min(annee_liquidation, _derniere_annee(regime)))
+            if periode is None or periode.type_calcul != "annuites":
+                continue
+            requis_reference = max(
+                requis_reference, self._duree_requise(periode, carriere)[0]
+            )
+        requis_reference = requis_reference or 160
+
         for code in sorted(set(cumul_cotisations) | set(points_acquis)):
             cumul = cumul_cotisations.get(code, 0.0)
             regime = self.catalogue[code]
@@ -454,7 +479,9 @@ class ScenarioActuel:
 
                 fiabilite_globale = min(fiabilite_globale, fiabilite_regime)
                 if not ignorer_penalite_age:
-                    montant *= _ajustement_age_points(periode, age_liquidation)
+                    montant *= _ajustement_age_points(
+                        periode, age_liquidation, trimestres, requis_reference
+                    )
                 pensions.append(PensionRegime(
                     regime=code, montant=montant, type_calcul=periode.type_calcul,
                     detail=" + ".join(details) or "aucun droit",
@@ -467,14 +494,9 @@ class ScenarioActuel:
             salaire_reference = self.salaire_de_reference(
                 carriere, periode, annee_liquidation, plafonner
             )
-            requis = periode.duree_requise_trimestres or 160
-            if periode.duree_requise_par_generation:
-                par_generation = self.durees_requises.trimestres(
-                    carriere.annee_naissance
-                )
-                if par_generation is not None:
-                    requis, fiabilite_duree = par_generation
-                    fiabilite_globale = min(fiabilite_globale, fiabilite_duree)
+            requis, fiabilite_duree = self._duree_requise(periode, carriere)
+            if fiabilite_duree is not None:
+                fiabilite_globale = min(fiabilite_globale, fiabilite_duree)
             trimestres_requis = max(trimestres_requis, requis)
             trimestres_regime = min(trimestres_par_regime.get(code, 0), requis)
 
@@ -595,11 +617,22 @@ def _derniere_annee(regime) -> int:
     return min(max(annees), 2100) if annees else 2100
 
 
-def _ajustement_age_points(periode: PeriodeRegime, age_liquidation: float) -> float:
-    """Abattement des régimes en points pour liquidation avant le taux plein."""
+def _ajustement_age_points(periode: PeriodeRegime, age_liquidation: float,
+                           trimestres: int, requis: int) -> float:
+    """Abattement des régimes en points pour liquidation avant le taux plein.
+
+    « Avant le taux plein » est une condition de DURÉE autant que d'âge : une
+    complémentaire est servie sans abattement dès que l'assuré a le taux plein
+    au régime de base, même s'il liquide avant l'âge d'annulation de la décote.
+    Ne regarder que l'âge amputait de 20 % la complémentaire de tout assuré
+    parti à 60 ans avec une carrière complète — c'est-à-dire de la plupart des
+    liquidations des régimes spéciaux et des carrières longues.
+    """
     if periode.decote_par_trimestre is None:
         return 1.0
-    trimestres_manquants = max(0.0, (periode.age_taux_plein - age_liquidation) * 4)
+    manquants = max(0, requis - trimestres)
+    manquants_age = max(0.0, (periode.age_taux_plein - age_liquidation) * 4)
+    trimestres_manquants = min(manquants, manquants_age)
     return max(0.0, 1.0 - periode.decote_par_trimestre * trimestres_manquants)
 
 
