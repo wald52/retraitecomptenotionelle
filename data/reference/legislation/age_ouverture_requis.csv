@@ -1,0 +1,36 @@
+# Âge légal d'ouverture des droits, PAR GÉNÉRATION
+# -------------------------------------------------
+# source_id: legifrance_textes, cnav_circulaires
+#
+# Comme la durée requise, l'âge légal est indexé sur l'ANNÉE DE NAISSANCE et
+# non sur l'année de liquidation. Les fiches de régime portaient l'âge CIBLE de
+# chaque réforme dès son entrée en vigueur : 64 ans opposés à des liquidations
+# de 2023, alors que la génération concernée cette année-là relevait de 62 ans.
+#
+# Étapes législatives :
+#   - loi du 9 novembre 2010 : générations 1951-1955, 60 -> 62 ans
+#   - loi du 14 avril 2023   : générations 1961(sept)-1968, 62 -> 64 ans
+#
+# Les générations 1961 et 1951 sont coupées en cours d'année par les textes
+# (1er septembre et 1er juillet). Le modèle ne connaît que l'année de
+# naissance : il retient la valeur de la fraction la plus nombreuse.
+#
+# Cet âge commande l'ouverture des droits et la surcote — laquelle ne
+# récompense que les trimestres cotisés AU-DELÀ de cet âge.
+generation,age,fiabilite
+1930,60,haute
+1950,60,haute
+1951,60.33,haute
+1952,60.75,haute
+1953,61.17,haute
+1954,61.58,haute
+1955,62,haute
+1960,62,haute
+1961,62,haute
+1962,62.5,haute
+1963,62.75,haute
+1964,63,haute
+1965,63.25,haute
+1966,63.5,haute
+1967,63.75,haute
+1968,64,haute

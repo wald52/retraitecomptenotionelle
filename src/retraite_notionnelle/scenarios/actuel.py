@@ -55,10 +55,31 @@ class PensionRegime:
     fiabilite: Fiabilite
 
 
+@dataclass(frozen=True)
+class AvantageApplique:
+    """Effet en euros d'un avantage non contributif du droit positif.
+
+    Les trois avantages s'appliquent dans cet ordre, et l'ordre compte : la
+    MDA ajoute des trimestres, donc modifie la décote et la proratisation AVANT
+    que la majoration ne multiplie, et le minimum ne comble qu'ensuite. Leurs
+    effets s'additionnent exactement au total : c'est ce qui rend la cascade
+    vérifiable ligne à ligne.
+    """
+
+    code: str
+    libelle: str
+    montant: float
+    detail: str = ""
+
+
 @dataclass
 class ResultatActuel:
     pension_annuelle: float
     pensions_par_regime: list[PensionRegime] = field(default_factory=list)
+    #: Avantages non contributifs effectivement appliqués, et leur effet.
+    avantages_appliques: list[AvantageApplique] = field(default_factory=list)
+    #: Total des pensions de régime avant tout avantage non contributif.
+    total_contributif: float = 0.0
     trimestres_valides: int = 0
     trimestres_requis: int = 0
     taux_liquidation: float = 0.0
@@ -92,44 +113,73 @@ class Rendements:
         return 0.0, Fiabilite.ESTIMEE
 
 
-class DureesRequises:
-    """Durée d'assurance requise pour le taux plein, par génération.
+class TableParGeneration:
+    """Paramètre législatif indexé sur l'ANNÉE DE NAISSANCE.
 
-    Depuis la loi du 22 juillet 1993, l'exigence est indexée sur l'année de
-    NAISSANCE et non sur l'année de liquidation : deux assurés qui liquident le
-    même jour n'ont pas la même durée requise s'ils ne sont pas de la même
-    génération. Lire l'exigence à l'année de liquidation, comme le faisait ce
-    module, appliquait aux générations anciennes une durée que la loi ne leur a
-    jamais opposée — et donc une décote qu'elles n'ont pas subie.
+    Depuis la loi du 22 juillet 1993 pour la durée d'assurance, et la loi du
+    9 novembre 2010 pour l'âge d'ouverture, les deux paramètres qui commandent
+    le taux plein dépendent de la génération et non de l'année de liquidation :
+    deux assurés qui liquident le même jour ne se voient pas opposer la même
+    exigence. Les lire à l'année de liquidation, comme le faisait ce module,
+    opposait aux générations anciennes des règles que la loi ne leur a jamais
+    appliquées.
+
+    Lecture en escalier : la valeur d'une génération non renseignée est celle
+    de la dernière génération renseignée avant elle, et la dernière valeur du
+    fichier vaut pour toutes les générations suivantes — une cible atteinte ne
+    bouge plus. En deçà de la première, le paramètre ne dépendait pas encore de
+    la génération : on renvoie ``None`` pour que la fiche du régime reprenne la
+    main.
     """
 
-    def __init__(self, racine: Path) -> None:
-        self._table: dict[int, tuple[int, Fiabilite]] = {}
-        chemin = racine / "reference" / "legislation" / "duree_assurance_requise.csv"
+    def __init__(self, racine: Path, fichier: str, colonne: str) -> None:
+        self._table: dict[int, tuple[float, Fiabilite]] = {}
+        chemin = racine / "reference" / "legislation" / fichier
         if not chemin.exists():
             return
         with chemin.open(encoding="utf-8") as flux:
             lignes = (l for l in flux if not l.lstrip().startswith("#"))
             for ligne in csv.DictReader(lignes):
                 self._table[int(ligne["generation"])] = (
-                    int(ligne["trimestres"]),
+                    float(ligne[colonne]),
                     Fiabilite.depuis_texte(ligne["fiabilite"]),
                 )
+        self._generations = sorted(self._table)
+
+    def valeur(self, generation: int) -> tuple[float, Fiabilite] | None:
+        if not self._table or generation < self._generations[0]:
+            return None
+        applicable = self._generations[0]
+        for candidate in self._generations:
+            if candidate > generation:
+                break
+            applicable = candidate
+        return self._table[applicable]
+
+
+class DureesRequises(TableParGeneration):
+    """Durée d'assurance requise pour le taux plein, par génération."""
+
+    def __init__(self, racine: Path) -> None:
+        super().__init__(racine, "duree_assurance_requise.csv", "trimestres")
 
     def trimestres(self, generation: int) -> tuple[int, Fiabilite] | None:
-        """Durée requise d'une génération, ``None`` si hors table.
+        valeur = self.valeur(generation)
+        return None if valeur is None else (int(valeur[0]), valeur[1])
 
-        Au-delà de la dernière génération renseignée, la cible est atteinte et
-        ne bouge plus : la dernière valeur vaut pour toutes les suivantes. En
-        deçà de la première, la durée ne dépendait pas encore de la génération —
-        on renvoie ``None`` pour que la fiche du régime reprenne la main.
-        """
-        if not self._table:
-            return None
-        derniere = max(self._table)
-        if generation > derniere:
-            return self._table[derniere]
-        return self._table.get(generation)
+
+class AgesOuverture(TableParGeneration):
+    """Âge légal d'ouverture des droits, par génération.
+
+    C'est lui qui commande la surcote : seuls les trimestres cotisés au-delà de
+    cet âge la déclenchent.
+    """
+
+    def __init__(self, racine: Path) -> None:
+        super().__init__(racine, "age_ouverture_requis.csv", "age")
+
+    def age(self, generation: int) -> tuple[float, Fiabilite] | None:
+        return self.valeur(generation)
 
 
 class ValeursPoint:
@@ -217,6 +267,7 @@ class ScenarioActuel:
         self.rendements = Rendements(parametres.racine_donnees)
         self.valeurs_point = ValeursPoint(parametres.racine_donnees)
         self.durees_requises = DureesRequises(parametres.racine_donnees)
+        self.ages_ouverture = AgesOuverture(parametres.racine_donnees)
         self.minimum_contributif = MinimumContributif(parametres.racine_donnees, macro)
 
     # -- valorisation des points ---------------------------------------------
@@ -319,6 +370,14 @@ class ScenarioActuel:
             if par_generation is not None:
                 return par_generation
         return requis, None
+
+    def _age_ouverture(self, periode: PeriodeRegime, carriere: Carriere) -> float:
+        """Âge légal opposable à cet assuré dans ce régime."""
+        if periode.age_ouverture_par_generation:
+            par_generation = self.ages_ouverture.age(carriere.annee_naissance)
+            if par_generation is not None:
+                return par_generation[0]
+        return periode.age_ouverture
 
     # -- calcul --------------------------------------------------------------
 
@@ -518,12 +577,13 @@ class ScenarioActuel:
                 # majorait la pension de qui a commencé tôt sans jamais
                 # travailler au-delà de l'âge d'ouverture.
                 supplementaires = max(0, trimestres - requis)
+                age_ouverture = self._age_ouverture(periode, carriere)
                 if (periode.surcote_par_trimestre and supplementaires > 0
-                        and age_liquidation >= periode.age_ouverture):
+                        and age_liquidation >= age_ouverture):
                     supplementaires = min(
                         supplementaires,
                         _trimestres_cotises_apres(
-                            carriere, periode.age_ouverture, annee_liquidation
+                            carriere, age_ouverture, annee_liquidation
                         ),
                     )
                     if supplementaires > 0:
@@ -545,11 +605,57 @@ class ScenarioActuel:
             ))
 
         total = sum(p.montant for p in pensions)
+        total_contributif = total
+        avantages: list[AvantageApplique] = []
 
-        # Avantages non contributifs du droit positif.
+        # Avantages non contributifs du droit positif, dans l'ordre où le droit
+        # les applique : durée d'assurance, puis majoration, puis minimum.
         minimum_applique = False
+
+        if avantages_non_contributifs and carriere.nombre_enfants > 0:
+            # Effet de la MDA : la même carrière sans les huit trimestres par
+            # enfant, tout le reste égal. C'est la seule façon d'isoler un
+            # avantage qui agit sur la décote et sur la proratisation.
+            sans_mda = self.calculer(
+                carriere, ignorer_penalite_age, avantages_non_contributifs=False
+            )
+            effet = total - sans_mda.total_contributif
+            # La MDA est déjà incorporée aux pensions de régime : la base
+            # contributive de la cascade est celle d'AVANT, sans quoi son effet
+            # serait compté deux fois.
+            total_contributif = sans_mda.total_contributif
+            if abs(effet) > 1e-9:
+                avantages.append(AvantageApplique(
+                    code="majoration_duree_assurance",
+                    libelle="Majoration de durée d'assurance",
+                    montant=effet,
+                    detail=f"{8 * carriere.nombre_enfants} trimestres pour "
+                           f"{carriere.nombre_enfants} enfant"
+                           f"{'s' if carriere.nombre_enfants > 1 else ''}",
+                ))
+
         if avantages_non_contributifs and carriere.nombre_enfants >= 3:
-            total *= 1.10
+            majoration = 0.0
+            taux_cite = 0.0
+            for pension in pensions:
+                regime = self.catalogue[pension.regime]
+                periode = regime.periode(min(annee_liquidation, _derniere_annee(regime)))
+                if periode is None:
+                    continue
+                if "majoration_enfants" not in periode.avantages_non_contributifs:
+                    continue
+                taux = _taux_majoration_enfants(regime, carriere.nombre_enfants)
+                majoration += pension.montant * taux
+                taux_cite = max(taux_cite, taux)
+            if majoration > 0:
+                total += majoration
+                avantages.append(AvantageApplique(
+                    code="majoration_enfants",
+                    libelle="Majoration pour trois enfants et plus",
+                    montant=majoration,
+                    detail=f"jusqu'à {taux_cite:.0%} selon le régime",
+                ))
+
         if avantages_non_contributifs and eligibles_minimum:
             montant_minimum, plafond, fiabilite_minimum = (
                 self.minimum_contributif.valeurs(annee_liquidation)
@@ -568,16 +674,39 @@ class ScenarioActuel:
                 total += releve
                 minimum_applique = True
                 fiabilite_globale = min(fiabilite_globale, fiabilite_minimum)
+                avantages.append(AvantageApplique(
+                    code="minimum_contributif",
+                    libelle="Minimum contributif",
+                    montant=releve,
+                    detail="portée au plancher, au prorata de la durée acquise",
+                ))
 
         return ResultatActuel(
             pension_annuelle=total,
             pensions_par_regime=pensions,
+            avantages_appliques=avantages,
+            total_contributif=total_contributif,
             trimestres_valides=trimestres,
             trimestres_requis=trimestres_requis,
             taux_liquidation=taux_retenu,
             minimum_applique=minimum_applique,
             fiabilite=fiabilite_globale,
         )
+
+
+def _taux_majoration_enfants(regime, nombre_enfants: int) -> float:
+    """Taux de majoration pour enfants, régime par régime.
+
+    Le régime général et les régimes spéciaux servent 10 % à partir de trois
+    enfants. La fonction publique y ajoute 5 % par enfant au-delà du troisième.
+    Les complémentaires servent 10 %, mais plafonnés en euros — plafond non
+    encore intégré, cf. docs/limites.md.
+    """
+    if nombre_enfants < 3:
+        return 0.0
+    if regime.famille == "fonction_publique":
+        return 0.10 + 0.05 * (nombre_enfants - 3)
+    return 0.10
 
 
 def _trimestres_cotises_apres(carriere: Carriere, age: float,

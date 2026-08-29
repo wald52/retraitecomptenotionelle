@@ -110,6 +110,10 @@ export class Comparaison {
             regime: p.regime, montant: p.montant, detail: p.detail,
           })),
           minimum_applique: this.actuel.minimum_applique,
+          total_contributif: this.actuel.total_contributif,
+          avantages_appliques: this.actuel.avantages_appliques.map((a) => ({
+            code: a.code, libelle: a.libelle, montant: a.montant, detail: a.detail,
+          })),
         },
         notionnel_retroactif: resumeNotionnel(
           this.notionnel_retroactif, this.tauxRemplacementRetroactif,

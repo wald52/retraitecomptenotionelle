@@ -200,6 +200,11 @@ Sont **supprimés** dans les scénarios notionnels — tous activés par défaut
 | carrières longues | dispositif d'âge, remplacé par l'actuariel |
 | décote et surcote | remplacées par le coefficient de conversion |
 
+La page de simulation affiche désormais leur effet en euros, ligne à ligne :
+sous-total contributif, puis chaque avantage, puis le total. Les lignes
+s'additionnent exactement, et l'écart avec les scénarios notionnels devient
+lisible — ce qu'ils retirent, c'est précisément la somme de ces lignes.
+
 Le scénario 1 les conserve **toutes**, sans condition : c'est le droit positif,
 il sert d'étalon. Les drapeaux ci-dessus ne sont pas lus par le scénario 1 —
 ils décrivent ce que les scénarios notionnels retirent, pas ce que le droit en

@@ -193,6 +193,12 @@ class Comparaison:
                         for p in self.actuel.pensions_par_regime
                     ],
                     "minimum_applique": self.actuel.minimum_applique,
+                    "total_contributif": self.actuel.total_contributif,
+                    "avantages_appliques": [
+                        {"code": a.code, "libelle": a.libelle,
+                         "montant": a.montant, "detail": a.detail}
+                        for a in self.actuel.avantages_appliques
+                    ],
                 },
                 "notionnel_retroactif": _resume_notionnel(
                     self.notionnel_retroactif, self.taux_remplacement_retroactif,

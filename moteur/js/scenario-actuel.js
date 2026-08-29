@@ -16,7 +16,7 @@
 
 import { formatFixe, formatPourcentage } from "./format.js";
 import {
-  DureesRequises, MinimumContributif, Rendements, ValeursPoint,
+  AgesOuverture, DureesRequises, MinimumContributif, Rendements, ValeursPoint,
 } from "./regimes.js";
 import { Fiabilite } from "./serie.js";
 
@@ -29,6 +29,7 @@ export class ScenarioActuel {
     this.rendements = new Rendements(paquet);
     this.valeursPoint = new ValeursPoint(paquet);
     this.dureesRequises = new DureesRequises(paquet);
+    this.agesOuverture = new AgesOuverture(paquet);
     this.minimumContributif = new MinimumContributif(paquet, macro);
   }
 
@@ -149,6 +150,17 @@ export class ScenarioActuel {
       }
     }
     return [periode.duree_requise_trimestres || 160, null];
+  }
+
+  /** Âge légal opposable à cet assuré dans ce régime. */
+  ageOuverture(periode, carriere) {
+    if (periode.age_ouverture_par_generation) {
+      const parGeneration = this.agesOuverture.age(carriere.annee_naissance);
+      if (parGeneration !== null) {
+        return parGeneration[0];
+      }
+    }
+    return periode.age_ouverture;
   }
 
   calculer(carriere, ignorerPenaliteAge = false, avantagesNonContributifs = true) {
@@ -337,11 +349,12 @@ export class ScenarioActuel {
         // La surcote ne récompense que les trimestres COTISÉS APRÈS l'âge
         // légal ET au-delà de la durée requise.
         let supplementaires = Math.max(0, trimestres - requis);
+        const ageOuverture = this.ageOuverture(periode, carriere);
         if (periode.surcote_par_trimestre && supplementaires > 0
-            && ageLiquidation >= periode.age_ouverture) {
+            && ageLiquidation >= ageOuverture) {
           supplementaires = Math.min(
             supplementaires,
-            trimestresCotisesApres(carriere, periode.age_ouverture, anneeLiquidation),
+            trimestresCotisesApres(carriere, ageOuverture, anneeLiquidation),
           );
           if (supplementaires > 0) {
             taux *= 1.0 + periode.surcote_par_trimestre * supplementaires;
@@ -368,9 +381,55 @@ export class ScenarioActuel {
     let total = pensions.reduce((somme, p) => somme + p.montant, 0.0);
 
     // Avantages non contributifs du droit positif.
+    let totalContributif = total;
+    const avantages = [];
+
+    // Avantages non contributifs du droit positif, dans l'ordre où le droit les
+    // applique : durée d'assurance, puis majoration, puis minimum.
     let minimumApplique = false;
+
+    if (avantagesNonContributifs && carriere.nombre_enfants > 0) {
+      // Effet de la MDA : la même carrière sans les huit trimestres par enfant.
+      const sansMda = this.calculer(carriere, ignorerPenaliteAge, false);
+      const effet = total - sansMda.total_contributif;
+      // La MDA est déjà incorporée aux pensions de régime : la base
+      // contributive de la cascade est celle d'AVANT.
+      totalContributif = sansMda.total_contributif;
+      if (Math.abs(effet) > 1e-9) {
+        const nombre = 8 * carriere.nombre_enfants;
+        avantages.push({
+          code: "majoration_duree_assurance",
+          libelle: "Majoration de durée d'assurance",
+          montant: effet,
+          detail: `${nombre} trimestres pour ${carriere.nombre_enfants} enfant`
+            + `${carriere.nombre_enfants > 1 ? "s" : ""}`,
+        });
+      }
+    }
+
     if (avantagesNonContributifs && carriere.nombre_enfants >= 3) {
-      total *= 1.1;
+      let majoration = 0.0;
+      let tauxCite = 0.0;
+      for (const pension of pensions) {
+        const regime = this.catalogue.obtenir(pension.regime);
+        const periode = regime.periode(Math.min(anneeLiquidation, derniereAnnee(regime)));
+        if (periode === null
+            || !periode.avantages_non_contributifs.includes("majoration_enfants")) {
+          continue;
+        }
+        const taux = tauxMajorationEnfants(regime, carriere.nombre_enfants);
+        majoration += pension.montant * taux;
+        tauxCite = Math.max(tauxCite, taux);
+      }
+      if (majoration > 0) {
+        total += majoration;
+        avantages.push({
+          code: "majoration_enfants",
+          libelle: "Majoration pour trois enfants et plus",
+          montant: majoration,
+          detail: `jusqu'à ${formatPourcentage(tauxCite, 0)} selon le régime`,
+        });
+      }
     }
     if (avantagesNonContributifs && eligiblesMinimum.length > 0) {
       const [montantMinimum, plafond, fiabiliteMinimum] = this.minimumContributif
@@ -391,6 +450,12 @@ export class ScenarioActuel {
         total += releve;
         minimumApplique = true;
         fiabiliteGlobale = Math.min(fiabiliteGlobale, fiabiliteMinimum);
+        avantages.push({
+          code: "minimum_contributif",
+          libelle: "Minimum contributif",
+          montant: releve,
+          detail: "portée au plancher, au prorata de la durée acquise",
+        });
       }
     }
 
@@ -401,6 +466,8 @@ export class ScenarioActuel {
       trimestres_requis: trimestresRequis,
       taux_liquidation: tauxRetenu,
       minimum_applique: minimumApplique,
+      avantages_appliques: avantages,
+      total_contributif: totalContributif,
       fiabilite: fiabiliteGlobale,
       pension_mensuelle: total / 12.0,
     };
@@ -429,6 +496,21 @@ function ajustementAgePoints(periode, ageLiquidation, trimestres, requis) {
   return Math.max(
     0.0, 1.0 - periode.decote_par_trimestre * Math.min(manquants, manquantsAge),
   );
+}
+
+/**
+ * Taux de majoration pour enfants, régime par régime. Le régime général et les
+ * régimes spéciaux servent 10 % à partir de trois enfants ; la fonction
+ * publique y ajoute 5 % par enfant au-delà du troisième.
+ */
+function tauxMajorationEnfants(regime, nombreEnfants) {
+  if (nombreEnfants < 3) {
+    return 0.0;
+  }
+  if (regime.famille === "fonction_publique") {
+    return 0.1 + 0.05 * (nombreEnfants - 3);
+  }
+  return 0.1;
 }
 
 /** Part de la rémunération que ce régime prend en compte. */

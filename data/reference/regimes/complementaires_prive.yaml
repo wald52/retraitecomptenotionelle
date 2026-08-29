@@ -36,6 +36,7 @@ regimes:
         fin: 2018
         type_calcul: points
         age_ouverture: 60
+        age_ouverture_par_generation: true
         age_taux_plein: 65
         duree_requise_trimestres: 160
         taux_plein: 1.0
@@ -87,6 +88,7 @@ regimes:
         fin: 2018
         type_calcul: points
         age_ouverture: 60
+        age_ouverture_par_generation: true
         age_taux_plein: 65
         duree_requise_trimestres: 160
         taux_plein: 1.0
@@ -116,6 +118,7 @@ regimes:
         fin: null
         type_calcul: points
         age_ouverture: 62
+        age_ouverture_par_generation: true
         age_taux_plein: 67
         duree_requise_trimestres: 172
         taux_plein: 1.0
@@ -138,6 +141,7 @@ regimes:
         fin: null
         type_calcul: points
         age_ouverture: 62
+        age_ouverture_par_generation: true
         age_taux_plein: 67
         duree_requise_trimestres: 172
         taux_plein: 1.0
@@ -180,6 +184,7 @@ regimes:
         fin: null
         type_calcul: points
         age_ouverture: 62
+        age_ouverture_par_generation: true
         age_taux_plein: 67
         duree_requise_trimestres: 172
         taux_plein: 1.0

@@ -156,6 +156,7 @@ def _regimes() -> list[dict]:
                     "age_taux_plein": p.age_taux_plein,
                     "duree_requise_trimestres": p.duree_requise_trimestres,
                     "duree_requise_par_generation": p.duree_requise_par_generation,
+                    "age_ouverture_par_generation": p.age_ouverture_par_generation,
                     "taux_plein": p.taux_plein,
                     "salaire_reference": p.salaire_reference,
                     "assiette": p.assiette,
@@ -210,6 +211,14 @@ def _durees_requises() -> dict:
             for generation, (trimestres, fiabilite) in sorted(table.items())}
 
 
+def _ages_ouverture() -> dict:
+    """Âge légal d'ouverture des droits par génération."""
+    from retraite_notionnelle.scenarios.actuel import AgesOuverture
+
+    return {str(generation): [age, int(fiabilite)]
+            for generation, (age, fiabilite) in sorted(AgesOuverture(DONNEES)._table.items())}
+
+
 def _minimum_contributif() -> dict:
     """Montant et plafond d'écrêtement du minimum contributif, par année."""
     from retraite_notionnelle.donnees.macro import DonneesMacro
@@ -243,6 +252,7 @@ def construire() -> bytes:
         "valeurs_point": _valeurs_point(),
         "rendements_points": _rendements(),
         "durees_requises": _durees_requises(),
+        "ages_ouverture": _ages_ouverture(),
         "minimum_contributif": _minimum_contributif(),
         "certification": journal_certification(DONNEES),
     }

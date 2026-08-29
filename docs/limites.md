@@ -41,12 +41,19 @@ Ce qui reste approché, après la reprise du moteur :
   soit indemnisée ou non. Les points Agirc-Arrco financés par l'UNEDIC pendant
   le chômage indemnisé ne sont donc pas acquis, alors que la méthode annonce
   l'inverse.
-- **Montée en charge des réformes par palier.** Les paramètres autres que la
-  durée requise sont ceux de l'année de liquidation, sans le détail génération
-  par génération (âge légal de la loi de 2023, notamment).
-- **Majoration pour trois enfants appliquée au total.** En droit, elle vaut
-  10 % au régime général, 10 % plafonnés à l'Agirc-Arrco, et 10 % plus 5 % par
-  enfant supplémentaire dans la fonction publique.
+- **Montée en charge des réformes par palier.** La durée requise et l'âge légal
+  d'ouverture sont désormais lus à la génération. Les autres paramètres — âge
+  d'annulation de la décote, taux de cotisation — restent ceux de l'année de
+  liquidation.
+- **Plafond de la majoration familiale des complémentaires.** La majoration
+  pour enfants est désormais appliquée régime par régime, à ceux dont la fiche
+  la porte : 10 % au régime général et dans les régimes spéciaux, 10 % plus 5 %
+  par enfant au-delà du troisième dans la fonction publique. Le plafond en
+  euros de la majoration Agirc-Arrco n'est pas encore intégré : les familles
+  très nombreuses de salariés du privé sont donc légèrement surestimées.
+- **Trimestres de la MDA attribués au seul régime général.** Les huit
+  trimestres par enfant s'ajoutent à la durée d'assurance totale, sans être
+  répartis entre régimes comme le fait le droit.
 
 ## 1. État de certification des données
 

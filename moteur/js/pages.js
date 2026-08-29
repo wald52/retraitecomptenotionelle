@@ -666,17 +666,53 @@ function detail(contexte, comparaison, saisie) {
 
   const nomRegime = (code) => (catalogue.contient(code) ? catalogue.obtenir(code).nom : code);
 
-  const regimes = pensions.length > 0
+  const actuel = comparaison.actuel;
+  const lignesActuel = pensions.map((pension) => [
+    echapper(nomRegime(pension.regime)),
+    g.euros(pension.montant),
+    g.franciser(echapper(pension.detail)),
+  ]);
+  if (lignesActuel.length > 0 && actuel.avantages_appliques.length > 0) {
+    lignesActuel.push([
+      "<strong>Sous-total contributif</strong>",
+      `<strong>${g.euros(actuel.total_contributif)}</strong>`,
+      '<span class="discret">ce que la carrière a ouvert par ses seules '
+      + "cotisations</span>",
+    ]);
+  }
+  for (const avantage of actuel.avantages_appliques) {
+    lignesActuel.push([
+      `+ ${echapper(avantage.libelle)}`,
+      g.euros(avantage.montant),
+      `<span class="discret">${echapper(avantage.detail)}</span>`,
+    ]);
+  }
+  if (lignesActuel.length > 0) {
+    lignesActuel.push([
+      "<strong>Pension du système actuel</strong>",
+      `<strong>${g.euros(actuel.pension_annuelle)}</strong>`,
+      '<span class="discret">c\'est le montant de la ligne 1 ci-dessus</span>',
+    ]);
+  }
+
+  const regimes = lignesActuel.length > 0
     ? g.tableau(
-      ["Régime", "Pension annuelle", "Calcul"],
-      pensions.map((pension) => [
-        echapper(nomRegime(pension.regime)),
-        g.euros(pension.montant),
-        g.franciser(echapper(pension.detail)),
-      ]),
+      ["Régime, puis avantage", "Pension annuelle", "Calcul"],
+      lignesActuel,
       ["", "nombre", ""],
     )
     : "<p>Aucun droit liquidé dans le système actuel.</p>";
+
+  let part = "";
+  if (actuel.avantages_appliques.length > 0 && actuel.pension_annuelle > 0) {
+    const gratuit = actuel.avantages_appliques
+      .reduce((somme, a) => somme + a.montant, 0.0);
+    part = `<p>Les avantages non contributifs pèsent ${g.euros(gratuit)} par an, `
+      + `soit ${g.pourcentage(gratuit / actuel.pension_annuelle)} de la `
+      + "pension. C'est exactement ce que les deux scénarios notionnels "
+      + "retirent : ils ne conservent que le sous-total contributif, et le "
+      + "recalculent sur les cotisations réellement versées.</p>";
+  }
 
   const compte = g.tableau(
     ["Poste", "Montant"],
@@ -700,8 +736,12 @@ function detail(contexte, comparaison, saisie) {
 
   return `
 <h2>Le détail du calcul</h2>
-<h3>Scénario 1 — pensions par régime dans le système actuel</h3>
+<h3>Scénario 1 — de quoi votre pension actuelle est faite</h3>
+<p>Chaque régime d'abord, puis les avantages que le droit en vigueur ajoute
+par-dessus. Les lignes s'additionnent exactement : le total est la pension du
+scénario 1.</p>
 ${regimes}
+${part}
 <h3>Scénario 2 — construction du compte notionnel rétroactif</h3>
 ${compte}
 <details>

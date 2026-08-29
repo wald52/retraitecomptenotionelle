@@ -287,6 +287,74 @@ def test_le_systeme_actuel_applique_ses_avantages_sans_condition(simulateur):
     assert autre.pension_annuelle == pytest.approx(avec.pension_annuelle)
 
 
+def test_la_cascade_des_avantages_est_exactement_additive(simulateur):
+    """Sous-total contributif + avantages = pension. Sinon la page ment."""
+    for enfants, salaire, debut in ((0, 1.0, 22), (1, 1.0, 22), (3, 2.0, 22),
+                                    (3, 0.4, 37), (4, 0.8, 25)):
+        carriere = simulateur.carriere_simple(
+            annee_naissance=1965, sexe="F",
+            affiliation="salarie_prive_non_cadre", age_debut=debut,
+            age_liquidation=62, niveau_salaire=salaire, nombre_enfants=enfants,
+            profil_carriere="plat",
+        )
+        actuel = simulateur.simuler(carriere).actuel
+        somme = actuel.total_contributif + sum(
+            a.montant for a in actuel.avantages_appliques
+        )
+        assert somme == pytest.approx(actuel.pension_annuelle), (
+            f"cascade non additive pour {enfants} enfants, salaire {salaire}"
+        )
+
+
+def test_sans_enfant_aucun_avantage_familial_n_est_cite(simulateur):
+    carriere = simulateur.carriere_simple(
+        annee_naissance=1965, sexe="H", affiliation="salarie_prive_non_cadre",
+        age_debut=22, age_liquidation=62,
+    )
+    actuel = simulateur.simuler(carriere).actuel
+    codes = {a.code for a in actuel.avantages_appliques}
+    assert "majoration_enfants" not in codes
+    assert "majoration_duree_assurance" not in codes
+    assert actuel.total_contributif == pytest.approx(actuel.pension_annuelle)
+
+
+def test_la_fonction_publique_majore_de_cinq_points_par_enfant_au_dela_de_trois():
+    """10 % à trois enfants, puis 5 % par enfant supplémentaire."""
+    simulateur = Simulateur(Parametres())
+    montants = {}
+    for enfants in (3, 5):
+        carriere = simulateur.carriere_simple(
+            annee_naissance=1965, sexe="F", affiliation="fonctionnaire_etat",
+            age_debut=22, age_liquidation=62, nombre_enfants=enfants,
+        )
+        actuel = simulateur.simuler(carriere).actuel
+        majoration = next(
+            a for a in actuel.avantages_appliques if a.code == "majoration_enfants"
+        )
+        montants[enfants] = majoration.montant / actuel.total_contributif
+    # 20 % à cinq enfants contre 10 % à trois : le rapport doit valoir 2.
+    assert montants[5] / montants[3] == pytest.approx(2.0, rel=0.02)
+
+
+def test_la_surcote_suit_l_age_legal_de_la_generation():
+    """Né en 1968, l'âge légal est 64 : partir à 64 ans ne surcote pas.
+
+    Né en 1958, il est de 62 : les deux dernières années surcotent. Lire l'âge
+    à l'année de liquidation donnait 64 ans à tout le monde depuis 2023.
+    """
+    simulateur = Simulateur(Parametres())
+    taux = {}
+    for naissance in (1958, 1968):
+        carriere = simulateur.carriere_simple(
+            annee_naissance=naissance, sexe="H",
+            affiliation="salarie_prive_non_cadre", age_debut=18,
+            age_liquidation=64,
+        )
+        taux[naissance] = simulateur.simuler(carriere).actuel.taux_liquidation
+    assert taux[1958] > 0.50  # surcote de huit trimestres
+    assert taux[1968] == pytest.approx(0.50)  # aucun trimestre au-delà de l'âge légal
+
+
 def test_le_minimum_contributif_est_ecrete_pour_les_grosses_pensions(simulateur):
     """Un cadre à carrière complète ne doit jamais toucher le minimum."""
     carriere = simulateur.carriere_simple(

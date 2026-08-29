@@ -81,6 +81,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -102,7 +103,8 @@
      "pension_annuelle": 39364.238773130215,
      "pension_annuelle_euros_constants": 31416.255826767527,
      "pension_mensuelle": 3280.3532310941846,
-     "taux_remplacement": 0.5227751582739286
+     "taux_remplacement": 0.5227751582739286,
+     "total_contributif": 39364.238773130215
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 432389.314741273,
@@ -229,6 +231,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -250,7 +253,8 @@
      "pension_annuelle": 39364.238773130215,
      "pension_annuelle_euros_constants": 31416.255826767527,
      "pension_mensuelle": 3280.3532310941846,
-     "taux_remplacement": 0.5227751582739286
+     "taux_remplacement": 0.5227751582739286,
+     "total_contributif": 39364.238773130215
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 432389.314741273,
@@ -381,6 +385,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -402,7 +407,8 @@
      "pension_annuelle": 56969.13661526659,
      "pension_annuelle_euros_constants": 35049.02462292079,
      "pension_mensuelle": 4747.428051272215,
-     "taux_remplacement": 0.5036458550912388
+     "taux_remplacement": 0.5036458550912388,
+     "total_contributif": 56969.13661526659
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 0.0,
@@ -525,6 +531,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -546,7 +553,8 @@
      "pension_annuelle": 56969.13661526659,
      "pension_annuelle_euros_constants": 35049.02462292079,
      "pension_mensuelle": 4747.428051272215,
-     "taux_remplacement": 0.5036458550912388
+     "taux_remplacement": 0.5036458550912388,
+     "total_contributif": 56969.13661526659
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 0.0,
@@ -666,6 +674,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -687,7 +696,8 @@
      "pension_annuelle": 56969.13661526659,
      "pension_annuelle_euros_constants": 35049.02462292079,
      "pension_mensuelle": 4747.428051272215,
-     "taux_remplacement": 0.5036458550912388
+     "taux_remplacement": 0.5036458550912388,
+     "total_contributif": 56969.13661526659
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 203939.5379940996,
@@ -814,6 +824,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -835,7 +846,8 @@
      "pension_annuelle": 56969.13661526659,
      "pension_annuelle_euros_constants": 35049.02462292079,
      "pension_mensuelle": 4747.428051272215,
-     "taux_remplacement": 0.5036458550912388
+     "taux_remplacement": 0.5036458550912388,
+     "total_contributif": 56969.13661526659
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 591859.1276374261,
@@ -962,6 +974,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -983,7 +996,8 @@
      "pension_annuelle": 56969.13661526659,
      "pension_annuelle_euros_constants": 35049.02462292079,
      "pension_mensuelle": 4747.428051272215,
-     "taux_remplacement": 0.5036458550912388
+     "taux_remplacement": 0.5036458550912388,
+     "total_contributif": 56969.13661526659
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 1538550.6371487663,
@@ -1103,6 +1117,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -1124,7 +1139,8 @@
      "pension_annuelle": 39364.238773130215,
      "pension_annuelle_euros_constants": 31416.255826767527,
      "pension_mensuelle": 3280.3532310941846,
-     "taux_remplacement": 0.5227751582739286
+     "taux_remplacement": 0.5227751582739286,
+     "total_contributif": 39364.238773130215
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 432389.314741273,
@@ -1251,6 +1267,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -1272,7 +1289,8 @@
      "pension_annuelle": 39364.238773130215,
      "pension_annuelle_euros_constants": 31416.255826767527,
      "pension_mensuelle": 3280.3532310941846,
-     "taux_remplacement": 0.5227751582739286
+     "taux_remplacement": 0.5227751582739286,
+     "total_contributif": 39364.238773130215
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 482714.47875659214,
@@ -1399,6 +1417,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -1420,7 +1439,8 @@
      "pension_annuelle": 57961.11696281066,
      "pension_annuelle_euros_constants": 41685.287974171915,
      "pension_mensuelle": 4830.093080234222,
-     "taux_remplacement": 0.6541221379821472
+     "taux_remplacement": 0.6541221379821472,
+     "total_contributif": 57961.11696281066
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 392442.85837821837,
@@ -1547,6 +1567,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -1568,7 +1589,8 @@
      "pension_annuelle": 12488.41543621035,
      "pension_annuelle_euros_constants": 20410.716698676093,
      "pension_mensuelle": 1040.7012863508626,
-     "taux_remplacement": 0.48036903847930634
+     "taux_remplacement": 0.48036903847930634,
+     "total_contributif": 12488.41543621035
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 319532.9744356567,
@@ -1688,6 +1710,14 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [
+      {
+       "code": "majoration_enfants",
+       "detail": "jusqu'à 10% selon le régime",
+       "libelle": "Majoration pour trois enfants et plus",
+       "montant": 3936.423877313022
+      }
+     ],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -1706,10 +1736,11 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 43300.66265044324,
-     "pension_annuelle_euros_constants": 34557.881409444286,
-     "pension_mensuelle": 3608.3885542036037,
-     "taux_remplacement": 0.5750526741013215
+     "pension_annuelle": 43300.662650443235,
+     "pension_annuelle_euros_constants": 34557.88140944428,
+     "pension_mensuelle": 3608.388554203603,
+     "taux_remplacement": 0.5750526741013214,
+     "total_contributif": 39364.238773130215
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 432389.314741273,
@@ -1730,7 +1761,7 @@
      "rendement_cumule": 1.066788111639174,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.3320186837332468,
-     "variation_vs_actuel": -0.4226290934963175
+     "variation_vs_actuel": -0.4226290934963174
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -1744,7 +1775,7 @@
      "rendement_cumule": 1.1256616815700797,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.22733488190360435,
-     "variation_vs_actuel": -0.6046712029313179
+     "variation_vs_actuel": -0.6046712029313178
     }
    },
    "unite": {
@@ -1836,6 +1867,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -1857,7 +1889,8 @@
      "pension_annuelle": 39364.238773130215,
      "pension_annuelle_euros_constants": 9350.835527797388,
      "pension_mensuelle": 3280.3532310941846,
-     "taux_remplacement": 0.5227751582739286
+     "taux_remplacement": 0.5227751582739286,
+     "total_contributif": 39364.238773130215
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 432389.314741273,
@@ -1984,6 +2017,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -2005,7 +2039,8 @@
      "pension_annuelle": 39364.238773130215,
      "pension_annuelle_euros_constants": 20396.714978934746,
      "pension_mensuelle": 3280.3532310941846,
-     "taux_remplacement": 0.5227751582739286
+     "taux_remplacement": 0.5227751582739286,
+     "total_contributif": 39364.238773130215
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 432389.314741273,
@@ -2132,6 +2167,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -2153,7 +2189,8 @@
      "pension_annuelle": 39364.238773130215,
      "pension_annuelle_euros_constants": 47640.95452393778,
      "pension_mensuelle": 3280.3532310941846,
-     "taux_remplacement": 0.5227751582739286
+     "taux_remplacement": 0.5227751582739286,
+     "total_contributif": 39364.238773130215
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 432389.314741273,
@@ -2280,6 +2317,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -2301,7 +2339,8 @@
      "pension_annuelle": 12172.742695599125,
      "pension_annuelle_euros_constants": 20271.597328277858,
      "pension_mensuelle": 1014.3952246332605,
-     "taux_remplacement": 0.473278797814749
+     "taux_remplacement": 0.473278797814749,
+     "total_contributif": 12172.742695599125
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 257781.81938343667,
@@ -2421,6 +2460,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -2437,7 +2477,8 @@
      "pension_annuelle": 23326.502864508882,
      "pension_annuelle_euros_constants": 33264.6684126289,
      "pension_mensuelle": 1943.8752387090735,
-     "taux_remplacement": 0.7225634374375581
+     "taux_remplacement": 0.7225634374375581,
+     "total_contributif": 23326.502864508882
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 546067.0232153852,
@@ -2557,6 +2598,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -2565,28 +2607,29 @@
        "regime": "arrco"
       },
       {
-       "detail": "SR 31,213 € × taux 55.00% × 162/162",
-       "montant": 17167.398355328045,
+       "detail": "SR 31,213 € × taux 56.25% × 162/162",
+       "montant": 17557.566499767316,
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 26463.899291216643,
-     "pension_annuelle_euros_constants": 32581.34388011817,
-     "pension_mensuelle": 2205.3249409347204,
-     "taux_remplacement": 0.6408556926038256
+     "pension_annuelle": 26854.067435655918,
+     "pension_annuelle_euros_constants": 33061.704024522995,
+     "pension_mensuelle": 2237.8389529713263,
+     "taux_remplacement": 0.6503040914843174,
+     "total_contributif": 26854.067435655918
     },
     "notionnel_prospectif": {
-     "capital_droits_acquis": 633639.5788328666,
-     "capital_notionnel": 633639.5788328666,
+     "capital_droits_acquis": 642981.587582067,
+     "capital_notionnel": 642981.587582067,
      "cotisations_versees": 0,
      "droits_acquis": null,
      "fiabilite": "moyenne",
-     "pension_annuelle": 26463.899291216643,
-     "pension_annuelle_euros_constants": 32581.34388011817,
-     "pension_mensuelle": 2205.3249409347204,
+     "pension_annuelle": 26854.067435655918,
+     "pension_annuelle_euros_constants": 33061.704024522995,
+     "pension_mensuelle": 2237.8389529713263,
      "rendement_cumule": 0.0,
      "rente_capitalisation": 0.0,
-     "taux_remplacement": 0.6408556926038256,
+     "taux_remplacement": 0.6503040914843174,
      "variation_vs_actuel": 0.0
     },
     "notionnel_retroactif": {
@@ -2601,7 +2644,7 @@
      "rendement_cumule": 1.1348523898358187,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.20120197877345125,
-     "variation_vs_actuel": -0.6860416766277623
+     "variation_vs_actuel": -0.690603240225341
     }
    },
    "unite": {
@@ -2693,6 +2736,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -2706,28 +2750,29 @@
        "regime": "arrco"
       },
       {
-       "detail": "SR 40,512 € × taux 50.00% × 167/167",
-       "montant": 20256.166439709174,
+       "detail": "SR 40,512 € × taux 53.12% × 167/167",
+       "montant": 21522.176842191,
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 29706.79388511594,
-     "pension_annuelle_euros_constants": 30511.70020810301,
-     "pension_mensuelle": 2475.566157092995,
-     "taux_remplacement": 0.5863606956873876
+     "pension_annuelle": 30972.804287597766,
+     "pension_annuelle_euros_constants": 31812.01319409034,
+     "pension_mensuelle": 2581.0670239664805,
+     "taux_remplacement": 0.6113495498605284,
+     "total_contributif": 30972.804287597766
     },
     "notionnel_prospectif": {
-     "capital_droits_acquis": 725864.7582794019,
-     "capital_notionnel": 725864.7582794019,
+     "capital_droits_acquis": 756798.8381511818,
+     "capital_notionnel": 756798.8381511818,
      "cotisations_versees": 0,
      "droits_acquis": null,
      "fiabilite": "moyenne",
-     "pension_annuelle": 29706.79388511594,
-     "pension_annuelle_euros_constants": 30511.70020810301,
-     "pension_mensuelle": 2475.566157092995,
+     "pension_annuelle": 30972.804287597766,
+     "pension_annuelle_euros_constants": 31812.01319409034,
+     "pension_mensuelle": 2581.0670239664805,
      "rendement_cumule": 0.0,
      "rente_capitalisation": 0.0,
-     "taux_remplacement": 0.5863606956873876,
+     "taux_remplacement": 0.6113495498605284,
      "variation_vs_actuel": 0.0
     },
     "notionnel_retroactif": {
@@ -2742,7 +2787,7 @@
      "rendement_cumule": 1.0626040288174368,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.21728923455253438,
-     "variation_vs_actuel": -0.6294273539296366
+     "variation_vs_actuel": -0.6445744752701525
     }
    },
    "unite": {
@@ -2834,6 +2879,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -2855,7 +2901,8 @@
      "pension_annuelle": 35417.814977492955,
      "pension_annuelle_euros_constants": 30828.0760500592,
      "pension_mensuelle": 2951.484581457746,
-     "taux_remplacement": 0.5386963120170329
+     "taux_remplacement": 0.5386963120170329,
+     "total_contributif": 35417.814977492955
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 524677.1003446312,
@@ -2982,6 +3029,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -3003,7 +3051,8 @@
      "pension_annuelle": 43768.08199390189,
      "pension_annuelle_euros_constants": 32028.602769490593,
      "pension_mensuelle": 3647.340166158491,
-     "taux_remplacement": 0.5075296832315623
+     "taux_remplacement": 0.5075296832315623,
+     "total_contributif": 43768.08199390189
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 336805.31750612514,
@@ -3130,6 +3179,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -3151,7 +3201,8 @@
      "pension_annuelle": 56969.13661526659,
      "pension_annuelle_euros_constants": 35049.02462292079,
      "pension_mensuelle": 4747.428051272215,
-     "taux_remplacement": 0.5036458550912388
+     "taux_remplacement": 0.5036458550912388,
+     "total_contributif": 56969.13661526659
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 203939.5379940996,
@@ -3278,6 +3329,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -3294,7 +3346,8 @@
      "pension_annuelle": 74609.0438564789,
      "pension_annuelle_euros_constants": 38590.78334315988,
      "pension_mensuelle": 6217.420321373241,
-     "taux_remplacement": 0.5028735523975914
+     "taux_remplacement": 0.5028735523975914,
+     "total_contributif": 74609.0438564789
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 67559.6078969376,
@@ -3421,6 +3474,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -3437,7 +3491,8 @@
      "pension_annuelle": 85441.80161557635,
      "pension_annuelle_euros_constants": 40521.95852258865,
      "pension_mensuelle": 7120.150134631363,
-     "taux_remplacement": 0.5028385501925149
+     "taux_remplacement": 0.5028385501925149,
+     "total_contributif": 85441.80161557635
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 0.0,
@@ -3557,6 +3612,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -3578,7 +3634,8 @@
      "pension_annuelle": 39364.238773130215,
      "pension_annuelle_euros_constants": 31416.255826767527,
      "pension_mensuelle": 3280.3532310941846,
-     "taux_remplacement": 0.5227751582739286
+     "taux_remplacement": 0.5227751582739286,
+     "total_contributif": 39364.238773130215
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 476041.18386063253,
@@ -3705,6 +3762,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -3726,7 +3784,8 @@
      "pension_annuelle": 39364.238773130215,
      "pension_annuelle_euros_constants": 31416.255826767527,
      "pension_mensuelle": 3280.3532310941846,
-     "taux_remplacement": 0.5227751582739286
+     "taux_remplacement": 0.5227751582739286,
+     "total_contributif": 39364.238773130215
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 540581.1415299986,
@@ -3853,6 +3912,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -3874,7 +3934,8 @@
      "pension_annuelle": 39364.238773130215,
      "pension_annuelle_euros_constants": 31416.255826767527,
      "pension_mensuelle": 3280.3532310941846,
-     "taux_remplacement": 0.5227751582739286
+     "taux_remplacement": 0.5227751582739286,
+     "total_contributif": 39364.238773130215
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 476041.18386063253,
@@ -4001,6 +4062,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -4022,7 +4084,8 @@
      "pension_annuelle": 34565.67044349797,
      "pension_annuelle_euros_constants": 30086.35958572244,
      "pension_mensuelle": 2880.4725369581643,
-     "taux_remplacement": 0.5257354018631942
+     "taux_remplacement": 0.5257354018631942,
+     "total_contributif": 34565.67044349797
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 498124.83671091386,
@@ -4149,6 +4212,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -4170,7 +4234,8 @@
      "pension_annuelle": 38590.94287348905,
      "pension_annuelle_euros_constants": 30799.09511008424,
      "pension_mensuelle": 3215.9119061240876,
-     "taux_remplacement": 0.5125054337999618
+     "taux_remplacement": 0.5125054337999618,
+     "total_contributif": 38590.94287348905
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 410767.8803401681,
@@ -4297,6 +4362,14 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [
+      {
+       "code": "minimum_contributif",
+       "detail": "portée au plancher, au prorata de la durée acquise",
+       "libelle": "Minimum contributif",
+       "montant": 782.6184462398978
+      }
+     ],
      "minimum_applique": true,
      "par_regime": [
       {
@@ -4318,7 +4391,8 @@
      "pension_annuelle": 10776.943720725314,
      "pension_annuelle_euros_constants": 10591.590880319718,
      "pension_mensuelle": 898.0786433937761,
-     "taux_remplacement": 0.19819407456989968
+     "taux_remplacement": 0.19819407456989968,
+     "total_contributif": 9994.325274485416
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 428219.5294334086,
@@ -4445,6 +4519,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -4466,7 +4541,8 @@
      "pension_annuelle": 19368.801166325713,
      "pension_annuelle_euros_constants": 17454.050712608034,
      "pension_mensuelle": 1614.0667638604762,
-     "taux_remplacement": 0.31102023087255265
+     "taux_remplacement": 0.31102023087255265,
+     "total_contributif": 19368.801166325713
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 427641.1008900721,
@@ -4593,6 +4669,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -4614,7 +4691,8 @@
      "pension_annuelle": 26810.50023047281,
      "pension_annuelle_euros_constants": 22934.81049730026,
      "pension_mensuelle": 2234.208352539401,
-     "taux_remplacement": 0.39686730683986
+     "taux_remplacement": 0.39686730683986,
+     "total_contributif": 26810.50023047281
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 428875.6946335101,
@@ -4741,6 +4819,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -4762,7 +4841,8 @@
      "pension_annuelle": 32669.42075012509,
      "pension_annuelle_euros_constants": 26993.726129933206,
      "pension_mensuelle": 2722.451729177091,
-     "taux_remplacement": 0.4580555820965004
+     "taux_remplacement": 0.4580555820965004,
+     "total_contributif": 32669.42075012509
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 430342.1525949144,
@@ -4889,6 +4969,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -4910,7 +4991,8 @@
      "pension_annuelle": 39364.238773130215,
      "pension_annuelle_euros_constants": 31416.255826767527,
      "pension_mensuelle": 3280.3532310941846,
-     "taux_remplacement": 0.5227751582739286
+     "taux_remplacement": 0.5227751582739286,
+     "total_contributif": 39364.238773130215
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 432389.314741273,
@@ -5037,6 +5119,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -5058,7 +5141,8 @@
      "pension_annuelle": 48052.369460860085,
      "pension_annuelle_euros_constants": 36405.25867303643,
      "pension_mensuelle": 4004.3641217383406,
-     "taux_remplacement": 0.5882777201500586
+     "taux_remplacement": 0.5882777201500586,
+     "total_contributif": 48052.369460860085
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 436420.76471168234,
@@ -5185,6 +5269,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -5206,7 +5291,8 @@
      "pension_annuelle": 57961.11696281066,
      "pension_annuelle_euros_constants": 41685.287974171915,
      "pension_mensuelle": 4830.093080234222,
-     "taux_remplacement": 0.6541221379821472
+     "taux_remplacement": 0.6541221379821472,
+     "total_contributif": 57961.11696281066
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 441467.68262890365,
@@ -5333,6 +5419,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -5346,28 +5433,29 @@
        "regime": "arrco"
       },
       {
-       "detail": "SR 42,083 € × taux 50.00% × 169/169",
-       "montant": 21041.25035596752,
+       "detail": "SR 42,083 € × taux 51.88% × 169/169",
+       "montant": 21830.297244316305,
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 30444.009580380975,
-     "pension_annuelle_euros_constants": 30444.009580380975,
-     "pension_mensuelle": 2537.000798365081,
-     "taux_remplacement": 0.5752792794533106
+     "pension_annuelle": 31233.05646872976,
+     "pension_annuelle_euros_constants": 31233.05646872976,
+     "pension_mensuelle": 2602.75470572748,
+     "taux_remplacement": 0.5901893498297398,
+     "total_contributif": 31233.05646872976
     },
     "notionnel_prospectif": {
-     "capital_droits_acquis": 748706.0097842207,
-     "capital_notionnel": 748706.0097842207,
+     "capital_droits_acquis": 768110.9487344759,
+     "capital_notionnel": 768110.9487344759,
      "cotisations_versees": 0,
      "droits_acquis": null,
      "fiabilite": "moyenne",
-     "pension_annuelle": 30444.009580380975,
-     "pension_annuelle_euros_constants": 30444.009580380975,
-     "pension_mensuelle": 2537.000798365081,
+     "pension_annuelle": 31233.05646872976,
+     "pension_annuelle_euros_constants": 31233.05646872976,
+     "pension_mensuelle": 2602.75470572748,
      "rendement_cumule": 0.0,
      "rente_capitalisation": 0.0,
-     "taux_remplacement": 0.5752792794533106,
+     "taux_remplacement": 0.5901893498297398,
      "variation_vs_actuel": 0.0
     },
     "notionnel_retroactif": {
@@ -5382,7 +5470,7 @@
      "rendement_cumule": 1.0704666175938709,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.2221756050226502,
-     "variation_vs_actuel": -0.6137952244103346
+     "variation_vs_actuel": -0.623551992107712
     }
    },
    "unite": {
@@ -5474,6 +5562,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -5495,7 +5584,8 @@
      "pension_annuelle": 42138.96336855115,
      "pension_annuelle_euros_constants": 33052.32367478997,
      "pension_mensuelle": 3511.580280712596,
-     "taux_remplacement": 0.5446469824252937
+     "taux_remplacement": 0.5446469824252937,
+     "total_contributif": 42138.96336855115
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 433611.4672970544,
@@ -5622,6 +5712,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -5638,7 +5729,8 @@
      "pension_annuelle": 46379.02251590837,
      "pension_annuelle_euros_constants": 37014.69358400919,
      "pension_mensuelle": 3864.918542992364,
-     "taux_remplacement": 0.6159347060178421
+     "taux_remplacement": 0.6159347060178421,
+     "total_contributif": 46379.02251590837
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 475451.4613378764,
@@ -5765,6 +5857,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -5786,7 +5879,8 @@
      "pension_annuelle": 47402.962623090294,
      "pension_annuelle_euros_constants": 37831.89125786521,
      "pension_mensuelle": 3950.2468852575244,
-     "taux_remplacement": 0.43073317410050305
+     "taux_remplacement": 0.43073317410050305,
+     "total_contributif": 47402.962623090294
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 503597.0385411138,
@@ -5913,6 +6007,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -5934,7 +6029,8 @@
      "pension_annuelle": 37890.302134522906,
      "pension_annuelle_euros_constants": 30239.91984380065,
      "pension_mensuelle": 3157.525177876909,
-     "taux_remplacement": 0.6541607841690564
+     "taux_remplacement": 0.6541607841690564,
+     "total_contributif": 37890.302134522906
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 500558.35387548094,
@@ -6061,6 +6157,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -6082,7 +6179,8 @@
      "pension_annuelle": 38948.91645046161,
      "pension_annuelle_euros_constants": 31084.790701410384,
      "pension_mensuelle": 3245.743037538468,
-     "taux_remplacement": 0.5372998835856376
+     "taux_remplacement": 0.5372998835856376,
+     "total_contributif": 38948.91645046161
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 415987.4333151304,
@@ -6209,6 +6307,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -6230,7 +6329,8 @@
      "pension_annuelle": 39787.56179430826,
      "pension_annuelle_euros_constants": 31754.106239862966,
      "pension_mensuelle": 3315.6301495256885,
-     "taux_remplacement": 0.5087451224411923
+     "taux_remplacement": 0.5087451224411923,
+     "total_contributif": 39787.56179430826
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 449386.3571278544,
@@ -6357,6 +6457,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -6378,7 +6479,8 @@
      "pension_annuelle": 38408.78252718215,
      "pension_annuelle_euros_constants": 30653.714525588428,
      "pension_mensuelle": 3200.7318772651793,
-     "taux_remplacement": 0.5574915709192267
+     "taux_remplacement": 0.5574915709192267,
+     "total_contributif": 38408.78252718215
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 395011.03040680476,
@@ -6505,6 +6607,14 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [
+      {
+       "code": "minimum_contributif",
+       "detail": "portée au plancher, au prorata de la durée acquise",
+       "libelle": "Minimum contributif",
+       "montant": 5318.706830716479
+      }
+     ],
      "minimum_applique": true,
      "par_regime": [
       {
@@ -6526,7 +6636,8 @@
      "pension_annuelle": 13296.528589454902,
      "pension_annuelle_euros_constants": 10611.843561404812,
      "pension_mensuelle": 1108.0440491212419,
-     "taux_remplacement": 0.8829200124899758
+     "taux_remplacement": 0.8829200124899758,
+     "total_contributif": 7977.8217587384215
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 86477.86294825462,
@@ -6653,6 +6764,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -6674,7 +6786,8 @@
      "pension_annuelle": 21939.009836530662,
      "pension_annuelle_euros_constants": 17509.332508187315,
      "pension_mensuelle": 1828.2508197108884,
-     "taux_remplacement": 0.5297456730514118
+     "taux_remplacement": 0.5297456730514118,
+     "total_contributif": 21939.009836530662
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 237814.1231077002,
@@ -6801,6 +6914,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -6822,7 +6936,8 @@
      "pension_annuelle": 50909.84253094069,
      "pension_annuelle_euros_constants": 40630.701542848605,
      "pension_mensuelle": 4242.486877578391,
-     "taux_remplacement": 0.45073738357973997
+     "taux_remplacement": 0.45073738357973997,
+     "total_contributif": 50909.84253094069
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 598424.6287492234,
@@ -6949,6 +7064,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -6970,7 +7086,8 @@
      "pension_annuelle": 74817.72985828298,
      "pension_annuelle_euros_constants": 59711.37801374768,
      "pension_mensuelle": 6234.810821523582,
-     "taux_remplacement": 0.33120459743322583
+     "taux_remplacement": 0.33120459743322583,
+     "total_contributif": 74817.72985828298
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 754948.0677053516,
@@ -7097,6 +7214,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -7118,7 +7236,8 @@
      "pension_annuelle": 147931.36406184867,
      "pension_annuelle_euros_constants": 118062.73214006724,
      "pension_mensuelle": 12327.613671820722,
-     "taux_remplacement": 0.24557455152003146
+     "taux_remplacement": 0.24557455152003146,
+     "total_contributif": 147931.36406184867
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 1214660.7213303975,
@@ -7245,6 +7364,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -7256,7 +7376,8 @@
      "pension_annuelle": 57462.24593557378,
      "pension_annuelle_euros_constants": 45860.11758278608,
      "pension_mensuelle": 4788.520494631149,
-     "taux_remplacement": 0.7631249999999999
+     "taux_remplacement": 0.7631249999999999,
+     "total_contributif": 57462.24593557378
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 588656.9943030999,
@@ -7383,6 +7504,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -7404,7 +7526,8 @@
      "pension_annuelle": 51789.981846922274,
      "pension_annuelle_euros_constants": 41333.13305875913,
      "pension_mensuelle": 4315.831820576856,
-     "taux_remplacement": 0.6877947294514832
+     "taux_remplacement": 0.6877947294514832,
+     "total_contributif": 51789.981846922274
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 575018.8377494453,
@@ -7531,6 +7654,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -7552,7 +7676,8 @@
      "pension_annuelle": 51789.981846922274,
      "pension_annuelle_euros_constants": 41333.13305875913,
      "pension_mensuelle": 4315.831820576856,
-     "taux_remplacement": 0.6877947294514832
+     "taux_remplacement": 0.6877947294514832,
+     "total_contributif": 51789.981846922274
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 575018.8377494453,
@@ -7679,6 +7804,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -7700,7 +7826,8 @@
      "pension_annuelle": 50480.644304157526,
      "pension_annuelle_euros_constants": 40288.16217937388,
      "pension_mensuelle": 4206.720358679794,
-     "taux_remplacement": 0.6704061259248715
+     "taux_remplacement": 0.6704061259248715,
+     "total_contributif": 50480.644304157526
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 560597.7633790247,
@@ -7827,6 +7954,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -7853,7 +7981,8 @@
      "pension_annuelle": 35944.55841301644,
      "pension_annuelle_euros_constants": 28687.038740714277,
      "pension_mensuelle": 2995.37986775137,
-     "taux_remplacement": 0.4773602335294671
+     "taux_remplacement": 0.4773602335294671,
+     "total_contributif": 35944.55841301644
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 370119.6851638664,
@@ -7980,6 +8109,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -7991,7 +8121,8 @@
      "pension_annuelle": 15142.185022289843,
      "pension_annuelle_euros_constants": 12084.845871863334,
      "pension_mensuelle": 1261.8487518574868,
-     "taux_remplacement": 0.2010951670439533
+     "taux_remplacement": 0.2010951670439533,
+     "total_contributif": 15142.185022289843
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 174102.07266001563,
@@ -8118,6 +8249,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -8129,7 +8261,8 @@
      "pension_annuelle": 57462.24593557378,
      "pension_annuelle_euros_constants": 45860.11758278608,
      "pension_mensuelle": 4788.520494631149,
-     "taux_remplacement": 0.7631249999999999
+     "taux_remplacement": 0.7631249999999999,
+     "total_contributif": 57462.24593557378
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 588656.9943030999,
@@ -8256,6 +8389,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -8282,7 +8416,8 @@
      "pension_annuelle": 35944.55841301644,
      "pension_annuelle_euros_constants": 28687.038740714277,
      "pension_mensuelle": 2995.37986775137,
-     "taux_remplacement": 0.4773602335294671
+     "taux_remplacement": 0.4773602335294671,
+     "total_contributif": 35944.55841301644
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 370119.6851638664,
@@ -8409,6 +8544,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -8425,7 +8561,8 @@
      "pension_annuelle": 40880.25189570023,
      "pension_annuelle_euros_constants": 32626.172684804333,
      "pension_mensuelle": 3406.687657975019,
-     "taux_remplacement": 0.5429085083601463
+     "taux_remplacement": 0.5429085083601463,
+     "total_contributif": 40880.25189570023
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 450265.7224097395,
@@ -8552,6 +8689,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -8563,7 +8701,8 @@
      "pension_annuelle": 20297.228367250427,
      "pension_annuelle_euros_constants": 16199.041028963758,
      "pension_mensuelle": 1691.435697270869,
-     "taux_remplacement": 0.26955650872269227
+     "taux_remplacement": 0.26955650872269227,
+     "total_contributif": 20297.228367250427
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 233962.70440596988,
@@ -8690,6 +8829,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -8706,7 +8846,8 @@
      "pension_annuelle": 57462.24593557378,
      "pension_annuelle_euros_constants": 45860.11758278608,
      "pension_mensuelle": 4788.520494631149,
-     "taux_remplacement": 0.7631249999999999
+     "taux_remplacement": 0.7631249999999999,
+     "total_contributif": 57462.24593557378
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 588656.9943030999,
@@ -8833,6 +8974,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -8849,7 +8991,8 @@
      "pension_annuelle": 57462.24593557378,
      "pension_annuelle_euros_constants": 45860.11758278608,
      "pension_mensuelle": 4788.520494631149,
-     "taux_remplacement": 0.7631249999999999
+     "taux_remplacement": 0.7631249999999999,
+     "total_contributif": 57462.24593557378
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 588656.9943030999,
@@ -8976,6 +9119,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -8987,7 +9131,8 @@
      "pension_annuelle": 36484.97992757218,
      "pension_annuelle_euros_constants": 29118.344440626894,
      "pension_mensuelle": 3040.4149939643485,
-     "taux_remplacement": 0.4845372792850009
+     "taux_remplacement": 0.4845372792850009,
+     "total_contributif": 36484.97992757218
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 489250.08989257604,
@@ -9114,6 +9259,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -9135,7 +9281,8 @@
      "pension_annuelle": 50017.61899777904,
      "pension_annuelle_euros_constants": 39918.62571854479,
      "pension_mensuelle": 4168.1349164815865,
-     "taux_remplacement": 0.6642569373371813
+     "taux_remplacement": 0.6642569373371813,
+     "total_contributif": 50017.61899777904
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 607178.7890682706,
@@ -9262,6 +9409,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -9278,7 +9426,8 @@
      "pension_annuelle": 57462.24593557378,
      "pension_annuelle_euros_constants": 45860.11758278608,
      "pension_mensuelle": 4788.520494631149,
-     "taux_remplacement": 0.7631249999999999
+     "taux_remplacement": 0.7631249999999999,
+     "total_contributif": 57462.24593557378
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 588656.9943030999,
@@ -9405,6 +9554,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -9426,7 +9576,8 @@
      "pension_annuelle": 73171.28266015902,
      "pension_annuelle_euros_constants": 58397.3628570051,
      "pension_mensuelle": 6097.606888346585,
-     "taux_remplacement": 0.9717482178235761
+     "taux_remplacement": 0.9717482178235761,
+     "total_contributif": 73171.28266015902
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 888969.2347110986,
@@ -9553,6 +9704,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -9574,7 +9726,8 @@
      "pension_annuelle": 73171.28266015902,
      "pension_annuelle_euros_constants": 58397.3628570051,
      "pension_mensuelle": 6097.606888346585,
-     "taux_remplacement": 0.9717482178235761
+     "taux_remplacement": 0.9717482178235761,
+     "total_contributif": 73171.28266015902
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 888969.2347110986,
@@ -9701,6 +9854,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -9712,7 +9866,8 @@
      "pension_annuelle": 12654.31087635423,
      "pension_annuelle_euros_constants": 10099.295202790943,
      "pension_mensuelle": 1054.5259063628525,
-     "taux_remplacement": 0.16805505650344701
+     "taux_remplacement": 0.16805505650344701,
+     "total_contributif": 12654.31087635423
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 149243.89808276124,
@@ -9839,6 +9994,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -9860,7 +10016,8 @@
      "pension_annuelle": 39364.238773130215,
      "pension_annuelle_euros_constants": 31416.255826767527,
      "pension_mensuelle": 3280.3532310941846,
-     "taux_remplacement": 0.5227751582739286
+     "taux_remplacement": 0.5227751582739286,
+     "total_contributif": 39364.238773130215
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 432389.314741273,
@@ -9987,6 +10144,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -10013,7 +10171,8 @@
      "pension_annuelle": 39364.238773130215,
      "pension_annuelle_euros_constants": 31416.255826767527,
      "pension_mensuelle": 3280.3532310941846,
-     "taux_remplacement": 0.5227751582739286
+     "taux_remplacement": 0.5227751582739286,
+     "total_contributif": 39364.238773130215
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 432389.314741273,
@@ -10140,6 +10299,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -10161,7 +10321,8 @@
      "pension_annuelle": 39364.238773130215,
      "pension_annuelle_euros_constants": 31416.255826767527,
      "pension_mensuelle": 3280.3532310941846,
-     "taux_remplacement": 0.5227751582739286
+     "taux_remplacement": 0.5227751582739286,
+     "total_contributif": 39364.238773130215
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 432389.314741273,
@@ -10288,12 +10449,14 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [],
      "pension_annuelle": 0,
      "pension_annuelle_euros_constants": 0.0,
      "pension_mensuelle": 0.0,
-     "taux_remplacement": 0.0
+     "taux_remplacement": 0.0,
+     "total_contributif": 0
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 0.0,
@@ -10420,6 +10583,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -10441,7 +10605,8 @@
      "pension_annuelle": 39364.238773130215,
      "pension_annuelle_euros_constants": 31416.255826767527,
      "pension_mensuelle": 3280.3532310941846,
-     "taux_remplacement": 0.5227751582739286
+     "taux_remplacement": 0.5227751582739286,
+     "total_contributif": 39364.238773130215
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 398411.63023224246,
@@ -10568,6 +10733,7 @@
    },
    "scenarios": {
     "actuel": {
+     "avantages_appliques": [],
      "minimum_applique": false,
      "par_regime": [
       {
@@ -10589,7 +10755,8 @@
      "pension_annuelle": 39364.238773130215,
      "pension_annuelle_euros_constants": 31416.255826767527,
      "pension_mensuelle": 3280.3532310941846,
-     "taux_remplacement": 0.5227751582739286
+     "taux_remplacement": 0.5227751582739286,
+     "total_contributif": 39364.238773130215
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 466366.9992503032,

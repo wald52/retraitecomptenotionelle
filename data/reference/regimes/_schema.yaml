@@ -46,6 +46,14 @@ champs_periode:
       même génération. Absent ou faux, la durée est celle de la période, lue à
       l'année de liquidation — ce qui reste correct avant 1993.
     defaut: false
+
+  age_ouverture_par_generation:
+    description: >-
+      Si vrai, l'âge d'ouverture est lu dans
+      `legislation/age_ouverture_requis.csv` à l'ANNÉE DE NAISSANCE, et la
+      valeur ci-dessus ne sert que de repli. Réservé aux régimes alignés sur
+      l'âge légal général : les régimes spéciaux gardent le leur.
+    defaut: false
   taux_plein: "taux de liquidation maximal (0.50 = 50 %)"
 
   salaire_reference:

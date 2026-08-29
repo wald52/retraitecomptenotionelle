@@ -634,13 +634,49 @@ def _detail(contexte: Contexte, comparaison: Comparaison, saisie: Saisie) -> str
         except KeyError:
             return code
 
+    actuel = comparaison.actuel
+    lignes_actuel: list[list[str]] = [
+        [escape(nom_regime(pension.regime)), g.euros(pension.montant),
+         g.franciser(escape(pension.detail))]
+        for pension in pensions
+    ]
+    if lignes_actuel and actuel.avantages_appliques:
+        lignes_actuel.append([
+            "<strong>Sous-total contributif</strong>",
+            "<strong>" + g.euros(actuel.total_contributif) + "</strong>",
+            '<span class="discret">ce que la carrière a ouvert par ses seules '
+            "cotisations</span>",
+        ])
+    for avantage in actuel.avantages_appliques:
+        lignes_actuel.append([
+            "+ " + escape(avantage.libelle),
+            g.euros(avantage.montant),
+            f'<span class="discret">{escape(avantage.detail)}</span>',
+        ])
+    if lignes_actuel:
+        lignes_actuel.append([
+            "<strong>Pension du système actuel</strong>",
+            "<strong>" + g.euros(actuel.pension_annuelle) + "</strong>",
+            '<span class="discret">c\'est le montant de la ligne 1 '
+            "ci-dessus</span>",
+        ])
+
     regimes = g.tableau(
-        ["Régime", "Pension annuelle", "Calcul"],
-        [[escape(nom_regime(pension.regime)), g.euros(pension.montant),
-          g.franciser(escape(pension.detail))]
-         for pension in pensions],
+        ["Régime, puis avantage", "Pension annuelle", "Calcul"],
+        lignes_actuel,
         ["", "nombre", ""],
-    ) if pensions else "<p>Aucun droit liquidé dans le système actuel.</p>"
+    ) if lignes_actuel else "<p>Aucun droit liquidé dans le système actuel.</p>"
+
+    part = ""
+    if actuel.avantages_appliques and actuel.pension_annuelle > 0:
+        gratuit = sum(a.montant for a in actuel.avantages_appliques)
+        part = (
+            f'<p>Les avantages non contributifs pèsent {g.euros(gratuit)} par an, '
+            f"soit {g.pourcentage(gratuit / actuel.pension_annuelle)} de la "
+            "pension. C'est exactement ce que les deux scénarios notionnels "
+            "retirent : ils ne conservent que le sous-total contributif, et le "
+            "recalculent sur les cotisations réellement versées.</p>"
+        )
 
     compte = g.tableau(
         ["Poste", "Montant"],
@@ -665,8 +701,12 @@ def _detail(contexte: Contexte, comparaison: Comparaison, saisie: Saisie) -> str
 
     return f"""
 <h2>Le détail du calcul</h2>
-<h3>Scénario 1 — pensions par régime dans le système actuel</h3>
+<h3>Scénario 1 — de quoi votre pension actuelle est faite</h3>
+<p>Chaque régime d'abord, puis les avantages que le droit en vigueur ajoute
+par-dessus. Les lignes s'additionnent exactement : le total est la pension du
+scénario 1.</p>
 {regimes}
+{part}
 <h3>Scénario 2 — construction du compte notionnel rétroactif</h3>
 {compte}
 <details>

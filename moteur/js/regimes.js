@@ -6,22 +6,56 @@
  * même jour n'ont pas la même durée requise s'ils ne sont pas de la même
  * génération.
  */
-export class DureesRequises {
+export class TableParGeneration {
+  constructor(table) {
+    this._table = table ?? {};
+    this._generations = Object.keys(this._table).map(Number).sort((a, b) => a - b);
+  }
+
+  /**
+   * Lecture en escalier : la valeur d'une génération non renseignée est celle
+   * de la dernière renseignée avant elle, et la dernière du fichier vaut pour
+   * toutes les suivantes. En deçà de la première, `null` : le paramètre ne
+   * dépendait pas encore de la génération.
+   *
+   * @returns {[number, number] | null} valeur et fiabilité.
+   */
+  valeur(generation) {
+    if (this._generations.length === 0 || generation < this._generations[0]) {
+      return null;
+    }
+    let applicable = this._generations[0];
+    for (const candidate of this._generations) {
+      if (candidate > generation) {
+        break;
+      }
+      applicable = candidate;
+    }
+    return this._table[String(applicable)];
+  }
+}
+
+/** Durée d'assurance requise pour le taux plein, par génération. */
+export class DureesRequises extends TableParGeneration {
   constructor(paquet) {
-    this._table = paquet.durees_requises ?? {};
-    const generations = Object.keys(this._table).map(Number);
-    this._derniere = generations.length ? Math.max(...generations) : null;
+    super(paquet.durees_requises);
   }
 
   /** @returns {[number, number] | null} trimestres et fiabilité. */
   trimestres(generation) {
-    if (this._derniere === null) {
-      return null;
-    }
-    if (generation > this._derniere) {
-      return this._table[String(this._derniere)];
-    }
-    return this._table[String(generation)] ?? null;
+    return this.valeur(generation);
+  }
+}
+
+/** Âge légal d'ouverture des droits, par génération. */
+export class AgesOuverture extends TableParGeneration {
+  constructor(paquet) {
+    super(paquet.ages_ouverture);
+  }
+
+  /** @returns {[number, number] | null} âge et fiabilité. */
+  age(generation) {
+    return this.valeur(generation);
   }
 }
 

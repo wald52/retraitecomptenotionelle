@@ -161,6 +161,7 @@ regimes:
         fin: 2003
         type_calcul: annuites
         age_ouverture: 60
+        age_ouverture_par_generation: true
         age_taux_plein: 65
         duree_requise_trimestres: 160
         duree_requise_par_generation: true
@@ -184,6 +185,7 @@ regimes:
         fin: 2010
         type_calcul: annuites
         age_ouverture: 60
+        age_ouverture_par_generation: true
         age_taux_plein: 65
         duree_requise_trimestres: 164
         duree_requise_par_generation: true
@@ -204,6 +206,7 @@ regimes:
         fin: 2022
         type_calcul: annuites
         age_ouverture: 62
+        age_ouverture_par_generation: true
         age_taux_plein: 67
         duree_requise_trimestres: 172
         duree_requise_par_generation: true
@@ -225,6 +228,7 @@ regimes:
         fin: null
         type_calcul: annuites
         age_ouverture: 64
+        age_ouverture_par_generation: true
         age_taux_plein: 67
         duree_requise_trimestres: 172
         duree_requise_par_generation: true
