@@ -30,6 +30,12 @@ BORNES_ASSIETTE: dict[str, tuple[float, float | None]] = {
     "tranche_2": (1.0, 8.0),
     "tranche_b": (1.0, 4.0),
     "tranche_c": (4.0, 8.0),
+    # Tranches propres au régime de base des professions libérales : la
+    # première s'arrêtait à 0,85 plafond avant 2015, la seconde part de zéro
+    # depuis — les deux se recouvrent donc, et c'est bien la règle du régime.
+    "plafonnee_085_pass": (0.0, 0.85),
+    "tranche_085_5_pass": (0.85, 5.0),
+    "plafonnee_5_pass": (0.0, 5.0),
     "hors_primes": (0.0, None),
     "primes_uniquement": (0.0, None),
     "forfaitaire": (0.0, None),
@@ -55,6 +61,16 @@ class PeriodeRegime:
     #: L'âge d'ouverture suit-il la génération plutôt que l'année de
     #: liquidation ? Vrai pour les régimes alignés sur l'âge légal général.
     age_ouverture_par_generation: bool
+    #: L'âge d'annulation de la décote suit-il la génération ? Vrai depuis la
+    #: loi du 9 novembre 2010 pour les régimes alignés (65 -> 67 ans).
+    age_taux_plein_par_generation: bool
+    #: Le coefficient de minoration suit-il la génération ? Vrai pour les
+    #: régimes alignés : la table de l'article R. 351-27 vaut aussi bien pour
+    #: l'ancien droit (2,5 %) que pour la montée en charge de la loi Fillon.
+    decote_par_generation: bool
+    #: Le nombre d'années retenues au salaire de référence suit-il la
+    #: génération ? Vrai depuis la loi Balladur (dix à vingt-cinq années).
+    salaire_reference_par_generation: bool
     taux_plein: float | None
     salaire_reference: str
     assiette: str
@@ -64,9 +80,41 @@ class PeriodeRegime:
     #: publique et des régimes spéciaux).
     perimetre_taux: str
     decote_par_trimestre: float | None
+    #: Nombre maximal de trimestres de décote opposables. Vingt dans tous les
+    #: régimes qui en appliquent une : au-delà, le taux ne descend plus.
+    #: ``None`` lève le plafond.
+    decote_trimestres_maximum: int | None
     surcote_par_trimestre: float | None
+    #: Barème d'abattement des régimes en points. ``decote_du_regime_de_base``
+    #: applique le coefficient de minoration ci-dessus ; ``agirc_arrco``
+    #: applique les coefficients d'anticipation propres à ce régime.
+    abattement_points: str
+    #: Plafond en euros de la majoration pour enfants, et année à laquelle il
+    #: est publié. Le plafond suit ensuite la valeur de service du point.
+    plafond_majoration_enfants: float | None
+    plafond_majoration_annee: int | None
+    #: Nombre de points attribués quand l'assiette atteint le repère
+    #: ci-dessous. Sert aux régimes dont le barème est écrit en POINTS et non
+    #: en prix d'achat — le régime de base des libéraux, la complémentaire
+    #: agricole. ``None`` : les points s'achètent, cf. ``valeurs_point.csv``.
+    points_maximum: float | None
+    #: Repère d'assiette, exprimé en heures de SMIC. ``None`` : le repère est
+    #: la borne haute de l'assiette, en plafonds de la Sécurité sociale.
+    assiette_repere_smic: float | None
+    #: L'assiette est-elle relevée au repère quand elle lui est inférieure ?
+    #: C'est l'assiette minimale de la complémentaire agricole.
+    assiette_plancher: bool
     avantages_non_contributifs: tuple[str, ...]
     notes: str = ""
+
+    def repere_assiette(self, pass_annuel: float, smic_horaire: float) -> float:
+        """Assiette qui ouvre droit à ``points_maximum`` points."""
+        if self.assiette_repere_smic is not None:
+            return self.assiette_repere_smic * smic_horaire
+        borne_basse, borne_haute = self.bornes_assiette_en_pass()
+        if borne_haute is None:
+            return 0.0
+        return (borne_haute - borne_basse) * pass_annuel
 
     def couvre(self, annee: int) -> bool:
         return self.debut <= annee and (self.fin is None or annee <= self.fin)
@@ -167,6 +215,13 @@ class CatalogueRegimes:
                 age_ouverture_par_generation=bool(
                     p.get("age_ouverture_par_generation", False)
                 ),
+                age_taux_plein_par_generation=bool(
+                    p.get("age_taux_plein_par_generation", False)
+                ),
+                decote_par_generation=bool(p.get("decote_par_generation", False)),
+                salaire_reference_par_generation=bool(
+                    p.get("salaire_reference_par_generation", False)
+                ),
                 taux_plein=None if p.get("taux_plein") is None else float(p["taux_plein"]),
                 salaire_reference=p.get("salaire_reference", "sans_objet"),
                 assiette=p.get("assiette", "deplafonnee"),
@@ -176,10 +231,33 @@ class CatalogueRegimes:
                     None if p.get("decote_par_trimestre") is None
                     else float(p["decote_par_trimestre"])
                 ),
+                decote_trimestres_maximum=(
+                    None if "decote_trimestres_maximum" in p
+                    and p["decote_trimestres_maximum"] is None
+                    else int(p.get("decote_trimestres_maximum", 20))
+                ),
                 surcote_par_trimestre=(
                     None if p.get("surcote_par_trimestre") is None
                     else float(p["surcote_par_trimestre"])
                 ),
+                abattement_points=p.get("abattement_points", "decote_du_regime_de_base"),
+                plafond_majoration_enfants=(
+                    None if p.get("plafond_majoration_enfants") is None
+                    else float(p["plafond_majoration_enfants"])
+                ),
+                plafond_majoration_annee=(
+                    None if p.get("plafond_majoration_annee") is None
+                    else int(p["plafond_majoration_annee"])
+                ),
+                points_maximum=(
+                    None if p.get("points_maximum") is None
+                    else float(p["points_maximum"])
+                ),
+                assiette_repere_smic=(
+                    None if p.get("assiette_repere_smic") is None
+                    else float(p["assiette_repere_smic"])
+                ),
+                assiette_plancher=bool(p.get("assiette_plancher", False)),
                 avantages_non_contributifs=tuple(p.get("avantages_non_contributifs") or ()),
                 notes=(p.get("notes") or "").strip(),
             )

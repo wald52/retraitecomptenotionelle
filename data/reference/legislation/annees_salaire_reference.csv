@@ -1,0 +1,31 @@
+# Nombre d'années retenues au salaire annuel moyen, PAR GÉNÉRATION
+# -----------------------------------------------------------------
+# source_id: legifrance_textes, cnav_circulaires
+#
+# La loi du 22 juillet 1993 fait passer le salaire de référence des dix aux
+# vingt-cinq meilleures années, à raison d'une année par génération, de 1934 à
+# 1948 (article R. 351-29 du code de la sécurité sociale). Comme la durée
+# requise, le paramètre suit l'ANNÉE DE NAISSANCE : un assuré né en 1938 qui
+# liquide en 2000 se voit opposer quinze années, pas vingt-cinq.
+#
+# Lire ce paramètre à l'année de liquidation, comme le faisait le modèle,
+# appliquait vingt-cinq années à des générations auxquelles la loi n'en a
+# jamais opposé plus de dix — et minorait leur pension d'autant, puisque
+# étendre la moyenne aux années les plus faibles ne peut que l'abaisser.
+generation,annees,fiabilite
+1900,10,haute
+1934,11,haute
+1935,12,haute
+1936,13,haute
+1937,14,haute
+1938,15,haute
+1939,16,haute
+1940,17,haute
+1941,18,haute
+1942,19,haute
+1943,20,haute
+1944,21,haute
+1945,22,haute
+1946,23,haute
+1947,24,haute
+1948,25,haute

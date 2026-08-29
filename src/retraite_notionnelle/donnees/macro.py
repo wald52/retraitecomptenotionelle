@@ -8,6 +8,15 @@ from pathlib import Path
 
 from .chargement import Fiabilite, SerieAnnuelle, charger_serie_annuelle, charger_yaml
 
+#: Première année où les salaires portés au compte sont revalorisés sur les
+#: PRIX et non plus sur les salaires. Avant elle, les arrêtés annuels de
+#: revalorisation suivaient l'évolution des salaires ; à partir de 1987 ils
+#: suivent celle des prix, ce que la loi du 22 juillet 1993 a ensuite inscrit
+#: dans le code en retenant l'indice hors tabac. C'est une date de droit, pas
+#: un choix de modélisation : elle est isolée ici pour être lisible d'un coup
+#: d'œil et déplaçable d'un seul geste si la source venait à la préciser.
+ANNEE_REVALORISATION_SUR_LES_PRIX = 1987
+
 
 @dataclass
 class DonneesMacro:
@@ -181,6 +190,39 @@ class DonneesMacro:
                 coefficient *= 1 + self.inflation(annee)
             return coefficient
         return 1.0 / self.coefficient_prix(annee_arrivee, annee_depart)
+
+    def coefficient_revalorisation_salaires(self, annee_depart: int,
+                                            annee_arrivee: int) -> float:
+        """Revalorisation d'un salaire porté au compte, de ``annee_depart`` à
+        ``annee_arrivee``.
+
+        Ce n'est pas l'indice des prix. Les salaires inscrits au compte d'un
+        assuré sont revalorisés chaque année par un coefficient fixé par
+        arrêté, et cet arrêté n'a pas toujours suivi les prix : jusqu'au milieu
+        des années 1980, il suivait **l'évolution des salaires**. La bascule
+        date de 1987, la loi du 22 juillet 1993 l'ayant ensuite inscrite dans
+        la loi et rattachée à l'indice des prix hors tabac.
+
+        L'écart n'est pas un détail de méthode. Sur les Trente Glorieuses, les
+        salaires ont crû nettement plus vite que les prix : appliquer la règle
+        des prix à ces années-là, comme le faisait le modèle, ramenait au
+        compte des salaires anciens très en dessous de ce que le droit y a
+        réellement inscrit, et minorait d'autant le salaire de référence des
+        carrières commencées avant 1987.
+        """
+        if annee_arrivee == annee_depart:
+            return 1.0
+        if annee_arrivee < annee_depart:
+            return 1.0 / self.coefficient_revalorisation_salaires(
+                annee_arrivee, annee_depart
+            )
+        coefficient = 1.0
+        for annee in range(annee_depart + 1, annee_arrivee + 1):
+            if annee >= ANNEE_REVALORISATION_SUR_LES_PRIX:
+                coefficient *= 1 + self.inflation(annee)
+            else:
+                coefficient *= 1 + self.salaire_moyen(annee)
+        return coefficient
 
     def fiabilite_sur(self, debut: int, fin: int) -> Fiabilite:
         """Fiabilité du maillon le plus faible des séries macro sur la plage."""

@@ -159,7 +159,17 @@ export class ConstructeurCompte {
           base = baseLigne;
         }
 
-        const assiette = this._assiette(base, annee, borneBasse, borneHaute);
+        let assiette = this._assiette(base, annee, borneBasse, borneHaute);
+        const repere = periode.repereAssiette(
+          this.macro.plafond_securite_sociale.valeur(annee),
+          this.macro.smic_horaire.valeur(annee),
+        );
+        if (periode.assiette_plancher && assiette < repere) {
+          // Assiette minimale : la complémentaire agricole prélève sur
+          // 1 820 SMIC même quand le revenu est en dessous. Ce qui a été
+          // prélevé ouvre des droits, ici comme dans le scénario 1.
+          assiette = repere;
+        }
         if (assiette <= 0) {
           continue;
         }

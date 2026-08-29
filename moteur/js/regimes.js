@@ -59,6 +59,42 @@ export class AgesOuverture extends TableParGeneration {
   }
 }
 
+/** Âge d'annulation de la décote, par génération : 65 ans, puis 67. */
+export class AgesAnnulationDecote extends TableParGeneration {
+  constructor(paquet) {
+    super(paquet.ages_annulation_decote);
+  }
+
+  /** @returns {[number, number] | null} âge et fiabilité. */
+  age(generation) {
+    return this.valeur(generation);
+  }
+}
+
+/** Coefficient de minoration du taux plein par trimestre manquant. */
+export class CoefficientsMinoration extends TableParGeneration {
+  constructor(paquet) {
+    super(paquet.coefficients_minoration);
+  }
+
+  /** @returns {[number, number] | null} coefficient et fiabilité. */
+  coefficient(generation) {
+    return this.valeur(generation);
+  }
+}
+
+/** Nombre d'années retenues au salaire annuel moyen, par génération. */
+export class AnneesSalaireReference extends TableParGeneration {
+  constructor(paquet) {
+    super(paquet.annees_salaire_reference);
+  }
+
+  /** @returns {[number, number] | null} nombre d'années et fiabilité. */
+  annees(generation) {
+    return this.valeur(generation);
+  }
+}
+
 /**
  * Montant du minimum contributif et plafond d'écrêtement, par année.
  *
@@ -113,6 +149,12 @@ export const BORNES_ASSIETTE = Object.freeze({
   tranche_2: [1.0, 8.0],
   tranche_b: [1.0, 4.0],
   tranche_c: [4.0, 8.0],
+  // Tranches propres au régime de base des professions libérales : la première
+  // s'arrêtait à 0,85 plafond avant 2015, la seconde part de zéro depuis — les
+  // deux se recouvrent donc, et c'est bien la règle du régime.
+  plafonnee_085_pass: [0.0, 0.85],
+  tranche_085_5_pass: [0.85, 5.0],
+  plafonnee_5_pass: [0.0, 5.0],
   hors_primes: [0.0, null],
   primes_uniquement: [0.0, null],
   forfaitaire: [0.0, null],
@@ -131,6 +173,15 @@ export class PeriodeRegime {
 
   bornesAssietteEnPass() {
     return BORNES_ASSIETTE[this.assiette] || [0.0, null];
+  }
+
+  /** Assiette qui ouvre droit à ``points_maximum`` points. */
+  repereAssiette(pass, smicHoraire) {
+    if (this.assiette_repere_smic !== null && this.assiette_repere_smic !== undefined) {
+      return this.assiette_repere_smic * smicHoraire;
+    }
+    const [borneBasse, borneHaute] = this.bornesAssietteEnPass();
+    return borneHaute === null ? 0.0 : (borneHaute - borneBasse) * pass;
   }
 }
 

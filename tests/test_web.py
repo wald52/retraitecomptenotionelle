@@ -334,7 +334,10 @@ def test_le_paquet_contient_les_donnees_du_modele():
     assert paquet["version"] == construction.VERSION
     assert {"series", "regimes", "affiliations", "quotients", "calibrations",
             "valeurs_point", "rendements_points", "hypotheses"} <= set(paquet)
-    assert len(paquet["regimes"]) == 35
+    from retraite_notionnelle.donnees.regimes import CatalogueRegimes
+    from retraite_notionnelle.config import RACINE_DONNEES
+
+    assert len(paquet["regimes"]) == len(CatalogueRegimes(RACINE_DONNEES))
     assert {"inflation", "salaire_moyen", "productivite", "pass"} <= set(paquet["series"])
 
 

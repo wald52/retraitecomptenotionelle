@@ -9,6 +9,15 @@
 
 import { Fiabilite, SerieAnnuelle } from "./serie.js";
 
+/**
+ * Première année où les salaires portés au compte sont revalorisés sur les
+ * PRIX et non plus sur les salaires. Avant elle, les arrêtés annuels de
+ * revalorisation suivaient l'évolution des salaires ; à partir de 1987 ils
+ * suivent celle des prix, ce que la loi du 22 juillet 1993 a ensuite inscrit
+ * dans le code en retenant l'indice hors tabac.
+ */
+export const ANNEE_REVALORISATION_SUR_LES_PRIX = 1987;
+
 export class DonneesMacro {
   constructor(paquet, scenarioProjection = null) {
     this.paquet = paquet;
@@ -40,6 +49,7 @@ export class DonneesMacro {
     this.heures_par_trimestre = serie("heures_par_trimestre");
 
     this._coefficientsPrix = new Map();
+    this._coefficientsSalaires = new Map();
   }
 
   /**
@@ -146,6 +156,38 @@ export class DonneesMacro {
       return coefficient;
     }
     return 1.0 / this.coefficientPrix(arrivee, depart);
+  }
+
+  /**
+   * Revalorisation d'un salaire porté au compte, de ``depart`` à ``arrivee``.
+   *
+   * Ce n'est pas l'indice des prix. Les salaires inscrits au compte sont
+   * revalorisés par un coefficient fixé chaque année par arrêté, et cet arrêté
+   * a suivi les SALAIRES jusqu'en 1986 avant de suivre les prix. Sur les
+   * Trente Glorieuses l'écart est massif : appliquer la règle des prix à ces
+   * années-là ramenait au compte des salaires très en dessous de ce que le
+   * droit y a réellement inscrit.
+   */
+  coefficientRevalorisationSalaires(depart, arrivee) {
+    if (arrivee === depart) {
+      return 1.0;
+    }
+    if (arrivee < depart) {
+      return 1.0 / this.coefficientRevalorisationSalaires(arrivee, depart);
+    }
+    const cle = `${depart}|${arrivee}`;
+    const memorise = this._coefficientsSalaires.get(cle);
+    if (memorise !== undefined) {
+      return memorise;
+    }
+    let coefficient = 1.0;
+    for (let annee = depart + 1; annee <= arrivee; annee += 1) {
+      coefficient *= 1 + (annee >= ANNEE_REVALORISATION_SUR_LES_PRIX
+        ? this.inflation.valeur(annee)
+        : this.salaire_moyen.valeur(annee));
+    }
+    this._coefficientsSalaires.set(cle, coefficient);
+    return coefficient;
   }
 
   /** Fiabilité du maillon le plus faible des séries macro sur la plage. */

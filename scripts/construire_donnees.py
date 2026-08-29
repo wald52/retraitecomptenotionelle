@@ -46,7 +46,15 @@ from retraite_notionnelle.donnees.chargement import (  # noqa: E402
 )
 from retraite_notionnelle.donnees.mortalite import DonneesMortalite  # noqa: E402
 from retraite_notionnelle.donnees.regimes import CatalogueRegimes  # noqa: E402
-from retraite_notionnelle.scenarios.actuel import Rendements, ValeursPoint  # noqa: E402
+from retraite_notionnelle.scenarios.actuel import (  # noqa: E402
+    AgesAnnulationDecote,
+    AgesOuverture,
+    AnneesSalaireReference,
+    CoefficientsMinoration,
+    DureesRequises,
+    Rendements,
+    ValeursPoint,
+)
 
 DONNEES = RACINE / "data"
 PAQUET = RACINE / "moteur" / "donnees.json"
@@ -54,7 +62,7 @@ STYLE = RACINE / "moteur" / "style.css"
 
 #: Version du format. À incrémenter si la structure du paquet change, pour
 #: qu'un site en cache ne lise pas un paquet qu'il ne comprend pas.
-VERSION = 1
+VERSION = 2
 
 
 def _serie(serie: SerieAnnuelle) -> dict:
@@ -167,8 +175,18 @@ def _regimes() -> list[dict]:
                     "assiette": p.assiette,
                     "taux_cotisation_retraite": p.taux_cotisation_retraite,
                     "perimetre_taux": p.perimetre_taux,
+                    "age_taux_plein_par_generation": p.age_taux_plein_par_generation,
+                    "decote_par_generation": p.decote_par_generation,
+                    "salaire_reference_par_generation": p.salaire_reference_par_generation,
                     "decote_par_trimestre": p.decote_par_trimestre,
+                    "decote_trimestres_maximum": p.decote_trimestres_maximum,
                     "surcote_par_trimestre": p.surcote_par_trimestre,
+                    "abattement_points": p.abattement_points,
+                    "plafond_majoration_enfants": p.plafond_majoration_enfants,
+                    "plafond_majoration_annee": p.plafond_majoration_annee,
+                    "points_maximum": p.points_maximum,
+                    "assiette_repere_smic": p.assiette_repere_smic,
+                    "assiette_plancher": p.assiette_plancher,
                     "avantages_non_contributifs": list(p.avantages_non_contributifs),
                     "notes": p.notes,
                 }
@@ -208,13 +226,7 @@ def _rendements() -> list:
     ]
 
 
-def _durees_requises() -> dict:
-    """Durée d'assurance requise par génération, table de la loi Balladur."""
-    from retraite_notionnelle.scenarios.actuel import DureesRequises
 
-    table = DureesRequises(DONNEES)._table
-    return {str(generation): [trimestres, int(fiabilite)]
-            for generation, (trimestres, fiabilite) in sorted(table.items())}
 
 
 def _periodes_non_travaillees() -> dict:
@@ -228,12 +240,10 @@ def _periodes_non_travaillees() -> dict:
     }
 
 
-def _ages_ouverture() -> dict:
-    """Âge légal d'ouverture des droits par génération."""
-    from retraite_notionnelle.scenarios.actuel import AgesOuverture
-
-    return {str(generation): [age, int(fiabilite)]
-            for generation, (age, fiabilite) in sorted(AgesOuverture(DONNEES)._table.items())}
+def _table_par_generation(classe) -> dict:
+    """Paramètre législatif indexé sur l'année de naissance."""
+    return {str(generation): [valeur, int(fiabilite)]
+            for generation, (valeur, fiabilite) in sorted(classe(DONNEES)._table.items())}
 
 
 def _minimum_contributif() -> dict:
@@ -268,8 +278,11 @@ def construire() -> bytes:
         "affiliations": _affiliations(),
         "valeurs_point": _valeurs_point(),
         "rendements_points": _rendements(),
-        "durees_requises": _durees_requises(),
-        "ages_ouverture": _ages_ouverture(),
+        "durees_requises": _table_par_generation(DureesRequises),
+        "ages_ouverture": _table_par_generation(AgesOuverture),
+        "ages_annulation_decote": _table_par_generation(AgesAnnulationDecote),
+        "coefficients_minoration": _table_par_generation(CoefficientsMinoration),
+        "annees_salaire_reference": _table_par_generation(AnneesSalaireReference),
         "periodes_non_travaillees": _periodes_non_travaillees(),
         "minimum_contributif": _minimum_contributif(),
         "certification": journal_certification(DONNEES),

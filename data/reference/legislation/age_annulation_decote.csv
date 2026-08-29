@@ -1,0 +1,25 @@
+# Âge d'annulation de la décote, PAR GÉNÉRATION
+# ----------------------------------------------
+# source_id: legifrance_textes, cnav_circulaires
+#
+# C'est l'âge auquel le taux plein est acquis sans condition de durée. Comme
+# l'âge d'ouverture, il est indexé sur l'ANNÉE DE NAISSANCE et non sur l'année
+# de liquidation : les fiches de régime portaient l'âge CIBLE de la réforme dès
+# son entrée en vigueur — 67 ans opposés à des liquidations de 2011, alors que
+# la génération concernée cette année-là relevait de 65 ans.
+#
+# Étape législative unique : la loi du 9 novembre 2010, générations 1951-1955,
+# 65 -> 67 ans. La loi du 14 avril 2023 n'y a pas touché : elle a relevé l'âge
+# d'ouverture, pas celui-ci.
+#
+# La génération 1951 est coupée au 1er juillet par le texte ; le modèle ne
+# connaît que l'année de naissance et retient la valeur de la fraction la plus
+# nombreuse, comme dans age_ouverture_requis.csv.
+generation,age,fiabilite
+1930,65,haute
+1950,65,haute
+1951,65.33,haute
+1952,65.75,haute
+1953,66.17,haute
+1954,66.58,haute
+1955,67,haute

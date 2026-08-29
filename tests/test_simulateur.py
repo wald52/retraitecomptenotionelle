@@ -795,10 +795,10 @@ def test_valeur_du_point_de_la_complementaire_agricole_est_sourcee(simulateur):
     de la DILA en garde toutes les versions datées ; c'est la publication
     officielle, d'où le niveau du producteur.
 
-    Les valeurs sont rangées sous ``msa_rco``, un code que le catalogue ignore :
-    la fiche ``msa_non_salaries`` agrège le régime de base et son étage
-    complémentaire, et tout verser dans le second ferait disparaître le premier.
-    Ce test garde cette séparation autant que les valeurs.
+    Les valeurs sont rangées sous ``msa_rco``, code qui a désormais sa propre
+    fiche : la RCO a été scindée du régime de base, faute de quoi tout verser
+    dans le complémentaire aurait fait disparaître la base. Ce test garde cette
+    séparation autant que les valeurs.
     """
     import csv
 
@@ -825,7 +825,308 @@ def test_valeur_du_point_de_la_complementaire_agricole_est_sourcee(simulateur):
     assert annees == list(range(annees[0], annees[-1] + 1)), "la série a un trou"
     assert all(valeurs[b] >= valeurs[a] for a, b in zip(annees, annees[1:]))
 
-    # Le code reste hors catalogue tant que la fiche n'est pas scindée.
+    # La fiche est désormais scindée : la RCO a la sienne, et c'est elle qui
+    # porte le barème en points ; la base garde la sienne, et son étage
+    # proportionnel reste au rendement instantané faute de barème publié.
     catalogue = CatalogueRegimes(simulateur.parametres.racine_donnees)
-    assert "msa_rco" not in catalogue
+    assert "msa_rco" in catalogue
     assert "msa_non_salaries" in catalogue
+    rco = catalogue["msa_rco"].periode(2020)
+    assert rco.type_calcul == "points"
+    # Le barème est en POINTS : 100 points pour 1 820 SMIC, et le nombre de
+    # points ne dépend donc pas du taux de cotisation — ce qui est heureux,
+    # puisque c'est le barème qui est publié, pas le prix d'achat.
+    assert rco.points_maximum == 100
+    assert rco.assiette_repere_smic == 1820
+    assert rco.assiette_plancher is True
+
+
+# -- montée en charge des réformes, lue à la génération ----------------------
+
+
+def test_les_salaires_anciens_sont_revalorises_sur_les_salaires(simulateur):
+    """Le compte n'a pas toujours été revalorisé sur les prix.
+
+    Les arrêtés annuels de revalorisation ont suivi les SALAIRES jusqu'en 1986
+    avant de suivre les prix. Sur les Trente Glorieuses, les salaires ont crû
+    nettement plus vite que les prix : appliquer la règle des prix à ces
+    années-là ramenait au compte des salaires très en dessous de ce que le
+    droit y a inscrit, et minorait le salaire de référence d'autant.
+    """
+    macro = simulateur.macro
+    salaires = macro.coefficient_revalorisation_salaires(1960, 2025)
+    prix = macro.coefficient_prix(1960, 2025)
+    assert salaires > prix
+
+    # À partir de 1987, les deux règles ne font plus qu'une.
+    assert macro.coefficient_revalorisation_salaires(1990, 2025) == pytest.approx(
+        macro.coefficient_prix(1990, 2025)
+    )
+    # Et le coefficient reste réversible, comme celui des prix.
+    assert macro.coefficient_revalorisation_salaires(2025, 1960) == pytest.approx(
+        1.0 / salaires
+    )
+
+
+def test_le_nombre_d_annees_du_salaire_de_reference_suit_la_generation(simulateur):
+    """Dix à vingt-cinq années, à raison d'une par génération, de 1934 à 1948.
+
+    Lu à l'année de liquidation, le paramètre opposait vingt-cinq années à des
+    assurés auxquels la loi n'en a jamais demandé plus de dix — et étendre la
+    moyenne aux années les plus faibles ne peut que l'abaisser.
+    """
+    from retraite_notionnelle.scenarios.actuel import AnneesSalaireReference
+
+    table = AnneesSalaireReference(simulateur.parametres.racine_donnees)
+    assert table.annees(1930)[0] == 10
+    assert table.annees(1938)[0] == 15
+    assert table.annees(1948)[0] == 25
+    assert table.annees(1975)[0] == 25
+
+    # Deux générations qui liquident à trente ans d'écart, même carrière type :
+    # la plus ancienne relève de dix années, la plus récente de vingt-cinq.
+    scenario = simulateur.scenario_actuel
+    ancien = simulateur.carriere_simple(
+        annee_naissance=1930, sexe="H", affiliation="salarie_prive_non_cadre",
+        age_debut=20, age_liquidation=64, profil_carriere="ascendant",
+    )
+    recent = simulateur.carriere_simple(
+        annee_naissance=1975, sexe="H", affiliation="salarie_prive_non_cadre",
+        age_debut=20, age_liquidation=64, profil_carriere="ascendant",
+    )
+    catalogue = simulateur.catalogue
+    periode_ancienne = catalogue["regime_general"].periode(
+        ancien.annee_liquidation)
+    periode_recente = catalogue["regime_general"].periode(recent.annee_liquidation)
+    dix = scenario.salaire_de_reference(
+        ancien, periode_ancienne, ancien.annee_liquidation, True, 1930)
+    vingt_cinq = scenario.salaire_de_reference(
+        ancien, periode_ancienne, ancien.annee_liquidation, True, 1975)
+    assert dix > vingt_cinq
+    assert periode_recente.salaire_reference_par_generation
+
+
+def test_le_coefficient_de_minoration_suit_la_generation(simulateur):
+    """2,5 % par trimestre avant 1944, 1,25 % à partir de 1953.
+
+    La table de l'article R. 351-27 vaut aussi bien pour l'ancien droit —
+    1,25 point retiré au taux de 50 %, soit 2,5 % de ce taux — que pour la
+    montée en charge de la loi Fillon.
+    """
+    from retraite_notionnelle.scenarios.actuel import CoefficientsMinoration
+
+    table = CoefficientsMinoration(simulateur.parametres.racine_donnees)
+    assert table.coefficient(1940)[0] == pytest.approx(0.025)
+    assert table.coefficient(1944)[0] == pytest.approx(0.02375)
+    assert table.coefficient(1952)[0] == pytest.approx(0.01375)
+    assert table.coefficient(1953)[0] == pytest.approx(0.0125)
+    assert table.coefficient(1990)[0] == pytest.approx(0.0125)
+
+
+def test_la_decote_est_plafonnee_a_vingt_trimestres(simulateur):
+    """Le taux ne descend pas sous 37,5 %, quelle que soit l'anticipation.
+
+    Sans ce plafond, un départ dix ans avant l'heure retirait la moitié de la
+    pension de base là où le droit n'en retire que le quart.
+    """
+    resultats = {}
+    for age in (52, 57, 62):
+        carriere = simulateur.carriere_simple(
+            annee_naissance=1965, sexe="H", affiliation="salarie_prive_non_cadre",
+            age_debut=25, age_liquidation=age,
+        )
+        resultats[age] = simulateur.scenario_actuel.calculer(carriere)
+
+    # 50 % × (1 − 1,25 % × 20) = 37,5 %, et pas moins.
+    assert resultats[52].taux_liquidation == pytest.approx(0.375)
+    assert resultats[57].taux_liquidation == pytest.approx(0.375)
+    assert resultats[62].taux_liquidation == pytest.approx(0.375)
+
+
+def test_l_age_d_annulation_de_la_decote_suit_la_generation(simulateur):
+    """65 ans jusqu'à la génération 1950, 67 à partir de 1955.
+
+    Les fiches portaient l'âge CIBLE de la loi de 2010 dès son entrée en
+    vigueur, opposant 67 ans à des générations auxquelles la loi n'a jamais
+    demandé plus de 65.
+    """
+    from retraite_notionnelle.scenarios.actuel import AgesAnnulationDecote
+
+    table = AgesAnnulationDecote(simulateur.parametres.racine_donnees)
+    assert table.age(1940)[0] == pytest.approx(65.0)
+    assert table.age(1953)[0] == pytest.approx(66.17)
+    assert table.age(1960)[0] == pytest.approx(67.0)
+
+    # Une carrière courte liquidée à 65 ans : la génération 1945 y est au taux
+    # plein d'office, la génération 1960 non.
+    taux = {}
+    for generation in (1945, 1960):
+        carriere = simulateur.carriere_simple(
+            annee_naissance=generation, sexe="H",
+            affiliation="salarie_prive_non_cadre",
+            age_debut=40, age_liquidation=65,
+        )
+        taux[generation] = simulateur.scenario_actuel.calculer(carriere).taux_liquidation
+    assert taux[1945] == pytest.approx(0.50)
+    assert taux[1960] < 0.50
+
+
+# -- abattement propre aux complémentaires -----------------------------------
+
+
+def test_les_coefficients_d_anticipation_sont_ceux_de_l_agirc_arrco():
+    """Le barème du régime, et non la décote du régime de base.
+
+    Deux tables — trimestres manquants, et âge — dont la plus avantageuse est
+    retenue. L'exemple que la caisse publie elle-même : un participant né en
+    1959 qui demande sa retraite à 63 ans et 2 mois (0,83 par l'âge) et totalise
+    155 trimestres sur 167 requis (0,88 pour douze trimestres manquants) se voit
+    appliquer 0,88.
+    """
+    from retraite_notionnelle.scenarios.actuel import _coefficient_anticipation
+
+    # Table des trimestres manquants : un point par trimestre jusqu'à douze,
+    # un point et quart ensuite, et rien au-delà de vingt.
+    assert _coefficient_anticipation(0, 20) == pytest.approx(1.0)
+    assert _coefficient_anticipation(1, 20) == pytest.approx(0.99)
+    assert _coefficient_anticipation(12, 20) == pytest.approx(0.88)
+    assert _coefficient_anticipation(20, 20) == pytest.approx(0.78)
+    assert _coefficient_anticipation(21, 20) is None
+
+    # Table des âges : elle descend un palier plus bas, jusqu'à 0,43.
+    assert _coefficient_anticipation(40, 40) == pytest.approx(0.43)
+
+    # Les trimestres sont arrondis AU SUPÉRIEUR : trois ans et dix mois
+    # d'anticipation valent seize trimestres, pas quinze.
+    assert _coefficient_anticipation(15 + 1 / 3, 40) == pytest.approx(0.83)
+
+
+def test_l_abattement_de_la_complementaire_n_est_pas_celui_de_la_base(simulateur):
+    """À dix ans d'anticipation, 0,43 chez l'Agirc-Arrco, 0,75 à la base.
+
+    Les deux barèmes ne se recoupent pas : le régime complémentaire est plus
+    doux sur les carrières courtes et beaucoup plus dur sur l'âge. Retenir la
+    décote de la base, comme le faisait le modèle, était faux dans les deux
+    sens.
+    """
+    carriere = simulateur.carriere_simple(
+        annee_naissance=1965, sexe="H", affiliation="salarie_prive_non_cadre",
+        age_debut=25, age_liquidation=57,
+    )
+    scenario = simulateur.scenario_actuel
+    periode = simulateur.catalogue["agirc_arrco"].periode(2019)
+    requis = scenario.durees_requises.trimestres(1965)[0]
+    abattement = scenario._abattement_points(periode, carriere, 100, requis, 57.0)
+    assert abattement == pytest.approx(0.43)
+
+    # Au taux plein, aucun abattement, quel que soit l'âge.
+    assert scenario._abattement_points(
+        periode, carriere, requis, requis, 57.0) == pytest.approx(1.0)
+
+
+def test_la_majoration_pour_enfants_de_la_complementaire_est_plafonnee(simulateur):
+    """10 % à la base, mais au plus 2 367 € par an à l'Agirc-Arrco.
+
+    Sans ce plafond, les familles très nombreuses de salariés du privé étaient
+    surestimées : le cadre qui touche 30 000 € de complémentaire s'en voyait
+    majorer de 3 000 € au lieu des 2 367 € que le régime sert au maximum.
+    """
+    carriere = simulateur.carriere_simple(
+        annee_naissance=1965, sexe="F", affiliation="salarie_prive_cadre",
+        age_debut=23, age_liquidation=64, niveau_salaire=3.0,
+        profil_carriere="fortement_ascendant", nombre_enfants=4,
+    )
+    resultat = simulateur.scenario_actuel.calculer(carriere)
+    majoration = next(a for a in resultat.avantages_appliques
+                      if a.code == "majoration_enfants")
+    complementaire = sum(
+        p.montant for p in resultat.pensions_par_regime
+        if p.regime in ("agirc", "arrco", "agirc_arrco")
+    )
+    assert "plafonnée" in majoration.detail
+    assert majoration.montant < 0.10 * (
+        complementaire + sum(p.montant for p in resultat.pensions_par_regime
+                             if p.regime == "regime_general")
+    )
+
+
+def test_la_mda_compte_dans_la_proratisation_du_regime_qui_la_porte(simulateur):
+    """Le droit attribue les trimestres DANS un régime, pas au-dessus d'eux.
+
+    Ils jouaient sur la décote tous régimes confondus mais restaient hors du
+    rapport durée acquise / durée requise du régime qui les accorde, ce qui
+    amputait la mère de famille de la part que la MDA est censée lui rendre.
+    """
+    commun = dict(annee_naissance=1975, sexe="F",
+                  affiliation="salarie_prive_non_cadre",
+                  age_debut=30, age_liquidation=64)
+    sans = simulateur.scenario_actuel.calculer(
+        simulateur.carriere_simple(**commun, nombre_enfants=0))
+    avec = simulateur.scenario_actuel.calculer(
+        simulateur.carriere_simple(**commun, nombre_enfants=2))
+
+    base_sans = next(p for p in sans.pensions_par_regime
+                     if p.regime == "regime_general")
+    base_avec = next(p for p in avec.pensions_par_regime
+                     if p.regime == "regime_general")
+    assert avec.trimestres_valides == sans.trimestres_valides + 16
+    # La carrière est trop courte pour le taux plein : les seize trimestres
+    # relèvent le taux ET la proratisation, et la pension de base monte plus
+    # que du seul effet de décote.
+    assert base_avec.montant > base_sans.montant
+    assert "/" in base_avec.detail
+
+
+# -- régimes que le barème en points fait sortir du rendement instantané -----
+
+
+def test_le_regime_de_base_des_liberaux_est_calcule_en_points(simulateur):
+    """525 points au plafond, 25 sur la seconde tranche : c'est un barème.
+
+    Le régime n'attribue pas un nombre de points proportionnel à la cotisation
+    mais un nombre PLAFONNÉ de points par tranche. C'est cette règle — et non
+    un prix d'achat, que la caisse ne publie pas — qui convertit le revenu en
+    droits, et c'est elle qui manquait au moteur.
+    """
+    tranches = simulateur.catalogue["cnavpl"].periodes_actives(2020)
+    assert [p.points_maximum for p in tranches] == [525.0, 25.0]
+    assert [p.assiette for p in tranches] == ["plafonnee", "plafonnee_5_pass"]
+
+    carriere = simulateur.carriere_simple(
+        annee_naissance=1960, sexe="H", affiliation="profession_liberale",
+        age_debut=27, age_liquidation=66, niveau_salaire=2.5,
+    )
+    pension = next(p for p in simulateur.scenario_actuel.calculer(
+        carriere).pensions_par_regime if p.regime == "cnavpl")
+    assert "points × valeur de service" in pension.detail
+
+    # Un revenu au-dessus du plafond n'ouvre pas plus de 525 points par an sur
+    # la première tranche : c'est tout l'objet du plafonnement.
+    riche = simulateur.carriere_simple(
+        annee_naissance=1960, sexe="H", affiliation="profession_liberale",
+        age_debut=27, age_liquidation=66, niveau_salaire=8.0,
+    )
+    points_riche = float(next(p for p in simulateur.scenario_actuel.calculer(
+        riche).pensions_par_regime if p.regime == "cnavpl"
+    ).detail.split(" points")[0].replace(",", ""))
+    annees = 66 - 27
+    assert points_riche < 550 * annees
+
+
+def test_la_complementaire_agricole_ouvre_cent_points_a_l_assiette_minimale(simulateur):
+    """1 820 SMIC cotisés valent 100 points, et l'assiette ne descend pas plus bas.
+
+    Le nombre de points ne dépend pas du taux de cotisation : c'est le barème
+    qui est publié, pas le prix d'achat — et c'est ce qui débloque le calcul,
+    la valeur d'achat du point de RCO restant introuvable.
+    """
+    carriere = simulateur.carriere_simple(
+        annee_naissance=1960, sexe="H", affiliation="exploitant_agricole",
+        age_debut=20, age_liquidation=64, niveau_salaire=0.2,
+    )
+    pension = next(p for p in simulateur.scenario_actuel.calculer(
+        carriere).pensions_par_regime if p.regime == "msa_rco")
+    points = float(pension.detail.split(" points")[0].replace(",", ""))
+    # 2003 à 2023 inclus, cent points par an au minimum.
+    assert points == pytest.approx(100 * 21, rel=0.01)
+    assert pension.montant > 0

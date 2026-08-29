@@ -123,10 +123,11 @@ regimes:
         age_taux_plein: 65
         duree_requise_trimestres: 150
         taux_plein: 0.50
+        decote_par_generation: true
         salaire_reference: 10_meilleures_annees
         assiette: plafonnee
         taux_cotisation_retraite: 0.1119
-        decote_par_trimestre: 0.05
+        decote_par_trimestre: 0.025
         surcote_par_trimestre: null
         avantages_non_contributifs:
           [minimum_vieillesse, majoration_enfants, mda, reversion, periodes_assimilees]
@@ -134,7 +135,10 @@ regimes:
           Loi Boulin du 31 décembre 1971 : taux plein porté à 50 %, durée
           requise à 150 trimestres (37,5 ans), salaire de référence sur les
           10 meilleures années. Abattement de 5 points par année d'anticipation
-          avant 65 ans.
+          avant 65 ans — soit 5 points sur un taux de 50 %, c'est-à-dire 10 %
+          du taux par année et 2,5 % par trimestre. La fiche portait 5 % PAR
+          TRIMESTRE, quatre fois trop : un départ à 62 ans y perdait 60 % de
+          sa pension au lieu de 15 %.
 
       - debut: 1983
         fin: 1993
@@ -143,6 +147,8 @@ regimes:
         age_taux_plein: 65
         duree_requise_trimestres: 150
         taux_plein: 0.50
+        age_taux_plein_par_generation: true
+        decote_par_generation: true
         salaire_reference: 10_meilleures_annees
         assiette: plafonnee
         taux_cotisation_retraite: 0.1505
@@ -166,6 +172,9 @@ regimes:
         duree_requise_trimestres: 160
         duree_requise_par_generation: true
         taux_plein: 0.50
+        age_taux_plein_par_generation: true
+        decote_par_generation: true
+        salaire_reference_par_generation: true
         salaire_reference: 25_meilleures_annees
         assiette: plafonnee
         taux_cotisation_retraite: 0.1635
@@ -190,6 +199,9 @@ regimes:
         duree_requise_trimestres: 164
         duree_requise_par_generation: true
         taux_plein: 0.50
+        age_taux_plein_par_generation: true
+        decote_par_generation: true
+        salaire_reference_par_generation: true
         salaire_reference: 25_meilleures_annees
         assiette: plafonnee
         taux_cotisation_retraite: 0.1659
@@ -211,6 +223,9 @@ regimes:
         duree_requise_trimestres: 172
         duree_requise_par_generation: true
         taux_plein: 0.50
+        age_taux_plein_par_generation: true
+        decote_par_generation: true
+        salaire_reference_par_generation: true
         salaire_reference: 25_meilleures_annees
         assiette: plafonnee
         taux_cotisation_retraite: 0.1743
@@ -233,6 +248,9 @@ regimes:
         duree_requise_trimestres: 172
         duree_requise_par_generation: true
         taux_plein: 0.50
+        age_taux_plein_par_generation: true
+        decote_par_generation: true
+        salaire_reference_par_generation: true
         salaire_reference: 25_meilleures_annees
         assiette: plafonnee
         taux_cotisation_retraite: 0.1786

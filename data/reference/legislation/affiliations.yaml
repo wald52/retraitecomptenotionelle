@@ -98,7 +98,8 @@ affiliations:
   exploitant_agricole:
     libelle: Chef d'exploitation ou d'entreprise agricole
     periodes:
-      - {debut: 1952, fin: null, regimes: [msa_non_salaries]}
+      - {debut: 1952, fin: 2002, regimes: [msa_non_salaries]}
+      - {debut: 2003, fin: null, regimes: [msa_non_salaries, msa_rco]}
 
   agent_sncf:
     libelle: Agent du cadre permanent de la SNCF

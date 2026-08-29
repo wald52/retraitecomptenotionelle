@@ -20,6 +20,11 @@ Le scénario 1 sert d'étalon : ce qui n'y est pas sourcé fragilise tout le res
 | Plafond d'écrêtement du minimum | 16 410 €/an (2025) | **non confronté à la source** |
 | Durée requise par génération | table 1934-1965, 151 → 172 trimestres | reprise des textes, non recontrôlée automatiquement |
 | Âge légal par génération | table 1930-1968, 60 → 64 ans | reprise des textes, non recontrôlée automatiquement |
+| Âge d'annulation de la décote par génération | table 1930-1955, 65 → 67 ans | reprise des textes, non recontrôlée automatiquement |
+| Coefficient de minoration par génération | table 1900-1953, 2,5 → 1,25 % | textes, recoupé à la DREES |
+| Années retenues au salaire de référence | table 1934-1948, 10 → 25 années | reprise des textes, non recontrôlée automatiquement |
+| Coefficients d'anticipation Agirc-Arrco | deux tables, 1 → 0,78 et 1 → 0,43 | barème publié par la caisse, saisi |
+| Plafond de la majoration familiale Agirc-Arrco | 2 367 €/an (novembre 2025) | publié par la caisse, saisi |
 | Droits ouverts par motif d'interruption | 9 motifs | principe sourcé, fractions non recontrôlées |
 
 Le minimum contributif ne figure dans **aucune source machine ouverte** : ni
@@ -38,25 +43,48 @@ moyen connu à ce jour.
 
 ## Écarts connus avec le droit positif, dans le scénario 1
 
-Ce qui reste approché, après la reprise du moteur :
+**Ce qui vient d'être refermé**, et que ce document annonçait encore comme
+approché :
 
-- **Abattement des complémentaires approché.** L'Agirc-Arrco applique un
-  barème de coefficients d'anticipation qui lui est propre ; le modèle retient
-  le taux de décote du régime de base. La condition de déclenchement, elle, est
-  désormais la bonne : pas d'abattement pour un assuré au taux plein.
-- **Montée en charge des réformes par palier.** La durée requise et l'âge légal
-  d'ouverture sont désormais lus à la génération. Les autres paramètres — âge
-  d'annulation de la décote, taux de cotisation — restent ceux de l'année de
-  liquidation.
-- **Plafond de la majoration familiale des complémentaires.** La majoration
-  pour enfants est désormais appliquée régime par régime, à ceux dont la fiche
-  la porte : 10 % au régime général et dans les régimes spéciaux, 10 % plus 5 %
-  par enfant au-delà du troisième dans la fonction publique. Le plafond en
-  euros de la majoration Agirc-Arrco n'est pas encore intégré : les familles
-  très nombreuses de salariés du privé sont donc légèrement surestimées.
-- **Trimestres de la MDA attribués au seul régime général.** Les huit
-  trimestres par enfant s'ajoutent à la durée d'assurance totale, sans être
-  répartis entre régimes comme le fait le droit.
+- **L'abattement des complémentaires est celui de l'Agirc-Arrco**, et non plus
+  la décote du régime de base. Le régime publie deux tables de coefficients
+  d'anticipation — l'une indexée sur les trimestres manquants, l'autre sur
+  l'âge — et retient la plus avantageuse pour l'assuré. Les deux ne se
+  recoupent pas : douze trimestres manquants valent 0,88, quand la décote de la
+  base n'en donnerait que 0,85 ; mais dix ans d'anticipation valent 0,43, là où
+  elle en donnerait 0,50. L'approximation était donc fausse dans les deux sens.
+- **La majoration familiale des complémentaires est plafonnée** : 2 367 € par
+  an, revalorisés comme la valeur de service du point, opposables aux assurés
+  nés à compter du 2 août 1951. Le plafond porte sur la majoration de LA
+  complémentaire, Agirc, Arrco et régime unifié confondus — les plafonner
+  séparément l'aurait triplé.
+- **Les trimestres de la MDA sont attribués dans un régime.** Ils jouaient sur
+  la décote tous régimes confondus mais restaient hors du rapport durée acquise
+  / durée requise du régime qui les accorde, ce qui amputait la mère de famille
+  d'une part de ce que la MDA est censée lui rendre. Faute de connaître l'année
+  de naissance des enfants, ils vont au régime de base où l'assuré a validé le
+  plus de trimestres parmi ceux qui portent la MDA : exact pour une carrière
+  mono-affiliée, approché pour un polypensionné.
+- **La décote est plafonnée à vingt trimestres**, comme le veut le droit. Sans
+  ce plafond, un départ dix ans avant l'heure retirait la moitié de la pension
+  de base là où le droit n'en retire que le quart. C'est le défaut qui déplaçait
+  le plus de chiffres : la pension d'un départ très anticipé monte de 25 %.
+- **La décote de la loi Boulin était quatre fois trop forte.** La fiche portait
+  5 % par trimestre là où le texte retire 5 *points* par année d'anticipation à
+  un taux de 50 %, soit 2,5 % par trimestre. Toutes les liquidations anticipées
+  de 1972 à 1982 en étaient faussées.
+
+Ce qui reste approché :
+
+- **Montée en charge des réformes, ce qui n'est pas lu à la génération.** La
+  durée requise, l'âge légal d'ouverture, l'âge d'annulation de la décote, le
+  coefficient de minoration et le nombre d'années retenues au salaire de
+  référence le sont désormais tous les cinq. Restent lus à l'année de
+  liquidation les taux de cotisation, et la montée en charge propre à chaque
+  régime spécial.
+- **Dispositifs de départ anticipé.** Carrières longues, pénibilité, invalidité
+  et inaptitude ne sont pas modélisés : un assuré qui liquide tôt subit ici la
+  décote, quand le droit l'en dispenserait.
 
 ## 1. État de certification des données
 
@@ -236,13 +264,16 @@ qui a été cherché, pour éviter de le rechercher deux fois.
   et ses points sont attribués par un barème annuel par tranche de revenu — de
   23 à 113 points — que personne ne publie en série.
 
-  Le moteur n'utilise donc pas encore ces valeurs, et la raison est celle de la
-  CNBF : la fiche `msa_non_salaries` agrège les deux étages, la base à deux
-  parts et la RCO créée en 2003. Les valeurs sont rangées sous le code
-  `msa_rco`, que le catalogue ne connaît pas, et le régime reste au rendement
-  instantané. S'y ajoute que la RCO attribue des points **gratuits** autant que
-  cotisés — 66 par an aux conjoints et aides familiaux pour les périodes
-  antérieures à 2011, dans la limite de 17 années.
+  **Le moteur utilise désormais ces valeurs.** La fiche a été scindée : la RCO
+  a la sienne, `msa_rco`, et la base garde `msa_non_salaries`. Ce qui a
+  débloqué le calcul n'est pas le prix d'achat introuvable mais, là encore, le
+  BARÈME EN POINTS, qui est public : cotiser sur l'assiette minimale de
+  1 820 SMIC ouvre 100 points, et les points sont proportionnels au-delà, sans
+  plafond. Le nombre de points ne dépend donc pas du taux de cotisation, et
+  l'absence de série historique de ce taux ne déplace que le flux versé au
+  compte notionnel. Restent hors du modèle les points **gratuits** — 66 par an
+  aux conjoints et aides familiaux pour les périodes antérieures à 2011, dans
+  la limite de 17 années — et le barème du régime de base.
 
   **La voie légale mène quelque part, mais pas partout.** Les bases ouvertes
   de la DILA ont été dépouillées en flux, sans écriture disque : 12,4 Go de JORF
@@ -293,6 +324,14 @@ qui a été cherché, pour éviter de le rechercher deux fois.
   décider quelle classe de cotisation retenir par défaut, la CNBF en proposant
   cinq. Un test garde les deux moitiés de cette décision.
 
+  C'est la seule des trois caisses à rester dans cet état. La CNAVPL et la MSA
+  en sont sorties par le même chemin — scinder la fiche, puis lire le barème en
+  points plutôt que d'attendre un prix d'achat — mais ce chemin ne mène nulle
+  part ici : le complémentaire des avocats est un barème par classe et par
+  tranche de revenu, dont les taux vont de 5,2 % à 20,4 %. Sans cette grille, et
+  sans une décision sur la classe par défaut, scinder la fiche remplacerait une
+  approximation documentée par une autre qui ne le serait pas.
+
   Au passage, ces valeurs éclairent l'estimation en place : un rendement agrégé
   de 6,5 % pour l'ensemble base + complémentaire est cohérent avec un
   complémentaire à 8,2 % et une base forfaitaire moins rentable. L'estimation
@@ -307,15 +346,19 @@ qui a été cherché, pour éviter de le rechercher deux fois.
   millésimes antérieurs mettent la valeur dans un graphique et non dans une
   phrase, d'où le début de série.
 
-  Le moteur ne s'en sert pas encore, pour une raison différente de celle de la
-  CNBF : le régime n'attribue pas un nombre de points proportionnel à la
-  cotisation, mais **525 points au maximum sur la tranche 1 et 25 sur la tranche
-  2**, soit 550 depuis 2015. Le prix d'un point s'en déduit — taux × plafond
-  ÷ 525 — mais ce plafonnement en points est une règle de calcul, pas un barème :
-  l'écrire suppose de la coder dans le moteur, non d'ajouter une colonne. Faute
-  de `salaire_reference`, `ValeursPoint.achat()` renvoie `None` et la CNAVPL
-  reste sur le rendement instantané, inchangée. Ce qu'apporte cette limite
-  aujourd'hui, c'est que les trois grandeurs nécessaires sont désormais sourcées.
+  **Le moteur s'en sert désormais.** Ce qui bloquait n'était pas la donnée mais
+  la forme du barème : le régime n'attribue pas un nombre de points
+  proportionnel à la cotisation, mais **525 points au maximum sur la tranche 1
+  et 25 sur la tranche 2**, soit 550 depuis 2015 — 450 et 100 avant. Un
+  plafonnement en points est une règle de calcul, pas une colonne à ajouter :
+  il a fallu l'écrire dans le moteur, sous la forme d'un champ `points_maximum`
+  qui dit combien de points ouvre une assiette donnée. La fiche est scindée en
+  ses deux tranches, qui se recouvrent depuis 2015 comme le fait la cotisation.
+  Le nombre de points ne dépend alors pas du taux de cotisation, ce qui est
+  heureux : c'est le barème que la caisse publie, pas le prix d'achat.
+  Reste hors du modèle la période 1949-2003, assise sur des classes
+  forfaitaires dont la grille n'est pas publiée : ces années restent au
+  rendement instantané.
 
 * *Âges, durées requises, décotes* — ils viennent de lois, pas de séries
   statistiques. Légifrance expose une API, mais elle demande une clé et renvoie
@@ -363,19 +406,25 @@ Reproduire exactement le droit positif de tous les régimes depuis 1930 suppose
 un moteur législatif complet, du type de ceux de la DREES (TRAJECTOiRE) ou de
 l'Institut des politiques publiques (PENSIPP). Écarts connus :
 
-- **régimes en points** — la pension est désormais calculée en points, sur
-  l'historique réel des valeurs d'achat et de service (Agirc depuis 1947, Arrco
-  depuis 1949, Ircantec depuis 1949), avec conversion des points aux fusions.
-  Restent au rendement instantané la CNAVPL, la MSA, la CNBF, le RCI et le
-  RAFP. Pour le RCI et le RAFP faute d'un prix d'achat publié ; pour les trois
-  autres, la valeur du point est désormais dans le dépôt mais la fiche de régime
-  agrège des étages qu'il faudrait scinder d'abord ;
-- **montée en charge des réformes** — les paramètres sont ceux de l'année de
-  liquidation, sans le détail génération par génération des lois Balladur (1993)
-  et Touraine (2014) ;
-- **revalorisation des salaires portés au compte** — la règle des prix est
-  appliquée sur toute la période, alors qu'elle ne s'impose qu'à partir de 1993.
-  Cela minore le salaire de référence des carrières anciennes ;
+- **régimes en points** — la pension est calculée en points, sur l'historique
+  réel des valeurs d'achat et de service (Agirc depuis 1947, Arrco depuis 1949,
+  Ircantec depuis 1949), avec conversion des points aux fusions. S'y ajoutent
+  depuis peu deux régimes dont le barème n'est pas un prix d'achat mais un
+  NOMBRE DE POINTS par tranche d'assiette : le régime de base des professions
+  libérales (525 points au plafond, 25 sur la seconde tranche) et la
+  complémentaire agricole (100 points pour 1 820 SMIC). Restent au rendement
+  instantané la CNBF, le RCI et le RAFP — pour le RCI et le RAFP faute d'un prix
+  d'achat publié, pour la CNBF parce que sa fiche agrège un régime de base
+  forfaitaire et un complémentaire en points qu'il faudrait scinder d'abord ;
+- **montée en charge des réformes** — cinq paramètres sont désormais lus à la
+  génération : durée requise, âge d'ouverture, âge d'annulation de la décote,
+  coefficient de minoration et nombre d'années retenues au salaire de référence.
+  Restent lus à l'année de liquidation les taux de cotisation et la montée en
+  charge propre à chaque régime spécial ;
+- **revalorisation des salaires portés au compte** — les coefficients annuels
+  suivent désormais les salaires jusqu'en 1986 et les prix depuis 1987, comme
+  l'ont fait les arrêtés. La règle des prix appliquée à toute la période
+  minorait le salaire de référence des carrières commencées avant 1987 ;
 - **carrières longues, pénibilité, invalidité, inaptitude** — non modélisés ;
 - **polypensionnés** — le modèle gère plusieurs régimes simultanés, mais pas les
   règles de coordination interrégimes (proratisation croisée, LURA).
@@ -390,11 +439,11 @@ Un écart de quelques pour cent avec la pension réelle est attendu.
 |---|---|
 | Professions libérales (CNAVPL) | régimes complémentaires des dix sections (CARMF, CARPIMKO, CIPAV…) ; grille des classes de cotisation avant 2004 |
 | Marins (ENIM) | grille des salaires forfaitaires par catégorie et par année |
-| Avocats (CNBF) | barème forfaitaire par tranche d'ancienneté |
+| Avocats (CNBF) | fiche à scinder en base forfaitaire et complémentaire en points ; barème forfaitaire par tranche d'ancienneté |
 | Régimes spéciaux résiduels | paramètres saisis au niveau `estimee`, à certifier auprès de chaque caisse |
-| Non-salariés agricoles | fiche à scinder en base et RCO ; barème de points du régime de base, et valeurs d'achat du point de RCO |
+| Non-salariés agricoles | barème de points du régime de base (23 à 113 points par tranche de revenu, non publié) ; points gratuits de la RCO |
 
-Le catalogue compte **35 régimes**, actuels et disparus. Il est structurellement
+Le catalogue compte **36 régimes**, actuels et disparus. Il est structurellement
 extensible : ajouter un régime consiste à écrire une fiche YAML conforme à
 `data/reference/regimes/_schema.yaml`, sans toucher au moteur.
 
@@ -430,7 +479,7 @@ extensible : ajouter un régime consiste à écrire une fiche YAML conforme à
   `data/derive/calibrations_mortalite.json`, régénérable en supprimant le fichier.
 - La certification des séries est tracée dans `data/derive/certification.json`,
   régénérable par `scripts/verifier_donnees.py --appliquer`.
-- 145 tests couvrent le chargement, la fiabilité, la règle de certification, la
+- 159 tests couvrent le chargement, la fiabilité, la règle de certification, la
   concordance des tables de mortalité observées avec les espérances publiées, les
   propriétés du moteur et le comportement des scénarios : `python -m pytest tests`.
   Aucun test n'accède au réseau : les sources sont simulées.

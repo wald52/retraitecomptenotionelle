@@ -303,6 +303,26 @@ institutions:
           série exploitable. La transcription machine est celle d'OpenFisca
           (openfisca_points), reprise au niveau `haute`.
 
+      - id: agirc_arrco_coefficients
+        titre: Coefficients d'anticipation et plafond des majorations familiales
+        url: https://www.agirc-arrco.fr/storage/2024/10/Coefficients-de-minorations-AA.pdf
+        acces: document
+        statut_integration: saisi
+        cible: data/reference/regimes/complementaires_prive.yaml
+        note: >-
+          Le régime n'applique pas la décote du régime de base : il publie deux
+          tables de coefficients d'anticipation — l'une indexée sur les
+          trimestres manquants (0,99 à 0,78 de un à vingt), l'autre sur l'âge
+          (1 à 0,43 pour dix ans) — et retient la plus avantageuse. Les deux
+          descendent par paliers réguliers : un point de pourcentage par
+          trimestre jusqu'à douze, un point et quart jusqu'à vingt, un point
+          trois quarts au-delà. C'est cette régularité qui est portée dans le
+          moteur, plutôt que quarante lignes de barème.
+          Le plafond en euros de la majoration pour enfants — 2 367 € par an
+          pour les pensions servies depuis le 1er novembre 2025, revalorisé
+          comme la valeur de service du point, opposable aux seuls assurés nés
+          à compter du 2 août 1951 — vient des mêmes publications.
+
   union_retraite:
     nom: Union Retraite / Info-Retraite
     role: >-
@@ -502,6 +522,17 @@ institutions:
         acces: document
         statut_integration: saisi
         cible: data/reference/legislation/reformes.yaml
+        note: >-
+          Portent aussi les quatre tables par génération de
+          `data/reference/legislation/` : durée requise, âge d'ouverture, âge
+          d'annulation de la décote (loi du 9 novembre 2010), coefficient de
+          minoration (article R. 351-27) et nombre d'années retenues au salaire
+          annuel moyen (article R. 351-29). Saisies depuis les textes, donc au
+          niveau `haute` : Légifrance refuse les requêtes automatisées et son
+          API demande une clé, si bien qu'aucun chemin de certification
+          reproductible n'existe. Les deux tables les plus récentes ont été
+          recoupées à la fiche 16 du panorama de la DREES, qui en donne les
+          bornes et le pas.
 
       - id: dila_legi_msa
         titre: Valeur de service du point de la RCO agricole, 2005-2024

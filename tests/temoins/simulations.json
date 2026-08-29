@@ -69,6 +69,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -219,6 +220,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -662,6 +664,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -812,6 +815,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -962,6 +966,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -1105,6 +1110,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -1255,6 +1261,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -1405,6 +1412,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -1555,6 +1563,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -1576,8 +1585,8 @@
        "regime": "arrco"
       },
       {
-       "detail": "SR 19,278 € × taux 50.00% × 152/152",
-       "montant": 9638.879069470497,
+       "detail": "SR 22,250 € × taux 50.00% × 152/152",
+       "montant": 11125.101106028125,
        "regime": "regime_general"
       },
       {
@@ -1586,24 +1595,24 @@
        "regime": "unirs"
       }
      ],
-     "pension_annuelle": 12488.41543621035,
-     "pension_annuelle_euros_constants": 20410.716698676093,
-     "pension_mensuelle": 1040.7012863508626,
-     "taux_remplacement": 0.48036903847930634,
-     "total_contributif": 12488.41543621035
+     "pension_annuelle": 13974.63747276798,
+     "pension_annuelle_euros_constants": 22839.756403068917,
+     "pension_mensuelle": 1164.5531227306649,
+     "taux_remplacement": 0.5375368236410555,
+     "total_contributif": 13974.63747276798
     },
     "notionnel_prospectif": {
-     "capital_droits_acquis": 319532.9744356567,
-     "capital_notionnel": 319532.9744356567,
+     "capital_droits_acquis": 357559.97237136815,
+     "capital_notionnel": 357559.97237136815,
      "cotisations_versees": 0,
      "droits_acquis": null,
      "fiabilite": "estimee",
-     "pension_annuelle": 12488.41543621035,
-     "pension_annuelle_euros_constants": 20410.716698676093,
-     "pension_mensuelle": 1040.7012863508626,
+     "pension_annuelle": 13974.63747276798,
+     "pension_annuelle_euros_constants": 22839.756403068917,
+     "pension_mensuelle": 1164.5531227306649,
      "rendement_cumule": 0.0,
      "rente_capitalisation": 0.0,
-     "taux_remplacement": 0.48036903847930634,
+     "taux_remplacement": 0.5375368236410555,
      "variation_vs_actuel": 0.0
     },
     "notionnel_retroactif": {
@@ -1618,7 +1627,7 @@
      "rendement_cumule": 1.1907387113894496,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.1027460719477891,
-     "variation_vs_actuel": -0.7861101284274064
+     "variation_vs_actuel": -0.808857612299323
     }
    },
    "unite": {
@@ -1698,6 +1707,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -1713,7 +1723,7 @@
      "avantages_appliques": [
       {
        "code": "majoration_enfants",
-       "detail": "jusqu'à 10% selon le régime",
+       "detail": "jusqu'à 10% selon le régime, plafonnée en euros à la complémentaire",
        "libelle": "Majoration pour trois enfants et plus",
        "montant": 3936.423877313022
       }
@@ -1855,6 +1865,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -2005,6 +2016,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -2155,6 +2167,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -2305,6 +2318,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -2326,8 +2340,8 @@
        "regime": "arrco"
       },
       {
-       "detail": "SR 18,677 € × taux 50.00% × 160/160",
-       "montant": 9338.65080746297,
+       "detail": "SR 21,815 € × taux 50.00% × 160/160",
+       "montant": 10907.646887840157,
        "regime": "regime_general"
       },
       {
@@ -2336,24 +2350,24 @@
        "regime": "unirs"
       }
      ],
-     "pension_annuelle": 12172.742695599125,
-     "pension_annuelle_euros_constants": 20271.597328277858,
-     "pension_mensuelle": 1014.3952246332605,
-     "taux_remplacement": 0.473278797814749,
-     "total_contributif": 12172.742695599125
+     "pension_annuelle": 13741.738775976313,
+     "pension_annuelle_euros_constants": 22884.488896465828,
+     "pension_mensuelle": 1145.1448979980262,
+     "taux_remplacement": 0.5342816956222772,
+     "total_contributif": 13741.738775976313
     },
     "notionnel_prospectif": {
-     "capital_droits_acquis": 257781.81938343667,
-     "capital_notionnel": 257781.81938343667,
+     "capital_droits_acquis": 291008.4039190104,
+     "capital_notionnel": 291008.4039190104,
      "cotisations_versees": 0,
      "droits_acquis": null,
      "fiabilite": "estimee",
-     "pension_annuelle": 12172.742695599125,
-     "pension_annuelle_euros_constants": 20271.597328277858,
-     "pension_mensuelle": 1014.3952246332605,
+     "pension_annuelle": 13741.738775976313,
+     "pension_annuelle_euros_constants": 22884.488896465828,
+     "pension_mensuelle": 1145.1448979980262,
      "rendement_cumule": 0.0,
      "rente_capitalisation": 0.0,
-     "taux_remplacement": 0.473278797814749,
+     "taux_remplacement": 0.5342816956222772,
      "variation_vs_actuel": 0.0
     },
     "notionnel_retroactif": {
@@ -2368,7 +2382,7 @@
      "rendement_cumule": 1.1996337094207148,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.11716952578458324,
-     "variation_vs_actuel": -0.7524302243717966
+     "variation_vs_actuel": -0.7806970990310345
     }
    },
    "unite": {
@@ -2448,6 +2462,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -2469,29 +2484,29 @@
        "regime": "arrco"
       },
       {
-       "detail": "SR 25,051 € × taux 55.62% × 157/157",
-       "montant": 13934.578338955795,
+       "detail": "SR 26,963 € × taux 55.62% × 157/157",
+       "montant": 14998.419413409829,
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 23326.502864508882,
-     "pension_annuelle_euros_constants": 33264.6684126289,
-     "pension_mensuelle": 1943.8752387090735,
-     "taux_remplacement": 0.7225634374375581,
-     "total_contributif": 23326.502864508882
+     "pension_annuelle": 24390.343938962917,
+     "pension_annuelle_euros_constants": 34781.75482678193,
+     "pension_mensuelle": 2032.5286615802431,
+     "taux_remplacement": 0.7555170553934812,
+     "total_contributif": 24390.343938962917
     },
     "notionnel_prospectif": {
-     "capital_droits_acquis": 546067.0232153852,
-     "capital_notionnel": 546067.0232153852,
+     "capital_droits_acquis": 570971.2504832131,
+     "capital_notionnel": 570971.2504832131,
      "cotisations_versees": 0,
      "droits_acquis": null,
      "fiabilite": "moyenne",
-     "pension_annuelle": 23326.502864508882,
-     "pension_annuelle_euros_constants": 33264.6684126289,
-     "pension_mensuelle": 1943.8752387090735,
+     "pension_annuelle": 24390.343938962917,
+     "pension_annuelle_euros_constants": 34781.75482678193,
+     "pension_mensuelle": 2032.5286615802431,
      "rendement_cumule": 0.0,
      "rente_capitalisation": 0.0,
-     "taux_remplacement": 0.7225634374375581,
+     "taux_remplacement": 0.7555170553934812,
      "variation_vs_actuel": 0.0
     },
     "notionnel_retroactif": {
@@ -2506,7 +2521,7 @@
      "rendement_cumule": 1.1641360994556293,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.1680942257770961,
-     "variation_vs_actuel": -0.7673640582019868
+     "variation_vs_actuel": -0.7775110110657253
     }
    },
    "unite": {
@@ -2586,6 +2601,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -2724,6 +2740,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -2867,6 +2884,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -3017,6 +3035,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -3167,6 +3186,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -3317,6 +3337,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -3462,6 +3483,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -3600,6 +3622,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -3750,6 +3773,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -3900,6 +3924,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -4050,6 +4075,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -4200,6 +4226,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -4350,6 +4377,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -4362,37 +4390,30 @@
    },
    "scenarios": {
     "actuel": {
-     "avantages_appliques": [
-      {
-       "code": "minimum_contributif",
-       "detail": "portée au plancher, au prorata de la durée acquise",
-       "libelle": "Minimum contributif",
-       "montant": 782.6184462398978
-      }
-     ],
-     "minimum_applique": true,
+     "avantages_appliques": [],
+     "minimum_applique": false,
      "par_regime": [
       {
        "detail": "1,163 points × valeur de service 1.4894 € + cotisations revalorisées 5,236 € × rendement 5.81%",
-       "montant": 2036.6623959659073,
+       "montant": 875.7648302653402,
        "regime": "agirc_arrco"
       },
       {
        "detail": "2,837 points × valeur de service 1.4746 €",
-       "montant": 2175.091393945453,
+       "montant": 1798.6332680702785,
        "regime": "arrco"
       },
       {
-       "detail": "SR 40,105 € × taux 20.00% × 124/172",
-       "montant": 5782.571484574056,
+       "detail": "SR 40,105 € × taux 37.50% × 124/172",
+       "montant": 10842.321533576358,
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 10776.943720725314,
-     "pension_annuelle_euros_constants": 10591.590880319718,
-     "pension_mensuelle": 898.0786433937761,
-     "taux_remplacement": 0.19819407456989968,
-     "total_contributif": 9994.325274485416
+     "pension_annuelle": 13516.719631911976,
+     "pension_annuelle_euros_constants": 13284.245338488427,
+     "pension_mensuelle": 1126.3933026593313,
+     "taux_remplacement": 0.24858009915331455,
+     "total_contributif": 13516.719631911976
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 428219.5294334086,
@@ -4413,7 +4434,7 @@
      "rendement_cumule": 1.01,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.22684548686277667,
-     "variation_vs_actuel": 0.14456240609136928
+     "variation_vs_actuel": -0.08743504554293713
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -4427,7 +4448,7 @@
      "rendement_cumule": 1.0490256529637225,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.12390095153387243,
-     "variation_vs_actuel": -0.37485037429726653
+     "variation_vs_actuel": -0.5015652823540989
     }
    },
    "unite": {
@@ -4507,6 +4528,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -4524,25 +4546,25 @@
      "par_regime": [
       {
        "detail": "1,001 points × valeur de service 1.6244 € + cotisations revalorisées 32,069 € × rendement 5.81%",
-       "montant": 3489.341314451602,
+       "montant": 1500.416765214189,
        "regime": "agirc_arrco"
       },
       {
        "detail": "2,730 points × valeur de service 1.6083 €",
-       "montant": 3160.653643836608,
+       "montant": 2502.1841347039817,
        "regime": "arrco"
       },
       {
-       "detail": "SR 46,744 € × taux 32.50% × 144/172",
-       "montant": 12718.806208037502,
+       "detail": "SR 46,744 € × taux 37.50% × 144/172",
+       "montant": 14675.54562465866,
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 19368.801166325713,
-     "pension_annuelle_euros_constants": 17454.050712608034,
-     "pension_mensuelle": 1614.0667638604762,
-     "taux_remplacement": 0.31102023087255265,
-     "total_contributif": 19368.801166325713
+     "pension_annuelle": 18678.14652457683,
+     "pension_annuelle_euros_constants": 16831.67243330899,
+     "pension_mensuelle": 1556.5122103814026,
+     "taux_remplacement": 0.29992984049240884,
+     "total_contributif": 18678.14652457683
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 427641.1008900721,
@@ -4563,7 +4585,7 @@
      "rendement_cumule": 1.0342949494755531,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.26325864777828,
-     "variation_vs_actuel": -0.15356423265547647
+     "variation_vs_actuel": -0.12226590276554017
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -4577,7 +4599,7 @@
      "rendement_cumule": 1.0846290887261025,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.16091624486917483,
-     "variation_vs_actuel": -0.48261807787316
+     "variation_vs_actuel": -0.46348704548706754
     }
    },
    "unite": {
@@ -4657,6 +4679,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -4674,12 +4697,12 @@
      "par_regime": [
       {
        "detail": "954 points × valeur de service 1.7111 € + cotisations revalorisées 49,153 € × rendement 5.81%",
-       "montant": 4487.524301572519,
+       "montant": 3724.6451703051907,
        "regime": "agirc_arrco"
       },
       {
        "detail": "2,679 points × valeur de service 1.6942 €",
-       "montant": 3812.2872806821597,
+       "montant": 3766.9029082930865,
        "regime": "arrco"
       },
       {
@@ -4688,11 +4711,11 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 26810.50023047281,
-     "pension_annuelle_euros_constants": 22934.81049730026,
-     "pension_mensuelle": 2234.208352539401,
-     "taux_remplacement": 0.39686730683986,
-     "total_contributif": 26810.50023047281
+     "pension_annuelle": 26002.23672681641,
+     "pension_annuelle_euros_constants": 22243.388474999683,
+     "pension_mensuelle": 2166.853060568034,
+     "taux_remplacement": 0.38490283929335467,
+     "total_contributif": 26002.23672681641
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 428875.6946335101,
@@ -4713,7 +4736,7 @@
      "rendement_cumule": 1.0484269544840445,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.2896971016079448,
-     "variation_vs_actuel": -0.27004039734409124
+     "variation_vs_actuel": -0.2473500529645315
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -4727,7 +4750,7 @@
      "rendement_cumule": 1.1032147246358865,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.18686533508336423,
-     "variation_vs_actuel": -0.5291490836790789
+     "variation_vs_actuel": -0.5145129731273705
     }
    },
    "unite": {
@@ -4807,6 +4830,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -4824,7 +4848,7 @@
      "par_regime": [
       {
        "detail": "932 points × valeur de service 1.7715 € + cotisations revalorisées 61,351 € × rendement 5.81%",
-       "montant": 5216.280814682681,
+       "montant": 4798.9783495080665,
        "regime": "agirc_arrco"
       },
       {
@@ -4838,11 +4862,11 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 32669.42075012509,
-     "pension_annuelle_euros_constants": 26993.726129933206,
-     "pension_mensuelle": 2722.451729177091,
-     "taux_remplacement": 0.4580555820965004,
-     "total_contributif": 32669.42075012509
+     "pension_annuelle": 32252.118284950477,
+     "pension_annuelle_euros_constants": 26648.922083836787,
+     "pension_mensuelle": 2687.676523745873,
+     "taux_remplacement": 0.45220461445743904,
+     "total_contributif": 32252.118284950477
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 430342.1525949144,
@@ -4863,7 +4887,7 @@
      "rendement_cumule": 1.057674609497272,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.30972377823314573,
-     "variation_vs_actuel": -0.3238292680212441
+     "variation_vs_actuel": -0.31508045621171654
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -4877,7 +4901,7 @@
      "rendement_cumule": 1.1147312814982109,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.2061566897781818,
-     "variation_vs_actuel": -0.5499308428147265
+     "variation_vs_actuel": -0.5441075053479247
     }
    },
    "unite": {
@@ -4957,6 +4981,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -5107,6 +5132,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -5257,6 +5283,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -5407,6 +5434,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -5550,6 +5578,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -5700,6 +5729,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -5845,6 +5875,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -5995,6 +6026,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -6145,6 +6177,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -6295,6 +6328,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -6445,6 +6479,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -6595,6 +6630,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -6619,7 +6655,7 @@
      "par_regime": [
       {
        "detail": "183 points × valeur de service 1.8341 € + cotisations revalorisées 13,682 € × rendement 5.81%",
-       "montant": 1129.9032046509274,
+       "montant": 994.314820092816,
        "regime": "agirc_arrco"
       },
       {
@@ -6633,11 +6669,11 @@
        "regime": "regime_general"
       }
      ],
-     "pension_annuelle": 10911.278794268052,
-     "pension_annuelle_euros_constants": 8708.19649208855,
-     "pension_mensuelle": 909.2732328556709,
-     "taux_remplacement": 0.7245339521893736,
-     "total_contributif": 6006.5605162937445
+     "pension_annuelle": 10775.690409709941,
+     "pension_annuelle_euros_constants": 8599.984584296664,
+     "pension_mensuelle": 897.9742008091617,
+     "taux_remplacement": 0.7155305722934747,
+     "total_contributif": 5870.972131735634
     },
     "notionnel_prospectif": {
      "capital_droits_acquis": 68262.70347168959,
@@ -6658,7 +6694,7 @@
      "rendement_cumule": 1.066788111639174,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.28516253439495487,
-     "variation_vs_actuel": -0.6064193630495025
+     "variation_vs_actuel": -0.6014670156148192
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
@@ -6672,7 +6708,7 @@
      "rendement_cumule": 1.1256616815700797,
      "rente_capitalisation": 0.0,
      "taux_remplacement": 0.2273348819036044,
-     "variation_vs_actuel": -0.6862329484813636
+     "variation_vs_actuel": -0.6822848796314421
     }
    },
    "unite": {
@@ -6752,6 +6788,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -6902,6 +6939,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -7052,6 +7090,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -7202,6 +7241,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -7352,6 +7392,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -7492,6 +7533,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -7642,6 +7684,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -7792,6 +7835,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -7942,6 +7986,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -8097,6 +8142,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -8237,6 +8283,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -8377,6 +8424,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -8532,6 +8580,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -8677,6 +8726,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -8696,48 +8746,53 @@
        "detail": "cotisations revalorisées 338,287 € × rendement 6.00%",
        "montant": 20297.228367250427,
        "regime": "msa_non_salaries"
+      },
+      {
+       "detail": "6,882 points × valeur de service 0.4935 €",
+       "montant": 3396.552719309427,
+       "regime": "msa_rco"
       }
      ],
-     "pension_annuelle": 20297.228367250427,
-     "pension_annuelle_euros_constants": 16199.041028963758,
-     "pension_mensuelle": 1691.435697270869,
-     "taux_remplacement": 0.26955650872269227,
-     "total_contributif": 20297.228367250427
+     "pension_annuelle": 23693.781086559855,
+     "pension_annuelle_euros_constants": 18909.800146494705,
+     "pension_mensuelle": 1974.4817572133213,
+     "taux_remplacement": 0.31466428778216604,
+     "total_contributif": 23693.781086559855
     },
     "notionnel_prospectif": {
-     "capital_droits_acquis": 233962.70440596988,
-     "capital_notionnel": 446928.73349978164,
+     "capital_droits_acquis": 272469.2431121694,
+     "capital_notionnel": 485435.27220598113,
      "cotisations_versees": 199632.9231365155,
      "droits_acquis": {
       "age_conversion": 67.0,
-      "capital": 233962.70440596988,
-      "capital_a_la_bascule": 205574.27798615655,
+      "capital": 272469.2431121694,
+      "capital_a_la_bascule": 239408.53337473024,
       "coefficient_revalorisation": 1.1380932804332895,
       "diviseur": 22.02896520100794,
-      "pension_figee": 9331.998852889852
+      "pension_figee": 10867.8973882884
      },
      "fiabilite": "estimee",
-     "pension_annuelle": 17313.656821808865,
-     "pension_annuelle_euros_constants": 13817.87858633988,
-     "pension_mensuelle": 1442.8047351507387,
+     "pension_annuelle": 18805.368914996903,
+     "pension_annuelle_euros_constants": 15008.401004659003,
+     "pension_mensuelle": 1567.1140762497419,
      "rendement_cumule": 1.066788111639174,
      "rente_capitalisation": 0.0,
-     "taux_remplacement": 0.2299333092019519,
-     "variation_vs_actuel": -0.14699403738569317
+     "taux_remplacement": 0.24974393046430987,
+     "variation_vs_actuel": -0.2063162546199041
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
-     "capital_notionnel": 361781.1773080696,
-     "cotisations_versees": 325760.85372159735,
+     "capital_notionnel": 393477.4302779062,
+     "cotisations_versees": 352818.07215728506,
      "droits_acquis": null,
      "fiabilite": "estimee",
-     "pension_annuelle": 14015.109521941182,
-     "pension_annuelle_euros_constants": 11185.336739752154,
-     "pension_mensuelle": 1167.9257934950986,
-     "rendement_cumule": 1.11057290394154,
+     "pension_annuelle": 15242.99666663124,
+     "pension_annuelle_euros_constants": 12165.302766437102,
+     "pension_mensuelle": 1270.2497222192699,
+     "rendement_cumule": 1.1152417104713823,
      "rente_capitalisation": 0.0,
-     "taux_remplacement": 0.18612708709511336,
-     "variation_vs_actuel": -0.309506240539001
+     "taux_remplacement": 0.20243399195125475,
+     "variation_vs_actuel": -0.356666772139727
     }
    },
    "unite": {
@@ -8817,6 +8872,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -8962,6 +9018,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -9107,6 +9164,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -9247,6 +9305,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -9397,6 +9456,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -9542,6 +9602,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -9692,6 +9753,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -9842,6 +9904,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -9858,51 +9921,51 @@
      "minimum_applique": false,
      "par_regime": [
       {
-       "detail": "cotisations revalorisées 204,102 € × rendement 6.20%",
-       "montant": 12654.31087635423,
+       "detail": "15,982 points × valeur de service 0.8338 € + cotisations revalorisées 19,512 € × rendement 6.20%",
+       "montant": 14535.287509408681,
        "regime": "cnavpl"
       }
      ],
-     "pension_annuelle": 12654.31087635423,
-     "pension_annuelle_euros_constants": 10099.295202790943,
-     "pension_mensuelle": 1054.5259063628525,
-     "taux_remplacement": 0.16805505650344701,
-     "total_contributif": 12654.31087635423
+     "pension_annuelle": 14535.287509408681,
+     "pension_annuelle_euros_constants": 11600.48625715847,
+     "pension_mensuelle": 1211.2739591173902,
+     "taux_remplacement": 0.19303528951955748,
+     "total_contributif": 14535.287509408681
     },
     "notionnel_prospectif": {
-     "capital_droits_acquis": 149243.89808276124,
-     "capital_notionnel": 362209.92717657296,
+     "capital_droits_acquis": 176578.90650744736,
+     "capital_notionnel": 389544.9356012591,
      "cotisations_versees": 199632.9231365155,
      "droits_acquis": {
       "age_conversion": 67.0,
-      "capital": 149243.89808276124,
-      "capital_a_la_bascule": 131135.03141494852,
+      "capital": 176578.90650744736,
+      "capital_a_la_bascule": 155153.28096851698,
       "coefficient_revalorisation": 1.1380932804332895,
       "diviseur": 22.02896520100794,
-      "pension_figee": 5952.845729174261
+      "pension_figee": 7043.148852103953
      },
      "fiabilite": "estimee",
-     "pension_annuelle": 14031.718944270182,
-     "pension_annuelle_euros_constants": 11198.592574928596,
-     "pension_mensuelle": 1169.3099120225152,
+     "pension_annuelle": 15090.655010833245,
+     "pension_annuelle_euros_constants": 12043.72021890693,
+     "pension_mensuelle": 1257.5545842361037,
      "rendement_cumule": 1.066788111639174,
      "rente_capitalisation": 0.0,
-     "taux_remplacement": 0.1863476678470218,
-     "variation_vs_actuel": 0.10884891965865706
+     "taux_remplacement": 0.20041082484060632,
+     "variation_vs_actuel": 0.03820822264885204
     },
     "notionnel_retroactif": {
      "capital_droits_acquis": 0.0,
-     "capital_notionnel": 304200.2734333054,
-     "cotisations_versees": 276628.9234690111,
+     "capital_notionnel": 297983.1844187878,
+     "cotisations_versees": 271364.04012048274,
      "droits_acquis": null,
      "fiabilite": "estimee",
-     "pension_annuelle": 11784.471985234853,
-     "pension_annuelle_euros_constants": 9405.084366174146,
-     "pension_mensuelle": 982.0393321029045,
-     "rendement_cumule": 1.099669078773619,
+     "pension_annuelle": 11543.626996851379,
+     "pension_annuelle_euros_constants": 9212.868080391048,
+     "pension_mensuelle": 961.9689164042816,
+     "rendement_cumule": 1.0980938531372337,
      "rente_capitalisation": 0.0,
-     "taux_remplacement": 0.1565031967914247,
-     "variation_vs_actuel": -0.06873854290593984
+     "taux_remplacement": 0.15330466480285243,
+     "variation_vs_actuel": -0.20582052543651463
     }
    },
    "unite": {
@@ -9982,6 +10045,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -10132,6 +10196,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -10287,6 +10352,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -10437,6 +10503,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -10571,6 +10638,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",
@@ -10721,6 +10789,7 @@
      "ircantec",
      "marins",
      "msa_non_salaries",
+     "msa_rco",
      "msa_salaries",
      "opera_de_paris",
      "port_strasbourg",

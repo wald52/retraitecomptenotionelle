@@ -211,6 +211,15 @@ class ConstructeurCompte:
                     base = base_ligne
 
                 assiette = self._assiette(base, annee, borne_basse, borne_haute)
+                repere = periode.repere_assiette(
+                    self.macro.plafond_securite_sociale(annee),
+                    self.macro.smic_horaire(annee),
+                )
+                if periode.assiette_plancher and assiette < repere:
+                    # Assiette minimale : la complémentaire agricole prélève sur
+                    # 1 820 SMIC même quand le revenu est en dessous. Ce qui a
+                    # été prélevé ouvre des droits, ici comme dans le scénario 1.
+                    assiette = repere
                 if assiette <= 0:
                     continue
 

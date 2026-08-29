@@ -38,6 +38,9 @@ regimes:
         age_taux_plein: 65
         duree_requise_trimestres: 160
         taux_plein: 0.50
+        age_taux_plein_par_generation: true
+        decote_par_generation: true
+        salaire_reference_par_generation: true
         salaire_reference: 25_meilleures_annees
         assiette: plafonnee
         taux_cotisation_retraite: 0.1655
@@ -83,6 +86,9 @@ regimes:
         age_taux_plein: 65
         duree_requise_trimestres: 160
         taux_plein: 0.50
+        age_taux_plein_par_generation: true
+        decote_par_generation: true
+        salaire_reference_par_generation: true
         salaire_reference: 25_meilleures_annees
         assiette: plafonnee
         taux_cotisation_retraite: 0.1655
@@ -113,6 +119,9 @@ regimes:
         duree_requise_trimestres: 172
         duree_requise_par_generation: true
         taux_plein: 0.50
+        age_taux_plein_par_generation: true
+        decote_par_generation: true
+        salaire_reference_par_generation: true
         salaire_reference: 25_meilleures_annees
         assiette: plafonnee
         taux_cotisation_retraite: 0.1775
@@ -190,35 +199,104 @@ regimes:
           notionnel exige la grille des classes par année et par section
           (non encore intégrée — voir data/reference/regimes/TODO_liberaux.md).
       - debut: 2004
-        fin: null
+        fin: 2014
         type_calcul: points
         age_ouverture: 62
+        age_ouverture_par_generation: true
         age_taux_plein: 67
+        age_taux_plein_par_generation: true
         duree_requise_trimestres: 172
+        duree_requise_par_generation: true
         taux_plein: 1.0
+        decote_par_generation: true
+        points_maximum: 450
         salaire_reference: carriere_entiere
-        assiette: plafonnee
-        taux_cotisation_retraite: 0.1015
+        assiette: plafonnee_085_pass
+        taux_cotisation_retraite: 0.0823
         decote_par_trimestre: 0.0125
         surcote_par_trimestre: 0.0075
         avantages_non_contributifs: [minimum_vieillesse, reversion]
         notes: >-
           Réforme du 21 août 2003 : régime de base unique en points,
-          proportionnel au revenu, sur deux tranches. Les taux de 8,23 % et de
-          1,87 % sont ceux que la CNAVPL publie dans ses recueils statistiques,
-          et sont versés certifiés dans valeurs_point.csv avec la valeur de
-          service du point (0,5731 € en 2021, 0,6540 € en 2025). Attention, ils
-          ne valent que depuis 2015 : le plafond de la première tranche est
-          alors passé de 0,85 à 1 PASS, celui de la seconde de 0,85-5 à 0-5
-          PASS, et le nombre maximal de points de 450 à 525 sur T1 comme de 100
-          à 25 sur T2. La période n'est pas encore scindée à cette date, et le
-          taux agrégé de 10,15 % vaut pour toute la période 2004-. Le
-          plafonnement en points — 525 et 25 depuis 2015, source recueil
-          statistique — est ce qui manque au moteur pour convertir une
-          cotisation en droits ; il se lit dans un tableau que
-          scripts/fetch/cnavpl_recueils.py ne relit pas de façon sûre.
-          Chaque section gère en outre un régime complémentaire obligatoire aux
-          paramètres propres.
+          proportionnel au revenu, sur DEUX TRANCHES — d'où deux fiches par
+          période, qui se cumulent comme le fait la cotisation elle-même.
+          PREMIÈRE TRANCHE avant 2015 : 0 à 0,85 plafond, 450 points au maximum.
+          Le régime n'attribue pas un nombre de points proportionnel à la
+          cotisation mais un nombre PLAFONNÉ de points par tranche : c'est un
+          barème en points, et c'est lui — et non un prix d'achat, que la caisse
+          ne publie pas — qui convertit ici le revenu en droits.
+          Les taux de 8,23 % et 1,87 % sont ceux que la CNAVPL publie dans ses
+          recueils statistiques, versés certifiés dans valeurs_point.csv avec la
+          valeur de service du point (0,5731 € en 2021, 0,6540 € en 2025). Ils
+          ne sont publiés que depuis 2021 et sont repris ici pour 2004-2014
+          faute de série antérieure : cela ne déplace pas les points acquis, qui
+          ne dépendent pas du taux, mais seulement le flux versé au compte
+          notionnel.
+      - debut: 2004
+        fin: 2014
+        type_calcul: points
+        age_ouverture: 62
+        age_ouverture_par_generation: true
+        age_taux_plein: 67
+        age_taux_plein_par_generation: true
+        duree_requise_trimestres: 172
+        duree_requise_par_generation: true
+        taux_plein: 1.0
+        decote_par_generation: true
+        points_maximum: 100
+        salaire_reference: carriere_entiere
+        assiette: tranche_085_5_pass
+        taux_cotisation_retraite: 0.0187
+        decote_par_trimestre: 0.0125
+        surcote_par_trimestre: 0.0075
+        avantages_non_contributifs: [minimum_vieillesse, reversion]
+        notes: >-
+          Seconde tranche avant 2015 : 0,85 à 5 plafonds, 100 points au maximum.
+      - debut: 2015
+        fin: null
+        type_calcul: points
+        age_ouverture: 62
+        age_ouverture_par_generation: true
+        age_taux_plein: 67
+        age_taux_plein_par_generation: true
+        duree_requise_trimestres: 172
+        duree_requise_par_generation: true
+        taux_plein: 1.0
+        decote_par_generation: true
+        points_maximum: 525
+        salaire_reference: carriere_entiere
+        assiette: plafonnee
+        taux_cotisation_retraite: 0.0823
+        decote_par_trimestre: 0.0125
+        surcote_par_trimestre: 0.0075
+        avantages_non_contributifs: [minimum_vieillesse, reversion]
+        notes: >-
+          Depuis 2015 : première tranche de 0 à 1 plafond, 525 points au
+          maximum. Chaque section professionnelle gère en outre un régime
+          complémentaire obligatoire aux paramètres propres, non paramétré ici :
+          la simulation d'un libéral reste incomplète de ce côté.
+      - debut: 2015
+        fin: null
+        type_calcul: points
+        age_ouverture: 62
+        age_ouverture_par_generation: true
+        age_taux_plein: 67
+        age_taux_plein_par_generation: true
+        duree_requise_trimestres: 172
+        duree_requise_par_generation: true
+        taux_plein: 1.0
+        decote_par_generation: true
+        points_maximum: 25
+        salaire_reference: carriere_entiere
+        assiette: plafonnee_5_pass
+        taux_cotisation_retraite: 0.0187
+        decote_par_trimestre: 0.0125
+        surcote_par_trimestre: 0.0075
+        avantages_non_contributifs: [minimum_vieillesse, reversion]
+        notes: >-
+          Seconde tranche depuis 2015 : 0 à 5 plafonds, 25 points au maximum.
+          Elle part de zéro et recouvre donc la première — c'est bien la règle
+          du régime, les deux cotisations se cumulant sous le plafond.
 
   - code: cnbf
     nom: Caisse nationale des barreaux français
@@ -289,6 +367,9 @@ regimes:
         age_taux_plein: 67
         duree_requise_trimestres: 172
         taux_plein: 0.50
+        age_taux_plein_par_generation: true
+        decote_par_generation: true
+        salaire_reference_par_generation: true
         salaire_reference: 25_meilleures_annees
         assiette: plafonnee
         taux_cotisation_retraite: 0.1787
@@ -347,22 +428,68 @@ regimes:
           [minimum_vieillesse, pension_majoree_reference, reversion]
         notes: >-
           Loi du 4 mars 2002 créant la retraite complémentaire obligatoire (RCO)
-          des non-salariés agricoles, en points. Garantie « 85 % du SMIC » :
-          droit non contributif, neutralisé dans les scénarios notionnels.
-          La valeur de service du point de RCO est désormais sourcée et
-          certifiée de 2005 à 2024, depuis l'article D. 732-166 du code rural
-          (base LEGI de la DILA) : elle est rangée sous le code msa_rco, que le
-          catalogue ne connaît pas, parce que cette fiche agrège les deux
-          étages et que tout verser dans le complémentaire ferait disparaître la
-          base. Le régime reste donc calculé au rendement instantané, faute des
-          deux pièces qui manquent encore. La première est la valeur d'ACHAT du
-          point de RCO : contrairement à ce qui a d'abord été écrit ici, elle
-          existe — l'article L. 732-60 la mentionne expressément — mais elle est
-          fixée par arrêté triennal, qui ne modifie pas le code. La seconde est
-          le barème du régime de base, dont la retraite proportionnelle attribue
-          de 23 à 113 points par tranche de revenu, sans série publiée ; la
-          valeur de son point n'est entrée dans le code qu'en 2025 (R. 732-66,
-          4,589 € au 1er janvier 2025 ; le COR donne 4,264 € pour 2023). S'y
-          ajoutent des points gratuits — 66 par an aux conjoints et aides
-          familiaux pour les périodes antérieures à 2011, dans la limite de
-          17 années. Voir docs/limites.md §1.
+          des non-salariés agricoles, en points. Cette fiche ne porte plus que
+          l'étage de BASE : la RCO a désormais la sienne (`msa_rco`), et le taux
+          de 17,37 % qui figure ici n'a jamais compris les 4 % de la RCO, qui
+          s'y ajoutent. Garantie « 85 % du SMIC » : droit non contributif,
+          neutralisé dans les scénarios notionnels.
+          Ce qui reste hors du modèle est le barème du régime de base, dont la
+          retraite proportionnelle attribue de 23 à 113 points par tranche de
+          revenu, sans série publiée ; la valeur de son point n'est entrée dans
+          le code qu'en 2025 (R. 732-66, 4,589 € au 1er janvier 2025 ; le COR
+          donne 4,264 € pour 2023). La part proportionnelle de la base reste
+          donc au rendement instantané. Voir docs/limites.md §1.
+
+  - code: msa_rco
+    nom: Retraite complémentaire obligatoire des non-salariés agricoles (RCO)
+    famille: agricole
+    source_id: dila_legi_msa
+    fiabilite: haute
+    creation: 2003
+    fermeture: null
+    extinction: null
+    succede_a: []
+    integre_dans: null
+    population: Chefs d'exploitation, conjoints collaborateurs, aides familiaux.
+    hors_repartition: false
+    periodes:
+      - debut: 2003
+        fin: null
+        type_calcul: points
+        age_ouverture: 64
+        age_ouverture_par_generation: true
+        age_taux_plein: 67
+        age_taux_plein_par_generation: true
+        duree_requise_trimestres: 172
+        duree_requise_par_generation: true
+        taux_plein: 1.0
+        points_maximum: 100
+        assiette_repere_smic: 1820
+        assiette_plancher: true
+        salaire_reference: carriere_entiere
+        assiette: deplafonnee
+        taux_cotisation_retraite: 0.04
+        decote_par_trimestre: null
+        surcote_par_trimestre: null
+        avantages_non_contributifs: [pension_majoree_reference, reversion]
+        notes: >-
+          Loi du 4 mars 2002, articles L. 732-56 et suivants du code rural.
+          Étage scindé de la fiche `msa_non_salaries`, qui agrégeait les deux :
+          tout verser dans le complémentaire aurait fait disparaître la base,
+          et c'est ce qui bloquait l'emploi de la série de valeurs de service
+          déjà présente au dépôt, certifiée de 2005 à 2024 depuis l'article
+          D. 732-166 (base LEGI de la DILA).
+          Ce qui débloque le calcul n'est pas un prix d'achat — l'arrêté qui le
+          fixe ne modifie pas le code, et il reste introuvable — mais le BARÈME
+          EN POINTS, qui, lui, est public : cotiser sur l'assiette minimale de
+          1 820 SMIC ouvre 100 points, et les points sont proportionnels
+          au-delà, sans plafond. Le nombre de points ne dépend donc pas du taux
+          de cotisation.
+          Le taux de 4 % est celui en vigueur (assiette minimale 1 820 SMIC pour
+          les chefs d'exploitation, 1 200 pour les aides familiaux). Sa série
+          historique n'est pas sourcée : la RCO a démarré en 2003 à un taux plus
+          bas. Cela ne déplace pas la pension calculée ici, qui ne dépend que du
+          barème en points, mais seulement le flux versé au compte notionnel.
+          Restent hors du modèle les points GRATUITS — 66 par an aux conjoints
+          et aides familiaux pour les périodes antérieures à 2011, dans la
+          limite de dix-sept années.

@@ -8,15 +8,19 @@
  *
  * C'est une approximation documentée, pas un simulateur officiel : régimes en
  * annuités par la formule taux × salaire de référence × durée / durée requise ;
- * régimes en points calculés en points quand le barème est connu, au rendement
- * instantané sinon ; montée en charge des réformes ignorée. Un écart de
- * quelques pour cent avec la pension réelle est attendu — ce que le modèle
- * mesure de façon robuste, ce sont les écarts ENTRE SCÉNARIOS.
+ * régimes en points calculés en points quand le barème est connu — prix d'achat
+ * publié, ou nombre de points par tranche d'assiette —, au rendement instantané
+ * sinon ; montée en charge des réformes lue à la génération pour cinq
+ * paramètres, à l'année de liquidation pour les autres. Un écart de quelques
+ * pour cent avec la pension réelle est attendu — ce que le modèle mesure de
+ * façon robuste, ce sont les écarts ENTRE SCÉNARIOS.
  */
 
 import { formatFixe, formatPourcentage } from "./format.js";
 import {
-  AgesOuverture, DureesRequises, MinimumContributif, Rendements, ValeursPoint,
+  AgesAnnulationDecote, AgesOuverture, AnneesSalaireReference,
+  CoefficientsMinoration, DureesRequises, MinimumContributif, Rendements,
+  ValeursPoint,
 } from "./regimes.js";
 import { Fiabilite } from "./serie.js";
 
@@ -30,6 +34,9 @@ export class ScenarioActuel {
     this.valeursPoint = new ValeursPoint(paquet);
     this.dureesRequises = new DureesRequises(paquet);
     this.agesOuverture = new AgesOuverture(paquet);
+    this.agesAnnulationDecote = new AgesAnnulationDecote(paquet);
+    this.coefficientsMinoration = new CoefficientsMinoration(paquet);
+    this.anneesSalaireReference = new AnneesSalaireReference(paquet);
     this.minimumContributif = new MinimumContributif(paquet, macro);
   }
 
@@ -57,6 +64,18 @@ export class ScenarioActuel {
       }
       if (anneeLiquidation <= derniere) {
         const valeur = this.valeursPoint.service(courant, anneeLiquidation);
+        if (valeur === null) {
+          // Liquidation antérieure au premier barème publié. Symétrique du cas
+          // ci-dessous : la première valeur connue est ramenée en euros de la
+          // liquidation par l'indice des prix, et la fiabilité tombe pour le dire.
+          const premiereConnue = this.valeursPoint.premiereAnneeServie(courant);
+          const ancienne = this.valeursPoint.service(courant, premiereConnue);
+          return [
+            conversion * ancienne[0]
+              * this.macro.coefficientPrix(premiereConnue, anneeLiquidation),
+            Math.min(fiabilite, ancienne[1], Fiabilite.MOYENNE),
+          ];
+        }
         return [conversion * valeur[0], Math.min(fiabilite, valeur[1])];
       }
 
@@ -89,16 +108,18 @@ export class ScenarioActuel {
   /**
    * Salaire de référence, exprimé en euros de l'année de liquidation.
    *
-   * Les salaires portés au compte sont revalorisés sur les prix, règle en
-   * vigueur depuis la réforme de 1993. Avant 1993 ils l'étaient sur les
-   * salaires ; l'approximation retenue applique la règle des prix sur toute la
-   * période, ce qui minore le salaire de référence des carrières anciennes.
+   * Deux règles de droit commandent ce calcul. La REVALORISATION des salaires
+   * portés au compte, d'abord : les arrêtés annuels ont suivi les salaires
+   * jusqu'en 1986 et suivent les prix depuis 1987. Le NOMBRE D'ANNÉES retenues
+   * ensuite, que la loi du 22 juillet 1993 fait passer de dix à vingt-cinq à
+   * raison d'une par génération — lu à l'année de naissance, donc, et non à
+   * celle de la liquidation.
    *
    * Le salaire retenu est celui de l'assiette du régime, et pas la
    * rémunération entière : la pension civile porte sur le seul traitement
    * indiciaire, primes exclues.
    */
-  salaireDeReference(carriere, periode, anneeLiquidation, plafonner) {
+  salaireDeReference(carriere, periode, anneeLiquidation, plafonner, generation = null) {
     const revenus = [];
     for (const ligne of carriere.lignes) {
       if (!ligne.cotise || ligne.annee >= anneeLiquidation) {
@@ -108,7 +129,9 @@ export class ScenarioActuel {
       if (plafonner) {
         revenu = Math.min(revenu, this.macro.plafond_securite_sociale.valeur(ligne.annee));
       }
-      revenus.push(revenu * this.macro.coefficientPrix(ligne.annee, anneeLiquidation));
+      revenus.push(revenu * this.macro.coefficientRevalorisationSalaires(
+        ligne.annee, anneeLiquidation,
+      ));
     }
 
     if (revenus.length === 0) {
@@ -117,10 +140,15 @@ export class ScenarioActuel {
 
     const reference = periode.salaire_reference;
     let retenus;
-    if (reference === "25_meilleures_annees") {
-      retenus = [...revenus].sort((a, b) => b - a).slice(0, 25);
-    } else if (reference === "10_meilleures_annees") {
-      retenus = [...revenus].sort((a, b) => b - a).slice(0, 10);
+    if (reference === "25_meilleures_annees" || reference === "10_meilleures_annees") {
+      let annees = reference === "25_meilleures_annees" ? 25 : 10;
+      if (periode.salaire_reference_par_generation && generation !== null) {
+        const parGeneration = this.anneesSalaireReference.annees(generation);
+        if (parGeneration !== null) {
+          annees = parGeneration[0];
+        }
+      }
+      retenus = [...revenus].sort((a, b) => b - a).slice(0, annees);
     } else if (reference === "derniers_6_mois" || reference === "dernier_salaire") {
       return revenus[revenus.length - 1];
     } else {
@@ -163,14 +191,160 @@ export class ScenarioActuel {
     return periode.age_ouverture;
   }
 
+  /** Âge d'annulation de la décote opposable à cet assuré. */
+  ageTauxPlein(periode, carriere) {
+    if (periode.age_taux_plein_par_generation) {
+      const parGeneration = this.agesAnnulationDecote.age(carriere.annee_naissance);
+      if (parGeneration !== null) {
+        return parGeneration[0];
+      }
+    }
+    return periode.age_taux_plein;
+  }
+
+  /**
+   * Coefficient de minoration opposable à cet assuré dans ce régime.
+   *
+   * @returns {[number|null, number|null]} coefficient et fiabilité.
+   */
+  decote(periode, carriere) {
+    if (periode.decote_par_trimestre === null) {
+      return [null, null];
+    }
+    if (periode.decote_par_generation) {
+      const parGeneration = this.coefficientsMinoration.coefficient(
+        carriere.annee_naissance,
+      );
+      if (parGeneration !== null) {
+        return parGeneration;
+      }
+    }
+    return [periode.decote_par_trimestre, null];
+  }
+
+  /**
+   * Trimestres de décote opposables, plafond compris.
+   *
+   * Le décompte retient le plus favorable des deux : trimestres manquants pour
+   * la durée requise, ou trimestres manquants jusqu'à l'âge d'annulation de la
+   * décote. Et il est PLAFONNÉ — vingt trimestres partout où une décote
+   * s'applique. Sans ce plafond, un départ dix ans avant l'heure retirait la
+   * moitié de la pension là où le droit n'en retire que le quart.
+   */
+  trimestresDeDecote(periode, carriere, trimestres, requis, ageLiquidation) {
+    const manquants = Math.max(0, requis - trimestres);
+    const manquantsAge = Math.max(
+      0.0, (this.ageTauxPlein(periode, carriere) - ageLiquidation) * 4,
+    );
+    let trimestresDecote = Math.min(manquants, manquantsAge);
+    if (periode.decote_trimestres_maximum !== null) {
+      trimestresDecote = Math.min(trimestresDecote, periode.decote_trimestres_maximum);
+    }
+    return trimestresDecote;
+  }
+
+  /**
+   * Abattement d'un régime en points liquidé avant le taux plein.
+   *
+   * « Avant le taux plein » est une condition de DURÉE autant que d'âge : une
+   * complémentaire est servie sans abattement dès que l'assuré a le taux plein
+   * au régime de base. L'Agirc-Arrco, elle, ne reprend pas la décote du régime
+   * de base : elle publie ses propres COEFFICIENTS D'ANTICIPATION, en deux
+   * tables — trimestres manquants, et âge — et retient la plus avantageuse.
+   */
+  abattementPoints(periode, carriere, trimestres, requis, ageLiquidation) {
+    if (periode.abattement_points === "agirc_arrco") {
+      if (trimestres >= requis) {
+        return 1.0;
+      }
+      const parDuree = coefficientAnticipation(requis - trimestres, 20);
+      const ecartAge = Math.max(
+        0.0, (this.ageTauxPlein(periode, carriere) - ageLiquidation) * 4,
+      );
+      let parAge = coefficientAnticipation(ecartAge, 40);
+      if (parAge === null) {
+        parAge = COEFFICIENT_ANTICIPATION_PLANCHER;
+      }
+      const candidats = [parDuree, parAge].filter((c) => c !== null);
+      return candidats.length ? Math.max(...candidats) : 1.0;
+    }
+
+    if (periode.decote_par_trimestre === null) {
+      return 1.0;
+    }
+    const [decote] = this.decote(periode, carriere);
+    const trimestresDecote = this.trimestresDeDecote(
+      periode, carriere, trimestres, requis, ageLiquidation,
+    );
+    return Math.max(0.0, 1.0 - (decote || 0.0) * trimestresDecote);
+  }
+
+  /**
+   * Plafond en euros de la majoration pour enfants, ou ``null``.
+   *
+   * Les régimes de base servent 10 % sans plafond ; l'Agirc-Arrco borne la
+   * majoration en euros — 2 367 € par an depuis le 1er novembre 2025 — et le
+   * plafond suit la valeur de service du point. Il ne s'oppose qu'aux assurés
+   * nés à compter du 2 août 1951 ; le modèle ne connaît que l'année de
+   * naissance et retient les générations à partir de 1952.
+   */
+  plafondMajoration(code, periode, carriere, anneeLiquidation) {
+    if (periode.plafond_majoration_enfants === null
+        || periode.plafond_majoration_enfants === undefined) {
+      return null;
+    }
+    if (carriere.annee_naissance < 1952) {
+      return null;
+    }
+    const plafond = periode.plafond_majoration_enfants;
+    const anneeReference = periode.plafond_majoration_annee;
+    if (anneeReference === null || anneeReference === anneeLiquidation) {
+      return plafond;
+    }
+    const servie = this.valeurDuPoint(code, anneeLiquidation);
+    const publiee = this.valeurDuPoint(code, anneeReference);
+    if (servie === null || publiee === null || publiee[0] <= 0) {
+      return plafond * this.macro.coefficientPrix(anneeReference, anneeLiquidation);
+    }
+    return plafond * servie[0] / publiee[0];
+  }
+
+  /**
+   * Régime auquel sont attribués les trimestres de la MDA : celui, parmi les
+   * régimes en annuités dont la fiche porte l'avantage ``mda``, où l'assuré a
+   * validé le plus de trimestres. Départage par le code, pour que le résultat
+   * ne dépende pas de l'ordre d'une table de hachage.
+   */
+  regimePorteurMda(trimestresParRegime, anneeLiquidation) {
+    const candidats = [];
+    for (const [code, valides] of trimestresParRegime) {
+      if (!this.catalogue.contient(code)) {
+        continue;
+      }
+      const regime = this.catalogue.obtenir(code);
+      const periode = regime.periode(Math.min(anneeLiquidation, derniereAnnee(regime)));
+      if (periode === null || periode.type_calcul !== "annuites") {
+        continue;
+      }
+      if (!periode.avantages_non_contributifs.includes("mda")) {
+        continue;
+      }
+      candidats.push([valides, code]);
+    }
+    if (candidats.length === 0) {
+      return null;
+    }
+    candidats.sort((a, b) => (a[0] - b[0]) || (a[1] < b[1] ? -1 : 1));
+    return candidats[candidats.length - 1][1];
+  }
+
   calculer(carriere, ignorerPenaliteAge = false, avantagesNonContributifs = true) {
     const anneeLiquidation = carriere.anneeLiquidation;
     const ageLiquidation = carriere.age_liquidation || 0.0;
 
     let trimestres = carriere.trimestresActuels;
-    if (avantagesNonContributifs) {
-      trimestres += 8 * carriere.nombre_enfants; // MDA, régime général
-    }
+    const trimestresMda = avantagesNonContributifs ? 8 * carriere.nombre_enfants : 0;
+    trimestres += trimestresMda;
 
     const pensions = [];
     let fiabiliteGlobale = Fiabilite.CERTIFIEE;
@@ -204,6 +378,21 @@ export class ScenarioActuel {
       }
     }
 
+    // Les trimestres de la MDA ne flottent pas au-dessus des régimes : le droit
+    // les attribue DANS un régime, et ils comptent donc aussi dans sa
+    // proratisation, pas seulement dans la décote tous régimes confondus.
+    // Faute de connaître l'année de naissance des enfants, ils vont au régime
+    // de base où l'assuré a validé le plus de trimestres parmi ceux qui portent
+    // la MDA — exact pour une carrière mono-affiliée, approché sinon.
+    if (trimestresMda) {
+      const regimeMda = this.regimePorteurMda(trimestresParRegime, anneeLiquidation);
+      if (regimeMda !== null) {
+        trimestresParRegime.set(
+          regimeMda, trimestresParRegime.get(regimeMda) + trimestresMda,
+        );
+      }
+    }
+
     for (const ligne of carriere.lignes) {
       if (!ligne.cotise && ligne.familles_cotisantes.length === 0) {
         continue;
@@ -230,8 +419,29 @@ export class ScenarioActuel {
             base = baseLigne * (1.0 - ligne.part_primes);
           }
           const plafond = borneHaute === null ? base : borneHaute * pass;
-          const assiette = Math.max(0.0, Math.min(base, plafond) - borneBasse * pass);
+          let assiette = Math.max(0.0, Math.min(base, plafond) - borneBasse * pass);
+          const repere = periode.repereAssiette(
+            pass, this.macro.smic_horaire.valeur(ligne.annee),
+          );
+          if (periode.assiette_plancher && assiette < repere) {
+            // Assiette minimale : la complémentaire agricole cotise sur
+            // 1 820 SMIC même quand le revenu est en dessous.
+            assiette = repere;
+          }
           const cotisation = assiette * periode.taux_cotisation_retraite;
+          if (periode.points_maximum !== null && periode.points_maximum !== undefined
+              && repere > 0) {
+            // Barème écrit en POINTS et non en prix d'achat : le régime annonce
+            // combien de points ouvre une assiette donnée. Le nombre de points
+            // ne dépend alors pas du taux de cotisation, et c'est heureux : ce
+            // sont les barèmes qui sont publiés, pas les prix d'achat.
+            pointsAcquis.set(code,
+              (pointsAcquis.get(code) ?? 0.0) + periode.points_maximum * assiette / repere);
+            fiabilitePoints.set(code, Math.min(
+              fiabilitePoints.get(code) ?? Fiabilite.CERTIFIEE, regime.fiabilite,
+            ));
+            continue;
+          }
           const achat = (periode.type_calcul === "points" || periode.type_calcul === "mixte")
             ? this.valeursPoint.achat(code, ligne.annee)
             : null;
@@ -313,8 +523,8 @@ export class ScenarioActuel {
 
         fiabiliteGlobale = Math.min(fiabiliteGlobale, fiabiliteRegime);
         if (!ignorerPenaliteAge) {
-          montant *= ajustementAgePoints(
-            periode, ageLiquidation, trimestres, requisReference,
+          montant *= this.abattementPoints(
+            periode, carriere, trimestres, requisReference, ageLiquidation,
           );
         }
         pensions.push({
@@ -331,7 +541,7 @@ export class ScenarioActuel {
       const plafonner = ["plafonnee", "tranche_1", "tranche_a"].includes(periode.assiette);
       const indicePension = pensions.length;
       const salaireReference = this.salaireDeReference(
-        carriere, periode, anneeLiquidation, plafonner,
+        carriere, periode, anneeLiquidation, plafonner, carriere.annee_naissance,
       );
       const [requis, fiabiliteDuree] = this.dureeRequise(periode, carriere);
       if (fiabiliteDuree !== null) {
@@ -342,16 +552,17 @@ export class ScenarioActuel {
 
       let taux = periode.taux_plein || 0.5;
       if (!ignorerPenaliteAge) {
-        const manquants = Math.max(0, requis - trimestres);
-        const manquantsAge = Math.max(0.0, (periode.age_taux_plein - ageLiquidation) * 4);
-        // La décote retient le plus favorable des deux décomptes : trimestres
-        // manquants pour la durée requise, ou trimestres manquants jusqu'à
-        // l'âge d'annulation de la décote.
-        const trimestresDecote = Math.min(manquants, manquantsAge);
-        if (periode.decote_par_trimestre && trimestresDecote > 0) {
+        const [decote, fiabiliteDecote] = this.decote(periode, carriere);
+        const trimestresDecote = this.trimestresDeDecote(
+          periode, carriere, trimestres, requis, ageLiquidation,
+        );
+        if (decote && trimestresDecote > 0) {
           // Les régimes sans décote (fonction publique avant 2004, régimes
           // spéciaux avant 2008) ne subissent que la proratisation.
-          taux *= Math.max(0.0, 1.0 - periode.decote_par_trimestre * trimestresDecote);
+          if (fiabiliteDecote !== null) {
+            fiabiliteGlobale = Math.min(fiabiliteGlobale, fiabiliteDecote);
+          }
+          taux *= Math.max(0.0, 1.0 - decote * trimestresDecote);
         }
         // La surcote ne récompense que les trimestres COTISÉS APRÈS l'âge
         // légal ET au-delà de la durée requise.
@@ -417,6 +628,12 @@ export class ScenarioActuel {
     if (avantagesNonContributifs && carriere.nombre_enfants >= 3) {
       let majoration = 0.0;
       let tauxCite = 0.0;
+      // Le plafond de l'Agirc-Arrco s'oppose à la majoration de LA
+      // complémentaire, pas à celle de chacune de ses fiches : les points d'un
+      // salarié du privé sont répartis entre l'Agirc, l'Arrco et le régime
+      // unifié, et plafonner chacun séparément triplerait le plafond.
+      let majorationPlafonnee = 0.0;
+      let plafondCommun = null;
       for (const pension of pensions) {
         const regime = this.catalogue.obtenir(pension.regime);
         const periode = regime.periode(Math.min(anneeLiquidation, derniereAnnee(regime)));
@@ -425,16 +642,33 @@ export class ScenarioActuel {
           continue;
         }
         const taux = tauxMajorationEnfants(regime, carriere.nombre_enfants);
-        majoration += pension.montant * taux;
+        const part = pension.montant * taux;
+        const plafond = this.plafondMajoration(
+          pension.regime, periode, carriere, anneeLiquidation,
+        );
+        if (plafond === null) {
+          majoration += part;
+        } else {
+          majorationPlafonnee += part;
+          plafondCommun = plafondCommun === null ? plafond : Math.max(plafondCommun, plafond);
+        }
         tauxCite = Math.max(tauxCite, taux);
+      }
+      const plafonnee = plafondCommun !== null;
+      if (plafondCommun !== null) {
+        majoration += Math.min(majorationPlafonnee, plafondCommun);
       }
       if (majoration > 0) {
         total += majoration;
+        let detail = `jusqu'à ${formatPourcentage(tauxCite, 0)} selon le régime`;
+        if (plafonnee) {
+          detail += ", plafonnée en euros à la complémentaire";
+        }
         avantages.push({
           code: "majoration_enfants",
           libelle: "Majoration pour trois enfants et plus",
           montant: majoration,
-          detail: `jusqu'à ${formatPourcentage(tauxCite, 0)} selon le régime`,
+          detail,
         });
       }
     }
@@ -490,25 +724,54 @@ function derniereAnnee(regime) {
   return Math.min(Math.max(...annees), 2100);
 }
 
-/** Abattement des régimes en points pour liquidation avant le taux plein. */
-function ajustementAgePoints(periode, ageLiquidation, trimestres, requis) {
-  if (periode.decote_par_trimestre === null) {
+/**
+ * Coefficients d'anticipation de l'Agirc-Arrco, sous leur forme de barème :
+ * un point de pourcentage par trimestre jusqu'à douze, un point et quart
+ * jusqu'à vingt, un point trois quarts au-delà — ce dernier palier n'existant
+ * que dans la table des âges, qui descend jusqu'à 0,43 pour dix ans.
+ */
+const PALIERS_ANTICIPATION = [[12, 0.01], [20, 0.0125], [40, 0.0175]];
+
+/** Dernière ligne de la table des âges : dix ans d'anticipation. */
+const COEFFICIENT_ANTICIPATION_PLANCHER = 0.43;
+
+/**
+ * Coefficient d'anticipation pour un nombre de trimestres manquants.
+ *
+ * ``maximum`` est la dernière ligne du barème : vingt trimestres pour la table
+ * des trimestres manquants, quarante pour celle des âges. Au-delà, la table ne
+ * dit rien et ``null`` est renvoyé. Les trimestres sont comptés en entiers
+ * ARRONDIS AU SUPÉRIEUR : le barème est un escalier.
+ */
+function coefficientAnticipation(trimestresManquants, maximum) {
+  const manquants = Math.max(0, Math.ceil(Math.round(trimestresManquants * 1000) / 1000));
+  if (manquants <= 0) {
     return 1.0;
   }
-  // « Avant le taux plein » est une condition de DURÉE autant que d'âge : une
-  // complémentaire est servie sans abattement dès que l'assuré a le taux plein
-  // au régime de base, même s'il liquide avant l'âge d'annulation de la décote.
-  const manquants = Math.max(0, requis - trimestres);
-  const manquantsAge = Math.max(0.0, (periode.age_taux_plein - ageLiquidation) * 4);
-  return Math.max(
-    0.0, 1.0 - periode.decote_par_trimestre * Math.min(manquants, manquantsAge),
-  );
+  if (manquants > maximum) {
+    return null;
+  }
+  let coefficient = 1.0;
+  let precedent = 0;
+  for (const [borne, pas] of PALIERS_ANTICIPATION) {
+    const tranche = Math.min(manquants, borne) - precedent;
+    if (tranche > 0) {
+      coefficient -= tranche * pas;
+    }
+    precedent = borne;
+    if (manquants <= borne) {
+      break;
+    }
+  }
+  return Math.max(0.0, coefficient);
 }
 
 /**
  * Taux de majoration pour enfants, régime par régime. Le régime général et les
  * régimes spéciaux servent 10 % à partir de trois enfants ; la fonction
- * publique y ajoute 5 % par enfant au-delà du troisième.
+ * publique y ajoute 5 % par enfant au-delà du troisième. Les complémentaires
+ * servent 10 % aussi, mais plafonnés en euros : le taux est le même, c'est
+ * `plafondMajoration` qui borne.
  */
 function tauxMajorationEnfants(regime, nombreEnfants) {
   if (nombreEnfants < 3) {

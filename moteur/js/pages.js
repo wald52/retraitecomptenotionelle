@@ -832,6 +832,7 @@ ${echecs}
 
 function methode(contexte) {
   const fusionne = contexte.simulateur().regimeFusionne;
+  const nombreRegimes = contexte.simulateur().catalogue.taille;
   return `
 <h2 style="margin-top:0">Ce que le modèle calcule</h2>
 
@@ -880,7 +881,7 @@ active, ni périodes assimilées, ni réversion, ni décote ni surcote. Le scén
 1 les conserve tous, puisqu'il décrit le droit en vigueur.</p>
 
 <h3>La fusion des régimes</h3>
-<p>À compter de l'année de bascule, les 35 régimes du catalogue sont remplacés
+<p>À compter de l'année de bascule, les ${nombreRegimes} régimes du catalogue sont remplacés
 par un régime unique dont chaque paramètre est le plus défavorable de
 l'ensemble : ouverture à ${age(fusionne.age_ouverture)} ans, taux plein à
 ${age(fusionne.age_taux_plein)} ans, ${fusionne.duree_requise_trimestres} trimestres
@@ -963,9 +964,9 @@ ${g.tableau(["Série", "Valeurs", "Niveau", "Source"], certifications,
 fichier téléchargé depuis le <em>producteur</em> de la donnée. Une transcription
 tierce, même sourcée et reprise automatiquement, plafonne à « haute ». Hors de
 cette liste : les séries d'avant 1950, l'espérance de vie à 65 ans d'avant 1960,
-les quotients de mortalité d'avant 1986, les taux de cotisation d'avant 1967, les
-valeurs du point de la CNAVPL, de la MSA et de la CNBF, et les âges et durées
-propres à chaque régime.</p>
+les quotients de mortalité d'avant 1986, les taux de cotisation d'avant 1967, le
+minimum contributif — qui ne figure dans aucune source ouverte — et les âges,
+durées et coefficients propres à chaque régime, repris des textes.</p>
 
 <h3>Fiabilité des séries macroéconomiques, par décennie</h3>
 ${g.tableau(
@@ -976,7 +977,7 @@ ${g.tableau(
 <p class="discret">Une projection ne se fait jamais passer pour une observation :
 au-delà de la dernière année observée, la fiabilité retombe à « estimée ».</p>
 
-<h3>Fiabilité des 35 régimes</h3>
+<h3>Fiabilité des ${simulateur.catalogue.taille} régimes</h3>
 ${g.tableau(["Niveau", "Nombre", "Régimes"], regimes, ["", "nombre", ""])}
 
 <h3>Sources</h3>

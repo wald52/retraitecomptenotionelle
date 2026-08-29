@@ -54,6 +54,34 @@ champs_periode:
       valeur ci-dessus ne sert que de repli. Réservé aux régimes alignés sur
       l'âge légal général : les régimes spéciaux gardent le leur.
     defaut: false
+  age_taux_plein_par_generation:
+    description: >-
+      Si vrai, l'âge d'annulation de la décote est lu dans
+      `legislation/age_annulation_decote.csv` à l'ANNÉE DE NAISSANCE, et la
+      valeur ci-dessus ne sert que de repli. La loi du 9 novembre 2010 fait
+      passer cet âge de 65 à 67 ans pour les seules générations 1951-1955 :
+      opposer 67 ans dès 2011, comme le faisait la fiche, l'appliquait à des
+      générations que la loi n'a jamais visées.
+    defaut: false
+
+  decote_par_generation:
+    description: >-
+      Si vrai, le coefficient de minoration est lu dans
+      `legislation/coefficient_minoration.csv` à l'ANNÉE DE NAISSANCE. La table
+      de l'article R. 351-27 vaut aussi bien pour l'ancien droit (2,5 % par
+      trimestre) que pour la montée en charge de la loi Fillon (jusqu'à 1,25 %
+      à partir de la génération 1953) : elle se branche donc sur toutes les
+      périodes des régimes alignés depuis 1983.
+    defaut: false
+
+  salaire_reference_par_generation:
+    description: >-
+      Si vrai, le nombre d'années retenues au salaire annuel moyen est lu dans
+      `legislation/annees_salaire_reference.csv` à l'ANNÉE DE NAISSANCE : dix à
+      vingt-cinq années, une par génération, de 1934 à 1948 (loi du 22 juillet
+      1993). Ne vaut que pour un `salaire_reference` en meilleures années.
+    defaut: false
+
   taux_plein: "taux de liquidation maximal (0.50 = 50 %)"
 
   salaire_reference:
@@ -64,7 +92,8 @@ champs_periode:
   assiette:
     description: "borne d'assiette des cotisations"
     valeurs: ["plafonnee", "deplafonnee", "tranche_1", "tranche_2", "tranche_a",
-              "tranche_b", "tranche_c", "hors_primes", "primes_uniquement", "forfaitaire"]
+              "tranche_b", "tranche_c", "hors_primes", "primes_uniquement", "forfaitaire",
+              "plafonnee_085_pass", "tranche_085_5_pass", "plafonnee_5_pass"]
 
   taux_cotisation_retraite:
     description: >-
@@ -75,7 +104,52 @@ champs_periode:
     unite: "fraction de l'assiette"
 
   decote_par_trimestre: "abattement par trimestre manquant (fraction, null si aucun)"
+
+  decote_trimestres_maximum:
+    description: >-
+      Nombre maximal de trimestres de décote opposables. Vingt dans tous les
+      régimes qui en appliquent une : au-delà, le taux ne descend plus.
+      `null` lève le plafond.
+    defaut: 20
+
   surcote_par_trimestre: "majoration par trimestre supplémentaire (fraction, null si aucune)"
+
+  abattement_points:
+    description: >-
+      Barème d'abattement d'un régime EN POINTS liquidé avant le taux plein.
+      `decote_du_regime_de_base` applique le coefficient de minoration ci-dessus ;
+      `agirc_arrco` applique les coefficients d'anticipation propres à ce
+      régime — deux tables, l'une indexée sur les trimestres manquants, l'autre
+      sur l'âge, dont la plus avantageuse est retenue.
+    valeurs: ["decote_du_regime_de_base", "agirc_arrco"]
+    defaut: decote_du_regime_de_base
+
+  plafond_majoration_enfants:
+    description: >-
+      Plafond en euros par an de la majoration pour enfants, et année à
+      laquelle il est publié (`plafond_majoration_annee`). Le plafond suit
+      ensuite la valeur de service du point. `null` : majoration non plafonnée,
+      ce qui est le cas de tous les régimes de base.
+
+  points_maximum:
+    description: >-
+      Nombre de points attribués quand l'assiette atteint le repère décrit par
+      les deux champs suivants. Sert aux régimes dont le BARÈME est écrit en
+      points et non en prix d'achat : 525 points au plafond pour le régime de
+      base des libéraux, 100 points pour 1 820 SMIC à la complémentaire
+      agricole. `null` : les points s'achètent, cf. `valeurs_point.csv`.
+
+  assiette_repere_smic:
+    description: >-
+      Repère d'assiette, exprimé en heures de SMIC. `null` : le repère est la
+      borne haute de l'assiette, en plafonds de la Sécurité sociale.
+
+  assiette_plancher:
+    description: >-
+      L'assiette est-elle relevée au repère quand elle lui est inférieure ?
+      C'est l'assiette minimale de la complémentaire agricole, qui ouvre ses
+      cent points même à un revenu plus faible.
+    defaut: false
 
   avantages_non_contributifs:
     description: >-

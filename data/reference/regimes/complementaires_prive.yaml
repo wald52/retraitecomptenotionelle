@@ -21,6 +21,9 @@ regimes:
         age_taux_plein: 65
         duree_requise_trimestres: null
         taux_plein: 1.0
+        abattement_points: agirc_arrco
+        plafond_majoration_enfants: 2367
+        plafond_majoration_annee: 2025
         salaire_reference: carriere_entiere
         assiette: tranche_b
         taux_cotisation_retraite: 0.08
@@ -40,6 +43,9 @@ regimes:
         age_taux_plein: 65
         duree_requise_trimestres: 160
         taux_plein: 1.0
+        abattement_points: agirc_arrco
+        plafond_majoration_enfants: 2367
+        plafond_majoration_annee: 2025
         salaire_reference: carriere_entiere
         assiette: tranche_b
         taux_cotisation_retraite: 0.2043
@@ -75,6 +81,9 @@ regimes:
         age_taux_plein: 65
         duree_requise_trimestres: null
         taux_plein: 1.0
+        abattement_points: agirc_arrco
+        plafond_majoration_enfants: 2367
+        plafond_majoration_annee: 2025
         salaire_reference: carriere_entiere
         assiette: tranche_1
         taux_cotisation_retraite: 0.04
@@ -92,6 +101,9 @@ regimes:
         age_taux_plein: 65
         duree_requise_trimestres: 160
         taux_plein: 1.0
+        abattement_points: agirc_arrco
+        plafond_majoration_enfants: 2367
+        plafond_majoration_annee: 2025
         salaire_reference: carriere_entiere
         assiette: tranche_1
         taux_cotisation_retraite: 0.0750
@@ -122,6 +134,9 @@ regimes:
         age_taux_plein: 67
         duree_requise_trimestres: 172
         taux_plein: 1.0
+        abattement_points: agirc_arrco
+        plafond_majoration_enfants: 2367
+        plafond_majoration_annee: 2025
         salaire_reference: carriere_entiere
         assiette: tranche_1
         taux_cotisation_retraite: 0.0787
@@ -130,6 +145,15 @@ regimes:
         avantages_non_contributifs: [majoration_enfants, reversion, coefficient_solidarite]
         notes: >-
           Accord national interprofessionnel du 17 novembre 2017.
+          L'abattement n'est pas la décote du régime de base : le régime
+          publie ses propres COEFFICIENTS D'ANTICIPATION, en deux tables — l'une
+          indexée sur les trimestres manquants (0,99 à 0,78 de un à vingt),
+          l'autre sur l'âge (1 à 0,43 pour dix ans d'anticipation) — et retient
+          la plus avantageuse pour l'assuré. La majoration pour enfants est
+          quant à elle PLAFONNÉE en euros : 2 367 € par an pour les pensions
+          servies depuis le 1er novembre 2025, revalorisés comme la valeur de
+          service du point, et opposables aux seuls assurés nés à compter du
+          2 août 1951.
           Tranche 1 (0 -> 1 PASS) : taux d'appel 7,87 %, taux de calcul des
           points 6,20 %. Tranche 2 (1 -> 8 PASS) : taux d'appel 21,59 %,
           taux de calcul 17,00 % (voir `tranche_2` ci-dessous).
@@ -145,6 +169,9 @@ regimes:
         age_taux_plein: 67
         duree_requise_trimestres: 172
         taux_plein: 1.0
+        abattement_points: agirc_arrco
+        plafond_majoration_enfants: 2367
+        plafond_majoration_annee: 2025
         salaire_reference: carriere_entiere
         assiette: tranche_2
         taux_cotisation_retraite: 0.2159
@@ -274,6 +301,9 @@ regimes:
         age_taux_plein: 65
         duree_requise_trimestres: null
         taux_plein: 1.0
+        abattement_points: agirc_arrco
+        plafond_majoration_enfants: 2367
+        plafond_majoration_annee: 2025
         salaire_reference: carriere_entiere
         assiette: tranche_1
         taux_cotisation_retraite: 0.04
