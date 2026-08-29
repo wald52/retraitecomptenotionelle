@@ -14,17 +14,21 @@
 <link rel="preload" href="moteur/donnees.json" as="fetch" crossorigin>
 
 <style>
-  /* Écran d'amorçage : quelques dixièmes de seconde, le temps de récupérer les
-     séries de référence. Il reprend les variables de la feuille de style. */
-  #amorce { max-width: 34rem; margin: 0 auto; padding: 5rem 1.5rem; text-align: center; }
+  /* Écran d'attente. Il ne s'affiche qu'au-delà d'un tiers de seconde : sur une
+     connexion rapide le simulateur est prêt avant, et un écran qui n'aurait
+     clignoté que le temps d'être aperçu vaut moins que rien. Le retard est en
+     CSS et non en JavaScript, parce que l'attente qu'il couvre se produit
+     justement avant que le moindre script ne soit chargé. */
+  #amorce { max-width: 34rem; margin: 0 auto; padding: 5rem 1.5rem; text-align: center;
+            animation: paraitre 0.25s ease-out 0.35s both; }
   #amorce h1 { font-size: 1.4rem; font-weight: 600; margin: 0 0 0.75rem; }
   #amorce p { color: var(--texte-doux); font-size: 0.98rem; }
-  #etape { font-size: 0.92rem; margin-top: 1.75rem; }
-  #amorce .jauge { height: 6px; width: min(24rem, 80%); margin: 0.9rem auto 0;
+  #amorce .jauge { height: 6px; width: min(24rem, 80%); margin: 2rem auto 0;
                    background: var(--fond-appui); border-radius: 3px; overflow: hidden; }
   #amorce .jauge > span { display: block; height: 100%; width: 30%;
                           background: var(--accent);
                           animation: glisse 1.4s ease-in-out infinite; }
+  @keyframes paraitre { from { opacity: 0; } to { opacity: 1; } }
   .replique { text-align: left; border-left: 3px solid var(--accent);
               background: var(--fond-appui); padding: 0.9rem 1.1rem; margin-top: 1.5rem;
               font-size: 0.92rem; }
@@ -37,7 +41,6 @@
   <p>Le simulateur se prépare. Le modèle et les données de référence s'exécutent
   dans votre navigateur : rien n'est envoyé à un serveur, et il n'y a rien à
   installer.</p>
-  <div id="etape">Démarrage…</div>
   <div class="jauge"><span></span></div>
   <noscript>
     <div class="replique">Ce simulateur a besoin de JavaScript : le calcul se fait
@@ -52,19 +55,13 @@ import * as gabarit from "./moteur/js/gabarit.js";
 const amorce = document.getElementById("amorce");
 let contexte = null;
 
-function etape(texte) {
-  document.getElementById("etape").textContent = texte;
-}
-
 function echec(titre, detail) {
-  amorce.classList.add("echec");
   amorce.innerHTML = `<h1>${titre}</h1><div class="replique">${detail}</div>`;
 }
 
 // -- démarrage ---------------------------------------------------------------
 
 async function preparer() {
-  etape("Chargement des séries de référence…");
   // Requête volontairement nue : c'est celle que décrit le <link rel="preload">
   // de l'en-tête, `crossorigin` compris. Toute option qui s'en écarterait ferait
   // manquer le préchargement, et le paquet serait téléchargé deux fois.

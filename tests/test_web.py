@@ -524,21 +524,29 @@ def test_le_prechargement_du_paquet_correspond_a_la_requete():
 
 
 def test_le_style_d_amorcage_ne_vise_que_des_elements_existants():
-    """Pas de règle orpheline dans la page : ce qui ne sert plus s'enlève."""
+    """Pas de règle orpheline dans la page : ce qui ne sert plus s'enlève.
+
+    L'écran d'attente a déjà survécu à un moteur entier ; ses règles lui
+    survivaient à leur tour. Chaque classe et chaque identifiant stylés doivent
+    donc se retrouver dans le corps de la page ou dans le script qui le remplace.
+    """
     import re
     from pathlib import Path
 
     page = (Path(__file__).resolve().parents[1] / "index.html").read_text(encoding="utf-8")
-    amorce = re.search(r'<div id="amorce">.*?</div>\s*\n\s*<script', page, re.S).group(0)
     style = re.search(r"<style>(.*?)</style>", page, re.S).group(1)
+    reste = page.replace(style, "")
 
-    balises = set(re.findall(r"<(\w+)", amorce)) | {"h1", "div", "a", "p"}  # + echec()
-    for selecteur in re.findall(r"^\s*(#amorce[^{]*)\{", style, re.M):
-        dernier = selecteur.strip().split()[-1].lstrip(">").strip()
-        if dernier.startswith((".", "#")) or dernier in ("", "#amorce"):
-            continue
-        assert dernier in balises, (
-            f"la règle « {selecteur.strip()} » ne vise aucun élément de l'écran d'amorçage"
+    selecteurs = " ".join(re.findall(r"^([^{}@]+)\{", style, re.M))
+    for nom in set(re.findall(r"[#.]([\w-]+)", selecteurs)):
+        assert nom in reste, (
+            f"« {nom} » est stylé dans index.html mais n'existe nulle part dans la page"
+        )
+
+    balises = set(re.findall(r"\b(\w+)(?=\s*[.#{]|\s+[\w.#])", selecteurs))
+    for balise in balises & {"code", "table", "img", "button", "input", "ul", "li"}:
+        assert f"<{balise}" in reste, (
+            f"la règle visant <{balise}> ne correspond à aucun élément de la page"
         )
 
 
