@@ -140,16 +140,19 @@ class ConstructeurCompte:
 
     # -- assiette ------------------------------------------------------------
 
-    def _assiette(self, revenu: float, annee: int, borne_basse: float,
-                  borne_haute: float | None) -> float:
-        """Part du revenu comprise entre deux bornes exprimées en plafonds."""
+    def _assiette(self, revenu: float, annee: int, plancher: float,
+                  plafond_periode: float | None) -> float:
+        """Part du revenu comprise entre deux bornes, exprimées EN EUROS.
+
+        Le plafond global du modèle, lui, reste en plafonds de la Sécurité
+        sociale : c'est un paramètre de simulation, pas une règle de régime.
+        """
         pass_annuel = self.macro.plafond_securite_sociale(annee)
-        plancher = borne_basse * pass_annuel
         plafond_global = self.parametres.plafond_assiette_en_pass
-        if borne_haute is None:
+        if plafond_periode is None:
             plafond = revenu if plafond_global is None else plafond_global * pass_annuel
         else:
-            plafond = borne_haute * pass_annuel
+            plafond = plafond_periode
             if plafond_global is not None:
                 plafond = min(plafond, plafond_global * pass_annuel)
         return max(0.0, min(revenu, plafond) - plancher)
@@ -201,7 +204,9 @@ class ConstructeurCompte:
                 continue
             fiabilite = min(fiabilite, regime.fiabilite)
             for periode in regime.periodes_actives(annee):
-                borne_basse, borne_haute = periode.bornes_assiette_en_pass()
+                borne_basse, borne_haute = periode.bornes_assiette_en_euros(
+                    self.macro.plafond_securite_sociale(annee)
+                )
 
                 if periode.assiette == "primes_uniquement":
                     base = base_ligne * ligne.part_primes

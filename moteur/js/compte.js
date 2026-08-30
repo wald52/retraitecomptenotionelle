@@ -83,15 +83,20 @@ export class ConstructeurCompte {
   // -- assiette --------------------------------------------------------------
 
   /** Part du revenu comprise entre deux bornes exprimées en plafonds. */
-  _assiette(revenu, annee, borneBasse, borneHaute) {
+  /**
+   * Part du revenu comprise entre deux bornes, exprimées EN EUROS.
+   *
+   * Le plafond global du modèle, lui, reste en plafonds de la Sécurité sociale :
+   * c'est un paramètre de simulation, pas une règle de régime.
+   */
+  _assiette(revenu, annee, plancher, plafondPeriode) {
     const pass = this.macro.plafond_securite_sociale.valeur(annee);
-    const plancher = borneBasse * pass;
     const plafondGlobal = this.parametres.plafond_assiette_en_pass;
     let plafond;
-    if (borneHaute === null) {
+    if (plafondPeriode === null) {
       plafond = plafondGlobal === null ? revenu : plafondGlobal * pass;
     } else {
-      plafond = borneHaute * pass;
+      plafond = plafondPeriode;
       if (plafondGlobal !== null) {
         plafond = Math.min(plafond, plafondGlobal * pass);
       }
@@ -148,7 +153,9 @@ export class ConstructeurCompte {
       }
       fiabilite = Math.min(fiabilite, regime.fiabilite);
       for (const periode of regime.periodesActives(annee)) {
-        const [borneBasse, borneHaute] = periode.bornesAssietteEnPass();
+        const [borneBasse, borneHaute] = periode.bornesAssietteEnEuros(
+          this.macro.plafond_securite_sociale.valeur(annee),
+        );
 
         let base;
         if (periode.assiette === "primes_uniquement") {

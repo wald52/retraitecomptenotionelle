@@ -152,6 +152,27 @@ champs_periode:
       ensuite la valeur de service du point. `null` : majoration non plafonnée,
       ce qui est le cas de tous les régimes de base.
 
+  borne_basse_euros:
+  borne_haute_euros:
+    description: >-
+      Bornes de l'assiette exprimées EN EUROS plutôt qu'en plafonds de la
+      Sécurité sociale. La plupart des régimes découpent leur assiette en
+      multiples du plafond, qui suit les salaires ; d'autres la fixent en euros
+      et ne l'indexent pas — les tranches de la complémentaire des avocats
+      valent 42 507 € en 2023, en 2025 et en 2026, quand le plafond passait de
+      43 992 à 48 060 €. Les exprimer en plafonds les ferait dériver.
+      `null` : les bornes de `assiette` s'appliquent.
+
+  pension_forfaitaire_annuelle:
+  pension_forfaitaire_annee:
+    description: >-
+      Pension annuelle servie à taux plein par un régime FORFAITAIRE, dans les
+      euros de `pension_forfaitaire_annee`, proratisée par la durée. Elle ne
+      dépend pas du revenu : c'est tout l'objet d'un régime forfaitaire, et
+      c'est ce qu'un compte notionnel supprime le plus radicalement. Sans ce
+      montant, un `type_calcul: forfaitaire` retomberait sur la moyenne des
+      revenus, c'est-à-dire sur un taux de remplacement de 100 %.
+
   points_minimum_annuels:
     description: >-
       Points garantis chaque année à qui cotise au régime, quelle que soit son

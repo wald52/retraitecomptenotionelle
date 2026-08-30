@@ -459,47 +459,50 @@ qui a été cherché, pour éviter de le rechercher deux fois.
   l'une par ses barèmes annuels, l'autre par ses recueils statistiques. Voir les
   deux limites suivantes.
 
-* *Régime de base des avocats, et emploi des valeurs trouvées* — la CNBF publie
-  chaque janvier un barème en PDF qui donne le **coût d'acquisition** et la
-  **valeur de service** du point de son régime complémentaire. Ces valeurs sont
-  désormais dans le dépôt, certifiées, de 2017 à 2026 : le rendement du régime
-  y décroît régulièrement de 10,1 % à 8,2 %.
+* *Régime de base des avocats* — **scindé, et le moteur s'en sert.** La CNBF
+  publie chaque janvier un barème en PDF qui donne le coût d'acquisition et la
+  valeur de service du point de son régime complémentaire. Ces valeurs étaient
+  dans le dépôt depuis un moment, certifiées de 2017 à 2026, et le moteur ne les
+  utilisait pas : la fiche `cnbf` agrégeait en un seul taux, calculé au
+  rendement instantané, un régime de base FORFAITAIRE et un complémentaire en
+  points. La pension d'un avocat y était donc intégralement proportionnelle à
+  son revenu — exactement l'inverse de la règle du régime de base.
 
-  Le moteur ne s'en sert pas encore, et c'est délibéré. La fiche `cnbf` agrège
-  en un seul taux le régime de base — forfaitaire, sans point — et le régime
-  complémentaire. Verser toutes les cotisations dans le second gonflerait la
-  pension complémentaire et ferait disparaître la base. Les valeurs sont donc
-  rangées sous le code `cnbf_complementaire`, que le catalogue ne connaît pas,
-  en attendant que la fiche soit scindée en ses deux étages — ce qui suppose de
-  décider quelle classe de cotisation retenir par défaut, la CNBF en proposant
-  cinq. Un test garde les deux moitiés de cette décision.
+  Cette page tenait la scission pour bloquée par « deux décisions de
+  modélisation ». En regardant le barème d'assez près, l'une s'est révélée
+  facile et l'autre n'était pas une décision :
 
-  C'est la seule des trois caisses à rester dans cet état. La CNAVPL et la MSA
-  en sont sorties par le même chemin — scinder la fiche, puis lire le barème en
-  points plutôt que d'attendre un prix d'achat. Ici le chemin est différent, et
-  ce qui manque a changé de nature : **la grille est là.** Le barème que
-  `scripts/fetch/cnbf_baremes.py` télécharge déjà porte, outre les deux valeurs
-  du point, tout ce qu'il faudrait pour scinder la fiche :
+  * **la classe** — trois coexistent (C1, C2, C2+), et rien ne permet de deviner
+    celle d'un avocat donné. C1 est celle qui s'applique SANS option, et le
+    modèle ne prête jamais à personne un avantage facultatif : c'est la même
+    règle que pour les minima sous condition de demande. Décision prise, et
+    écrite dans la fiche ;
+  * **les tranches en euros** — la question n'était pas « comment exprimer des
+    tranches en euros dans un moteur dont les assiettes sont en plafonds », mais
+    « ces tranches suivent-elles le plafond ? ». Elles ne le suivent pas :
+    **42 507 € en 2023, en 2025 et en 2026**, quand le plafond de la Sécurité
+    sociale passait de 43 992 à 48 060 €. Les exprimer en plafonds les ferait
+    donc dériver d'année en année. Il ne fallait pas arbitrer, il fallait un
+    champ de bornes EN EUROS — écrit pour ce régime, et utilisable par tout
+    autre qui fixerait son assiette de la même façon.
 
-  * la cotisation FORFAITAIRE du régime de base, par année d'ancienneté — 351 €
-    la première année, 1 921 € à partir de la sixième et pour les avocats de
-    65 ans et plus (barème 2025) ;
-  * la cotisation PROPORTIONNELLE de base, 3,20 % du revenu net, plafonnée ;
-  * la grille du complémentaire, par classe et par tranche de revenu : trois
-    classes (C1, C2, C2+) et cinq tranches, de 7,00 % à 15,10 % en classe C1.
+  La fiche est donc scindée : `cnbf` porte la base, avec sa pension forfaitaire
+  de 19 154 € par an au taux plein proratisée par la durée, et
+  `cnbf_complementaire` porte les points, avec les cinq tranches de la classe C1
+  et le prix d'achat publié. Un avocat modeste et un avocat aisé touchent
+  désormais la même retraite de base, ce qui est la règle.
 
-  Ce qui bloque n'est donc plus une donnée mais **deux décisions de
-  modélisation**, et elles appartiennent à qui tient le modèle : quelle classe
-  retenir par défaut — C1 est l'obligatoire, mais ce n'est pas la plus répandue
-  — et comment exprimer des tranches fixées en euros dans un moteur dont toutes
-  les assiettes sont en plafonds de la Sécurité sociale. Trancher au jugé
-  remplacerait une approximation documentée par une autre qui ne le serait pas ;
-  la fiche reste donc agrégée, et le dit.
+  Ce qu'il reste : la cotisation FORFAITAIRE de base — 363 € la première année,
+  1 988 € à partir de la sixième — n'est pas modélisée. Elle ne dépend pas du
+  revenu, quand le compte notionnel ne sait porter qu'une fraction d'assiette ;
+  le taux inscrit à la fiche est celui de la seule cotisation proportionnelle,
+  3,20 %. Et les tranches d'avant 2019 ne sont pas connues : ces années restent
+  au rendement instantané.
 
-  Au passage, ces valeurs éclairent l'estimation en place : un rendement agrégé
-  de 6,5 % pour l'ensemble base + complémentaire est cohérent avec un
+  Au passage, le barème éclaire l'estimation qu'il remplace : un rendement
+  agrégé de 6,5 % pour l'ensemble base + complémentaire était cohérent avec un
   complémentaire à 8,2 % et une base forfaitaire moins rentable. L'estimation
-  n'était donc pas absurde, ce que rien ne permettait de dire jusqu'ici.
+  n'était pas absurde, ce que rien ne permettait de dire jusqu'ici.
 
 * *Régime de base des professions libérales* — la CNAVPL ne publie sa valeur de
   point nulle part ailleurs que dans son **recueil statistique**, un annuaire
@@ -609,11 +612,11 @@ Un écart de quelques pour cent avec la pension réelle est attendu.
 |---|---|
 | Professions libérales (CNAVPL) | régimes complémentaires des dix sections (CARMF, CARPIMKO, CIPAV…) ; grille des classes de cotisation avant 2004 |
 | Marins (ENIM) | grille des salaires forfaitaires par catégorie et par année |
-| Avocats (CNBF) | fiche à scinder en base forfaitaire et complémentaire en points ; barème forfaitaire par tranche d'ancienneté |
+| Avocats (CNBF) | cotisation forfaitaire de base par tranche d'ancienneté (363 à 1 988 €/an) ; tranches de la grille complémentaire d'avant 2019 |
 | Régimes spéciaux résiduels | paramètres saisis au niveau `estimee`, à certifier auprès de chaque caisse |
 | Non-salariés agricoles | barème de points du régime de base (23 à 113 points par tranche de revenu, non publié) ; points gratuits de la RCO |
 
-Le catalogue compte **36 régimes**, actuels et disparus. Il est structurellement
+Le catalogue compte **37 régimes**, actuels et disparus. Il est structurellement
 extensible : ajouter un régime consiste à écrire une fiche YAML conforme à
 `data/reference/regimes/_schema.yaml`, sans toucher au moteur.
 

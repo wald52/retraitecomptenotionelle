@@ -723,11 +723,10 @@ def test_le_producteur_prime_sur_la_transcription(simulateur):
 def test_valeurs_du_point_des_avocats_sont_sourcees(simulateur):
     """Les barèmes de la CNBF, seule source qui porte la valeur du point des avocats.
 
-    Elles sont rangées sous ``cnbf_complementaire``, un code que le catalogue ne
-    connaît pas : le régime complémentaire des avocats n'est pas encore séparé
-    de leur régime de base dans les fiches, et le moteur ne doit donc pas s'en
-    servir tant que la scission n'est pas faite. Le test garde les deux moitiés
-    de cette décision — les données sont là, le moteur ne les utilise pas.
+    Elles sont rangées sous ``cnbf_complementaire``, et **le moteur s'en sert
+    depuis que la fiche est scindée** : le régime de base des avocats est
+    forfaitaire, le complémentaire est en points, et les agréger en un seul taux
+    au rendement instantané effaçait les deux règles à la fois.
     """
     import csv
 
@@ -753,9 +752,12 @@ def test_valeurs_du_point_des_avocats_sont_sourcees(simulateur):
     assert all(apres < avant for avant, apres in zip(rendements, rendements[1:]))
     assert 0.08 < rendements[-1] < 0.11
 
-    # Le catalogue ignore ce code : le moteur ne peut pas s'en servir par mégarde.
-    assert "cnbf_complementaire" not in simulateur.catalogue
-    assert ValeursPoint(simulateur.parametres.racine_donnees).achat("cnbf", 2026) is None
+    # Le catalogue porte ce code, et le prix d'achat lui est attaché — pas au
+    # régime de base, qui n'a pas de point.
+    assert "cnbf_complementaire" in simulateur.catalogue
+    valeurs_point = ValeursPoint(simulateur.parametres.racine_donnees)
+    assert valeurs_point.achat("cnbf", 2026) is None
+    assert valeurs_point.achat("cnbf_complementaire", 2026) is not None
 
 
 def test_valeur_du_point_des_liberaux_est_sourcee(simulateur):
@@ -1649,3 +1651,58 @@ def test_la_garantie_minimale_de_points_agirc_est_servie(simulateur):
     # Vingt-neuf années cotisées de 1990 à 2018, toutes garanties.
     assert agirc.montant > 0
     assert "3,480 points" in agirc.detail
+
+
+def test_le_regime_de_base_des_avocats_est_forfaitaire(simulateur):
+    """La pension de base d'un avocat ne dépend pas de son revenu.
+
+    C'est la particularité du régime, et c'est ce qu'un compte notionnel
+    supprime le plus radicalement. La fiche agrégeait pourtant la base et le
+    complémentaire en un seul taux calculé au rendement instantané : la pension
+    y était intégralement proportionnelle au revenu, exactement l'inverse de la
+    règle. Depuis la scission, seul le complémentaire l'est.
+    """
+    commun = dict(
+        annee_naissance=1975, sexe="H", affiliation="avocat",
+        age_debut=25, age_liquidation=64, profil_carriere="fortement_ascendant",
+    )
+    modeste = simulateur.scenario_actuel.calculer(
+        simulateur.carriere_simple(niveau_salaire=0.8, **commun))
+    aise = simulateur.scenario_actuel.calculer(
+        simulateur.carriere_simple(niveau_salaire=4.0, **commun))
+
+    base = {r.regime: r for r in modeste.pensions_par_regime}
+    base_aise = {r.regime: r for r in aise.pensions_par_regime}
+    assert base["cnbf"].montant == pytest.approx(base_aise["cnbf"].montant)
+    assert "forfait" in base["cnbf"].detail
+    # Le complémentaire, lui, suit le revenu.
+    assert (base_aise["cnbf_complementaire"].montant
+            > 4 * base["cnbf_complementaire"].montant)
+
+
+def test_les_tranches_des_avocats_sont_en_euros_non_en_plafonds(simulateur):
+    """La CNBF fixe ses tranches en euros et ne les indexe pas.
+
+    42 507 € en 2023, en 2025 et en 2026, quand le plafond de la Sécurité
+    sociale passait de 43 992 à 48 060 €. Les exprimer en plafonds, comme le
+    fait le reste du catalogue, les ferait dériver d'année en année — d'où un
+    champ écrit pour ce cas, et utilisable par tout régime qui ferait de même.
+    """
+    regime = simulateur.catalogue["cnbf_complementaire"]
+    tranches = [p for p in regime.periodes_actives(2026)
+                if p.borne_haute_euros is not None]
+    assert len(tranches) == 5
+    assert [p.borne_haute_euros for p in tranches] == [
+        42507, 85014, 127521, 170028, 212535]
+    assert [p.taux_cotisation_retraite for p in tranches] == [
+        pytest.approx(t) for t in (0.07, 0.104, 0.122, 0.14, 0.158)]
+
+    # Et les bornes restent en euros quel que soit le plafond de l'année.
+    premiere = tranches[0]
+    assert premiere.bornes_assiette_en_euros(48_060) == (0.0, 42507)
+    assert premiere.bornes_assiette_en_euros(30_000) == (0.0, 42507)
+
+    # Un régime ordinaire, lui, garde des bornes en plafonds.
+    tranche_2 = next(p for p in simulateur.catalogue["agirc_arrco"]
+                     .periodes_actives(2026) if p.assiette == "tranche_2")
+    assert tranche_2.bornes_assiette_en_euros(48_060) == (48_060.0, 8 * 48_060.0)

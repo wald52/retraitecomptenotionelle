@@ -69,7 +69,7 @@ la page.
 <summary>Comment la page fonctionne, et comment on sait qu'elle dit vrai</summary>
 
 `index.html` charge deux choses : `moteur/donnees.json` (482 Ko — les séries, les
-tables de mortalité observées de 1899 à 2024, les 36 fiches de régime) et
+tables de mortalité observées de 1899 à 2024, les 37 fiches de régime) et
 `moteur/js/`, un portage du modèle en JavaScript sans aucune bibliothèque. Le site est servi depuis la racine
 du dépôt, telle quelle : c'est ce que GitHub Pages publie sans aucun réglage, et
 `.nojekyll` demande que les fichiers soient servis sans transformation. Rien
@@ -129,7 +129,7 @@ retraite-notionnelle simuler --naissance 1960 --statut salarie_prive_non_cadre \
 # Le cas général : grille cas type × génération
 retraite-notionnelle cas-types
 
-# Les 22 statuts et les 36 régimes du catalogue
+# Les 22 statuts et les 37 régimes du catalogue
 retraite-notionnelle regimes
 
 # La série d'indexation, année par année
@@ -163,7 +163,7 @@ print(simulateur.simuler(carriere).tableau())
 | Exigence | Réalisation |
 |---|---|
 | Comptes notionnels rétroactifs depuis l'origine de la répartition | Origine 1941 (AVTS), paramétrable à 1945 |
-| Tous les régimes, actuels **et** disparus | 36 régimes : AGIRC, ARRCO, CANCAVA, ORGANIC, RSI, mines, SEITA, chemins de fer secondaires… |
+| Tous les régimes, actuels **et** disparus | 37 régimes : AGIRC, ARRCO, CANCAVA, ORGANIC, RSI, mines, SEITA, chemins de fer secondaires… |
 | Départ trop tôt = pension réduite | Âge de référence **à cliquet** : l'abaissement de 1982 ne le fait pas redescendre |
 | Régimes à départ précoce traités au même étalon | SNCF à 50 ans = 15 ans d'anticipation ; Opéra à 40 ans = 25 ans |
 | Indexation par triple lock inversé, depuis l'origine | `min(inflation, salaire moyen, productivité réelle)`, appliqué aux comptes **et** aux pensions liquidées |
@@ -300,7 +300,7 @@ data/
   reference/
     macro/                      inflation, salaire moyen, productivité, plafond, projections
     mortalite/                  espérances de vie et quotients par âge observés
-    regimes/                    35 fiches de régime + schéma + valeurs du point
+    regimes/                    37 fiches de régime + schéma + valeurs du point
     legislation/                âges et durées par génération, barèmes des
                                 minima, décote de la fonction publique,
                                 carrière longue, profils d'affiliation

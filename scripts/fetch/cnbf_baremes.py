@@ -27,9 +27,25 @@ valeur aberrante arrête tout.
 
 Ces valeurs concernent le **régime complémentaire** des avocats, pas leur régime
 de base, qui est forfaitaire. Elles sont donc versées sous le code
-``cnbf_complementaire``, que le catalogue des régimes ne connaît pas encore : le
-moteur ne les utilise pas tant que la fiche ``cnbf`` n'a pas été scindée en ses
-deux étages. Voir docs/limites.md §3.
+``cnbf_complementaire`` — et **le moteur s'en sert**, depuis que la fiche a été
+scindée en ses deux étages : une base forfaitaire de 19 154 € par an au taux
+plein, indépendante du revenu, et un complémentaire en points.
+
+Le barème porte tout ce qu'il fallait pour cette scission, et deux décisions
+seules la retardaient. Elles sont tranchées, et écrites dans la fiche :
+
+* **classe C1** — trois classes coexistent (C1, C2, C2+) et rien ne permet de
+  deviner celle d'un avocat donné. C1 est celle qui s'applique SANS option, et
+  le modèle ne prête jamais à personne un avantage facultatif ;
+* **tranches en euros** — la caisse les fixe en euros et ne les indexe pas :
+  42 507 € en 2023, en 2025 et en 2026, quand le plafond de la Sécurité sociale
+  passait de 43 992 à 48 060 €. Les exprimer en plafonds, comme le fait le reste
+  du catalogue, les ferait dériver. C'est ce constat, et non un arbitrage, qui a
+  levé l'obstacle : il fallait un champ de bornes en euros, il existe désormais.
+
+Reste hors du modèle la cotisation FORFAITAIRE de base — 363 € la première
+année, 1 988 € à partir de la sixième — qui ne dépend pas du revenu, quand le
+compte notionnel ne sait porter qu'une fraction d'assiette.
 """
 
 from __future__ import annotations

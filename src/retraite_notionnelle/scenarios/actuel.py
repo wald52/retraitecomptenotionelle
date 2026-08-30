@@ -1169,17 +1169,17 @@ class ScenarioActuel:
                         and regime.famille not in familles_admises):
                     continue
                 for periode in regime.periodes_actives(ligne.annee):
-                    borne_basse, borne_haute = periode.bornes_assiette_en_pass()
                     pass_annuel = self.macro.plafond_securite_sociale(ligne.annee)
+                    borne_basse, borne_haute = periode.bornes_assiette_en_euros(
+                        pass_annuel
+                    )
                     base = base_ligne
                     if periode.assiette == "primes_uniquement":
                         base = base_ligne * ligne.part_primes
                     elif periode.assiette == "hors_primes":
                         base = base_ligne * (1.0 - ligne.part_primes)
-                    plafond = (
-                        base if borne_haute is None else borne_haute * pass_annuel
-                    )
-                    assiette = max(0.0, min(base, plafond) - borne_basse * pass_annuel)
+                    plafond = base if borne_haute is None else borne_haute
+                    assiette = max(0.0, min(base, plafond) - borne_basse)
                     repere = periode.repere_assiette(
                         pass_annuel, self.macro.smic_horaire(ligne.annee)
                     )
@@ -1337,12 +1337,27 @@ class ScenarioActuel:
                 ))
                 continue
 
-            # Régimes en annuités.
+            # Régimes en annuités — et régimes FORFAITAIRES, dont la pension ne
+            # dépend pas du revenu mais de la seule durée. Le second cas se
+            # traite comme le premier en remplaçant le salaire de référence par
+            # le montant forfaitaire : c'est bien un `montant × taux × durée /
+            # durée requise`, à ceci près que le montant est le même pour tous.
+            # Faute de ce montant, la fiche retombait sur la moyenne des
+            # revenus, c'est-à-dire sur un taux de remplacement de 100 %.
             plafonner = periode.assiette in ("plafonnee", "tranche_1", "tranche_a")
-            salaire_reference = self.salaire_de_reference(
-                code, carriere, periode, annee_liquidation, plafonner,
-                carriere.annee_naissance, avpf,
-            )
+            if periode.pension_forfaitaire_annuelle is not None:
+                salaire_reference = (
+                    periode.pension_forfaitaire_annuelle
+                    * self.macro.coefficient_prix(
+                        periode.pension_forfaitaire_annee or annee_liquidation,
+                        annee_liquidation,
+                    )
+                )
+            else:
+                salaire_reference = self.salaire_de_reference(
+                    code, carriere, periode, annee_liquidation, plafonner,
+                    carriere.annee_naissance, avpf,
+                )
             requis, fiabilite_duree = self._duree_requise(periode, carriere)
             if fiabilite_duree is not None:
                 fiabilite_globale = min(fiabilite_globale, fiabilite_duree)
@@ -1436,7 +1451,8 @@ class ScenarioActuel:
             pensions.append(PensionRegime(
                 regime=code, montant=montant, type_calcul="annuites",
                 detail=(
-                    f"SR {salaire_reference:,.0f} € × taux {taux:.2%} "
+                    f"{'forfait' if periode.pension_forfaitaire_annuelle is not None else 'SR'} "
+                    f"{salaire_reference:,.0f} € × taux {taux:.2%} "
                     f"× {trimestres_regime}/{requis}"
                 ),
                 fiabilite=regime.fiabilite,

@@ -111,6 +111,22 @@ class PeriodeRegime:
     #: en prix d'achat — le régime de base des libéraux, la complémentaire
     #: agricole. ``None`` : les points s'achètent, cf. ``valeurs_point.csv``.
     points_maximum: float | None
+    #: Bornes de l'assiette exprimées EN EUROS plutôt qu'en plafonds de la
+    #: Sécurité sociale. La plupart des régimes découpent leur assiette en
+    #: multiples du plafond, qui suit les salaires ; d'autres la fixent en
+    #: euros et ne l'indexent pas. C'est le cas des tranches de la
+    #: complémentaire des avocats : 42 507 € en 2023, en 2025 et en 2026, alors
+    #: que le plafond passait de 43 992 à 48 060 € sur la même période. Les
+    #: exprimer en plafonds les ferait donc dériver. ``None`` : les bornes en
+    #: plafonds ci-dessus s'appliquent.
+    borne_basse_euros: float | None
+    borne_haute_euros: float | None
+    #: Pension annuelle servie à taux plein par un régime FORFAITAIRE, dans les
+    #: euros de ``pension_forfaitaire_annee``, proratisée par la durée. Elle ne
+    #: dépend pas du revenu : c'est tout l'objet d'un régime forfaitaire, et
+    #: c'est ce qu'un compte notionnel supprime le plus radicalement.
+    pension_forfaitaire_annuelle: float | None
+    pension_forfaitaire_annee: int | None
     #: Nombre de points garantis chaque année à qui cotise au régime, quelle
     #: que soit son assiette. C'est la garantie minimale de points de l'Agirc :
     #: 120 points par an de 1989 à 2018, y compris pour un cadre dont la
@@ -139,6 +155,22 @@ class PeriodeRegime:
 
     def bornes_assiette_en_pass(self) -> tuple[float, float | None]:
         return BORNES_ASSIETTE.get(self.assiette, (0.0, None))
+
+    def bornes_assiette_en_euros(
+        self, pass_annuel: float
+    ) -> tuple[float, float | None]:
+        """Bornes de l'assiette en euros de l'année, quelle que soit leur forme.
+
+        Les bornes en euros priment quand la fiche en porte : un régime qui fixe
+        ses tranches en euros et ne les indexe pas ne peut pas être décrit en
+        multiples d'un plafond qui, lui, suit les salaires.
+        """
+        if (self.borne_basse_euros is not None
+                or self.borne_haute_euros is not None):
+            return self.borne_basse_euros or 0.0, self.borne_haute_euros
+        borne_basse, borne_haute = self.bornes_assiette_en_pass()
+        return (borne_basse * pass_annuel,
+                None if borne_haute is None else borne_haute * pass_annuel)
 
 
 @dataclass
@@ -274,6 +306,22 @@ class CatalogueRegimes:
                 points_maximum=(
                     None if p.get("points_maximum") is None
                     else float(p["points_maximum"])
+                ),
+                borne_basse_euros=(
+                    None if p.get("borne_basse_euros") is None
+                    else float(p["borne_basse_euros"])
+                ),
+                borne_haute_euros=(
+                    None if p.get("borne_haute_euros") is None
+                    else float(p["borne_haute_euros"])
+                ),
+                pension_forfaitaire_annuelle=(
+                    None if p.get("pension_forfaitaire_annuelle") is None
+                    else float(p["pension_forfaitaire_annuelle"])
+                ),
+                pension_forfaitaire_annee=(
+                    None if p.get("pension_forfaitaire_annee") is None
+                    else int(p["pension_forfaitaire_annee"])
                 ),
                 points_minimum_annuels=(
                     None if p.get("points_minimum_annuels") is None

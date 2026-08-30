@@ -86,7 +86,8 @@ affiliations:
   avocat:
     libelle: Avocat
     periodes:
-      - {debut: 1948, fin: null, regimes: [cnbf]}
+      - {debut: 1948, fin: 1978, regimes: [cnbf]}
+      - {debut: 1979, fin: null, regimes: [cnbf, cnbf_complementaire]}
 
   salarie_agricole:
     libelle: Salarié agricole

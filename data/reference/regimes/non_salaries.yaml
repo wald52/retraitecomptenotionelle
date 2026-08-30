@@ -331,21 +331,195 @@ regimes:
           réforme simulée.
       - debut: 2004
         fin: null
-        type_calcul: mixte
+        type_calcul: forfaitaire
         age_ouverture: 62
+        age_ouverture_par_generation: true
         age_taux_plein: 67
+        age_taux_plein_par_generation: true
         duree_requise_trimestres: 172
+        duree_requise_par_generation: true
         taux_plein: 1.0
         salaire_reference: sans_objet
         assiette: deplafonnee
-        taux_cotisation_retraite: 0.1140
+        taux_cotisation_retraite: 0.0320
+        pension_forfaitaire_annuelle: 19154
+        pension_forfaitaire_annee: 2026
         decote_par_trimestre: 0.0125
         surcote_par_trimestre: 0.0075
         avantages_non_contributifs: [reversion]
         notes: >-
-          Cotisation forfaitaire par tranche d'ancienneté + cotisation
-          proportionnelle de 3,10 % sur le revenu, plus le régime
-          complémentaire obligatoire par classes.
+          RÉGIME DE BASE SEUL, depuis que la fiche a été scindée. Sa pension est
+          FORFAITAIRE : 19 154 € par an au taux plein en 2026, proratisés par la
+          durée, quel que soit le revenu. C'est la particularité du régime, et
+          c'est ce qu'un compte notionnel supprime le plus radicalement — la
+          pension y redevient proportionnelle aux cotisations.
+          La fiche agrégeait auparavant la base et le complémentaire en un seul
+          taux de 11,40 %, calculé au rendement instantané. Elle portait en
+          outre `salaire_reference: sans_objet` sans qu'aucun montant forfaitaire
+          ne prenne le relais : si la période avait été lue en annuités, elle
+          aurait servi la moyenne des revenus, c'est-à-dire un taux de
+          remplacement de 100 %.
+          Le taux porté ici est celui de la seule cotisation PROPORTIONNELLE au
+          revenu net, 3,20 % (barème CNBF 2026), plafonnée à 297 549 €. La
+          cotisation forfaitaire par tranche d'ancienneté — 363 € la première
+          année, 1 988 € à partir de la sixième — n'est pas modélisée : elle ne
+          dépend pas du revenu, et le compte notionnel ne sait porter qu'une
+          fraction d'assiette. C'est un écart documenté dans docs/limites.md.
+
+  - code: cnbf_complementaire
+    nom: Régime complémentaire obligatoire des avocats (CNBF)
+    famille: liberal
+    source_id: cnbf_baremes
+    fiabilite: haute
+    creation: 1979
+    fermeture: null
+    extinction: null
+    succede_a: []
+    integre_dans: null
+    population: >-
+      Avocats. Régime en points, obligatoire, à trois classes de cotisation —
+      C1, C2 et C2+ — dont seule la première s'impose sans option.
+    hors_repartition: false
+    periodes:
+      - debut: 1979
+        fin: 2018
+        type_calcul: points
+        age_ouverture: 62
+        age_ouverture_par_generation: true
+        age_taux_plein: 67
+        age_taux_plein_par_generation: true
+        duree_requise_trimestres: 172
+        duree_requise_par_generation: true
+        taux_plein: 1.0
+        salaire_reference: carriere_entiere
+        assiette: deplafonnee
+        taux_cotisation_retraite: 0.0800
+        decote_par_trimestre: 0.0125
+        surcote_par_trimestre: null
+        avantages_non_contributifs: [reversion]
+        notes: >-
+          Avant 2017, la CNBF ne met en ligne aucun barème exploitable : ces
+          années restent au rendement instantané, sur un taux moyen de 8 %
+          représentant la classe C1 sur un revenu de milieu de grille. La
+          progressivité par tranches n'est donc pas reproduite ici.
+
+      - debut: 2019
+        fin: null
+        type_calcul: points
+        age_ouverture: 62
+        age_ouverture_par_generation: true
+        age_taux_plein: 67
+        age_taux_plein_par_generation: true
+        duree_requise_trimestres: 172
+        duree_requise_par_generation: true
+        taux_plein: 1.0
+        salaire_reference: carriere_entiere
+        assiette: deplafonnee
+        borne_basse_euros: 0
+        borne_haute_euros: 42507
+        taux_cotisation_retraite: 0.0700
+        decote_par_trimestre: 0.0125
+        surcote_par_trimestre: null
+        avantages_non_contributifs: [reversion]
+        notes: >-
+          PREMIÈRE TRANCHE DE LA GRILLE, et la seule que les trois classes
+          partagent : 7,00 % de 1 € à 42 507 €. Les quatre tranches suivantes
+          sont portées par les périodes ci-dessous.
+          LES TRANCHES SONT FIXÉES EN EUROS, ET LA CAISSE NE LES INDEXE PAS :
+          42 507 € en 2023, en 2025 et en 2026, quand le plafond de la Sécurité
+          sociale passait de 43 992 à 48 060 € sur la même période. Les exprimer
+          en plafonds, comme le fait le reste du catalogue, les ferait donc
+          dériver d'année en année — d'où le champ `borne_haute_euros`, écrit
+          pour ce régime et utilisable par tout autre qui fixerait son assiette
+          de la même façon. Le barème de 2019 portait 41 674 € : la caisse
+          révise ces bornes, mais rarement.
+          CLASSE C1 RETENUE. Trois classes coexistent, et rien ne permet de
+          deviner celle d'un avocat donné. C1 est celle qui s'applique SANS
+          option, et le modèle ne prête jamais à personne un avantage
+          facultatif — même règle que pour les minima sous condition de demande.
+
+      - debut: 2019
+        fin: null
+        type_calcul: points
+        age_ouverture: 62
+        age_ouverture_par_generation: true
+        age_taux_plein: 67
+        age_taux_plein_par_generation: true
+        duree_requise_trimestres: 172
+        duree_requise_par_generation: true
+        taux_plein: 1.0
+        salaire_reference: carriere_entiere
+        assiette: deplafonnee
+        borne_basse_euros: 42507
+        borne_haute_euros: 85014
+        taux_cotisation_retraite: 0.1040
+        decote_par_trimestre: 0.0125
+        surcote_par_trimestre: null
+        avantages_non_contributifs: [reversion]
+        notes: Deuxième tranche de la grille, classe C1 (barème 2026).
+
+      - debut: 2019
+        fin: null
+        type_calcul: points
+        age_ouverture: 62
+        age_ouverture_par_generation: true
+        age_taux_plein: 67
+        age_taux_plein_par_generation: true
+        duree_requise_trimestres: 172
+        duree_requise_par_generation: true
+        taux_plein: 1.0
+        salaire_reference: carriere_entiere
+        assiette: deplafonnee
+        borne_basse_euros: 85014
+        borne_haute_euros: 127521
+        taux_cotisation_retraite: 0.1220
+        decote_par_trimestre: 0.0125
+        surcote_par_trimestre: null
+        avantages_non_contributifs: [reversion]
+        notes: Troisième tranche de la grille, classe C1 (barème 2026).
+
+      - debut: 2019
+        fin: null
+        type_calcul: points
+        age_ouverture: 62
+        age_ouverture_par_generation: true
+        age_taux_plein: 67
+        age_taux_plein_par_generation: true
+        duree_requise_trimestres: 172
+        duree_requise_par_generation: true
+        taux_plein: 1.0
+        salaire_reference: carriere_entiere
+        assiette: deplafonnee
+        borne_basse_euros: 127521
+        borne_haute_euros: 170028
+        taux_cotisation_retraite: 0.1400
+        decote_par_trimestre: 0.0125
+        surcote_par_trimestre: null
+        avantages_non_contributifs: [reversion]
+        notes: Quatrième tranche de la grille, classe C1 (barème 2026).
+
+      - debut: 2019
+        fin: null
+        type_calcul: points
+        age_ouverture: 62
+        age_ouverture_par_generation: true
+        age_taux_plein: 67
+        age_taux_plein_par_generation: true
+        duree_requise_trimestres: 172
+        duree_requise_par_generation: true
+        taux_plein: 1.0
+        salaire_reference: carriere_entiere
+        assiette: deplafonnee
+        borne_basse_euros: 170028
+        borne_haute_euros: 212535
+        taux_cotisation_retraite: 0.1580
+        decote_par_trimestre: 0.0125
+        surcote_par_trimestre: null
+        avantages_non_contributifs: [reversion]
+        notes: >-
+          Cinquième et dernière tranche de la grille, classe C1 (barème 2026).
+          Au-delà de 212 535 €, la cotisation ne progresse plus : le revenu
+          excédentaire n'ouvre aucun droit complémentaire.
 
   - code: msa_salaries
     nom: Régime des salariés agricoles (MSA)

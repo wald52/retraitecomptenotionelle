@@ -476,6 +476,25 @@ export class PeriodeRegime {
     return BORNES_ASSIETTE[this.assiette] || [0.0, null];
   }
 
+  /**
+   * Bornes de l'assiette EN EUROS de l'année, quelle que soit leur forme.
+   *
+   * Les bornes en euros priment quand la fiche en porte : un régime qui fixe
+   * ses tranches en euros et ne les indexe pas — la complémentaire des avocats,
+   * 42 507 € de 2023 à 2026 quand le plafond passait de 43 992 à 48 060 € — ne
+   * peut pas être décrit en multiples d'un plafond qui, lui, suit les salaires.
+   */
+  bornesAssietteEnEuros(pass) {
+    const basse = this.borne_basse_euros;
+    const haute = this.borne_haute_euros;
+    if ((basse !== null && basse !== undefined)
+        || (haute !== null && haute !== undefined)) {
+      return [basse ?? 0.0, haute ?? null];
+    }
+    const [borneBasse, borneHaute] = this.bornesAssietteEnPass();
+    return [borneBasse * pass, borneHaute === null ? null : borneHaute * pass];
+  }
+
   /** Assiette qui ouvre droit à ``points_maximum`` points. */
   repereAssiette(pass, smicHoraire) {
     if (this.assiette_repere_smic !== null && this.assiette_repere_smic !== undefined) {

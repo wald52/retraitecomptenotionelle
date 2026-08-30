@@ -474,16 +474,16 @@ export class ScenarioActuel {
           continue;
         }
         for (const periode of regime.periodesActives(ligne.annee)) {
-          const [borneBasse, borneHaute] = periode.bornesAssietteEnPass();
           const pass = this.macro.plafond_securite_sociale.valeur(ligne.annee);
+          const [borneBasse, borneHaute] = periode.bornesAssietteEnEuros(pass);
           let base = baseLigne;
           if (periode.assiette === "primes_uniquement") {
             base = baseLigne * ligne.part_primes;
           } else if (periode.assiette === "hors_primes") {
             base = baseLigne * (1.0 - ligne.part_primes);
           }
-          const plafond = borneHaute === null ? base : borneHaute * pass;
-          let assiette = Math.max(0.0, Math.min(base, plafond) - borneBasse * pass);
+          const plafond = borneHaute === null ? base : borneHaute;
+          let assiette = Math.max(0.0, Math.min(base, plafond) - borneBasse);
           const repere = periode.repereAssiette(
             pass, this.macro.smic_horaire.valeur(ligne.annee),
           );
@@ -647,12 +647,23 @@ export class ScenarioActuel {
       }
 
       // Régimes en annuités.
+      // Régimes en annuités — et régimes FORFAITAIRES, dont la pension ne dépend
+      // pas du revenu mais de la seule durée. Le second cas se traite comme le
+      // premier en remplaçant le salaire de référence par le montant
+      // forfaitaire. Faute de ce montant, la fiche retombait sur la moyenne des
+      // revenus, c'est-à-dire sur un taux de remplacement de 100 %.
       const plafonner = ["plafonnee", "tranche_1", "tranche_a"].includes(periode.assiette);
       const indicePension = pensions.length;
-      const salaireReference = this.salaireDeReference(
-        code, carriere, periode, anneeLiquidation, plafonner,
-        carriere.annee_naissance, avpf,
-      );
+      const forfaitaire = periode.pension_forfaitaire_annuelle !== null
+        && periode.pension_forfaitaire_annuelle !== undefined;
+      const salaireReference = forfaitaire
+        ? periode.pension_forfaitaire_annuelle * this.macro.coefficientPrix(
+          periode.pension_forfaitaire_annee ?? anneeLiquidation, anneeLiquidation,
+        )
+        : this.salaireDeReference(
+          code, carriere, periode, anneeLiquidation, plafonner,
+          carriere.annee_naissance, avpf,
+        );
       const [requis, fiabiliteDuree] = this.dureeRequise(periode, carriere);
       if (fiabiliteDuree !== null) {
         fiabiliteGlobale = Math.min(fiabiliteGlobale, fiabiliteDuree);
@@ -734,7 +745,8 @@ export class ScenarioActuel {
         regime: code,
         montant: salaireReference * taux * (trimestresRegime / requis),
         type_calcul: "annuites",
-        detail: `SR ${formatFixe(salaireReference, 0, true)} € `
+        detail: `${forfaitaire ? "forfait" : "SR"} `
+          + `${formatFixe(salaireReference, 0, true)} € `
           + `× taux ${formatPourcentage(taux, 2)} × ${trimestresRegime}/${requis}`,
         fiabilite: regime.fiabilite,
       });
