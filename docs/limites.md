@@ -261,6 +261,8 @@ modèle n'a pas, ou décrit un dispositif qu'il représenterait faussement.
 | Taux de cotisation, régime général | 1967-2026 | moyenne | OpenFisca-France, recoupé à chaque exécution |
 | Taux de cotisation, complémentaires du privé | Arrco 1962-2018, Agirc 1981-2018, Agirc-Arrco 2019- | moyenne | OpenFisca-France, taux effectifs par tranche, recoupés à chaque exécution |
 | Taux de cotisation, autres régimes | tous | moyenne / estimée | Comptes de la Sécurité sociale |
+| Répartition salarié/employeur, régime général | 1968-2026 | haute | OpenFisca-France, recoupée à chaque exécution |
+| Répartition salarié/employeur, autres régimes de salariés | toutes | moyenne / estimée | OpenFisca et textes ; règle 40-60 pour les complémentaires |
 | Contribution employeur, État | 2006-2026 | **certifiée** | Service des retraites de l'État, fiche « Historique des taux de cotisations » |
 | Contribution employeur, État (implicite) | 1995-2005 | haute | OpenFisca-France, jaune « pensions » du PLF 2011 |
 | Contribution employeur, CNRACL | 1948-2025 | haute | OpenFisca-France, décrets et barèmes de la Caisse des dépôts |
@@ -540,10 +542,12 @@ plus volontiers.
   l'agent seule », lui, y est très sensible — +11 à +14 % sur la pension
   notionnelle des générations 1940 et 1960 pour ce même point — ce qui est une
   raison de plus de ne pas en faire le défaut, et de lire ses résultats en
-  sachant sur quoi ils reposent. Les **scénarios 4 et 5** y sont sensibles
-  aussi, mais autrement : ils ajoutent à la retenue de la fiche une contribution
-  employeur qui, elle, est datée décret par décret, si bien que l'incertitude de
-  la fiche n'y pèse plus que pour un dixième du taux total.
+  sachant sur quoi ils reposent. Depuis que les fiches portent leur
+  `part_salariale`, ce réglage n'est plus le défaut d'aucun scénario : les
+  scénarios 2 et 3 comparent la part salariale de chacun, sans emprunt, et les
+  scénarios 4 et 5 y ajoutent une part patronale lue dans la fiche pour le privé
+  et datée décret par décret pour le public. L'incertitude des taux publics ne
+  pèse plus, dans les scénarios 4 et 5, que pour un dixième du taux total.
 * *Valeur du point de la MSA* — **trouvée, après huit sources infructueuses.**
   Ont été essayés sans succès : OpenFisca-France-Pension (ne modélise pas ce
   régime), les barèmes IPP (même périmètre — c'est la source amont d'OpenFisca,
@@ -908,21 +912,25 @@ Le catalogue compte **37 régimes**, actuels et disparus. Il est structurellemen
 extensible : ajouter un régime consiste à écrire une fiche YAML conforme à
 `data/reference/regimes/_schema.yaml`, sans toucher au moteur.
 
-### Ce que les scénarios 4 et 5 ne couvrent pas
+### La part patronale du public, et ce qu'on n'en sait pas
 
-Les scénarios 4 et 5 portent au compte la contribution que l'employeur public a
-réellement versée. Elle n'est publiée que pour trois régimes, et pas sur toute
-leur durée. Partout ailleurs, ils retombent sur l'alignement du scénario 2 —
-jamais sur zéro, qui les rendrait incomparables — la fiabilité de l'année
-retombe à `estimee`, et le nombre d'années concernées est affiché sous la
-simulation.
+Les scénarios 4 et 5 ajoutent à la part salariale ce que verse l'employeur. Pour
+un salarié du privé, la fiche du régime le porte — `part_salariale` en donne la
+répartition, recoupée à OpenFisca année par année. Pour un agent public, elle
+n'est dans aucune fiche : le modèle la lit dans
+`legislation/contribution_employeur_public.csv`, qui ne couvre que trois régimes
+et pas sur toute leur durée. Partout ailleurs, la part patronale est **estimée**
+par l'effort d'un salarié du privé de la même année — jamais laissée à zéro, qui
+ferait retomber les scénarios 4 et 5 sur les 2 et 3 sans le dire — la fiabilité
+de l'année retombe à `estimee`, et le nombre d'années concernées est affiché
+sous la simulation.
 
 | Régime | Couvert | Découvert | Ce qui manque |
 |---|---|---|---|
 | Fonction publique d'État | 1995-2026 | 1930-1994 | rien à retrouver : l'État ne versait aucune cotisation, les pensions étaient payées sur crédits budgétaires, et le plus ancien chiffrage a posteriori — le jaune « pensions » — s'arrête à 1995 |
 | CNRACL | 1948-2025 | 1945-1947 | le décret fondateur date du 19 septembre 1947 ; la convention « taux au 1er janvier » fait donc commencer la série en 1948 |
 | SNCF | 2007-2018 | 1930-2006, 2019- | les composantes T1 et T2 datent du décret du 28 juin 2007 ; OpenFisca cesse de les suivre après la fermeture du régime aux nouveaux entrants |
-| FSPOEIE, RATP, IEG, marins, mines, CRPCEN, Banque de France, Opéra, Comédie-Française, port de Strasbourg, SEITA, chemins de fer secondaires | rien | tout | aucune série de taux employeur publiée sous une forme exploitable. Pour ces douze régimes, le scénario 4 rend exactement le scénario 2 et le 5 exactement le 3, et le modèle le dit |
+| FSPOEIE, RATP, IEG, marins, mines, CRPCEN, Banque de France, Opéra, Comédie-Française, port de Strasbourg, SEITA, chemins de fer secondaires | rien | tout | aucune série de taux employeur publiée sous une forme exploitable. Pour ces douze régimes, la part patronale des scénarios 4 et 5 est celle d'un salarié du privé de la même année, et le modèle le dit |
 
 Deux conséquences à garder en tête.
 
@@ -930,13 +938,12 @@ Deux conséquences à garder en tête.
 scénario 2** — non parce que le financement d'alors ressemblait à celui du
 privé, mais parce qu'on ne le connaît pas.
 
-**Le scénario 5 prolonge le dernier taux connu jusqu'à la liquidation.** Il
-n'ouvre son compte qu'à la bascule, donc l'essentiel de ses années sont
-postérieures à 2026, où aucun taux n'est encore publié : il y applique le taux
-de 2026 — 82,28 % pour l'État — indéfiniment. C'est la même convention que pour
-toute projection du modèle, et elle porte la même fiabilité `estimee` ; mais
-elle pèse ici plus lourd qu'ailleurs, puisqu'elle couvre presque tout le
-scénario pour une génération jeune.
+**Le scénario 5 ne voit presque jamais la contribution publique.** Il n'ouvre
+son compte qu'à la bascule, et à compter de la bascule le régime unique remplace
+tous les régimes : la part patronale y est celle du statut pivot privé, pas
+celle d'un employeur public. Ce que le scénario 5 mesure après 2026 est donc la
+répartition du régime unique, non le financement de la fonction publique — qui,
+par construction, n'existe plus.
 
 ---
 

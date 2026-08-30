@@ -318,6 +318,17 @@ class Affiliations:
     def libelle(self, code: str) -> str:
         return self._profils[code].get("libelle", code)
 
+    def sans_employeur(self, affiliation: str) -> bool:
+        """Ce statut cotise-t-il sans employeur ?
+
+        Vrai pour les non-salariés : leur cotisation est intégralement
+        personnelle. Le drapeau est porté par le STATUT et non par le régime,
+        parce qu'un non-salarié relève souvent d'un régime partagé avec des
+        salariés — un artisan cotise au régime général, dont la fiche porte la
+        répartition d'un salarié. Le taux y est le bon ; la répartition, non.
+        """
+        return bool(self._profils.get(affiliation, {}).get("sans_employeur", False))
+
     def regimes(self, affiliation: str, annee: int) -> tuple[str, ...]:
         """Régimes applicables à ce statut cette année-là."""
         if affiliation not in self._profils:

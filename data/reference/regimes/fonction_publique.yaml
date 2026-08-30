@@ -377,6 +377,7 @@ regimes:
         salaire_reference: carriere_entiere
         assiette: primes_uniquement
         taux_cotisation_retraite: 0.10
+        part_salariale: 0.50   # décret 2004-569 : 5 % agent, 5 % employeur
         decote_par_trimestre: null
         surcote_par_trimestre: null
         avantages_non_contributifs: [reversion]

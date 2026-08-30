@@ -583,6 +583,7 @@ regimes:
         salaire_reference: 25_meilleures_annees
         assiette: plafonnee
         taux_cotisation_retraite: 0.1787
+        part_salariale: 0.40   # régime aligné sur le régime général, dont il suit la répartition
         decote_par_trimestre: 0.0125
         surcote_par_trimestre: 0.0125
         avantages_non_contributifs:

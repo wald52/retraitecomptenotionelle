@@ -64,7 +64,7 @@ STYLE = RACINE / "moteur" / "style.css"
 
 #: Version du format. À incrémenter si la structure du paquet change, pour
 #: qu'un site en cache ne lise pas un paquet qu'il ne comprend pas.
-VERSION = 4
+VERSION = 5
 
 
 def _serie(serie: SerieAnnuelle) -> dict:
@@ -177,6 +177,7 @@ def _regimes() -> list[dict]:
                     "assiette": p.assiette,
                     "taux_cotisation_retraite": p.taux_cotisation_retraite,
                     "perimetre_taux": p.perimetre_taux,
+                    "part_salariale": p.part_salariale,
                     "age_taux_plein_par_generation": p.age_taux_plein_par_generation,
                     "decote_par_generation": p.decote_par_generation,
                     "salaire_reference_par_generation": p.salaire_reference_par_generation,
@@ -210,6 +211,7 @@ def _affiliations() -> dict:
     return {
         code: {
             "libelle": affiliations.libelle(code),
+            "sans_employeur": affiliations.sans_employeur(code),
             "periodes": affiliations._profils[code].get("periodes", []),
         }
         for code in affiliations.codes

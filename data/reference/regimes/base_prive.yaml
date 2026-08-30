@@ -29,6 +29,7 @@ regimes:
         salaire_reference: sans_objet
         assiette: plafonnee
         taux_cotisation_retraite: 0.08
+        part_salariale: 0.50   # loi du 30 avril 1930 : 8 %, moitié ouvrier moitié patron
         decote_par_trimestre: null
         surcote_par_trimestre: null
         avantages_non_contributifs: []
@@ -62,6 +63,7 @@ regimes:
         salaire_reference: sans_objet
         assiette: plafonnee
         taux_cotisation_retraite: 0.08
+        part_salariale: 0.50   # financée par la cotisation des assurances sociales, partagée par moitié
         decote_par_trimestre: null
         surcote_par_trimestre: null
         avantages_non_contributifs: [minimum_vieillesse]
@@ -105,6 +107,7 @@ regimes:
         salaire_reference: 10_meilleures_annees
         assiette: plafonnee
         taux_cotisation_retraite: 0.085
+        part_salariale: 0.3479   # mesurée sur 1968-1971, la transcription OpenFisca ne remontant pas plus haut
         decote_par_trimestre: 0.025
         decote_annulee_par_la_duree: false
         surcote_par_trimestre: null
@@ -136,6 +139,7 @@ regimes:
         salaire_reference: 10_meilleures_annees
         assiette: plafonnee
         taux_cotisation_retraite: 0.1119
+        part_salariale: 0.3324   # OpenFisca, moyenne 1972-1982
         decote_par_trimestre: 0.025
         decote_annulee_par_la_duree: false
         surcote_par_trimestre: null
@@ -166,6 +170,7 @@ regimes:
         salaire_reference: 10_meilleures_annees
         assiette: plafonnee
         taux_cotisation_retraite: 0.1505
+        part_salariale: 0.4253   # OpenFisca, moyenne 1983-1993
         decote_par_trimestre: 0.0125
         surcote_par_trimestre: null
         avantages_non_contributifs:
@@ -192,6 +197,7 @@ regimes:
         salaire_reference: 25_meilleures_annees
         assiette: plafonnee
         taux_cotisation_retraite: 0.1635
+        part_salariale: 0.4006   # OpenFisca, moyenne 1994-2003
         decote_par_trimestre: 0.0125
         surcote_par_trimestre: null
         avantages_non_contributifs:
@@ -219,6 +225,7 @@ regimes:
         salaire_reference: 25_meilleures_annees
         assiette: plafonnee
         taux_cotisation_retraite: 0.1659
+        part_salariale: 0.4049   # OpenFisca, moyenne 2004-2008
         decote_par_trimestre: 0.0125
         surcote_par_trimestre: 0.0075
         avantages_non_contributifs:
@@ -243,6 +250,7 @@ regimes:
         salaire_reference: 25_meilleures_annees
         assiette: plafonnee
         taux_cotisation_retraite: 0.1659
+        part_salariale: 0.4054   # OpenFisca, moyenne 2009-2010
         decote_par_trimestre: 0.0125
         surcote_par_trimestre: 0.0125
         avantages_non_contributifs:
@@ -268,6 +276,7 @@ regimes:
         salaire_reference: 25_meilleures_annees
         assiette: plafonnee
         taux_cotisation_retraite: 0.1743
+        part_salariale: 0.4096   # OpenFisca, moyenne 2011-2022
         decote_par_trimestre: 0.0125
         surcote_par_trimestre: 0.0125
         avantages_non_contributifs:
@@ -293,6 +302,7 @@ regimes:
         salaire_reference: 25_meilleures_annees
         assiette: plafonnee
         taux_cotisation_retraite: 0.1786
+        part_salariale: 0.4087   # OpenFisca, moyenne 2023-2026
         decote_par_trimestre: 0.0125
         surcote_par_trimestre: 0.0125
         avantages_non_contributifs:

@@ -557,6 +557,11 @@ export class PeriodeRegime {
     return this.debut <= annee && (this.fin === null || annee <= this.fin);
   }
 
+  /** Part du taux que l'assuré supporte lui-même. */
+  get tauxCotisationSalarie() {
+    return this.taux_cotisation_retraite * this.part_salariale;
+  }
+
   bornesAssietteEnPass() {
     return BORNES_ASSIETTE[this.assiette] || [0.0, null];
   }
@@ -706,6 +711,17 @@ export class Affiliations {
 
   libelle(code) {
     return this._profils[code].libelle ?? code;
+  }
+
+  /**
+   * Ce statut cotise-t-il sans employeur ?
+   *
+   * Vrai pour les non-salariés. Le drapeau est porté par le STATUT et non par
+   * le régime : un artisan cotise au régime général, dont la fiche porte la
+   * répartition d'un salarié. Le taux y est le bon ; la répartition, non.
+   */
+  sansEmployeur(affiliation) {
+    return Boolean((this._profils[affiliation] ?? {}).sans_employeur);
   }
 
   /** Régimes applicables à ce statut cette année-là. */

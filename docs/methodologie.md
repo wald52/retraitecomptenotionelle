@@ -448,6 +448,10 @@ Compte ouvert à l'entrée dans la vie active, ou en 1941 si la carrière a comm
 avant. Toute la carrière est recalculée. C'est le scénario qui répond à
 « qu'aurait été ma retraite si le système avait toujours été notionnel ».
 
+Ce qu'on y porte est la **part salariale** de la cotisation — ce que l'assuré a
+supporté lui-même, la même grandeur pour tous les statuts. La part de
+l'employeur fait l'objet des scénarios 4 et 5.
+
 ### Scénario 3 — comptes notionnels à compter d'aujourd'hui
 
 Les droits acquis à la bascule sont figés selon les règles actuelles, convertis
@@ -501,8 +505,8 @@ inhérent au principe même des comptes notionnels.
 
 ### Le périmètre du taux de cotisation
 
-Les fiches de régime ne stockaient pas la même grandeur selon le secteur, et
-rien ne le disait :
+Les fiches de régime ne stockent pas la même grandeur selon le secteur, et rien
+ne le disait :
 
 | Secteur | Ce que porte `taux_cotisation_retraite` | Valeur 2023 |
 |---|---|---|
@@ -514,130 +518,125 @@ effort contributif complet à un demi-effort. À rémunération et carrière
 identiques, un fonctionnaire affichait une pension notionnelle inférieure de
 37 % à celle d'un salarié — écart qui ne traduisait aucune règle de retraite.
 
-Les périodes concernées portent `perimetre_taux: agent_seul`, et le paramètre
-`traitement_contribution_employeur_etat` dit quoi en faire :
+Le modèle a d'abord refermé cet écart par une **convention** : prêter au public
+la part employeur du privé. Elle rendait les statuts comparables, mais au prix
+d'un chiffre inventé, et elle interdisait de poser la question la plus simple —
+combien l'assuré verse-t-il, et combien son employeur ? Deux séries permettent
+aujourd'hui d'y répondre sans rien inventer.
 
-- `alignee_sur_le_prive` (défaut, scénarios 2 et 3) leur substitue le taux total
-  du statut pivot privé de l'année. C'est déjà ce que fait la fusion des régimes
-  après la bascule, et c'est le traitement qui rend les 22 statuts comparables à
-  effort contributif égal ;
-- `financement_historique` (scénario 4) y ajoute la contribution que l'employeur
-  public a réellement versée ;
-- `exclue` conserve le taux stocké, et reproduit les chiffres d'avant que la
-  question soit posée.
+#### `part_salariale` : qui paie quoi, dans les fiches
 
-**Ce que ce document affirmait, et qui était faux.** Il a longtemps soutenu
-qu'un troisième traitement était impossible, faute de série : le compte
-d'affectation spéciale « Pensions » datant de 2006, il n'y aurait rien avant.
-C'était vrai de l'État, et faux du reste.
+Chaque période de fiche porte désormais la fraction du taux que l'assuré
+supporte lui-même. Le défaut, `1.0`, couvre deux cas où il n'y a rien à
+partager : les **non-salariés**, dont la cotisation est intégralement
+personnelle, et les périodes **`agent_seul`**, dont le taux est déjà la seule
+retenue de l'agent. Toute autre période doit porter une valeur explicite, et
+`scripts/verifier_donnees.py` échoue si l'une manque.
 
-- La **CNRACL** est une caisse depuis 1947. Ses employeurs lui versent une
-  cotisation dont le taux est fixé par décret, et la série est publiée sans
-  interruption depuis 1948 : 12 % à l'origine, 10,2 % au creux de 1984, 34,65 %
-  en 2025. La fonction publique territoriale et hospitalière n'a jamais eu le
-  problème qu'on prêtait à toute la fonction publique.
-- L'**État** lui-même a un taux avant 2006, non pas appelé mais **reconstitué** :
-  l'annexe « pensions » au projet de loi de finances pour 2011 publie, page 26,
-  une série de « taux de cotisation employeur implicite » remontant à 1995 —
-  48,6 % en 1995, 59,4 % en 2005 — obtenue en simulant le compte du régime.
-- La **SNCF** publie par arrêté annuel les deux composantes de la contribution
-  de l'entreprise : T1, calée sur ce que coûteraient les mêmes salariés au
-  régime général et aux complémentaires du privé, et T2, qui finance les droits
-  spécifiques du régime et son déséquilibre démographique.
+| Régime | Période | Part salariale | Origine |
+|---|---|---:|---|
+| Régime général | 1945-1971 | 34,79 % | mesurée sur 1968-1971, OpenFisca ne remontant pas plus haut |
+| Régime général | 1972-1982 | 33,24 % | OpenFisca, moyenne de période |
+| Régime général | 1983-1993 | 42,53 % | idem |
+| Régime général | 1994-2022 | 40,1 à 41,0 % | idem |
+| Régime général | 2023- | 40,87 % | idem |
+| Arrco, Agirc-Arrco, Ircantec | toutes | 40 % | règle de répartition 40-60 (ANI du 17 novembre 2017, art. 38) |
+| Agirc | 1947-1980 | 25 % | OpenFisca : un quart, trois quarts |
+| Agirc | 1981-2018 | 31 à 37 % | OpenFisca, moyenne de période |
+| RAFP | 2005- | 50 % | décret 2004-569 : 5 % agent, 5 % employeur |
+| Assurances sociales, AVTS | 1930-1945 | 50 % | loi du 30 avril 1930 : 8 %, moitié ouvrier moitié patron |
 
-Reste l'objection de fond, et elle était juste : **ce sont des taux
-d'équilibre**, fixés pour que le compte tombe. 82,28 % en 2026 ne dit pas qu'un
-fonctionnaire acquiert 82 % de son traitement en droits nouveaux, mais qu'il faut
-aujourd'hui cette contribution pour payer les pensions d'aujourd'hui. Cette
-objection ne rend pas la série inutilisable : elle interdit de la lire comme un
-taux d'acquisition, et borne donc ce que les scénarios 4 et 5 démontrent.
+La part est une **moyenne sur la période**, comme le taux lui-même : les fiches
+sont découpées par période législative, et les parts salariale et patronale
+bougent chacune à son rythme. Le contrôle de vraisemblance les confronte année
+par année à OpenFisca, et le fait pour la répartition comme pour le taux.
 
-### Scénarios 4 et 5 — les mêmes, cotisations employeur incluses
+**Le drapeau porte sur le STATUT, pas seulement sur le régime.** Un artisan
+cotise au régime général, dont la fiche porte la répartition 41/59 d'un salarié.
+Le taux y est le bon — un artisan verse à peu près ce que verse le couple
+salarié-employeur — mais la répartition ne le concerne pas : lui paie tout.
+`affiliations.yaml` marque donc `sans_employeur: true` les cinq statuts
+concernés (artisan, commerçant, profession libérale, avocat, exploitant
+agricole), et le modèle force alors la part à un.
 
-Ce sont **exactement les scénarios 2 et 3**, à une différence près et une
-seule : ce qui alimente le compte d'un agent public. Là où les scénarios 2 et 3
-substituent à la retenue de l'agent l'effort contributif d'un salarié du privé
-de la même année, les scénarios 4 et 5 y ajoutent la contribution que
-l'employeur public a réellement versée.
+#### La contribution employeur du public
 
-| | Point de départ du compte | Part employeur du public |
-|---|---|---|
-| **2** | origine de la répartition | effort d'un salarié du privé |
-| **3** | année de bascule, droits acquis figés | effort d'un salarié du privé |
-| **4** | origine de la répartition | contribution réellement versée |
-| **5** | année de bascule, droits acquis figés | contribution réellement versée |
+Elle n'est dans aucune fiche, et le dépôt a longtemps soutenu qu'elle n'existait
+pas avant 2006. C'était vrai de l'État, et faux du reste.
 
-Le 4 se lit donc contre le 2, le 5 contre le 3, et l'écart mesure une chose à la
-fois. Pour un salarié du privé, dont la fiche porte déjà le total, les quatre
-scénarios se réduisent à deux : 4 = 2 et 5 = 3, au centime près, et c'est le
-test qui le vérifie.
-
-#### Ce qui alimente le compte, et sur quelle assiette
+- La **CNRACL** est une caisse depuis 1947 : le taux versé par les employeurs
+  territoriaux et hospitaliers est fixé par décret et publié depuis 1948 — 12 %
+  à l'origine, 10,2 % au creux de 1984, 34,65 % en 2025.
+- L'**État** a bien un taux avant 2006, non pas appelé mais **reconstitué** :
+  l'annexe « pensions » au PLF 2011 publie, page 26, une série de « taux de
+  cotisation employeur implicite » remontant à 1995.
+- Depuis 2006 le taux est appelé par décret, et le Service des retraites de
+  l'État en publie l'historique : 49,90 %, puis 74,28 % de 2013 à 2024, 78,28 %
+  en 2025, 82,28 % en 2026.
+- La **SNCF** publie par arrêté les composantes T1 et T2 de la contribution de
+  l'entreprise, de 2007 à 2018.
 
 La série est dans `legislation/contribution_employeur_public.csv`. Trois
-conventions à connaître.
-
-**L'assiette ne change pas.** Le taux du CAS porte sur le traitement indiciaire
-brut et la NBI, à l'exclusion des primes — exactement l'assiette `hors_primes`
-que les fiches portent déjà. Les primes relèvent du RAFP depuis 2005, qui reste
-dans le compartiment de capitalisation.
-
-**Le taux retenu est celui en vigueur au 1er janvier**, comme partout ailleurs
-dans le dépôt. Deux abattements d'un mois y échappent volontairement — décembre
-2009 (40,14 %) et décembre 2013 (44,28 %) — parce qu'ils soldent l'exercice
-budgétaire et ne sont pas des taux d'appel.
-
-**Là où la série n'existe pas, le modèle le dit.** Avant 1995 pour l'État, avant
-1948 pour la CNRACL, hors 2007-2018 pour la SNCF, et pour les douze régimes
-spéciaux dont aucune série n'est publiée, les scénarios 4 et 5 retombent sur
-l'alignement du scénario 2 — jamais sur zéro, qui les rendrait incomparables —
-et la fiabilité de l'année retombe à `estimee`. Le nombre d'années concernées
-est affiché sous la simulation, et la sortie JSON le porte dans
-`annees_part_employeur`.
+conventions à connaître. L'**assiette ne change pas** : le taux du CAS porte sur
+le traitement indiciaire brut et la NBI, à l'exclusion des primes — exactement
+l'assiette `hors_primes` des fiches. Le **taux retenu est celui du 1er
+janvier**, comme partout ailleurs dans le dépôt ; deux abattements d'un mois y
+échappent volontairement, décembre 2009 et décembre 2013, qui soldent l'exercice
+budgétaire. Enfin, **là où la série n'existe pas, le modèle le dit** : avant 1995
+pour l'État, avant 1948 pour la CNRACL, hors 2007-2018 pour la SNCF, et pour les
+douze régimes spéciaux qui n'en publient aucune, la part patronale est estimée
+par l'effort d'un salarié du privé de la même année, la fiabilité retombe à
+`estimee`, et le nombre d'années concernées est affiché sous la simulation.
 
 La marche 2005 → 2006, où le taux de l'État passe de 59,4 % à 49,9 %, n'est pas
 une baisse du coût des droits : c'est un changement de mesure, le périmètre du
 taux implicite étant plus étroit que celui du CAS.
 
-#### Après la bascule, le régime unique doit garder la trace de l'employeur
+### Scénarios 4 et 5 — les mêmes, part patronale comprise
 
-C'est le seul point de mécanique du scénario 5, et sans lui ce scénario
-n'existerait pas.
+Ce sont **exactement les scénarios 2 et 3**, à une différence près et une
+seule : ce qui alimente le compte.
 
-À compter de la bascule, le régime unique remplace tous les régimes et applique
-un taux unique — la somme des taux du statut pivot privé (§7). Cette convention
-efface toute trace de ce que verse un employeur public. Or le scénario 5 n'ouvre
-son compte QU'À la bascule : porter la contribution employeur au seul passé le
-laisserait donc **rigoureusement identique au scénario 3**, à l'euro près. Un
-scénario qui ne peut pas différer d'un autre ne mesure rien.
+| | Point de départ du compte | Ce qui y est porté |
+|---|---|---|
+| **2** | origine de la répartition | la part **salariale** seule |
+| **3** | année de bascule, droits acquis figés | la part **salariale** seule |
+| **4** | origine de la répartition | salariale **et patronale** |
+| **5** | année de bascule, droits acquis figés | salariale **et patronale** |
 
-Sous le traitement `financement_historique`, le régime unique conserve donc,
-pour un agent public, l'effort contributif réel de son régime : retenue de
-l'agent plus contribution de l'employeur. Comme l'assiette du régime unique est
-la rémunération **entière** alors que ces taux portent sur le seul traitement
-indiciaire, le taux est ramené à cette assiette en le multipliant par la part
-hors primes :
+Le 4 se lit donc contre le 2, le 5 contre le 3, et l'écart mesure une chose à la
+fois : ce que verse l'employeur. Pour un **non-salarié**, qui n'en a pas, les
+quatre scénarios se réduisent à deux — et c'est le test qui le vérifie.
 
-```
-taux porté = (retenue de l'agent + contribution employeur) × (1 − part de primes)
-```
+Le paramètre est `part_cotisation`, en ligne de commande `--part-cotisation`.
+Une troisième valeur, `totale_alignee`, conserve l'ancienne convention — part
+patronale du public empruntée au privé — comme contrefactuel : elle répond à
+« à effort contributif égal, que donnerait la règle notionnelle ? », question
+légitime mais différente, et sous elle un fonctionnaire et un salarié de même
+rémunération retrouvent exactement la même pension.
 
-Pour un fonctionnaire d'État touchant 25 % de primes en 2030, cela fait
-(11,10 % + 82,28 %) × 0,75 = 70,0 % de la rémunération entière. Sans cette
-conversion, 82,28 % s'appliqueraient à des primes qui n'ont jamais rien versé au
-régime.
+#### Après la bascule, le régime unique tranche
 
-Les statuts privés ne sont pas concernés : leur fiche porte déjà le total, et le
-régime unique aussi.
+À compter de la bascule il n'y a plus ni fonction publique ni régimes spéciaux :
+un seul régime, dont le taux est la somme des taux du statut pivot privé (§7).
+Il en **hérite la répartition** salarié/employeur — 10,45 % de part salariale
+sur 25,73 % en 2026 — et c'est elle qui sépare le scénario 5 du scénario 3 après
+la bascule. Il n'y a donc, après la bascule, aucune contribution publique à
+retrouver décret par décret : la réforme l'a remplacée.
 
-#### Ce que ces deux scénarios ne disent pas
+Une exception, et une seule : un assuré qui n'avait pas d'employeur n'en gagne
+pas un en changeant de régime. Un artisan cotise seul avant la bascule ; il
+cotise seul après, à un taux plus élevé — c'est déjà ce que dit le modèle (§7),
+et la répartition doit le suivre.
+
+#### Ce que ces scénarios ne disent pas
 
 Les taux employeur publics sont des taux d'**équilibre**, fixés pour que le
 compte tombe juste. Un taux de 82,28 % ne signifie pas qu'un fonctionnaire
 acquiert 82 % de son traitement en droits nouveaux : il signifie qu'il faut
-aujourd'hui cette contribution pour payer les pensions d'aujourd'hui, démographie
-et engagements hérités compris. Les porter à un compte notionnel répond à une
-question précise :
+aujourd'hui cette contribution pour payer les pensions d'aujourd'hui,
+démographie et engagements hérités compris. Les porter à un compte notionnel
+répond à une question précise :
 
 > qu'aurait donné un compte notionnel si **tout ce qui a été consacré aux
 > pensions** avait été porté au compte des actifs ?
@@ -650,8 +649,7 @@ surplus restant une contribution de transition qui n'ouvre aucun droit — et le
 moteur sait la calculer : `source_cotisations = taux_uniforme`, soit
 `--cotisations taux_uniforme` en ligne de commande. Elle ne figure pas parmi les
 cinq scénarios parce qu'elle ne répond pas à la même question : elle ne mesure
-plus ce que le public verse, mais ce qu'une réforme choisirait de lui
-reconnaître.
+plus ce qui a été versé, mais ce qu'une réforme choisirait de reconnaître.
 
 ---
 

@@ -16,7 +16,7 @@ from urllib.parse import urlencode
 from ..castypes import CAS_TYPES, GENERATIONS, calculer_cas_types
 from ..config import (
     AgeConversionDroitsAcquis,
-    ContributionEmployeurPublic,
+    PartCotisation,
     ModeAgeReference,
     ModeIndexation,
     Parametres,
@@ -47,10 +47,10 @@ AGES_REFERENCE = [
 
 TABLES = [("unisexe", "Unisexe (défaut)"), ("par_sexe", "Par sexe")]
 
-COTISATIONS_PUBLIQUES = [
-    ("alignee_sur_le_prive", "Alignée sur le privé (défaut)"),
-    ("financement_historique", "Contribution employeur réellement versée"),
-    ("exclue", "Retenue de l'agent seule"),
+PARTS_COTISATION = [
+    ("salariale", "Part salariale seule (défaut)"),
+    ("totale", "Salariale et patronale"),
+    ("totale_alignee", "Salariale et patronale, public aligné sur le privé"),
 ]
 
 CONVERSIONS_ACQUIS = [
@@ -88,7 +88,7 @@ class Saisie:
     age_reference: str = "cliquet_legal"
     table: str = "unisexe"
     conversion_acquis: str = "reference"
-    cotisation_publique: str = "alignee_sur_le_prive"
+    part_cotisation: str = "salariale"
     projection: str = "cor_central"
     bascule: int = 2026
     euros: int = 2026
@@ -118,9 +118,9 @@ class Saisie:
                 parametres, "conversion_acquis", CONVERSIONS_ACQUIS,
                 defauts.conversion_acquis,
             ),
-            cotisation_publique=_parmi(
-                parametres, "cotisation_publique", COTISATIONS_PUBLIQUES,
-                defauts.cotisation_publique,
+            part_cotisation=_parmi(
+                parametres, "part_cotisation", PARTS_COTISATION,
+                defauts.part_cotisation,
             ),
             projection=_parmi(parametres, "projection", PROJECTIONS, defauts.projection),
             bascule=_entier(parametres, "bascule", defauts.bascule),
@@ -159,8 +159,8 @@ class Saisie:
             age_conversion_droits_acquis=AgeConversionDroitsAcquis(
                 self.conversion_acquis
             ),
-            traitement_contribution_employeur_etat=ContributionEmployeurPublic(
-                self.cotisation_publique
+            part_cotisation=PartCotisation(
+                self.part_cotisation
             ),
             scenario_projection=self.projection,
             annee_bascule=self.bascule,
@@ -195,7 +195,7 @@ class Saisie:
             "interruptions": self.interruptions, "indexation": self.indexation,
             "age_reference": self.age_reference, "table": self.table,
             "conversion_acquis": self.conversion_acquis,
-            "cotisation_publique": self.cotisation_publique,
+            "part_cotisation": self.part_cotisation,
             "projection": self.projection, "bascule": self.bascule, "euros": self.euros,
         }
         champs.update(remplacements)
@@ -388,9 +388,9 @@ def _formulaire(saisie: Saisie, contexte: Contexte) -> str:
                 "revalorisation des comptes et des pensions"),
         g.liste("age_reference", "Âge de référence", AGES_REFERENCE, saisie.age_reference),
         g.liste("table", "Table de conversion", TABLES, saisie.table),
-        g.liste("cotisation_publique", "Cotisation des régimes publics",
-                COTISATIONS_PUBLIQUES, saisie.cotisation_publique,
-                "les fiches publiques ne portent que la retenue de l'agent"),
+        g.liste("part_cotisation", "Part de la cotisation portée au compte",
+                PARTS_COTISATION, saisie.part_cotisation,
+                "salariale seule, ou salariale et patronale"),
         g.liste("conversion_acquis", "Conversion des droits acquis",
                 CONVERSIONS_ACQUIS, saisie.conversion_acquis,
                 "âge auquel les droits figés à la bascule sont convertis"),

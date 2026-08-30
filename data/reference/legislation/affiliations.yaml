@@ -9,6 +9,13 @@
 # Chaque affiliation liste des tranches temporelles ; pour chaque tranche, les
 # régimes actifs. Les régimes marqués `hors_repartition` dans le catalogue sont
 # automatiquement isolés dans le compartiment de capitalisation.
+#
+# `sans_employeur: true` marque les statuts qui n'ont PAS d'employeur : la
+# cotisation y est intégralement personnelle. Le drapeau est nécessaire parce
+# qu'un non-salarié relève souvent d'un régime partagé avec des salariés — un
+# artisan cotise au régime général, dont la fiche porte la répartition 41/59
+# d'un salarié. Le taux est le bon, la répartition ne l'est pas : lui, paie
+# tout. Sans ce drapeau, les scénarios 4 et 5 lui prêteraient un employeur.
 
 affiliations:
 
@@ -58,6 +65,7 @@ affiliations:
 
   artisan:
     libelle: Artisan
+    sans_employeur: true
     periodes:
       - {debut: 1949, fin: 1978, regimes: [cancava]}
       - {debut: 1979, fin: 2005, regimes: [cancava, rci]}
@@ -67,6 +75,7 @@ affiliations:
 
   commercant:
     libelle: Commerçant ou industriel
+    sans_employeur: true
     periodes:
       - {debut: 1949, fin: 2003, regimes: [organic]}
       - {debut: 2004, fin: 2005, regimes: [organic, rci]}
@@ -76,6 +85,7 @@ affiliations:
 
   profession_liberale:
     libelle: Profession libérale (régime de base CNAVPL)
+    sans_employeur: true
     periodes:
       - {debut: 1949, fin: null, regimes: [cnavpl]}
     note: >-
@@ -85,6 +95,7 @@ affiliations:
 
   avocat:
     libelle: Avocat
+    sans_employeur: true
     periodes:
       - {debut: 1948, fin: 1978, regimes: [cnbf]}
       - {debut: 1979, fin: null, regimes: [cnbf, cnbf_complementaire]}
@@ -98,6 +109,7 @@ affiliations:
 
   exploitant_agricole:
     libelle: Chef d'exploitation ou d'entreprise agricole
+    sans_employeur: true
     periodes:
       - {debut: 1952, fin: 2002, regimes: [msa_non_salaries]}
       - {debut: 2003, fin: null, regimes: [msa_non_salaries, msa_rco]}

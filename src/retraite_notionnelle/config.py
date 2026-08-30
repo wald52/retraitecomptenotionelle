@@ -83,59 +83,50 @@ class ModeAgeReference(str, Enum):
     LEGAL_SANS_CLIQUET = "legal_sans_cliquet"
 
 
-class ContributionEmployeurPublic(str, Enum):
-    """Que faire de la contribution employeur des régimes publics et spéciaux.
+class PartCotisation(str, Enum):
+    """Quelle part de la cotisation retraite alimente le compte notionnel.
 
-    Les fiches de régime ne stockent pas la même chose selon le secteur. Pour
-    le privé, ``taux_cotisation_retraite`` est le total salarié + employeur —
-    25,7 % pour un salarié en 2023. Pour la fonction publique et les régimes
-    spéciaux, c'est la seule retenue de l'agent : 11,10 %, parfois 7 %.
-    Alimenter un compte notionnel avec ces deux grandeurs revient à comparer un
-    effort contributif complet à un demi-effort, et fait apparaître un écart de
-    37 % entre un fonctionnaire et un salarié de même rémunération qui ne
-    traduit rien de réel.
+    Une cotisation retraite a deux parts : ce que l'assuré supporte et ce que
+    son employeur verse. Les porter toutes deux au compte, ou n'y porter que la
+    première, ne répond pas à la même question — et le modèle sait maintenant
+    faire les deux **symétriquement**, public et privé.
 
-    Trois traitements :
+    Il ne l'a pas toujours su. Les fiches de régime ne stockent pas la même
+    grandeur selon le secteur : pour le privé, ``taux_cotisation_retraite`` est
+    le total salarié + employeur ; pour la fonction publique et les régimes
+    spéciaux, c'est la seule retenue de l'agent. Les comparer directement
+    opposait un effort entier à un demi-effort, et faisait apparaître entre un
+    fonctionnaire et un salarié de même rémunération un écart de 37 % qui ne
+    traduisait rien de réel. Faute de mieux, le modèle prêtait alors au public
+    la part employeur du privé.
 
-    * ``EXCLUE`` — le taux stocké est utilisé tel quel. C'est ce que le modèle
-      faisait sans le dire. Sous-estime massivement les carrières publiques.
-    * ``ALIGNEE_SUR_LE_PRIVE`` (défaut) — les périodes marquées ``agent_seul``
-      reçoivent le taux total du statut pivot privé de l'année. Seul traitement
-      qui rende les 22 statuts comparables, et c'est déjà ce que fait la fusion
-      des régimes après la bascule.
-    * ``FINANCEMENT_HISTORIQUE`` — la contribution réellement versée par
-      l'employeur public s'ajoute à la retenue de l'agent, année par année,
-      depuis ``data/reference/legislation/contribution_employeur_public.csv``.
-      Ce sont les scénarios 4 et 5, qui reprennent respectivement le 2 et le 3
-      sans rien changer d'autre.
+    Deux séries l'en dispensent désormais : ``part_salariale`` dans les fiches,
+    qui dit quelle fraction du taux l'assuré supporte, et
+    ``legislation/contribution_employeur_public.csv``, qui porte ce que verse un
+    employeur public. Les trois valeurs ci-dessous s'appuient sur elles.
 
-    Le dépôt a longtemps affirmé que le troisième traitement était impossible,
-    au motif qu'avant la création du compte d'affectation spéciale « Pensions »
-    par la LOLF, en 2006, il n'existait aucun taux de contribution employeur de
-    l'État. C'était vrai de l'État, et faux du reste :
+    * ``SALARIALE`` (défaut, scénarios 2 et 3) — seule la part que l'assuré
+      supporte lui-même alimente le compte. Pour un non-salarié, qui n'a pas
+      d'employeur, c'est toute sa cotisation. Aucune convention, aucun emprunt :
+      la comparaison public/privé porte sur la même grandeur des deux côtés.
+    * ``TOTALE`` (scénarios 4 et 5) — salariale et patronale. La part patronale
+      du privé est dans la fiche ; celle du public est celle qui a été
+      réellement versée, décret par décret.
+    * ``TOTALE_ALIGNEE`` — salariale et patronale, mais la part patronale du
+      public est empruntée au statut pivot privé. C'est l'ancienne convention,
+      conservée comme contrefactuel : elle répond à « à effort contributif égal,
+      que donnerait la règle notionnelle ? », question légitime mais différente.
 
-    * la **CNRACL** est une caisse depuis 1947, ses employeurs lui versent une
-      cotisation, et son taux est fixé par décret depuis 1948 ;
-    * l'État lui-même, avant 2006, a bien un taux — non pas appelé mais
-      **reconstitué** : l'annexe « pensions » au projet de loi de finances pour
-      2011 publie une série de « taux de cotisation employeur implicite »
-      remontant à 1995 ;
-    * la **SNCF** publie par arrêté les deux composantes T1 et T2 de la
-      contribution de l'entreprise.
-
-    Reste entière l'objection de fond, et elle borne la portée des scénarios 4
-    et 5 sans les interdire : ces taux sont des taux d'ÉQUILIBRE, fixés pour que
-    le compte tombe juste. 82,28 % en 2026 ne signifie pas qu'un fonctionnaire
-    acquiert 82 % de son traitement en droits nouveaux, mais qu'il faut
-    aujourd'hui cette contribution pour payer les pensions d'aujourd'hui. Les
-    porter à un compte notionnel répond à une question précise — « et si tout ce
-    qui a été consacré aux pensions avait été porté au compte des actifs ? » — et
-    à elle seule.
+    Ce que ``TOTALE`` ne dit pas. Les taux employeur publics sont des taux
+    d'ÉQUILIBRE, fixés pour que le compte tombe juste : 82,28 % en 2026 ne
+    signifie pas qu'un fonctionnaire acquiert 82 % de son traitement en droits
+    nouveaux, mais qu'il faut aujourd'hui cette contribution pour payer les
+    pensions d'aujourd'hui.
     """
 
-    EXCLUE = "exclue"
-    ALIGNEE_SUR_LE_PRIVE = "alignee_sur_le_prive"
-    FINANCEMENT_HISTORIQUE = "financement_historique"
+    SALARIALE = "salariale"
+    TOTALE = "totale"
+    TOTALE_ALIGNEE = "totale_alignee"
 
 
 class AgeConversionDroitsAcquis(str, Enum):
@@ -282,16 +273,15 @@ class Parametres:
     #: été prélevé pour la retraite ouvre des droits.
     taux_appel_ouvre_droits: bool = True
 
-    #: Traitement de la contribution employeur des régimes publics et spéciaux,
-    #: dont les fiches ne stockent que la retenue de l'agent. Voir
-    #: :class:`ContributionEmployeurPublic` — c'est le paramètre auquel
-    #: renvoient les notes de `data/reference/regimes/fonction_publique.yaml`.
-    traitement_contribution_employeur_etat: ContributionEmployeurPublic = (
-        ContributionEmployeurPublic.ALIGNEE_SUR_LE_PRIVE
-    )
+    #: Part de la cotisation portée au compte : celle de l'assuré seul, ou
+    #: celle de l'assuré et de son employeur. Voir :class:`PartCotisation`.
+    #: Le défaut est celui des scénarios 2 et 3 ; les scénarios 4 et 5 le font
+    #: varier, et rien d'autre.
+    part_cotisation: PartCotisation = PartCotisation.SALARIALE
 
-    #: Statut dont les taux servent de référence quand la contribution
-    #: employeur publique est alignée sur le privé.
+    #: Statut dont les taux servent de référence quand la part employeur du
+    #: public est empruntée au privé (``TOTALE_ALIGNEE``), ou quand aucune série
+    #: employeur n'est publiée pour le régime (``TOTALE``).
     statut_pivot_cotisations: str = "salarie_prive_non_cadre"
 
     #: Plafonnement de l'assiette notionnelle, en multiples du plafond annuel de

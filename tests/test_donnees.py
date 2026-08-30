@@ -575,3 +575,72 @@ def test_les_taux_employeur_publics_restent_plausibles(employeurs):
         for annee in range(debut, fin + 1):
             taux = employeurs.taux(regime, annee).taux
             assert 0.05 < taux < 1.0, (regime, annee, taux)
+
+
+# -- répartition salarié / employeur ------------------------------------------
+
+
+def test_toute_periode_de_salaries_porte_sa_part_salariale(catalogue):
+    """Le défaut 1.0 dit « cotisation intégralement personnelle ».
+
+    Vrai d'un artisan et d'une période `agent_seul`, dont le taux est déjà la
+    seule retenue de l'agent. Faux de toute période dont le taux est un total
+    employeur compris : l'oublier ferait porter au compte, sous les scénarios 2
+    et 3, une part patronale qui n'a rien à y faire.
+    """
+    familles = {"base_prive", "complementaire_prive", "additionnel_capitalise"}
+    oublies = [
+        f"{regime.code} {periode.debut}-{periode.fin}"
+        for regime in catalogue
+        for periode in regime.periodes
+        if (regime.famille in familles or regime.code == "msa_salaries")
+        and periode.perimetre_taux != "agent_seul"
+        and periode.part_salariale >= 1.0
+    ]
+    assert oublies == []
+
+
+def test_la_retenue_de_l_agent_est_deja_la_part_salariale(catalogue):
+    """Une période `agent_seul` ne porte que ce que l'agent verse."""
+    for regime in catalogue:
+        for periode in regime.periodes:
+            if periode.perimetre_taux == "agent_seul":
+                assert periode.part_salariale == 1.0, regime.code
+                assert (periode.taux_cotisation_salarie
+                        == periode.taux_cotisation_retraite), regime.code
+
+
+def test_les_non_salaries_cotisent_seuls(catalogue):
+    """Sans employeur, la cotisation est intégralement personnelle."""
+    for regime in catalogue:
+        if regime.famille in ("non_salarie", "liberal"):
+            for periode in regime.periodes:
+                assert periode.part_salariale == 1.0, regime.code
+
+
+def test_les_parts_salariales_sont_plausibles(catalogue):
+    """Entre un quart et la totalité : aucune erreur de virgule ni d'inversion."""
+    for regime in catalogue:
+        for periode in regime.periodes:
+            assert 0.25 <= periode.part_salariale <= 1.0, (
+                f"{regime.code} {periode.debut}: {periode.part_salariale}"
+            )
+            assert (periode.taux_cotisation_salarie
+                    <= periode.taux_cotisation_retraite + 1e-12), regime.code
+
+
+def test_les_statuts_sans_employeur_sont_marques():
+    """Un artisan cotise au régime général, dont la fiche porte 41/59.
+
+    Le taux y est le bon, la répartition ne l'est pas : c'est le STATUT qui dit
+    qu'il n'a pas d'employeur, pas le régime.
+    """
+    from retraite_notionnelle.carriere import Affiliations
+
+    affiliations = Affiliations(RACINE_DONNEES)
+    sans = {code for code in affiliations.codes
+            if affiliations.sans_employeur(code)}
+    assert sans == {"artisan", "commercant", "profession_liberale", "avocat",
+                    "exploitant_agricole"}
+    assert not affiliations.sans_employeur("salarie_prive_non_cadre")
+    assert not affiliations.sans_employeur("fonctionnaire_etat")

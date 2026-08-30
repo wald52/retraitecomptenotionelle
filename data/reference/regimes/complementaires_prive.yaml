@@ -27,6 +27,7 @@ regimes:
         salaire_reference: carriere_entiere
         assiette: tranche_b
         taux_cotisation_retraite: 0.08
+        part_salariale: 0.25   # OpenFisca : un quart, trois quarts
         decote_par_trimestre: 0.01
         surcote_par_trimestre: null
         avantages_non_contributifs: [majoration_enfants, reversion, garantie_minimale_points]
@@ -54,6 +55,7 @@ regimes:
         salaire_reference: carriere_entiere
         assiette: tranche_b
         taux_cotisation_retraite: 0.1158
+        part_salariale: 0.3125   # OpenFisca, moyenne 1981-1988
         decote_par_trimestre: 0.01
         surcote_par_trimestre: null
         avantages_non_contributifs: [majoration_enfants, reversion]
@@ -77,6 +79,7 @@ regimes:
         salaire_reference: carriere_entiere
         assiette: tranche_b
         taux_cotisation_retraite: 0.14
+        part_salariale: 0.3133   # OpenFisca, moyenne 1989-1993
         decote_par_trimestre: 0.01
         points_minimum_annuels: 120
         avantages_non_contributifs: [majoration_enfants, reversion, garantie_minimale_points]
@@ -103,6 +106,7 @@ regimes:
         salaire_reference: carriere_entiere
         assiette: tranche_b
         taux_cotisation_retraite: 0.1948
+        part_salariale: 0.3712   # OpenFisca, moyenne 1994-2018
         decote_par_trimestre: 0.01
         surcote_par_trimestre: null
         points_minimum_annuels: 120
@@ -146,6 +150,7 @@ regimes:
         salaire_reference: carriere_entiere
         assiette: tranche_1
         taux_cotisation_retraite: 0.04
+        part_salariale: 0.40   # règle de répartition 40-60
         decote_par_trimestre: 0.01
         surcote_par_trimestre: null
         avantages_non_contributifs: [majoration_enfants, reversion]
@@ -166,6 +171,7 @@ regimes:
         salaire_reference: carriere_entiere
         assiette: tranche_1
         taux_cotisation_retraite: 0.0750
+        part_salariale: 0.40   # règle de répartition 40-60
         decote_par_trimestre: 0.01
         surcote_par_trimestre: null
         avantages_non_contributifs: [majoration_enfants, reversion]
@@ -188,6 +194,7 @@ regimes:
         salaire_reference: carriere_entiere
         assiette: tranche_2_arrco
         taux_cotisation_retraite: 0.1950
+        part_salariale: 0.40   # règle de répartition 40-60
         decote_par_trimestre: 0.01
         surcote_par_trimestre: null
         avantages_non_contributifs: [majoration_enfants, reversion]
@@ -232,6 +239,7 @@ regimes:
         salaire_reference: carriere_entiere
         assiette: tranche_1
         taux_cotisation_retraite: 0.0787
+        part_salariale: 0.40   # ANI du 17 novembre 2017, article 38
         decote_par_trimestre: null
         surcote_par_trimestre: null
         avantages_non_contributifs: [majoration_enfants, reversion, coefficient_solidarite]
@@ -267,6 +275,7 @@ regimes:
         salaire_reference: carriere_entiere
         assiette: tranche_2
         taux_cotisation_retraite: 0.2159
+        part_salariale: 0.40   # ANI du 17 novembre 2017, article 38
         decote_par_trimestre: null
         surcote_par_trimestre: null
         avantages_non_contributifs: [majoration_enfants, reversion, coefficient_solidarite]
@@ -295,6 +304,7 @@ regimes:
         salaire_reference: carriere_entiere
         assiette: tranche_1
         taux_cotisation_retraite: 0.0575
+        part_salariale: 0.40   # OpenFisca, taux appelés
         decote_par_trimestre: 0.0055
         surcote_par_trimestre: null
         avantages_non_contributifs: [majoration_enfants, reversion]
@@ -310,6 +320,7 @@ regimes:
         salaire_reference: carriere_entiere
         assiette: tranche_1
         taux_cotisation_retraite: 0.0703
+        part_salariale: 0.40   # OpenFisca, taux appelés
         decote_par_trimestre: 0.0055
         surcote_par_trimestre: null
         avantages_non_contributifs: [majoration_enfants, reversion]
@@ -340,6 +351,7 @@ regimes:
         salaire_reference: carriere_entiere
         assiette: tranche_1
         taux_cotisation_retraite: 0.04
+        part_salariale: 0.40   # prédécesseur de l'Ircantec, même répartition — estimée
         decote_par_trimestre: null
         surcote_par_trimestre: null
         avantages_non_contributifs: [reversion]
@@ -368,6 +380,7 @@ regimes:
         salaire_reference: carriere_entiere
         assiette: tranche_1
         taux_cotisation_retraite: 0.04
+        part_salariale: 0.40   # prédécesseur de l'Ircantec, même répartition — estimée
         decote_par_trimestre: null
         surcote_par_trimestre: null
         avantages_non_contributifs: [reversion]
@@ -399,6 +412,7 @@ regimes:
         salaire_reference: carriere_entiere
         assiette: tranche_1
         taux_cotisation_retraite: 0.04
+        part_salariale: 0.40   # prédécesseur de l'Arrco, même répartition — estimée
         decote_par_trimestre: null
         surcote_par_trimestre: null
         avantages_non_contributifs: [reversion]

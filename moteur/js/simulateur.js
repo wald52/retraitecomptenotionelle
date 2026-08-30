@@ -7,7 +7,7 @@
  */
 
 import { Carriere } from "./carriere.js";
-import { ContributionEmployeurPublic, PARAMETRES_DEFAUT } from "./config.js";
+import { PARAMETRES_DEFAUT, PartCotisation } from "./config.js";
 import { ConstructeurCompte } from "./compte.js";
 import { Convertisseur } from "./conversion.js";
 import { AgeReference } from "./age-reference.js";
@@ -26,18 +26,18 @@ import {
  * Les quatre scénarios notionnels, dans l'ordre où ils s'affichent, avec le
  * numéro et le titre sous lesquels le tableau, la page et l'API les citent.
  *
- * Deux paires : 2 et 3 alignent la part employeur du public sur l'effort du
- * privé, 4 et 5 lui substituent la contribution que l'employeur public verse
- * réellement. À l'intérieur de chaque paire, l'un est rétroactif et l'autre
- * prospectif. Le 4 se lit contre le 2, le 5 contre le 3.
+ * Deux paires : 2 et 3 ne portent au compte que la part SALARIALE de la
+ * cotisation, 4 et 5 y ajoutent la part PATRONALE. À l'intérieur de chaque
+ * paire, l'un est rétroactif et l'autre prospectif. Le 4 se lit contre le 2, le
+ * 5 contre le 3, et l'écart mesure exactement ce que l'employeur verse.
  */
 export const SCENARIOS_NOTIONNELS = Object.freeze([
-  ["notionnel_retroactif", 2, "Notionnel rétroactif (depuis l'origine)"],
-  ["notionnel_prospectif", 3, "Notionnel à compter de {bascule}"],
+  ["notionnel_retroactif", 2, "Notionnel rétroactif, part salariale"],
+  ["notionnel_prospectif", 3, "Notionnel dès {bascule}, part salariale"],
   ["notionnel_retroactif_employeur", 4,
-    "Notionnel rétroactif, cotisations employeur"],
+    "Notionnel rétroactif, salariale + patronale"],
   ["notionnel_prospectif_employeur", 5,
-    "Notionnel à compter de {bascule}, cotisations employeur"],
+    "Notionnel dès {bascule}, salariale + patronale"],
 ]);
 
 /** Les cinq résultats, côte à côte, pour une même carrière. */
@@ -92,6 +92,7 @@ export class Comparaison {
       agent: total - employeur,
       part: total ? employeur / total : 0.0,
       annees_par_origine: annees,
+      a_un_employeur: employeur > 0,
       concerne_un_regime_public: Object.keys(annees).length > 0,
       annees_trouvees: Object.entries(annees)
         .filter(([origine]) => origine !== "repli")
@@ -283,11 +284,7 @@ export class Simulateur {
     this.scenarioEmployeur = new ScenarioNotionnel(
       new ConstructeurCompte(
         this.macro, this.catalogue, this.affiliations, this.indexation,
-        {
-          ...parametres,
-          traitement_contribution_employeur_etat:
-            ContributionEmployeurPublic.FINANCEMENT_HISTORIQUE,
-        },
+        { ...parametres, part_cotisation: PartCotisation.TOTALE },
       ),
       this.convertisseur, this.ageReference, this.scenarioActuel, parametres,
     );
@@ -329,11 +326,11 @@ export class Simulateur {
       notionnelProspectif: this.scenarioNotionnel.prospectif(carriere, this.regimeFusionne),
       notionnelRetroactifEmployeur: this.scenarioEmployeur.retroactif(
         carriere, fusionne,
-        "Comptes notionnels rétroactifs, cotisations employeur incluses",
+        "Comptes notionnels rétroactifs, cotisation salariale et patronale",
       ),
       notionnelProspectifEmployeur: this.scenarioEmployeur.prospectif(
         carriere, this.regimeFusionne,
-        "Comptes notionnels à compter de la bascule, cotisations employeur incluses",
+        "Comptes notionnels à compter de la bascule, cotisation salariale et patronale",
       ),
       regimeFusionne: this.regimeFusionne,
       parametres: this.parametres,

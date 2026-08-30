@@ -84,6 +84,11 @@ class PeriodeRegime:
     #: privé) ou ``agent_seul`` (retenue de l'agent seule, cas de la fonction
     #: publique et des régimes spéciaux).
     perimetre_taux: str
+    #: Fraction du taux ci-dessus supportée par l'assuré lui-même ; le
+    #: complément est la part de l'employeur. ``1.0`` couvre les non-salariés,
+    #: qui n'ont pas d'employeur, et les périodes ``agent_seul``, dont le taux
+    #: est déjà la seule retenue de l'agent.
+    part_salariale: float
     decote_par_trimestre: float | None
     #: Barème de décote applicable. ``regime_aligne`` (défaut) applique le
     #: coefficient ci-dessus, éventuellement lu à la génération ;
@@ -145,6 +150,11 @@ class PeriodeRegime:
     assiette_plancher: bool
     avantages_non_contributifs: tuple[str, ...]
     notes: str = ""
+
+    @property
+    def taux_cotisation_salarie(self) -> float:
+        """Part du taux que l'assuré supporte lui-même."""
+        return self.taux_cotisation_retraite * self.part_salariale
 
     def repere_assiette(self, pass_annuel: float, smic_horaire: float) -> float:
         """Assiette qui ouvre droit à ``points_maximum`` points."""
@@ -364,6 +374,7 @@ class CatalogueRegimes:
                 assiette=p.get("assiette", "deplafonnee"),
                 taux_cotisation_retraite=float(p["taux_cotisation_retraite"]),
                 perimetre_taux=p.get("perimetre_taux", "total"),
+                part_salariale=float(p.get("part_salariale", 1.0)),
                 decote_par_trimestre=(
                     None if p.get("decote_par_trimestre") is None
                     else float(p["decote_par_trimestre"])

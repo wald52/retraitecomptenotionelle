@@ -20,7 +20,7 @@ from dataclasses import dataclass
 from functools import cached_property
 
 from .carriere import Affiliations, Carriere
-from .config import ContributionEmployeurPublic, Parametres
+from .config import Parametres, PartCotisation
 from .donnees.chargement import DonneeInsuffisante, Fiabilite
 from .donnees.macro import DonneesMacro
 from .donnees.mortalite import DonneesMortalite
@@ -37,51 +37,58 @@ from .scenarios.notionnel import ResultatNotionnel, ScenarioNotionnel
 #: Les quatre scénarios notionnels, dans l'ordre où ils s'affichent, avec le
 #: numéro et le titre sous lesquels le tableau, la page et l'API les citent.
 #:
-#: Deux paires : 2 et 3 alignent la part employeur du public sur l'effort du
-#: privé, 4 et 5 lui substituent la contribution que l'employeur public verse
-#: réellement. À l'intérieur de chaque paire, l'un est rétroactif et l'autre
-#: prospectif. Rien d'autre ne les sépare, et c'est ce qui les rend comparables
-#: deux à deux : 4 se lit contre 2, 5 contre 3.
+#: Deux paires : 2 et 3 ne portent au compte que la part SALARIALE de la
+#: cotisation, 4 et 5 y ajoutent la part PATRONALE. À l'intérieur de chaque
+#: paire, l'un est rétroactif et l'autre prospectif. Rien d'autre ne les sépare,
+#: et c'est ce qui les rend comparables deux à deux : 4 se lit contre 2, 5
+#: contre 3, et l'écart mesure exactement ce que l'employeur verse.
 SCENARIOS_NOTIONNELS = (
-    ("notionnel_retroactif", 2, "Notionnel rétroactif (depuis l'origine)"),
-    ("notionnel_prospectif", 3, "Notionnel à compter de {bascule}"),
+    ("notionnel_retroactif", 2, "Notionnel rétroactif, part salariale"),
+    ("notionnel_prospectif", 3, "Notionnel dès {bascule}, part salariale"),
     ("notionnel_retroactif_employeur", 4,
-     "Notionnel rétroactif, cotisations employeur"),
+     "Notionnel rétroactif, salariale + patronale"),
     ("notionnel_prospectif_employeur", 5,
-     "Notionnel à compter de {bascule}, cotisations employeur"),
+     "Notionnel dès {bascule}, salariale + patronale"),
 )
 
 
 @dataclass(frozen=True)
 class ContributionEmployeur:
-    """Qui a payé le compte notionnel d'un agent public, et sur quelles années.
+    """Qui a payé le compte notionnel, et sur quelles années.
 
     En euros courants cumulés, sans revalorisation : la somme de ce qui a
-    effectivement transité, et non un capital notionnel. Ne vaut que pour une
-    carrière passée par un régime dont la fiche s'arrête à la retenue de
-    l'agent — pour un salarié du privé, la fiche porte déjà le total et la
-    question ne se pose pas.
+    effectivement transité, et non un capital notionnel. C'est la mesure directe
+    de ce qui sépare les scénarios 2 et 3 des scénarios 4 et 5 — le premier
+    couple ne porte au compte que ``agent``, le second ``total``.
+
+    Un non-salarié n'a pas d'employeur : ``employeur`` y est nul et les quatre
+    scénarios se réduisent à deux.
     """
 
-    #: Cotisations portées au compte par le scénario rétroactif, agent et
-    #: employeur confondus.
+    #: Cotisations portées au compte par le scénario 4, agent et employeur
+    #: confondus.
     total: float
-    #: Part de ce total versée par l'employeur public.
+    #: Part de ce total versée par l'employeur.
     employeur: float
-    #: Nombre d'années où la contribution employeur réelle a été trouvée, par
-    #: nature (``appelee``, ``implicite``), et où il a fallu s'en passer
-    #: (``repli``).
+    #: Nombre d'années où la contribution employeur PUBLIQUE réelle a été
+    #: trouvée, par nature (``appelee``, ``implicite``), et où il a fallu s'en
+    #: passer (``repli``). Vide pour un salarié du privé, dont la fiche porte
+    #: la répartition : la question ne s'y pose pas.
     annees_par_origine: dict[str, int]
 
     @property
     def agent(self) -> float:
-        """Ce qui reste : la retenue prélevée sur le traitement de l'agent."""
+        """Ce qui reste : la cotisation que l'assuré supporte lui-même."""
         return self.total - self.employeur
 
     @property
     def part(self) -> float:
         """Part de l'employeur dans le total versé, entre 0 et 1."""
         return self.employeur / self.total if self.total else 0.0
+
+    @property
+    def a_un_employeur(self) -> bool:
+        return self.employeur > 0
 
     @property
     def concerne_un_regime_public(self) -> bool:
@@ -239,21 +246,25 @@ class Comparaison:
         ]
 
         employeur = self.contribution_employeur
-        if employeur.concerne_un_regime_public:
-            lignes += ["", "Cotisations des scénarios 4 et 5 :"]
-            if employeur.employeur > 0:
+        if employeur.a_un_employeur or employeur.concerne_un_regime_public:
+            lignes += ["", "Qui verse la cotisation, en euros courants cumulés :"]
+            if employeur.a_un_employeur:
                 lignes += [
-                    f"  retenue de l'agent      {employeur.agent:>13,.0f} €",
-                    f"  employeur public        {employeur.employeur:>13,.0f} €"
+                    f"  part salariale     {employeur.agent:>13,.0f} €"
+                    f"   scénarios 2 et 3",
+                    f"  part patronale     {employeur.employeur:>13,.0f} €"
                     f"   soit {employeur.part:.0%} du total",
-                    f"  total porté au compte   {employeur.total:>13,.0f} €",
+                    f"  total              {employeur.total:>13,.0f} €"
+                    f"   scénarios 4 et 5",
                 ]
-            lignes.append(
-                f"  contribution employeur trouvée sur {employeur.annees_trouvees} "
-                f"année(s)"
-                + (f", inconnue sur {employeur.annees_repli} — le taux du privé "
-                   "y tient lieu d'étalon" if employeur.annees_repli else "")
-            )
+            if employeur.concerne_un_regime_public:
+                lignes.append(
+                    f"  contribution employeur publique trouvée sur "
+                    f"{employeur.annees_trouvees} année(s)"
+                    + (f", inconnue sur {employeur.annees_repli} — le taux du "
+                       "privé y tient lieu d'étalon"
+                       if employeur.annees_repli else "")
+                )
 
         if self.actuel.minimum_applique:
             lignes.append(
@@ -459,11 +470,13 @@ class Simulateur:
 
     @cached_property
     def constructeur_employeur(self) -> ConstructeurCompte:
-        """Le constructeur des scénarios 4 et 5 : un seul, pour les deux."""
+        """Le constructeur des scénarios 4 et 5 : un seul, pour les deux.
+
+        Il ne diffère de celui des scénarios 2 et 3 que par un paramètre : la
+        part de la cotisation portée au compte.
+        """
         return self._constructeur_variante(
-            traitement_contribution_employeur_etat=(
-                ContributionEmployeurPublic.FINANCEMENT_HISTORIQUE
-            ),
+            part_cotisation=PartCotisation.TOTALE,
         )
 
     @cached_property
@@ -531,12 +544,12 @@ class Simulateur:
         prospectif = self.scenario_notionnel.prospectif(carriere, self.regime_fusionne)
         retroactif_employeur = self.scenario_employeur.retroactif(
             carriere, fusionne,
-            libelle="Comptes notionnels rétroactifs, cotisations employeur incluses",
+            libelle="Comptes notionnels rétroactifs, cotisation salariale et patronale",
         )
         prospectif_employeur = self.scenario_employeur.prospectif(
             carriere, self.regime_fusionne,
             libelle="Comptes notionnels à compter de la bascule, "
-                    "cotisations employeur incluses",
+                    "cotisation salariale et patronale",
         )
 
         self.mortalite.enregistrer_cache()

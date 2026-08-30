@@ -32,29 +32,29 @@ une seconde fois, sur le passé. À l'âge effectif de liquidation, la conversio
 est neutre. Le paramètre :attr:`Parametres.age_conversion_droits_acquis` permet
 de mesurer l'écart entre les deux conventions.
 
-**Scénarios 4 et 5 : les mêmes, cotisations employeur du public incluses.** Ce
-sont exactement les scénarios 2 et 3 — même carrière, même indexation, même
-liquidation, mêmes droits acquis figés à la bascule — à une différence près, et
-une seule : ce qui alimente le compte pour un agent public.
+**Scénarios 4 et 5 : les mêmes, part patronale comprise.** Ce sont exactement
+les scénarios 2 et 3 — même carrière, même indexation, même liquidation, mêmes
+droits acquis figés à la bascule — à une différence près, et une seule : ce qui
+alimente le compte.
 
-Les fiches de la fonction publique et des régimes spéciaux ne portent que la
-retenue de l'agent. Les scénarios 2 et 3 lui substituent l'effort contributif
-d'un salarié du privé de la même année, faute de mieux ; les scénarios 4 et 5 y
-ajoutent la contribution que l'employeur public a réellement versée — taux
-implicite de l'État de 1995 à 2005, taux appelé par le compte d'affectation
-spéciale depuis 2006, taux CNRACL depuis 1948, T1 + T2 de la SNCF de 2007 à
-2018. Rien d'autre ne bouge, et c'est ce qui les rend lisibles : le 4 se lit
-contre le 2, le 5 contre le 3, et l'écart mesure une chose à la fois.
+Les scénarios 2 et 3 n'y portent que la **part salariale** de la cotisation, ce
+que l'assuré a supporté lui-même ; les scénarios 4 et 5 y ajoutent la **part
+patronale**. Pour le privé, la répartition est dans la fiche du régime
+(``part_salariale``) ; pour un agent public, dont la fiche ne porte que sa
+retenue, la part patronale vient de
+``legislation/contribution_employeur_public.csv`` — taux implicite de l'État de
+1995 à 2005, taux appelé par le compte d'affectation spéciale depuis 2006, taux
+CNRACL depuis 1948, T1 + T2 de la SNCF de 2007 à 2018 — et, là où aucune série
+n'existe, elle est estimée par l'effort d'un salarié du privé de la même année.
 
-Un point de mécanique, sans lequel le scénario 5 n'existerait pas. À compter de
-la bascule, le régime unique remplace tous les régimes et applique un taux
-unique, celui du statut pivot privé : cette convention efface toute trace de ce
-que verse un employeur public. Porter la contribution employeur au seul passé
-laisserait donc le scénario 5 rigoureusement identique au scénario 3. Sous le
-traitement ``financement_historique``, le régime unique conserve pour un agent
-public l'effort contributif réel de son régime — voir
-:meth:`ConstructeurCompte.taux_unifie`, qui le ramène à l'assiette élargie du
-régime unique.
+Rien d'autre ne bouge, et c'est ce qui les rend lisibles : le 4 se lit contre le
+2, le 5 contre le 3, et l'écart mesure une chose à la fois. Pour un non-salarié,
+qui n'a pas d'employeur, les quatre scénarios se réduisent à deux.
+
+Après la bascule, le régime unique remplace tous les régimes : la part patronale
+y est celle du statut pivot privé, dont il hérite la répartition. Il n'y a donc
+plus, après la bascule, de contribution publique à retrouver décret par décret —
+la réforme l'a remplacée.
 
 Ce que ces scénarios ne disent PAS. Les taux employeur publics sont des taux
 d'ÉQUILIBRE, fixés pour que le compte tombe juste : 82,28 % en 2026 ne signifie

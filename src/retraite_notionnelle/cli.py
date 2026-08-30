@@ -20,7 +20,7 @@ from pathlib import Path
 from .castypes import CAS_TYPES, GENERATIONS, calculer_cas_types
 from .config import (
     AgeConversionDroitsAcquis,
-    ContributionEmployeurPublic,
+    PartCotisation,
     ModeAgeReference,
     ModeIndexation,
     Parametres,
@@ -41,9 +41,9 @@ def _parametres(arguments: argparse.Namespace) -> Parametres:
         modifications["age_conversion_droits_acquis"] = AgeConversionDroitsAcquis(
             arguments.conversion_acquis
         )
-    if getattr(arguments, "cotisation_publique", None):
-        modifications["traitement_contribution_employeur_etat"] = (
-            ContributionEmployeurPublic(arguments.cotisation_publique)
+    if getattr(arguments, "part_cotisation", None):
+        modifications["part_cotisation"] = (
+            PartCotisation(arguments.part_cotisation)
         )
     if getattr(arguments, "table", None):
         modifications["table_conversion"] = TableConversion(arguments.table)
@@ -283,10 +283,11 @@ def _ajouter_options_communes(analyseur: argparse.ArgumentParser) -> None:
         "(défaut : reference)",
     )
     analyseur.add_argument(
-        "--cotisation-publique", dest="cotisation_publique",
-        choices=[c.value for c in ContributionEmployeurPublic],
-        help="contribution employeur des régimes publics et spéciaux "
-        "(défaut : alignee_sur_le_prive)",
+        "--part-cotisation", dest="part_cotisation",
+        choices=[c.value for c in PartCotisation],
+        help="part de la cotisation portée au compte : salariale seule "
+        "(défaut, scénarios 2 et 3), totale, ou totale avec la part patronale "
+        "du public empruntée au privé",
     )
     analyseur.add_argument(
         "--table", choices=[t.value for t in TableConversion],

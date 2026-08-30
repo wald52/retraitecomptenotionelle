@@ -25,22 +25,19 @@ export const ModeIndexation = Object.freeze({
 });
 
 /**
- * Que faire de la contribution employeur des régimes publics et spéciaux.
+ * Quelle part de la cotisation retraite alimente le compte notionnel.
  *
- * Les fiches ne stockent pas la même chose selon le secteur : total salarié +
- * employeur pour le privé (25,7 %), retenue de l'agent seule pour la fonction
- * publique et les régimes spéciaux (11,10 %). `alignee_sur_le_prive` substitue
- * aux seconds le taux total du statut pivot privé, seul traitement qui rende
- * les statuts comparables. `exclue` conserve le taux stocké tel quel.
- * `financement_historique` ajoute à la retenue de l'agent ce que l'employeur
- * public a réellement versé — taux implicite de l'État de 1995 à 2005, taux
- * appelé depuis 2006, CNRACL depuis 1948, SNCF de 2007 à 2018 : c'est le
- * scénario 4.
+ * `salariale` (défaut, scénarios 2 et 3) : seule la part que l'assuré supporte
+ * lui-même — pour un non-salarié, toute sa cotisation. `totale` (scénarios 4
+ * et 5) : salariale et patronale, la part patronale du public étant celle qui
+ * a été réellement versée. `totale_alignee` : salariale et patronale, mais la
+ * part patronale du public est empruntée au statut pivot privé — l'ancienne
+ * convention, conservée comme contrefactuel.
  */
-export const ContributionEmployeurPublic = Object.freeze({
-  EXCLUE: "exclue",
-  ALIGNEE_SUR_LE_PRIVE: "alignee_sur_le_prive",
-  FINANCEMENT_HISTORIQUE: "financement_historique",
+export const PartCotisation = Object.freeze({
+  SALARIALE: "salariale",
+  TOTALE: "totale",
+  TOTALE_ALIGNEE: "totale_alignee",
 });
 
 /**
@@ -136,9 +133,9 @@ export const PARAMETRES_DEFAUT = Object.freeze({
   //: Ce qui a été prélevé pour la retraite ouvre des droits, taux d'appel
   //: compris.
   taux_appel_ouvre_droits: true,
-  //: Traitement de la contribution employeur des régimes publics et spéciaux.
-  traitement_contribution_employeur_etat:
-    ContributionEmployeurPublic.ALIGNEE_SUR_LE_PRIVE,
+  //: Part de la cotisation portée au compte : celle de l'assuré seul, ou celle
+  //: de l'assuré et de son employeur.
+  part_cotisation: PartCotisation.SALARIALE,
   statut_pivot_cotisations: "salarie_prive_non_cadre",
   //: Plafonnement de l'assiette notionnelle, en multiples du plafond annuel de
   //: la Sécurité sociale. ``null`` = assiette déplafonnée.

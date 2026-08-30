@@ -26,8 +26,13 @@ comparables :
 | **1** | Système actuel | Le droit en vigueur, minima et majorations compris. C'est la référence. |
 | **2** | Notionnel **rétroactif** depuis 1941 | Contrefactuel : toute la carrière recalculée sur les seules cotisations, comme si la règle avait toujours existé. |
 | **3** | Notionnel **à compter de 2026** | Réforme prospective : les droits déjà acquis sont conservés, les règles notionnelles s'appliquent ensuite. |
-| **4** | Le scénario **2**, cotisations employeur incluses | Le même compte rétroactif, mais ce que l'employeur public a réellement versé — jusqu'à 82,28 % du traitement en 2026 — y est porté au lieu d'être remplacé par l'effort du privé. |
-| **5** | Le scénario **3**, cotisations employeur incluses | Le même compte prospectif, droits acquis conservés, avec la même correction sur la part employeur du public. |
+| **4** | Le scénario **2**, part patronale comprise | Le même compte rétroactif, la cotisation de l'employeur en plus : celle de la fiche pour le privé, celle réellement versée — jusqu'à 82,28 % du traitement en 2026 — pour le public. |
+| **5** | Le scénario **3**, part patronale comprise | Le même compte prospectif, droits acquis conservés, avec la même part patronale en plus. |
+
+Les scénarios **2 et 3 ne portent au compte que la part salariale** — ce que
+l'assuré a supporté lui-même, la même grandeur pour tous les statuts. Les
+scénarios **4 et 5 y ajoutent la part patronale**. Pour un non-salarié, qui n'a
+pas d'employeur, les quatre se réduisent à deux.
 
 ```
 Agent de conduite SNCF né en 1955, parti à 50 ans (quinze ans avant l'âge de référence)
@@ -35,19 +40,24 @@ Agent de conduite SNCF né en 1955, parti à 50 ans (quinze ans avant l'âge de 
 Scénario                                                  Courants   Constants   Mensuel    Écart
 ------------------------------------------------------------------------------------------------
 1. Système actuel                                          15,719€     22,008€    1,834€     réf.
-2. Notionnel rétroactif (depuis l'origine)                  3,298€      4,617€      385€   -79.0%
-3. Notionnel à compter de 2026                             15,719€     22,008€    1,834€    +0.0%
-4. Notionnel rétroactif, cotisations employeur              3,298€      4,617€      385€   -79.0%
-5. Notionnel à compter de 2026, cotisations employeur      15,719€     22,008€    1,834€    +0.0%
+2. Notionnel rétroactif, part salariale                     1,281€      1,793€      149€   -91.9%
+3. Notionnel dès 2026, part salariale                      15,719€     22,008€    1,834€    +0.0%
+4. Notionnel rétroactif, salariale + patronale              3,298€      4,617€      385€   -79.0%
+5. Notionnel dès 2026, salariale + patronale               15,719€     22,008€    1,834€    +0.0%
 ```
 
-> Les scénarios 4 et 5 sont les scénarios 2 et 3, à une différence près : **ce
-> qui alimente le compte d'un agent public**. Même carrière, même indexation,
-> même liquidation, mêmes droits acquis figés à la bascule. Ici, ils ne s'en
-> écartent pas d'un euro — aucune série de contribution employeur n'est publiée
-> pour la SNCF avant 2007, et le modèle le dit plutôt que d'inventer. Pour un
-> fonctionnaire d'État, l'écart est tout autre : voir
-> [« Qui verse les cotisations d'un agent public »](#3-qui-verse-les-cotisations-dun-agent-public).
+> Les scénarios 4 et 5 sont les scénarios 2 et 3, à une différence près et une
+> seule : **ce qui alimente le compte**. Même carrière, même indexation, même
+> liquidation, mêmes droits acquis figés à la bascule. L'écart entre 2 et 4
+> mesure donc exactement une chose — ce que verse l'employeur.
+>
+> Les scénarios 3 et 5 sont ici identiques au système actuel parce que cet agent
+> a liquidé en 2005, avant la bascule : ses droits sont intégralement acquis.
+
+> **Le scénario 2 n'est pas une proposition de réforme.** Un compte notionnel
+> réel serait alimenté par la cotisation entière ; n'y porter que la part
+> salariale répond à une autre question, « qu'est-ce que j'ai payé, moi ? ».
+> C'est le scénario 4 qui porte l'effort contributif complet.
 
 > **Le scénario 2 n'est pas une proposition de réforme**, et l'écart qu'il
 > affiche ne mesure pas l'effet des comptes notionnels. Il vient pour
@@ -65,7 +75,7 @@ Scénario                                                  Courants   Constants 
 Rien à installer, rien à lancer : une adresse à ouvrir. Le modèle et ses données
 de référence s'exécutent **dans votre navigateur**. Aucune donnée saisie ne
 quitte votre machine, puisqu'il n'y a pas de serveur de calcul. Le premier
-chargement transfère 212 Ko compressés (781 Ko bruts) et prend quelques dixièmes
+chargement transfère 213 Ko compressés (787 Ko bruts) et prend quelques dixièmes
 de seconde ; les suivants sont immédiats.
 
 Quatre pages : **Simuler** (une carrière, avec le détail du calcul, la
@@ -80,7 +90,7 @@ la page.
 <details>
 <summary>Comment la page fonctionne, et comment on sait qu'elle dit vrai</summary>
 
-`index.html` charge deux choses : `moteur/donnees.json` (521 Ko — les séries, les
+`index.html` charge deux choses : `moteur/donnees.json` (523 Ko — les séries, les
 tables de mortalité observées de 1899 à 2024, les 37 fiches de régime) et
 `moteur/js/`, un portage du modèle en JavaScript sans aucune bibliothèque. Le site est servi depuis la racine
 du dépôt, telle quelle : c'est ce que GitHub Pages publie sans aucun réglage, et
@@ -98,7 +108,7 @@ Le risque d'un portage, c'est qu'il déplace un chiffre sans que rien n'échoue.
 Il est traité de front : **le Python de `src/` reste la référence**, et
 `scripts/construire_temoins.py` fige depuis lui 86 simulations complètes et le
 HTML des quatre pages, dans `tests/temoins/`. `node --test` rejoue le tout côté
-JavaScript et compare valeur par valeur — 7 176 nombres, dont 98,2 % identiques
+JavaScript et compare valeur par valeur — 7 167 nombres, dont 98,2 % identiques
 au bit près, l'écart maximal étant d'un *ulp* (3 · 10⁻¹⁶, la précision d'un
 flottant). Les pages, elles, sont comparées caractère par caractère : le
 formatage à la française reproduit jusqu'à l'arrondi au pair de Python, faute de
@@ -179,11 +189,12 @@ print(simulateur.simuler(carriere).tableau())
 | Départ trop tôt = pension réduite | Âge de référence **à cliquet** : l'abaissement de 1982 ne le fait pas redescendre |
 | Régimes à départ précoce traités au même étalon | SNCF à 50 ans = 15 ans d'anticipation ; Opéra à 40 ans = 25 ans |
 | Indexation par triple lock inversé, depuis l'origine | `min(inflation, salaire moyen, productivité réelle)`, appliqué aux comptes **et** aux pensions liquidées |
-| Cinq résultats comparables | Système actuel / notionnel rétroactif / notionnel prospectif, puis les deux mêmes comptes notionnels avec les cotisations employeur du public |
+| Cinq résultats comparables | Système actuel / notionnel rétroactif / notionnel prospectif sur la part salariale, puis les deux mêmes comptes notionnels part patronale comprise |
 | Cas particulier **et** cas général | Simulation individuelle + grille 12 cas types × 7 générations |
 | Fusion des régimes au cas le plus défavorable | Âge 64/67, 172 trimestres, carrière entière, assiette déplafonnée, zéro avantage |
 | Droits acquis respectés à la bascule | Conversion à l'âge de référence ou à l'âge de départ effectif, au choix ; la cascade de calcul est affichée |
 | Statuts comparables au même étalon | Les fiches publiques ne portent que la retenue de l'agent ; elle est alignée sur l'effort contributif total du privé, sans quoi on compare un demi-effort à un effort entier |
+| Part salariale et part patronale distinguées, pour tous | `part_salariale` dans chaque fiche de salariés — 40,87 % au régime général en 2023, 40 % à l'Agirc-Arrco —, et `sans_employeur` sur les cinq statuts qui cotisent seuls |
 | Part employeur du public, quand elle est publiée | Taux implicite de l'État 1995-2005, taux appelé par le CAS « Pensions » 2006-2026, CNRACL depuis 1948, SNCF 2007-2018 — portés au compte par les scénarios 4 et 5, et le modèle dit sur combien d'années il a dû s'en passer |
 | Capitalisation isolée | RAFP et assurances sociales de 1930 dans un compartiment séparé, jamais convertis |
 | Trimestres acquis par le revenu, pas par le temps | 150 SMIC horaires depuis 2014, 200 avant : un temps très partiel valide moins de quatre trimestres |
@@ -232,25 +243,28 @@ c'est une forte hausse de prélèvement — et donc de pension. C'est la seule l
 du tableau des cas types qui progresse ; le résultat est correct, mais il traduit
 un effort contributif accru, pas un avantage accordé.
 
-### 3. Qui verse les cotisations d'un agent public
+### 3. La part patronale pèse plus lourd que la part salariale
 
-Les fiches de la fonction publique et des régimes spéciaux ne portent que la
-**retenue de l'agent** : 11,10 % aujourd'hui, 7,85 % hier. La part de
-l'employeur y manquait, et le dépôt a longtemps soutenu qu'elle ne pouvait pas
-s'y trouver — le compte d'affectation spéciale « Pensions » datant de 2006, il
-n'y aurait rien avant. C'était vrai de l'État, et faux du reste.
+Une cotisation retraite a deux parts, et le modèle sait maintenant les
+distinguer **symétriquement**, public et privé. C'est ce qui sépare les
+scénarios 2 et 3 des scénarios 4 et 5, et rien d'autre.
 
-- La **CNRACL** est une caisse depuis 1947 : le taux versé par les employeurs
-  territoriaux et hospitaliers est fixé par décret et publié depuis 1948.
-- L'**État** a bien un taux avant 2006, non pas appelé mais **reconstitué** :
-  l'annexe « pensions » au PLF 2011 publie une série de « taux implicite »
-  remontant à 1995 — 48,6 % en 1995, 59,4 % en 2005.
-- Depuis 2006 le taux est appelé par décret : 49,90 %, puis 74,28 % de 2013 à
-  2024, 78,28 % en 2025 et **82,28 % en 2026**.
-- La **SNCF** publie par arrêté les deux composantes T1 et T2 de la contribution
-  de l'entreprise, de 2007 à 2018.
+Cela n'a pas toujours été possible. Les fiches de régime ne portaient pas la
+même grandeur selon le secteur : le total salarié + employeur pour le privé, la
+seule retenue de l'agent pour la fonction publique. Le modèle refermait cet
+écart de périmètre par une convention — prêter au public la part employeur du
+privé — qui rendait les statuts comparables au prix d'un chiffre inventé. Deux
+séries l'en dispensent :
 
-Les scénarios 4 et 5 les portent au compte, et ne changent rien d'autre.
+- **`part_salariale`** dans les fiches : la fraction du taux que l'assuré
+  supporte. 40,87 % au régime général en 2023, 40 % à l'Agirc-Arrco par la règle
+  40-60 de l'ANI du 17 novembre 2017, 100 % pour un non-salarié qui paie tout.
+- **La contribution employeur du public**, que le dépôt soutenait introuvable
+  avant 2006. C'était vrai de l'État, et faux du reste : la CNRACL est une
+  caisse depuis 1947 et publie son taux depuis 1948 ; l'État a un taux
+  *implicite* reconstitué par le PLF 2011 depuis 1995 ; depuis 2006 le taux est
+  appelé par décret — 49,90 %, puis 74,28 % de 2013 à 2024, 78,28 % en 2025 et
+  **82,28 % en 2026** ; la SNCF publie ses composantes T1 et T2 de 2007 à 2018.
 
 ```
 Fonctionnaire d'État née en 1975, 20 % de primes, partie à 64 ans
@@ -258,33 +272,36 @@ Fonctionnaire d'État née en 1975, 20 % de primes, partie à 64 ans
 Scénario                                                  Courants   Constants   Mensuel    Écart
 ------------------------------------------------------------------------------------------------
 1. Système actuel                                          31,714€     25,310€    2,109€     réf.
-2. Notionnel rétroactif (depuis l'origine)                 14,622€     11,670€      972€   -53.9%
-3. Notionnel à compter de 2026                             23,194€     18,511€    1,543€   -26.9%
-4. Notionnel rétroactif, cotisations employeur             43,413€     34,647€    2,887€   +36.9%
-5. Notionnel à compter de 2026, cotisations employeur      36,237€     28,920€    2,410€   +14.3%
+2. Notionnel rétroactif, part salariale                     5,693€      4,544€      379€   -82.0%
+3. Notionnel dès 2026, part salariale                      19,124€     15,263€    1,272€   -39.7%
+4. Notionnel rétroactif, salariale + patronale             30,370€     24,238€    2,020€    -4.2%
+5. Notionnel dès 2026, salariale + patronale               23,194€     18,511€    1,543€   -26.9%
 
-Cotisations des scénarios 4 et 5 :
-  retenue de l'agent           120,675 €
-  employeur public             873,300 €   soit 88% du total
-  total porté au compte        993,975 €
-  contribution employeur trouvée sur 41 année(s)
+Qui verse la cotisation, en euros courants cumulés :
+  part salariale           130,756 €   scénarios 2 et 3
+  part patronale           548,229 €   soit 81% du total
+  total                    678,985 €   scénarios 4 et 5
+  contribution employeur publique trouvée sur 28 année(s)
 ```
 
-L'employeur verse 88 % du total : c'est l'ordre de grandeur d'un taux
-d'**équilibre**. Et c'est la limite de ces deux scénarios. 82,28 % ne signifie
-pas qu'un fonctionnaire acquiert 82 % de son traitement en droits nouveaux, mais
+L'employeur verse ici 81 % du total. C'est l'ordre de grandeur d'un taux
+d'**équilibre**, et c'est la limite du scénario 4 : 82,28 % ne signifie pas
+qu'un fonctionnaire acquiert 82 % de son traitement en droits nouveaux, mais
 qu'il faut aujourd'hui cette contribution pour payer les pensions
-d'aujourd'hui — démographie et engagements hérités compris. Les porter au compte
-répond à une question précise, « et si tout ce qui a été consacré aux pensions
-avait été porté au compte des actifs ? », et à elle seule.
+d'aujourd'hui — démographie et engagements hérités compris.
 
-Trois limites à connaître. La série n'existe que pour trois régimes : douze
-autres retombent sur l'alignement du scénario 2, et le modèle affiche sur
-combien d'années. L'État n'est couvert qu'à partir de 1995 : plus une carrière
-publique est ancienne, moins le scénario 4 s'écarte du 2 — non parce que le
-financement d'alors ressemblait à celui du privé, mais parce qu'on ne le connaît
-pas. Enfin le scénario 5, qui n'ouvre son compte qu'en 2026, prolonge le taux de
-2026 jusqu'à la liquidation : presque tout ce qu'il calcule est une projection.
+Trois limites à connaître. Pour le public, la série n'existe que pour trois
+régimes : douze autres voient leur part patronale **estimée** par l'effort d'un
+salarié du privé, et le modèle affiche sur combien d'années. L'État n'est
+couvert qu'à partir de 1995. Enfin, à compter de la bascule le régime unique
+remplace tous les régimes : après 2026 la part patronale est celle du statut
+pivot privé, et non celle d'un employeur public qui, par construction, n'existe
+plus.
+
+Un quatrième réglage conserve l'ancienne convention, comme contrefactuel :
+`--part-cotisation totale_alignee` prête au public la part employeur du privé,
+et fait retrouver à un fonctionnaire et à un salarié de même rémunération
+exactement la même pension.
 
 ---
 
@@ -402,7 +419,7 @@ src/retraite_notionnelle/
 index.html                      le site : charge les données, puis le moteur JavaScript
 .nojekyll                       servir les fichiers sans transformation
 moteur/                         ce que le navigateur charge, et rien d'autre
-  donnees.json                  séries, tables et régimes (521 Ko, produit par script)
+  donnees.json                  séries, tables et régimes (523 Ko, produit par script)
   style.css                     extraite de gabarit.py (produite par script)
   js/                           portage du modèle, sans bibliothèque ni étape de build
 
@@ -410,7 +427,7 @@ docs/
   methodologie.md               ce que le modèle calcule, et pourquoi ainsi
   limites.md                    ce qu'il ne calcule pas, et ce qui reste à certifier
 
-tests/                          224 tests Python
+tests/                          231 tests Python
   temoins/                      chiffres et pages figés depuis le modèle Python
   js/                           le portage rejoué contre ces témoins (node --test)
 ```
@@ -426,7 +443,7 @@ sous « Options de modélisation ».
 --indexation      triple_lock_inverse | triple_lock_inverse_nominal | prix | salaires
 --age-reference   cliquet_legal | cliquet_puis_esperance_vie | legal_sans_cliquet
 --conversion-acquis  reference | liquidation
---cotisation-publique  alignee_sur_le_prive | financement_historique | exclue
+--part-cotisation      salariale | totale | totale_alignee
 --table           unisexe | par_sexe
 --projection      cor_central | cor_favorable | cor_defavorable | stagnation
 --bascule ANNÉE   année de passage au régime unique (défaut 2026)
@@ -443,7 +460,7 @@ sous « Options de modélisation ».
 python -m pytest tests
 ```
 
-224 tests couvrant le chargement et la fiabilité des données, la règle de
+231 tests couvrant le chargement et la fiabilité des données, la règle de
 certification, la calibration des tables de mortalité et sa concordance avec les
 tables observées, les propriétés du moteur
 (monotonie du diviseur, cliquet de l'âge de référence, règles de fusion), le

@@ -12,8 +12,7 @@
  * partage.
  */
 
-import { SourceCotisations, ContributionEmployeurPublic,
-} from "./config.js";
+import { SourceCotisations, PartCotisation } from "./config.js";
 import { ContributionsEmployeurPubliques } from "./regimes.js";
 import { Fiabilite } from "./serie.js";
 
@@ -66,67 +65,66 @@ export class ConstructeurCompte {
 
   /**
    * Taux à porter au compte, sa part employeur, d'où elle vient et ce qu'elle
-   * vaut. Les trois derniers termes ne valent que pour les régimes dont la
-   * fiche s'arrête à la retenue de l'agent, et seulement dans les scénarios 4
-   * et 5.
+   * vaut.
    *
    * @returns {[number, number, string, number]} taux, part employeur, origine,
    *   fiabilité.
    */
-  tauxEffectif(regime, periode, annee) {
+  tauxEffectif(regime, periode, annee, sansEmployeur = false) {
+    const part = this.parametres.part_cotisation;
     const taux = periode.taux_cotisation_retraite;
-    const traitement = this.parametres.traitement_contribution_employeur_etat;
-    if (periode.perimetre_taux !== "agent_seul") {
+
+    if (sansEmployeur) {
+      // Un non-salarié paie tout : la répartition de la fiche est celle d'un
+      // salarié du même régime, elle ne le concerne pas.
       return [taux, 0.0, "", Fiabilite.CERTIFIEE];
     }
 
-    if (traitement === ContributionEmployeurPublic.FINANCEMENT_HISTORIQUE) {
-      // La retenue de l'agent, plus ce que l'employeur public a versé.
+    if (part === PartCotisation.SALARIALE) {
+      return [periode.tauxCotisationSalarie, 0.0, "", Fiabilite.CERTIFIEE];
+    }
+
+    if (periode.perimetre_taux !== "agent_seul") {
+      // Le privé : la fiche porte le total, et sa part salariale dit combien
+      // l'employeur y met.
+      return [taux, taux - periode.tauxCotisationSalarie, "", Fiabilite.CERTIFIEE];
+    }
+
+    if (part === PartCotisation.TOTALE) {
       const contribution = this.contributionsPubliques.taux(regime, annee);
       if (contribution !== null) {
         return [taux + contribution[0], contribution[0], contribution[1], contribution[2]];
       }
-      // Aucune série pour ce régime cette année-là : on retombe sur
-      // l'alignement du scénario 2, et le résultat le dit. La part employeur
-      // reste à zéro : l'écart entre la retenue et le taux du privé est une
-      // convention de comparaison, pas une cotisation qu'on aurait versée.
+      // Aucune série : on retombe sur l'effort total d'un salarié du privé de
+      // la même année, et l'écart avec la retenue est une ESTIMATION de la part
+      // employeur, pas une somme retrouvée.
       const pivot = this.tauxPivotPrive(annee);
-      return [pivot > 0 ? pivot : taux, 0.0, "repli", Fiabilite.ESTIMEE];
+      if (pivot <= taux) {
+        return [taux, 0.0, "repli", Fiabilite.ESTIMEE];
+      }
+      return [pivot, pivot - taux, "repli", Fiabilite.ESTIMEE];
     }
 
-    if (traitement === ContributionEmployeurPublic.ALIGNEE_SUR_LE_PRIVE) {
-      // La fiche ne porte que la retenue de l'agent : on lui substitue l'effort
-      // contributif complet d'un salarié de la même année.
-      const pivot = this.tauxPivotPrive(annee);
-      if (pivot > 0) {
-        return [pivot, 0.0, "", Fiabilite.CERTIFIEE];
-      }
+    // TOTALE_ALIGNEE : l'ancienne convention, conservée comme contrefactuel.
+    const pivot = this.tauxPivotPrive(annee);
+    if (pivot > 0) {
+      return [pivot, 0.0, "", Fiabilite.CERTIFIEE];
     }
     return [taux, 0.0, "", Fiabilite.CERTIFIEE];
   }
 
   /**
-   * Taux du régime unique, après la bascule — et ce que l'employeur y met.
+   * Un employeur verse-t-il quelque chose pour cet assuré, cette année-là ?
    *
-   * Le taux du régime unique est une convention — la somme des taux du statut
-   * pivot privé — qui efface toute trace de ce que verse un employeur public.
-   * Sous `financement_historique`, le régime unique conserve donc, pour un agent
-   * public, l'effort contributif réel de son régime, ramené à l'assiette élargie
-   * du régime unique en le multipliant par la part hors primes.
-   *
-   * @returns {[number, number, string, number]} taux, part employeur, origine,
-   *   fiabilité.
+   * Non pour un artisan, un commerçant, un libéral, un exploitant agricole :
+   * ils cotisent seuls. Oui pour un salarié, dont la fiche porte une part
+   * salariale inférieure à un, et pour un agent public, dont la fiche s'arrête
+   * à sa retenue.
    */
-  tauxUnifie(ligne, annee, regimeFusionne) {
-    if (this.parametres.source_cotisations !== SourceCotisations.TAUX_HISTORIQUES) {
-      return [this.parametres.taux_cotisation_uniforme, 0.0, "", Fiabilite.CERTIFIEE];
+  aUnEmployeur(ligne, annee) {
+    if (this.affiliations.sansEmployeur(ligne.affiliation)) {
+      return false;
     }
-    const unifie = regimeFusionne.taux_cotisation_retraite;
-    if (this.parametres.traitement_contribution_employeur_etat
-        !== ContributionEmployeurPublic.FINANCEMENT_HISTORIQUE) {
-      return [unifie, 0.0, "", Fiabilite.CERTIFIEE];
-    }
-
     for (const code of this.affiliations.regimes(ligne.affiliation, annee)) {
       if (!this.catalogue.contient(code)) {
         continue;
@@ -136,25 +134,64 @@ export class ConstructeurCompte {
         continue;
       }
       for (const periode of regime.periodesActives(annee)) {
-        if (periode.perimetre_taux !== "agent_seul") {
-          continue;
+        if (periode.perimetre_taux === "agent_seul") {
+          return true;
         }
-        const part = periode.assiette === "hors_primes"
-          ? 1.0 - ligne.part_primes : 1.0;
-        const contribution = this.contributionsPubliques.taux(code, annee);
-        if (contribution === null) {
-          return [unifie, 0.0, "repli", Fiabilite.ESTIMEE];
+        if (periode.part_salariale < 1.0) {
+          return true;
         }
-        return [
-          (periode.taux_cotisation_retraite + contribution[0]) * part,
-          contribution[0] * part,
-          contribution[1],
-          contribution[2],
-        ];
       }
     }
-    // Statut privé : la fiche porte déjà le total, le régime unique aussi.
-    return [unifie, 0.0, "", Fiabilite.CERTIFIEE];
+    return false;
+  }
+
+  /**
+   * Taux du régime unique, après la bascule — et ce que l'employeur y met.
+   *
+   * Il n'y a plus, après la bascule, ni fonction publique ni régimes spéciaux :
+   * un seul régime, au taux du statut pivot privé, dont il hérite la
+   * répartition salarié/employeur. Une exception : un assuré qui n'avait pas
+   * d'employeur n'en gagne pas un en changeant de régime.
+   *
+   * @returns {[number, number, string, number]} taux, part employeur, origine,
+   *   fiabilité.
+   */
+  tauxUnifie(ligne, annee, regimeFusionne) {
+    if (this.parametres.source_cotisations !== SourceCotisations.TAUX_HISTORIQUES) {
+      return [this.parametres.taux_cotisation_uniforme, 0.0, "", Fiabilite.CERTIFIEE];
+    }
+    const unifie = regimeFusionne.taux_cotisation_retraite;
+    const salarie = this.aUnEmployeur(ligne, annee)
+      ? regimeFusionne.taux_cotisation_salarie : unifie;
+
+    if (this.parametres.part_cotisation === PartCotisation.SALARIALE) {
+      return [salarie, 0.0, "", Fiabilite.CERTIFIEE];
+    }
+    return [unifie, unifie - salarie, "", Fiabilite.CERTIFIEE];
+  }
+
+  // -- assiette --------------------------------------------------------------
+
+  /** Part du revenu comprise entre deux bornes exprimées en plafonds. */
+  /**
+   * Part du revenu comprise entre deux bornes, exprimées EN EUROS.
+   *
+   * Le plafond global du modèle, lui, reste en plafonds de la Sécurité sociale :
+   * c'est un paramètre de simulation, pas une règle de régime.
+   */
+  _assiette(revenu, annee, plancher, plafondPeriode) {
+    const pass = this.macro.plafond_securite_sociale.valeur(annee);
+    const plafondGlobal = this.parametres.plafond_assiette_en_pass;
+    let plafond;
+    if (plafondPeriode === null) {
+      plafond = plafondGlobal === null ? revenu : plafondGlobal * pass;
+    } else {
+      plafond = plafondPeriode;
+      if (plafondGlobal !== null) {
+        plafond = Math.min(plafond, plafondGlobal * pass);
+      }
+    }
+    return Math.max(0.0, Math.min(revenu, plafond) - plancher);
   }
 
   /**
@@ -201,30 +238,6 @@ export class ConstructeurCompte {
     return baseLigne;
   }
 
-  // -- assiette --------------------------------------------------------------
-
-  /** Part du revenu comprise entre deux bornes exprimées en plafonds. */
-  /**
-   * Part du revenu comprise entre deux bornes, exprimées EN EUROS.
-   *
-   * Le plafond global du modèle, lui, reste en plafonds de la Sécurité sociale :
-   * c'est un paramètre de simulation, pas une règle de régime.
-   */
-  _assiette(revenu, annee, plancher, plafondPeriode) {
-    const pass = this.macro.plafond_securite_sociale.valeur(annee);
-    const plafondGlobal = this.parametres.plafond_assiette_en_pass;
-    let plafond;
-    if (plafondPeriode === null) {
-      plafond = plafondGlobal === null ? revenu : plafondGlobal * pass;
-    } else {
-      plafond = plafondPeriode;
-      if (plafondGlobal !== null) {
-        plafond = Math.min(plafond, plafondGlobal * pass);
-      }
-    }
-    return Math.max(0.0, Math.min(revenu, plafond) - plancher);
-  }
-
   // -- cotisation d'une année ------------------------------------------------
 
   cotisationAnnuelle(carriere, annee, regimeFusionne = null) {
@@ -264,6 +277,7 @@ export class ConstructeurCompte {
     const famillesAdmises = ligne.cotise ? null : new Set(ligne.familles_cotisantes);
 
     const codes = this.affiliations.regimes(ligne.affiliation, annee);
+    const sansEmployeur = this.affiliations.sansEmployeur(ligne.affiliation);
     let cotisation = 0.0;
     let assietteTotale = 0.0;
     let horsRepartition = 0.0;
@@ -335,7 +349,7 @@ export class ConstructeurCompte {
         }
 
         const [taux, tauxEmployeur, origine, fiabiliteTaux] = this.tauxEffectif(
-          code, periode, annee,
+          code, periode, annee, sansEmployeur,
         );
         if (origine) {
           origines.push(origine);

@@ -20,7 +20,7 @@
 # macroéconomiques de l'INSEE, interrogeable sans clé d'accès à l'adresse
 # https://api.insee.fr/series/BDM/V1/data/SERIES_BDM/<idbank>
 
-version_manifeste: "2026-08-30a"
+version_manifeste: "2026-08-30b"
 
 institutions:
 
@@ -875,4 +875,30 @@ institutions:
           Sert de contrôle de vraisemblance sur les taux saisis dans les fiches
           de régime, jamais de source versée automatiquement : une fiche est
           structurée par périodes législatives, y reporter une série annuelle
-          demande un arbitrage qui doit rester explicite.
+          demande un arbitrage qui doit rester explicite. Les quatre composantes
+          sont récupérées séparément — salarié et employeur, plafonnée et
+          déplafonnée —, ce qui permet de contrôler aussi la RÉPARTITION
+          salarié/employeur des fiches (`part_salariale`), et non seulement leur
+          total.
+
+      - id: openfisca_part_salariale
+        titre: Répartition salarié / employeur des cotisations retraite
+        url: https://github.com/openfisca/openfisca-france/tree/master/openfisca_france/parameters/prelevements_sociaux/regimes_complementaires_retraite_secteur_prive
+        acces: api
+        statut_integration: saisi
+        cible: data/reference/regimes/*.yaml
+        note: >-
+          Le champ `part_salariale` des fiches, qui dit quelle fraction du taux
+          l'assuré supporte lui-même. Sans lui, le modèle ne pouvait pas
+          comparer la part salariale d'un fonctionnaire — sa retenue, seule
+          grandeur que sa fiche porte — à celle d'un salarié du privé, dont la
+          fiche porte un total. Sources par régime : `cnav/salarie` et
+          `cnav/employeur` pour le régime général depuis 1967 ;
+          `arrco|agirc/taux_effectifs_salaries_employeurs` et
+          `agirc_arrco/salarie|employeur` pour les complémentaires ;
+          `cotisations_secteur_public/ircantec/taux_cotisations_appeles` pour
+          l'Ircantec. La part est une MOYENNE sur la période de fiche, saisie à
+          la main et recoupée à chaque exécution de `verifier_donnees.py`.
+          Avant 1967 rien n'est transcrit : la part du régime général y est
+          celle mesurée sur 1968-1971, et celles des prédécesseurs de l'Arrco et
+          de l'Ircantec la règle 40-60 de leur successeur.

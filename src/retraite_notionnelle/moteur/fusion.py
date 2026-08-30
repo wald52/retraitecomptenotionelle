@@ -84,6 +84,10 @@ class RegimeFusionne:
     salaire_reference: str
     assiette: str
     taux_cotisation_retraite: float
+    #: Part de ce taux supportée par l'assuré lui-même. Le régime unique hérite
+    #: de la répartition salarié/employeur de ses régimes pivots : elle n'est pas
+    #: une décision de la fusion, mais la conséquence de ce qui la compose.
+    taux_cotisation_salarie: float
     avantages_non_contributifs: tuple[str, ...]
     origines: dict[str, str]
     regimes_fusionnes: tuple[str, ...]
@@ -99,9 +103,19 @@ class RegimeFusionne:
             f"  salaire de référence: {self.salaire_reference}   ({self.origines['salaire_reference']})",
             f"  assiette            : {self.assiette}",
             f"  taux de cotisation  : {self.taux_cotisation_retraite:.2%}   ({self.origines['taux_cotisation_retraite']})",
+            f"  dont part salariale : {self.taux_cotisation_salarie:.2%}",
             f"  avantages non contributifs : aucun",
         ]
         return "\n".join(lignes)
+
+
+def _part_salariale_moyenne(candidats) -> float:
+    """Répartition salarié/employeur moyenne des régimes fusionnés.
+
+    Sert aux critères de taux qui retiennent UN taux — le plus élevé, le plus
+    faible — et n'héritent donc d'aucune répartition en propre.
+    """
+    return sum(p.part_salariale for _, p in candidats) / len(candidats)
 
 
 def fusionner(catalogue: CatalogueRegimes, annee: int,
@@ -151,6 +165,7 @@ def fusionner(catalogue: CatalogueRegimes, annee: int,
 
     if regle.critere_taux is CritereTaux.SOMME_PIVOT:
         taux = 0.0
+        salarie = 0.0
         composantes: list[str] = []
         for code in regle.regimes_pivot:
             if code not in catalogue:
@@ -162,6 +177,7 @@ def fusionner(catalogue: CatalogueRegimes, annee: int,
             # qui s'applique à l'ensemble des rémunérations.
             pivot = min(actives, key=lambda p: p.bornes_assiette_en_pass()[0])
             taux += pivot.taux_cotisation_retraite
+            salarie += pivot.taux_cotisation_salarie
             composantes.append(f"{code} {pivot.taux_cotisation_retraite:.2%}")
         if taux <= 0:
             raise ValueError(
@@ -170,10 +186,13 @@ def fusionner(catalogue: CatalogueRegimes, annee: int,
         origine_taux = "somme " + " + ".join(composantes)
     elif regle.critere_taux is CritereTaux.LE_PLUS_ELEVE:
         taux, origine_taux = extremum(lambda p: p.taux_cotisation_retraite, max)
+        salarie = taux * _part_salariale_moyenne(candidats)
     elif regle.critere_taux is CritereTaux.LE_PLUS_FAIBLE:
         taux, origine_taux = extremum(lambda p: p.taux_cotisation_retraite, min)
+        salarie = taux * _part_salariale_moyenne(candidats)
     else:
         taux = sum(p.taux_cotisation_retraite for _, p in candidats) / len(candidats)
+        salarie = sum(p.taux_cotisation_salarie for _, p in candidats) / len(candidats)
         origine_taux = "moyenne des régimes"
 
     fiabilite = min(regime.fiabilite for regime, _ in candidats)
@@ -186,6 +205,7 @@ def fusionner(catalogue: CatalogueRegimes, annee: int,
         salaire_reference=salaire_reference,
         assiette="deplafonnee",
         taux_cotisation_retraite=taux,
+        taux_cotisation_salarie=salarie,
         avantages_non_contributifs=(),
         origines={
             "age_ouverture": origine_ouverture,

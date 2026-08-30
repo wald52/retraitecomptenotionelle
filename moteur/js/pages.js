@@ -8,7 +8,7 @@
 
 import { CAS_TYPES, GENERATIONS, calculerCasTypes } from "./castypes.js";
 import {
-  AgeConversionDroitsAcquis, ContributionEmployeurPublic, ModeAgeReference, ModeIndexation, PARAMETRES_DEFAUT,
+  AgeConversionDroitsAcquis, ModeAgeReference, ModeIndexation, PARAMETRES_DEFAUT, PartCotisation,
   TableConversion, avec, cleParametres,
 } from "./config.js";
 import { echapper, formatFixe, formatG } from "./format.js";
@@ -37,10 +37,10 @@ export const AGES_REFERENCE = [
 
 export const TABLES = [["unisexe", "Unisexe (défaut)"], ["par_sexe", "Par sexe"]];
 
-export const COTISATIONS_PUBLIQUES = [
-  ["alignee_sur_le_prive", "Alignée sur le privé (défaut)"],
-  ["financement_historique", "Contribution employeur réellement versée"],
-  ["exclue", "Retenue de l'agent seule"],
+export const PARTS_COTISATION = [
+  ["salariale", "Part salariale seule (défaut)"],
+  ["totale", "Salariale et patronale"],
+  ["totale_alignee", "Salariale et patronale, public aligné sur le privé"],
 ];
 
 export const CONVERSIONS_ACQUIS = [
@@ -73,7 +73,7 @@ const DEFAUTS = Object.freeze({
   age_reference: "cliquet_legal",
   table: "unisexe",
   conversion_acquis: "reference",
-  cotisation_publique: "alignee_sur_le_prive",
+  part_cotisation: "salariale",
   projection: "cor_central",
   bascule: 2026,
   euros: 2026,
@@ -105,9 +105,9 @@ export class Saisie {
       conversion_acquis: parmi(
         parametres, "conversion_acquis", CONVERSIONS_ACQUIS, DEFAUTS.conversion_acquis,
       ),
-      cotisation_publique: parmi(
-        parametres, "cotisation_publique", COTISATIONS_PUBLIQUES,
-        DEFAUTS.cotisation_publique,
+      part_cotisation: parmi(
+        parametres, "part_cotisation", PARTS_COTISATION,
+        DEFAUTS.part_cotisation,
       ),
       projection: parmi(parametres, "projection", PROJECTIONS, DEFAUTS.projection),
       bascule: entier(parametres, "bascule", DEFAUTS.bascule),
@@ -153,8 +153,8 @@ export class Saisie {
       table_conversion: TableConversion[cleEnum(TableConversion, this.table)],
       age_conversion_droits_acquis:
         AgeConversionDroitsAcquis[cleEnum(AgeConversionDroitsAcquis, this.conversion_acquis)],
-      traitement_contribution_employeur_etat: ContributionEmployeurPublic[
-        cleEnum(ContributionEmployeurPublic, this.cotisation_publique)],
+      part_cotisation: PartCotisation[
+        cleEnum(PartCotisation, this.part_cotisation)],
       scenario_projection: this.projection,
       annee_bascule: this.bascule,
       annee_euros_constants: this.euros,
@@ -194,7 +194,7 @@ export class Saisie {
       interruptions: this.interruptions, indexation: this.indexation,
       age_reference: this.age_reference, table: this.table,
       conversion_acquis: this.conversion_acquis,
-      cotisation_publique: this.cotisation_publique,
+      part_cotisation: this.part_cotisation,
       projection: this.projection, bascule: this.bascule, euros: this.euros,
       ...remplacements,
     };
@@ -425,9 +425,9 @@ function formulaire(saisie, contexte) {
       "revalorisation des comptes et des pensions"),
     g.liste("age_reference", "Âge de référence", AGES_REFERENCE, saisie.age_reference),
     g.liste("table", "Table de conversion", TABLES, saisie.table),
-    g.liste("cotisation_publique", "Cotisation des régimes publics",
-      COTISATIONS_PUBLIQUES, saisie.cotisation_publique,
-      "les fiches publiques ne portent que la retenue de l'agent"),
+    g.liste("part_cotisation", "Part de la cotisation portée au compte",
+      PARTS_COTISATION, saisie.part_cotisation,
+      "salariale seule, ou salariale et patronale"),
     g.liste("conversion_acquis", "Conversion des droits acquis",
       CONVERSIONS_ACQUIS, saisie.conversion_acquis,
       "âge auquel les droits figés à la bascule sont convertis"),

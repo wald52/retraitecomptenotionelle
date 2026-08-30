@@ -1214,6 +1214,77 @@ def controle_coherence_interne() -> list[str]:
     return messages
 
 
+#: Familles de régimes dont les assurés ONT un employeur : leur
+#: `taux_cotisation_retraite` est un total, et la fiche doit dire qui en paie
+#: quelle part. Les autres familles — non-salariés, libéraux — n'ont pas
+#: d'employeur, et le défaut `part_salariale: 1.0` y est le bon.
+FAMILLES_AVEC_EMPLOYEUR = {
+    "base_prive", "complementaire_prive", "additionnel_capitalise",
+}
+
+#: Régimes de familles mixtes dont les assurés sont des salariés. `agricole`
+#: réunit la MSA des salariés, qui a un employeur, et celle des non-salariés,
+#: qui n'en a pas.
+REGIMES_SALARIES_HORS_FAMILLE = {"msa_salaries"}
+
+
+def controle_part_salariale() -> list[str]:
+    """Aucune période de salariés ne doit oublier sa répartition.
+
+    Le défaut `part_salariale: 1.0` dit « toute la cotisation est personnelle ».
+    C'est vrai d'un artisan et d'une période `agent_seul`, dont le taux est déjà
+    la seule retenue de l'agent. C'est faux de toute période dont le taux est un
+    total employeur compris : l'oublier ferait porter au compte, sous le
+    scénario 2, une part patronale qui n'a rien à y faire — sans que rien ne le
+    signale.
+
+    Ce contrôle ne dépend d'aucune source et ne certifie rien : il vérifie que
+    la fiche dit ce qu'elle doit dire, et que la valeur est plausible.
+    """
+    import yaml
+
+    anomalies: list[str] = []
+    verifiees = 0
+    for chemin in sorted((REFERENCE / "regimes").glob("*.yaml")):
+        if chemin.name.startswith("_"):
+            continue
+        for fiche in (yaml.safe_load(chemin.read_text(encoding="utf-8")) or {}).get(
+            "regimes", []
+        ):
+            attendue = (fiche["famille"] in FAMILLES_AVEC_EMPLOYEUR
+                        or fiche["code"] in REGIMES_SALARIES_HORS_FAMILLE)
+            for periode in fiche.get("periodes", []):
+                borne = f"{fiche['code']} {periode['debut']}-{periode.get('fin')}"
+                part = periode.get("part_salariale")
+                if periode.get("perimetre_taux") == "agent_seul":
+                    if part is not None:
+                        anomalies.append(
+                            f"SUSPECT part salariale {borne} : période `agent_seul`, "
+                            "dont le taux est déjà la seule retenue de l'agent — "
+                            "`part_salariale` n'y a pas de sens"
+                        )
+                    continue
+                if attendue and part is None:
+                    anomalies.append(
+                        f"MANQUE  part salariale {borne} : période de salariés sans "
+                        "`part_salariale`, le compte y porterait la part patronale"
+                    )
+                    continue
+                if part is None:
+                    continue
+                verifiees += 1
+                if not 0.0 < float(part) <= 1.0:
+                    anomalies.append(
+                        f"SUSPECT part salariale {borne} : {part}, hors de ]0, 1]"
+                    )
+    messages = [
+        f"OK      part salariale : {verifiees} périodes renseignées, "
+        f"{len(anomalies)} anomalie(s)"
+    ]
+    messages.extend(anomalies)
+    return messages
+
+
 def controle_vraisemblance_inflation() -> list[str]:
     """Confronte la série d'inflation à l'IPCH d'Eurostat.
 
@@ -1333,9 +1404,28 @@ def controle_vraisemblance_cotisations() -> list[str]:
                 f"fiche {saisi:.2%}, OpenFisca {publie:.2%} en moyenne sur "
                 f"{annees[0]}-{annees[-1]}"
             )
+        # La RÉPARTITION salarié/employeur, sur les mêmes années. C'est elle qui
+        # sépare les scénarios 2 et 3 des scénarios 4 et 5 : une erreur d'un
+        # dixième s'y voit autant qu'une erreur de taux.
+        parts = [
+            (serie[str(a)]["salarie_plafonnee"] + serie[str(a)]["salarie_deplafonnee"])
+            / serie[str(a)]["total"]
+            for a in annees if serie[str(a)]["total"] > 0
+        ]
+        if parts and periode.get("part_salariale") is not None:
+            publiee = sum(parts) / len(parts)
+            saisie = float(periode["part_salariale"])
+            if abs(publiee - saisie) > 0.01:
+                anomalies.append(
+                    f"SUSPECT part salariale regime_general "
+                    f"{periode['debut']}-{periode['fin']} : fiche {saisie:.2%}, "
+                    f"OpenFisca {publiee:.2%} en moyenne sur "
+                    f"{annees[0]}-{annees[-1]}"
+                )
     messages.append(
         f"OK      vraisemblance cotisations : {comparees} périodes du régime général "
-        f"comparées à OpenFisca, {len(anomalies)} au-delà de 0,2 point"
+        f"comparées à OpenFisca — taux et répartition salarié/employeur —, "
+        f"{len(anomalies)} au-delà du seuil"
     )
     messages.append(
         "        avant 1967 aucune transcription n'existe : les taux y restent saisis"
@@ -1628,6 +1718,7 @@ def main(argv: list[str] | None = None) -> int:
 
     messages.append("")
     messages.extend(controle_coherence_interne())
+    messages.extend(controle_part_salariale())
     messages.append("")
     messages.extend(controle_vraisemblance_inflation())
     messages.extend(controle_vraisemblance_prix_anciens())
@@ -1667,7 +1758,8 @@ def main(argv: list[str] | None = None) -> int:
             "est énuméré dans docs/limites.md §1."
         )
 
-    anomalies = [m for m in messages if m.startswith(("ÉCART", "TROU", "SUSPECT"))]
+    anomalies = [m for m in messages
+                 if m.startswith(("ÉCART", "TROU", "SUSPECT", "MANQUE"))]
     if anomalies:
         print(f"\n{len(anomalies)} point(s) à examiner", file=sys.stderr)
         return 1

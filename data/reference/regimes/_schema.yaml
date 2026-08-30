@@ -102,7 +102,32 @@ champs_periode:
       personnelle pour les non-salariés) affecté à ce régime sur cette assiette.
       C'est la grandeur utilisée pour alimenter le compte notionnel lorsque le
       paramètre `source_cotisations = taux_historiques`.
+      ATTENTION : pour les périodes marquées `perimetre_taux: agent_seul`, ce
+      champ ne porte QUE la retenue de l'agent — voir ce champ.
     unite: "fraction de l'assiette"
+
+  part_salariale:
+    description: >-
+      Fraction du taux ci-dessus supportée par l'assuré lui-même. Le complément
+      est la part de l'employeur.
+
+      1.0 (défaut) couvre deux cas très différents et qui n'ont pas besoin d'être
+      distingués ici : les régimes de NON-SALARIÉS, où il n'y a pas d'employeur
+      et où la cotisation est intégralement personnelle ; et les périodes
+      `perimetre_taux: agent_seul`, dont le taux est déjà la seule retenue de
+      l'agent, la part de l'employeur public étant portée à part dans
+      `legislation/contribution_employeur_public.csv`.
+
+      Une valeur explicite est donc EXIGÉE de toute période de salariés dont le
+      taux est un total employeur compris — régime général, complémentaires,
+      MSA salariés, RAFP. `scripts/verifier_donnees.py` échoue si l'une manque.
+
+      La valeur est une part MOYENNE sur la période, comme le taux lui-même :
+      les fiches sont découpées par période législative, les taux salarié et
+      employeur bougent chacun à son rythme. Le contrôle de vraisemblance la
+      confronte à la transcription OpenFisca, année par année.
+    unite: "fraction, entre 0 et 1"
+    defaut: 1.0
 
   decote_par_trimestre: "abattement par trimestre manquant (fraction, null si aucun)"
 

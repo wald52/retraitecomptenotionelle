@@ -7,7 +7,7 @@ import pytest
 from retraite_notionnelle.carriere import AnneeCarriere, Carriere
 from retraite_notionnelle.config import (
     AgeConversionDroitsAcquis,
-    ContributionEmployeurPublic,
+    PartCotisation,
     ModeIndexation,
     Neutralisations,
     Parametres,
@@ -344,45 +344,68 @@ def test_le_systeme_actuel_applique_ses_avantages_sans_condition(simulateur):
     assert autre.pension_annuelle == pytest.approx(avec.pension_annuelle)
 
 
-def test_a_salaire_egal_le_statut_ne_change_pas_le_compte_notionnel(simulateur):
+def test_a_salaire_egal_le_statut_est_compare_a_la_meme_grandeur(simulateur):
     """Un compte notionnel ne connaît que des euros cotisés.
 
     Les fiches publiques ne portent que la retenue de l'agent, les fiches
-    privées le total salarié + employeur. Comparer les deux faisait apparaître
-    un écart de 37 % entre un fonctionnaire et un salarié de même rémunération,
-    qui ne traduisait aucune règle de retraite mais un périmètre comptable.
+    privées le total salarié + employeur. Les comparer telles quelles faisait
+    apparaître entre un fonctionnaire et un salarié de même rémunération un
+    écart de 37 % qui ne traduisait aucune règle de retraite, mais un périmètre
+    comptable.
+
+    La `part_salariale` des fiches referme cet écart de périmètre : les deux
+    scénarios comparent maintenant la même grandeur des deux côtés. Ce qui reste
+    est réel — les taux salariaux ne sont pas identiques d'un régime à l'autre —
+    et se compte en points, non en dizaines de points.
     """
     commun = dict(annee_naissance=1975, sexe="H", age_debut=22, age_liquidation=64)
-    pensions = {}
-    for affiliation in ("salarie_prive_non_cadre", "fonctionnaire_etat"):
+
+    def pension(affiliation, scenario):
         carriere = simulateur.carriere_simple(affiliation=affiliation, **commun)
-        pensions[affiliation] = (
-            simulateur.simuler(carriere).notionnel_retroactif.pension_annuelle
-        )
-    assert pensions["fonctionnaire_etat"] == pytest.approx(
-        pensions["salarie_prive_non_cadre"], rel=1e-9
-    )
+        return getattr(simulateur.simuler(carriere), scenario).pension_annuelle
+
+    public = pension("fonctionnaire_etat", "notionnel_retroactif")
+    prive = pension("salarie_prive_non_cadre", "notionnel_retroactif")
+    # Quelques points d'écart, là où le périmètre comptable en faisait 37.
+    assert 0.90 < public / prive < 1.10
 
 
-def test_le_perimetre_de_cotisation_publique_est_pilotable():
-    """L'ancienne convention reste accessible, et elle sous-estime bien."""
-    ancienne = Simulateur(Parametres().avec(
-        traitement_contribution_employeur_etat=ContributionEmployeurPublic.EXCLUE
+def test_l_ancienne_convention_egalise_les_statuts(simulateur):
+    """`TOTALE_ALIGNEE` prête au public le taux du privé : les deux se rejoignent."""
+    aligne = Simulateur(Parametres().avec(
+        part_cotisation=PartCotisation.TOTALE_ALIGNEE
     ))
-    carriere = ancienne.carriere_simple(
-        annee_naissance=1975, sexe="H", affiliation="fonctionnaire_etat",
-        age_debut=22, age_liquidation=64,
-    )
-    avec_exclusion = ancienne.simuler(carriere).notionnel_retroactif.pension_annuelle
+    commun = dict(annee_naissance=1975, sexe="H", age_debut=22, age_liquidation=64)
+    pensions = [
+        aligne.simuler(
+            aligne.carriere_simple(affiliation=affiliation, **commun)
+        ).notionnel_retroactif.pension_annuelle
+        for affiliation in ("salarie_prive_non_cadre", "fonctionnaire_etat")
+    ]
+    assert pensions[1] == pytest.approx(pensions[0], rel=1e-9)
 
-    alignee = Simulateur(Parametres())
-    avec_alignement = alignee.simuler(
-        alignee.carriere_simple(
-            annee_naissance=1975, sexe="H", affiliation="fonctionnaire_etat",
-            age_debut=22, age_liquidation=64,
-        )
-    ).notionnel_retroactif.pension_annuelle
-    assert avec_alignement > avec_exclusion * 1.5
+
+def test_l_ancienne_convention_d_alignement_reste_accessible():
+    """`TOTALE_ALIGNEE` prête au public la part employeur du privé.
+
+    C'est ce que le modèle faisait par défaut avant que la répartition
+    salarié/employeur soit dans les fiches. Conservée comme contrefactuel, elle
+    doit rester entre la part salariale seule et la contribution publique
+    réelle, qui est bien plus lourde.
+    """
+    profil = dict(annee_naissance=1975, sexe="H", affiliation="fonctionnaire_etat",
+                  age_debut=22, age_liquidation=64)
+
+    def pension(part):
+        sim = Simulateur(Parametres().avec(part_cotisation=part))
+        return sim.simuler(
+            sim.carriere_simple(**profil)
+        ).notionnel_retroactif.pension_annuelle
+
+    salariale = pension(PartCotisation.SALARIALE)
+    alignee = pension(PartCotisation.TOTALE_ALIGNEE)
+    totale = pension(PartCotisation.TOTALE)
+    assert salariale < alignee < totale
 
 
 # -- scénarios 4 et 5 : les cotisations employeur du public -------------------
@@ -394,19 +417,42 @@ def test_les_cinq_scenarios_sont_calcules(simulateur, salarie_moyen):
         assert getattr(comparaison, cle).pension_annuelle > 0, cle
 
 
-def test_les_scenarios_4_et_5_reprennent_le_2_et_le_3(simulateur, salarie_moyen):
-    """Pour le privé, la fiche porte déjà le total : rien à ajouter.
+def test_sans_employeur_les_quatre_scenarios_se_reduisent_a_deux(simulateur):
+    """Un artisan paie tout : il n'y a pas de part patronale à ajouter.
 
-    C'est la garantie que 4 et 5 ne changent QUE la part employeur du public.
-    S'ils déplaçaient un chiffre du privé, l'écart affiché sur une carrière
-    publique cesserait d'être attribuable à cette seule cause.
+    Un non-salarié relève pourtant souvent d'un régime partagé avec des
+    salariés — un artisan cotise au régime général, dont la fiche porte la
+    répartition 41/59 d'un salarié. Sans le drapeau `sans_employeur` du statut,
+    les scénarios 4 et 5 lui prêteraient un employeur qu'il n'a pas.
+    """
+    for affiliation in ("artisan", "profession_liberale", "exploitant_agricole"):
+        carriere = simulateur.carriere_simple(
+            annee_naissance=1975, sexe="H", affiliation=affiliation,
+            age_debut=27, age_liquidation=64,
+        )
+        comparaison = simulateur.simuler(carriere)
+        assert (comparaison.notionnel_retroactif_employeur.pension_annuelle
+                == pytest.approx(comparaison.notionnel_retroactif.pension_annuelle)), affiliation
+        assert (comparaison.notionnel_prospectif_employeur.pension_annuelle
+                == pytest.approx(comparaison.notionnel_prospectif.pension_annuelle)), affiliation
+        assert not comparaison.contribution_employeur.a_un_employeur, affiliation
+
+
+def test_le_prive_aussi_a_une_part_patronale(simulateur, salarie_moyen):
+    """L'axe n'est pas public/privé : il est salarial/patronal, pour tous.
+
+    La fiche du régime général porte le total ; sa `part_salariale` dit combien
+    l'employeur y met. Les scénarios 4 et 5 doivent donc déplacer un salarié du
+    privé, et pas seulement un fonctionnaire.
     """
     comparaison = simulateur.simuler(salarie_moyen)
     assert (comparaison.notionnel_retroactif_employeur.pension_annuelle
-            == pytest.approx(comparaison.notionnel_retroactif.pension_annuelle))
-    assert (comparaison.notionnel_prospectif_employeur.pension_annuelle
-            == pytest.approx(comparaison.notionnel_prospectif.pension_annuelle))
-    assert not comparaison.contribution_employeur.concerne_un_regime_public
+            > comparaison.notionnel_retroactif.pension_annuelle * 1.5)
+    employeur = comparaison.contribution_employeur
+    assert employeur.a_un_employeur
+    # Aucune série publique n'intervient : la fiche porte la répartition.
+    assert not employeur.concerne_un_regime_public
+    assert 0.5 < employeur.part < 0.65
 
 
 def test_le_scenario_4_est_le_2_avec_les_cotisations_employeur(simulateur):
@@ -452,34 +498,47 @@ def test_le_scenario_5_reste_inferieur_au_scenario_4(simulateur):
             < comparaison.notionnel_retroactif_employeur.pension_annuelle)
 
 
-def test_le_taux_unifie_ramene_le_taux_public_a_l_assiette_elargie(simulateur):
-    """Le CAS porte sur le traitement indiciaire, le régime unique sur tout.
+def test_le_regime_unique_herite_de_la_repartition_de_ses_pivots(simulateur):
+    """Après la bascule, plus de fonction publique : un seul régime, un seul taux.
 
-    Sans conversion, 82,28 % s'appliqueraient à des primes qui n'ont jamais rien
-    versé au régime. Le taux porté doit donc valoir (retenue + employeur) fois
-    la part hors primes.
+    Son taux est celui du statut pivot privé, et il en hérite la répartition.
+    C'est elle, et non une contribution publique retrouvée décret par décret,
+    qui sépare le scénario 5 du scénario 3 après la bascule.
     """
+    fusionne = simulateur.regime_fusionne
     carriere = simulateur.carriere_simple(
         annee_naissance=1990, sexe="F", affiliation="fonctionnaire_etat",
         age_debut=23, age_liquidation=64, part_primes=0.25,
     )
-    compte = simulateur.simuler(carriere).notionnel_prospectif_employeur.compte
-    annee = next(c for c in compte.cotisations if c.annee == 2030)
-    assert annee.taux_effectif == pytest.approx((0.1110 + 0.8228) * 0.75)
-    assert annee.origine_part_employeur == "appelee"
+    comparaison = simulateur.simuler(carriere)
+
+    salariale = next(c for c in comparaison.notionnel_prospectif.compte.cotisations
+                     if c.annee == 2030)
+    totale = next(c for c in comparaison.notionnel_prospectif_employeur.compte.cotisations
+                  if c.annee == 2030)
+    assert salariale.taux_effectif == pytest.approx(fusionne.taux_cotisation_salarie)
+    assert totale.taux_effectif == pytest.approx(fusionne.taux_cotisation_retraite)
+    assert totale.taux_effectif > salariale.taux_effectif
 
 
 def test_le_repli_est_compte_quand_aucune_serie_n_existe(simulateur):
-    """Aucun taux employeur SNCF avant 2007 : le modèle le dit, il ne l'invente pas."""
+    """Aucun taux employeur SNCF avant 2007 : le modèle estime, et il le dit.
+
+    La part patronale est alors celle d'un salarié du privé de la même année.
+    C'est une estimation, pas une somme retrouvée : elle est comptée comme telle
+    dans le décompte des années, et la fiabilité du scénario retombe.
+    """
     carriere = simulateur.carriere_simple(
         annee_naissance=1955, sexe="H", affiliation="agent_sncf",
         age_debut=20, age_liquidation=50,
     )
     comparaison = simulateur.simuler(carriere)
-    origines = comparaison.contribution_employeur.annees_par_origine
-    assert set(origines) == {"repli"}
-    assert (comparaison.notionnel_retroactif_employeur.pension_annuelle
-            == pytest.approx(comparaison.notionnel_retroactif.pension_annuelle))
+    employeur = comparaison.contribution_employeur
+    assert set(employeur.annees_par_origine) == {"repli"}
+    assert employeur.annees_trouvees == 0
+    assert employeur.a_un_employeur
+    assert (comparaison.notionnel_retroactif_employeur.fiabilite
+            < comparaison.notionnel_retroactif.fiabilite)
 
 
 def test_la_part_employeur_est_decomposee(simulateur):

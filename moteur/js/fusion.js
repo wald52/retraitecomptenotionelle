@@ -63,6 +63,18 @@ const plusGrand = (a, b) => a > b;
 const plusPetit = (a, b) => a < b;
 
 /** Construit le régime unique applicable à compter de ``annee``. */
+/**
+ * Répartition salarié/employeur moyenne des régimes fusionnés. Sert aux
+ * critères de taux qui retiennent UN taux et n'héritent d'aucune répartition.
+ */
+function partSalarialeMoyenne(candidats) {
+  let somme = 0.0;
+  for (const [, periode] of candidats) {
+    somme += periode.part_salariale;
+  }
+  return somme / candidats.length;
+}
+
 export function fusionner(catalogue, annee, regle = REGLE_FUSION_DEFAUT) {
   const candidats = [];
   for (const regime of catalogue) {
@@ -117,9 +129,11 @@ export function fusionner(catalogue, annee, regle = REGLE_FUSION_DEFAUT) {
   const origineSalaire = retenuSalaire[0].code;
 
   let taux;
+  let salarie;
   let origineTaux;
   if (regle.critere_taux === CritereTaux.SOMME_PIVOT) {
     taux = 0.0;
+    salarie = 0.0;
     const composantes = [];
     for (const code of regle.regimes_pivot) {
       if (!catalogue.contient(code)) {
@@ -133,6 +147,7 @@ export function fusionner(catalogue, annee, regle = REGLE_FUSION_DEFAUT) {
       // s'applique à l'ensemble des rémunérations.
       const pivot = premierExtremum(actives, (p) => p.bornesAssietteEnPass()[0], plusPetit);
       taux += pivot.taux_cotisation_retraite;
+      salarie += pivot.tauxCotisationSalarie;
       composantes.push(`${code} ${formatPourcentage(pivot.taux_cotisation_retraite, 2)}`);
     }
     if (taux <= 0) {
@@ -143,14 +158,19 @@ export function fusionner(catalogue, annee, regle = REGLE_FUSION_DEFAUT) {
     origineTaux = `somme ${composantes.join(" + ")}`;
   } else if (regle.critere_taux === CritereTaux.LE_PLUS_ELEVE) {
     [taux, origineTaux] = extremum((p) => p.taux_cotisation_retraite, plusGrand);
+    salarie = taux * partSalarialeMoyenne(candidats);
   } else if (regle.critere_taux === CritereTaux.LE_PLUS_FAIBLE) {
     [taux, origineTaux] = extremum((p) => p.taux_cotisation_retraite, plusPetit);
+    salarie = taux * partSalarialeMoyenne(candidats);
   } else {
     let somme = 0.0;
+    let sommeSalarie = 0.0;
     for (const [, periode] of candidats) {
       somme += periode.taux_cotisation_retraite;
+      sommeSalarie += periode.tauxCotisationSalarie;
     }
     taux = somme / candidats.length;
+    salarie = sommeSalarie / candidats.length;
     origineTaux = "moyenne des régimes";
   }
 
@@ -167,6 +187,7 @@ export function fusionner(catalogue, annee, regle = REGLE_FUSION_DEFAUT) {
     salaire_reference: salaireReference,
     assiette: "deplafonnee",
     taux_cotisation_retraite: taux,
+    taux_cotisation_salarie: salarie,
     avantages_non_contributifs: [],
     origines: {
       age_ouverture: origineOuverture,
