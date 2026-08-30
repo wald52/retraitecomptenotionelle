@@ -65,31 +65,33 @@ export class ConstructeurCompte {
   }
 
   /**
-   * Taux à porter au compte notionnel, d'où vient sa part employeur, et ce que
-   * vaut la donnée qui la porte.
+   * Taux à porter au compte, sa part employeur, d'où elle vient et ce qu'elle
+   * vaut. Les trois derniers termes ne valent que pour les régimes dont la
+   * fiche s'arrête à la retenue de l'agent, et seulement dans les scénarios 4
+   * et 5.
    *
-   * Sous un taux d'acquisition commun (scénario 5), cette méthode n'est appelée
-   * que pour le compartiment de capitalisation, qui garde ses taux propres.
-   *
-   * @returns {[number, string, number]} taux, origine, fiabilité.
+   * @returns {[number, number, string, number]} taux, part employeur, origine,
+   *   fiabilité.
    */
   tauxEffectif(regime, periode, annee) {
     const taux = periode.taux_cotisation_retraite;
     const traitement = this.parametres.traitement_contribution_employeur_etat;
     if (periode.perimetre_taux !== "agent_seul") {
-      return [taux, "", Fiabilite.CERTIFIEE];
+      return [taux, 0.0, "", Fiabilite.CERTIFIEE];
     }
 
     if (traitement === ContributionEmployeurPublic.FINANCEMENT_HISTORIQUE) {
       // La retenue de l'agent, plus ce que l'employeur public a versé.
       const contribution = this.contributionsPubliques.taux(regime, annee);
       if (contribution !== null) {
-        return [taux + contribution[0], contribution[1], contribution[2]];
+        return [taux + contribution[0], contribution[0], contribution[1], contribution[2]];
       }
       // Aucune série pour ce régime cette année-là : on retombe sur
-      // l'alignement du scénario 2, et le résultat le dit.
+      // l'alignement du scénario 2, et le résultat le dit. La part employeur
+      // reste à zéro : l'écart entre la retenue et le taux du privé est une
+      // convention de comparaison, pas une cotisation qu'on aurait versée.
       const pivot = this.tauxPivotPrive(annee);
-      return [pivot > 0 ? pivot : taux, "repli", Fiabilite.ESTIMEE];
+      return [pivot > 0 ? pivot : taux, 0.0, "repli", Fiabilite.ESTIMEE];
     }
 
     if (traitement === ContributionEmployeurPublic.ALIGNEE_SUR_LE_PRIVE) {
@@ -97,10 +99,62 @@ export class ConstructeurCompte {
       // contributif complet d'un salarié de la même année.
       const pivot = this.tauxPivotPrive(annee);
       if (pivot > 0) {
-        return [pivot, "", Fiabilite.CERTIFIEE];
+        return [pivot, 0.0, "", Fiabilite.CERTIFIEE];
       }
     }
-    return [taux, "", Fiabilite.CERTIFIEE];
+    return [taux, 0.0, "", Fiabilite.CERTIFIEE];
+  }
+
+  /**
+   * Taux du régime unique, après la bascule — et ce que l'employeur y met.
+   *
+   * Le taux du régime unique est une convention — la somme des taux du statut
+   * pivot privé — qui efface toute trace de ce que verse un employeur public.
+   * Sous `financement_historique`, le régime unique conserve donc, pour un agent
+   * public, l'effort contributif réel de son régime, ramené à l'assiette élargie
+   * du régime unique en le multipliant par la part hors primes.
+   *
+   * @returns {[number, number, string, number]} taux, part employeur, origine,
+   *   fiabilité.
+   */
+  tauxUnifie(ligne, annee, regimeFusionne) {
+    if (this.parametres.source_cotisations !== SourceCotisations.TAUX_HISTORIQUES) {
+      return [this.parametres.taux_cotisation_uniforme, 0.0, "", Fiabilite.CERTIFIEE];
+    }
+    const unifie = regimeFusionne.taux_cotisation_retraite;
+    if (this.parametres.traitement_contribution_employeur_etat
+        !== ContributionEmployeurPublic.FINANCEMENT_HISTORIQUE) {
+      return [unifie, 0.0, "", Fiabilite.CERTIFIEE];
+    }
+
+    for (const code of this.affiliations.regimes(ligne.affiliation, annee)) {
+      if (!this.catalogue.contient(code)) {
+        continue;
+      }
+      const regime = this.catalogue.obtenir(code);
+      if (regime.hors_repartition) {
+        continue;
+      }
+      for (const periode of regime.periodesActives(annee)) {
+        if (periode.perimetre_taux !== "agent_seul") {
+          continue;
+        }
+        const part = periode.assiette === "hors_primes"
+          ? 1.0 - ligne.part_primes : 1.0;
+        const contribution = this.contributionsPubliques.taux(code, annee);
+        if (contribution === null) {
+          return [unifie, 0.0, "repli", Fiabilite.ESTIMEE];
+        }
+        return [
+          (periode.taux_cotisation_retraite + contribution[0]) * part,
+          contribution[0] * part,
+          contribution[1],
+          contribution[2],
+        ];
+      }
+    }
+    // Statut privé : la fiche porte déjà le total, le régime unique aussi.
+    return [unifie, 0.0, "", Fiabilite.CERTIFIEE];
   }
 
   /**
@@ -181,21 +235,26 @@ export class ConstructeurCompte {
         annee, revenu: 0.0, assiette_retenue: 0.0, cotisation: 0.0,
         regimes: [], taux_effectif: 0.0, hors_repartition: 0.0,
         fiabilite: Fiabilite.CERTIFIEE, nulle: true, origine_part_employeur: "",
+        part_employeur: 0.0,
       };
     }
 
     // Après la bascule, un seul régime : le régime fusionné.
     if (regimeFusionne !== null && annee >= regimeFusionne.annee_bascule) {
       const assiette = this._assiette(ligne.revenu, annee, 0.0, null);
-      const taux = this.parametres.source_cotisations === SourceCotisations.TAUX_HISTORIQUES
-        ? regimeFusionne.taux_cotisation_retraite
-        : this.parametres.taux_cotisation_uniforme;
+      const [taux, tauxEmployeur, origine, fiabiliteTaux] = this.tauxUnifie(
+        ligne, annee, regimeFusionne,
+      );
       const cotisation = assiette * taux;
       return {
         annee, revenu: ligne.revenu, assiette_retenue: assiette, cotisation,
         regimes: ["regime_unifie"], taux_effectif: taux, hors_repartition: 0.0,
-        fiabilite: regimeFusionne.fiabilite, nulle: cotisation <= 0,
-        origine_part_employeur: "",
+        fiabilite: origine
+          ? Math.min(regimeFusionne.fiabilite, fiabiliteTaux)
+          : regimeFusionne.fiabilite,
+        nulle: cotisation <= 0,
+        origine_part_employeur: origine,
+        part_employeur: assiette * tauxEmployeur,
       };
     }
 
@@ -211,11 +270,13 @@ export class ConstructeurCompte {
     let fiabilite = Fiabilite.CERTIFIEE;
     const retenus = [];
     const origines = [];
+    let partEmployeur = 0.0;
 
-    // Scénario 5 : un seul taux, prélevé une fois sur la rémunération. Les
-    // régimes en répartition n'y servent plus qu'à délimiter l'assiette, qu'on
-    // réunit avant de prélever. Le compartiment de capitalisation garde ses
-    // taux propres.
+    // Taux d'acquisition commun (``source_cotisations = taux_uniforme``) : un
+    // seul taux, prélevé une fois sur la rémunération. Les régimes en
+    // répartition n'y servent plus qu'à délimiter l'assiette, qu'on réunit
+    // avant de prélever. Le compartiment de capitalisation garde ses taux
+    // propres.
     const acquisitionCommune = this.parametres.source_cotisations
       === SourceCotisations.TAUX_UNIFORME;
     const intervalles = new Map();
@@ -273,7 +334,9 @@ export class ConstructeurCompte {
           continue;
         }
 
-        const [taux, origine, fiabiliteTaux] = this.tauxEffectif(code, periode, annee);
+        const [taux, tauxEmployeur, origine, fiabiliteTaux] = this.tauxEffectif(
+          code, periode, annee,
+        );
         if (origine) {
           origines.push(origine);
           fiabilite = Math.min(fiabilite, fiabiliteTaux);
@@ -287,6 +350,7 @@ export class ConstructeurCompte {
         } else {
           cotisation += montant;
           assietteTotale += assiette;
+          partEmployeur += assiette * tauxEmployeur;
         }
         retenus.push(code);
       }
@@ -321,6 +385,7 @@ export class ConstructeurCompte {
       // deux périodes se recouvraient, le repli l'emporte.
       origine_part_employeur: origines.includes("repli")
         ? "repli" : (origines[0] ?? ""),
+      part_employeur: partEmployeur,
     };
   }
 
@@ -384,6 +449,10 @@ export class ConstructeurCompte {
       annees_cotisees: cotisations.filter((c) => !c.nulle).length,
       /** Rapport entre capital revalorisé et cotisations versées. */
       rendement_cumule: cotisationsVersees ? capital / cotisationsVersees : 0.0,
+      /** Part des cotisations versée par l'employeur public, euros courants. */
+      cotisations_employeur: cotisations.reduce(
+        (total, c) => total + (c.part_employeur ?? 0.0), 0.0,
+      ),
       annees_part_employeur: anneesPartEmployeur,
     };
   }

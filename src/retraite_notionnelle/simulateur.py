@@ -20,7 +20,7 @@ from dataclasses import dataclass
 from functools import cached_property
 
 from .carriere import Affiliations, Carriere
-from .config import ContributionEmployeurPublic, Parametres, SourceCotisations
+from .config import ContributionEmployeurPublic, Parametres
 from .donnees.chargement import DonneeInsuffisante, Fiabilite
 from .donnees.macro import DonneesMacro
 from .donnees.mortalite import DonneesMortalite
@@ -36,57 +36,65 @@ from .scenarios.notionnel import ResultatNotionnel, ScenarioNotionnel
 
 #: Les quatre scénarios notionnels, dans l'ordre où ils s'affichent, avec le
 #: numéro et le titre sous lesquels le tableau, la page et l'API les citent.
+#:
+#: Deux paires : 2 et 3 alignent la part employeur du public sur l'effort du
+#: privé, 4 et 5 lui substituent la contribution que l'employeur public verse
+#: réellement. À l'intérieur de chaque paire, l'un est rétroactif et l'autre
+#: prospectif. Rien d'autre ne les sépare, et c'est ce qui les rend comparables
+#: deux à deux : 4 se lit contre 2, 5 contre 3.
 SCENARIOS_NOTIONNELS = (
     ("notionnel_retroactif", 2, "Notionnel rétroactif (depuis l'origine)"),
     ("notionnel_prospectif", 3, "Notionnel à compter de {bascule}"),
-    ("notionnel_financement_public", 4, "Notionnel, financement public réel"),
-    ("notionnel_acquisition_commune", 5, "Notionnel, taux d'acquisition commun"),
+    ("notionnel_retroactif_employeur", 4,
+     "Notionnel rétroactif, cotisations employeur"),
+    ("notionnel_prospectif_employeur", 5,
+     "Notionnel à compter de {bascule}, cotisations employeur"),
 )
 
 
 @dataclass(frozen=True)
-class PartageFinancement:
-    """Ce qui a été versé, ce qui ouvre des droits, ce qui finance le passé.
+class ContributionEmployeur:
+    """Qui a payé le compte notionnel d'un agent public, et sur quelles années.
 
-    Les trois colonnes que la comparaison des scénarios 4 et 5 rend enfin
-    calculables, en euros courants et sans revalorisation — donc en somme de ce
-    qui a effectivement transité, pas en capital notionnel.
-
-    L'écart entre les deux premières est la **contribution de transition** : la
-    part du prélèvement qui paie les engagements hérités du passé au lieu
-    d'ouvrir des droits nouveaux. Elle est massive pour un fonctionnaire d'État
-    récent, puisque le taux du compte d'affectation spéciale est fixé pour
-    équilibrer le régime ; elle est faible pour un salarié du privé, où elle se
-    réduit au taux d'appel des complémentaires.
-
-    Elle peut être NÉGATIVE : le taux d'acquisition commun dépasse alors ce qui a
-    été prélevé, et c'est le cas de toutes les carrières anciennes, où les taux
-    de cotisation étaient très inférieurs à ceux d'aujourd'hui. Le scénario 5
-    leur donne plus de droits que leur époque n'en a financé — c'est le prix
-    d'un taux unique, et il faut le voir plutôt que le masquer.
+    En euros courants cumulés, sans revalorisation : la somme de ce qui a
+    effectivement transité, et non un capital notionnel. Ne vaut que pour une
+    carrière passée par un régime dont la fiche s'arrête à la retenue de
+    l'agent — pour un salarié du privé, la fiche porte déjà le total et la
+    question ne se pose pas.
     """
 
-    #: Somme des cotisations portées au compte dans le scénario 4.
-    versee: float
-    #: Somme des cotisations portées au compte dans le scénario 5.
-    acquisitive: float
-    #: Nombre d'années où la contribution employeur publique réelle a été
-    #: trouvée, par nature (``appelee``, ``implicite``), et où il a fallu s'en
-    #: passer (``repli``).
+    #: Cotisations portées au compte par le scénario rétroactif, agent et
+    #: employeur confondus.
+    total: float
+    #: Part de ce total versée par l'employeur public.
+    employeur: float
+    #: Nombre d'années où la contribution employeur réelle a été trouvée, par
+    #: nature (``appelee``, ``implicite``), et où il a fallu s'en passer
+    #: (``repli``).
     annees_par_origine: dict[str, int]
 
     @property
-    def transition(self) -> float:
-        return self.versee - self.acquisitive
+    def agent(self) -> float:
+        """Ce qui reste : la retenue prélevée sur le traitement de l'agent."""
+        return self.total - self.employeur
 
     @property
-    def part_transition(self) -> float:
-        """Part de ce qui a été versé qui n'ouvre aucun droit, entre 0 et 1."""
-        return self.transition / self.versee if self.versee else 0.0
+    def part(self) -> float:
+        """Part de l'employeur dans le total versé, entre 0 et 1."""
+        return self.employeur / self.total if self.total else 0.0
 
     @property
     def concerne_un_regime_public(self) -> bool:
         return bool(self.annees_par_origine)
+
+    @property
+    def annees_trouvees(self) -> int:
+        return sum(nombre for origine, nombre in self.annees_par_origine.items()
+                   if origine != "repli")
+
+    @property
+    def annees_repli(self) -> int:
+        return self.annees_par_origine.get("repli", 0)
 
 
 @dataclass
@@ -97,8 +105,8 @@ class Comparaison:
     actuel: ResultatActuel
     notionnel_retroactif: ResultatNotionnel
     notionnel_prospectif: ResultatNotionnel
-    notionnel_financement_public: ResultatNotionnel
-    notionnel_acquisition_commune: ResultatNotionnel
+    notionnel_retroactif_employeur: ResultatNotionnel
+    notionnel_prospectif_employeur: ResultatNotionnel
     regime_fusionne: RegimeFusionne
     parametres: Parametres
     #: Coefficient de passage des euros de l'année de liquidation aux euros
@@ -114,12 +122,12 @@ class Comparaison:
     def fiabilite(self) -> Fiabilite:
         """Fiabilité de l'ÉTALON et des deux scénarios de référence.
 
-        Les scénarios 4 et 5 en sont exclus à dessein : le premier repose sur
-        une série employeur qui n'existe pas partout, le second sur un taux
-        conventionnel qui n'est pas une donnée. Les laisser qualifier l'ensemble
-        ferait retomber toute simulation publique à « estimée » alors que les
-        trois premiers scénarios, eux, ne se sont pas dégradés. Chacun porte sa
-        propre fiabilité, et la sortie JSON les donne une à une.
+        Les scénarios 4 et 5 en sont exclus à dessein : ils reposent sur une
+        série employeur qui n'existe pas pour tous les régimes ni sur toutes les
+        années. Les laisser qualifier l'ensemble ferait retomber toute
+        simulation publique à « estimée » alors que les trois premiers
+        scénarios, eux, ne se sont pas dégradés. Chacun porte sa propre
+        fiabilité, et la sortie JSON les donne une à une.
         """
         return min(
             self.actuel.fiabilite,
@@ -128,14 +136,13 @@ class Comparaison:
         )
 
     @property
-    def partage_financement(self) -> PartageFinancement:
-        """Versé, acquisitif, transition — les trois colonnes du financement."""
-        return PartageFinancement(
-            versee=self.notionnel_financement_public.compte.cotisations_versees,
-            acquisitive=self.notionnel_acquisition_commune.compte.cotisations_versees,
-            annees_par_origine=(
-                self.notionnel_financement_public.compte.annees_part_employeur
-            ),
+    def contribution_employeur(self) -> ContributionEmployeur:
+        """Agent, employeur, total — la décomposition du scénario 4."""
+        compte = self.notionnel_retroactif_employeur.compte
+        return ContributionEmployeur(
+            total=compte.cotisations_versees,
+            employeur=compte.cotisations_employeur,
+            annees_par_origine=compte.annees_part_employeur,
         )
 
     def variation(self, scenario: str) -> float:
@@ -190,15 +197,16 @@ class Comparaison:
             f"de {self.parametres.annee_euros_constants},",
             "seule unité permettant de comparer des liquidations d'années différentes.",
             "",
-            f"{'Scénario':<42} {'Courants':>11} {'Constants':>11} {'Mensuel':>9} {'Écart':>8}",
-            "-" * 84,
+            f"{'Scénario':<54} {'Courants':>11} {'Constants':>11} "
+            f"{'Mensuel':>9} {'Écart':>8}",
+            "-" * 96,
         ]
 
         def ligne(nom: str, montant: float, ecart_relatif: float | None) -> str:
             variation = "réf." if ecart_relatif is None else f"{ecart_relatif:+.1%}"
             constant = self.en_euros_constants(montant)
             return (
-                f"{nom:<42} {montant:>10,.0f}€ {constant:>10,.0f}€ "
+                f"{nom:<54} {montant:>10,.0f}€ {constant:>10,.0f}€ "
                 f"{constant/12:>8,.0f}€ {variation:>8}"
             )
 
@@ -213,7 +221,7 @@ class Comparaison:
         rente_capi = self.notionnel_retroactif.rente_capitalisation_annuelle
         if rente_capi > 0:
             lignes += [
-                "-" * 84,
+                "-" * 96,
                 ligne("   compartiment capitalisation (servi à part)", rente_capi, None),
             ]
 
@@ -230,25 +238,22 @@ class Comparaison:
             f"— voir docs/limites.md avant toute interprétation",
         ]
 
-        partage = self.partage_financement
-        if partage.concerne_un_regime_public:
-            couvertes = sum(n for origine, n in partage.annees_par_origine.items()
-                            if origine != "repli")
-            repli = partage.annees_par_origine.get("repli", 0)
-            lignes += [
-                "",
-                "Financement du régime public, en euros courants cumulés "
-                "(scénarios 4 et 5) :",
-                f"  versé au régime            {partage.versee:>13,.0f} €",
-                f"  ouvrant des droits         {partage.acquisitive:>13,.0f} €"
-                f"   (taux d'acquisition commun "
-                f"{self.parametres.taux_cotisation_uniforme:.2%})",
-                f"  contribution de transition {partage.transition:>13,.0f} €"
-                f"   soit {partage.part_transition:+.0%} de ce qui a été versé",
-                f"  part employeur trouvée sur {couvertes} années"
-                + (f", estimée par alignement sur le privé sur {repli}" if repli
-                   else ""),
-            ]
+        employeur = self.contribution_employeur
+        if employeur.concerne_un_regime_public:
+            lignes += ["", "Cotisations des scénarios 4 et 5 :"]
+            if employeur.employeur > 0:
+                lignes += [
+                    f"  retenue de l'agent      {employeur.agent:>13,.0f} €",
+                    f"  employeur public        {employeur.employeur:>13,.0f} €"
+                    f"   soit {employeur.part:.0%} du total",
+                    f"  total porté au compte   {employeur.total:>13,.0f} €",
+                ]
+            lignes.append(
+                f"  contribution employeur trouvée sur {employeur.annees_trouvees} "
+                f"année(s)"
+                + (f", inconnue sur {employeur.annees_repli} — le taux du privé "
+                   "y tient lieu d'étalon" if employeur.annees_repli else "")
+            )
 
         if self.actuel.minimum_applique:
             lignes.append(
@@ -320,14 +325,13 @@ class Comparaison:
                     for cle, _, _ in SCENARIOS_NOTIONNELS
                 },
             },
-            "financement": {
-                "versee": self.partage_financement.versee,
-                "acquisitive": self.partage_financement.acquisitive,
-                "transition": self.partage_financement.transition,
-                "part_transition": self.partage_financement.part_transition,
-                "taux_acquisition_commun": self.parametres.taux_cotisation_uniforme,
+            "contribution_employeur": {
+                "total": self.contribution_employeur.total,
+                "employeur": self.contribution_employeur.employeur,
+                "agent": self.contribution_employeur.agent,
+                "part": self.contribution_employeur.part,
                 "annees_par_origine": dict(
-                    sorted(self.partage_financement.annees_par_origine.items())
+                    sorted(self.contribution_employeur.annees_par_origine.items())
                 ),
             },
             "unite": {
@@ -368,6 +372,7 @@ def _resume_notionnel(resultat: ResultatNotionnel, taux_remplacement: float,
         },
         "cotisations_versees": resultat.compte.cotisations_versees,
         "rendement_cumule": resultat.compte.rendement_cumule,
+        "cotisations_employeur": resultat.compte.cotisations_employeur,
         "annees_part_employeur": dict(
             sorted(resultat.compte.annees_part_employeur.items())
         ),
@@ -453,17 +458,12 @@ class Simulateur:
         )
 
     @cached_property
-    def constructeur_financement_public(self) -> ConstructeurCompte:
+    def constructeur_employeur(self) -> ConstructeurCompte:
+        """Le constructeur des scénarios 4 et 5 : un seul, pour les deux."""
         return self._constructeur_variante(
             traitement_contribution_employeur_etat=(
                 ContributionEmployeurPublic.FINANCEMENT_HISTORIQUE
             ),
-        )
-
-    @cached_property
-    def constructeur_acquisition_commune(self) -> ConstructeurCompte:
-        return self._constructeur_variante(
-            source_cotisations=SourceCotisations.TAUX_UNIFORME,
         )
 
     @cached_property
@@ -480,16 +480,15 @@ class Simulateur:
         )
 
     @cached_property
-    def scenario_financement_public(self) -> ScenarioNotionnel:
-        return ScenarioNotionnel(
-            self.constructeur_financement_public, self.convertisseur,
-            self.age_reference, self.scenario_actuel, self.parametres,
-        )
+    def scenario_employeur(self) -> ScenarioNotionnel:
+        """Scénarios 4 et 5 : le scénario notionnel, cotisations employeur incluses.
 
-    @cached_property
-    def scenario_acquisition_commune(self) -> ScenarioNotionnel:
+        Le même objet sert aux deux, comme :attr:`scenario_notionnel` sert aux
+        scénarios 2 et 3 : c'est le point de départ du compte — origine de la
+        répartition ou année de bascule — qui les distingue, pas le calcul.
+        """
         return ScenarioNotionnel(
-            self.constructeur_acquisition_commune, self.convertisseur,
+            self.constructeur_employeur, self.convertisseur,
             self.age_reference, self.scenario_actuel, self.parametres,
         )
 
@@ -530,13 +529,14 @@ class Simulateur:
         actuel = self.scenario_actuel.calculer(carriere)
         retroactif = self.scenario_notionnel.retroactif(carriere, fusionne)
         prospectif = self.scenario_notionnel.prospectif(carriere, self.regime_fusionne)
-        financement_public = self.scenario_financement_public.retroactif(
+        retroactif_employeur = self.scenario_employeur.retroactif(
             carriere, fusionne,
-            libelle="Comptes notionnels rétroactifs, financement public réel",
+            libelle="Comptes notionnels rétroactifs, cotisations employeur incluses",
         )
-        acquisition_commune = self.scenario_acquisition_commune.retroactif(
-            carriere, fusionne,
-            libelle="Comptes notionnels rétroactifs, taux d'acquisition commun",
+        prospectif_employeur = self.scenario_employeur.prospectif(
+            carriere, self.regime_fusionne,
+            libelle="Comptes notionnels à compter de la bascule, "
+                    "cotisations employeur incluses",
         )
 
         self.mortalite.enregistrer_cache()
@@ -546,8 +546,8 @@ class Simulateur:
             actuel=actuel,
             notionnel_retroactif=retroactif,
             notionnel_prospectif=prospectif,
-            notionnel_financement_public=financement_public,
-            notionnel_acquisition_commune=acquisition_commune,
+            notionnel_retroactif_employeur=retroactif_employeur,
+            notionnel_prospectif_employeur=prospectif_employeur,
             regime_fusionne=self.regime_fusionne,
             parametres=self.parametres,
             coefficient_euros_constants=self.macro.coefficient_prix(

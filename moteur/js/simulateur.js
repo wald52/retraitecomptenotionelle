@@ -7,9 +7,7 @@
  */
 
 import { Carriere } from "./carriere.js";
-import {
-  ContributionEmployeurPublic, PARAMETRES_DEFAUT, SourceCotisations,
-} from "./config.js";
+import { ContributionEmployeurPublic, PARAMETRES_DEFAUT } from "./config.js";
 import { ConstructeurCompte } from "./compte.js";
 import { Convertisseur } from "./conversion.js";
 import { AgeReference } from "./age-reference.js";
@@ -27,27 +25,34 @@ import {
 /**
  * Les quatre scénarios notionnels, dans l'ordre où ils s'affichent, avec le
  * numéro et le titre sous lesquels le tableau, la page et l'API les citent.
+ *
+ * Deux paires : 2 et 3 alignent la part employeur du public sur l'effort du
+ * privé, 4 et 5 lui substituent la contribution que l'employeur public verse
+ * réellement. À l'intérieur de chaque paire, l'un est rétroactif et l'autre
+ * prospectif. Le 4 se lit contre le 2, le 5 contre le 3.
  */
 export const SCENARIOS_NOTIONNELS = Object.freeze([
   ["notionnel_retroactif", 2, "Notionnel rétroactif (depuis l'origine)"],
   ["notionnel_prospectif", 3, "Notionnel à compter de {bascule}"],
-  ["notionnel_financement_public", 4, "Notionnel, financement public réel"],
-  ["notionnel_acquisition_commune", 5, "Notionnel, taux d'acquisition commun"],
+  ["notionnel_retroactif_employeur", 4,
+    "Notionnel rétroactif, cotisations employeur"],
+  ["notionnel_prospectif_employeur", 5,
+    "Notionnel à compter de {bascule}, cotisations employeur"],
 ]);
 
 /** Les cinq résultats, côte à côte, pour une même carrière. */
 export class Comparaison {
   constructor({
     carriere, actuel, notionnelRetroactif, notionnelProspectif,
-    notionnelFinancementPublic, notionnelAcquisitionCommune,
+    notionnelRetroactifEmployeur, notionnelProspectifEmployeur,
     regimeFusionne, parametres, coefficientEurosConstants = 1.0,
   }) {
     this.carriere = carriere;
     this.actuel = actuel;
     this.notionnel_retroactif = notionnelRetroactif;
     this.notionnel_prospectif = notionnelProspectif;
-    this.notionnel_financement_public = notionnelFinancementPublic;
-    this.notionnel_acquisition_commune = notionnelAcquisitionCommune;
+    this.notionnel_retroactif_employeur = notionnelRetroactifEmployeur;
+    this.notionnel_prospectif_employeur = notionnelProspectifEmployeur;
     this.regime_fusionne = regimeFusionne;
     this.parametres = parametres;
     //: Coefficient de passage des euros de l'année de liquidation aux euros
@@ -61,7 +66,8 @@ export class Comparaison {
 
   /**
    * Fiabilité de l'étalon et des deux scénarios de référence. Les scénarios 4
-   * et 5 en sont exclus à dessein : chacun porte la sienne, et les laisser
+   * et 5 en sont exclus à dessein : ils reposent sur une série employeur qui
+   * n'existe pas pour tous les régimes ni sur toutes les années, et les laisser
    * qualifier l'ensemble ferait retomber toute simulation publique à
    * « estimée » alors que les trois premiers ne se sont pas dégradés. La sortie
    * JSON donne celle de chaque scénario, une à une.
@@ -74,18 +80,23 @@ export class Comparaison {
     );
   }
 
-  /** Versé, acquisitif, transition — les trois colonnes du financement. */
-  get partageFinancement() {
-    const versee = this.notionnel_financement_public.compte.cotisations_versees;
-    const acquisitive = this.notionnel_acquisition_commune.compte.cotisations_versees;
-    const annees = this.notionnel_financement_public.compte.annees_part_employeur;
+  /** Agent, employeur, total — la décomposition du scénario 4. */
+  get contributionEmployeur() {
+    const compte = this.notionnel_retroactif_employeur.compte;
+    const total = compte.cotisations_versees;
+    const employeur = compte.cotisations_employeur;
+    const annees = compte.annees_part_employeur;
     return {
-      versee,
-      acquisitive,
-      transition: versee - acquisitive,
-      part_transition: versee ? (versee - acquisitive) / versee : 0.0,
+      total,
+      employeur,
+      agent: total - employeur,
+      part: total ? employeur / total : 0.0,
       annees_par_origine: annees,
       concerne_un_regime_public: Object.keys(annees).length > 0,
+      annees_trouvees: Object.entries(annees)
+        .filter(([origine]) => origine !== "repli")
+        .reduce((somme, [, nombre]) => somme + nombre, 0),
+      annees_repli: annees.repli ?? 0,
     };
   }
 
@@ -169,14 +180,13 @@ export class Comparaison {
           ),
         ])),
       },
-      financement: {
-        versee: this.partageFinancement.versee,
-        acquisitive: this.partageFinancement.acquisitive,
-        transition: this.partageFinancement.transition,
-        part_transition: this.partageFinancement.part_transition,
-        taux_acquisition_commun: this.parametres.taux_cotisation_uniforme,
+      contribution_employeur: {
+        total: this.contributionEmployeur.total,
+        employeur: this.contributionEmployeur.employeur,
+        agent: this.contributionEmployeur.agent,
+        part: this.contributionEmployeur.part,
         annees_par_origine: Object.fromEntries(
-          Object.entries(this.partageFinancement.annees_par_origine).sort(
+          Object.entries(this.contributionEmployeur.annees_par_origine).sort(
             (a, b) => (a[0] < b[0] ? -1 : 1),
           ),
         ),
@@ -219,6 +229,7 @@ function resumeNotionnel(resultat, tauxRemplacementScenario, variation, coeffici
     },
     cotisations_versees: resultat.compte.cotisations_versees,
     rendement_cumule: resultat.compte.rendement_cumule,
+    cotisations_employeur: resultat.compte.cotisations_employeur,
     annees_part_employeur: Object.fromEntries(
       Object.entries(resultat.compte.annees_part_employeur).sort(
         (a, b) => (a[0] < b[0] ? -1 : 1),
@@ -267,20 +278,19 @@ export class Simulateur {
     // cotisations : mêmes données, même indexation, même liquidation. Ils se
     // construisent donc en dérivant les paramètres, ce qui garantit qu'aucune
     // autre différence ne peut s'y glisser à l'insu du lecteur.
-    const variante = (modifications) => new ScenarioNotionnel(
+    // Scénarios 4 et 5 : un seul scénario pour les deux, comme
+    // `scenarioNotionnel` sert aux scénarios 2 et 3.
+    this.scenarioEmployeur = new ScenarioNotionnel(
       new ConstructeurCompte(
         this.macro, this.catalogue, this.affiliations, this.indexation,
-        { ...parametres, ...modifications },
+        {
+          ...parametres,
+          traitement_contribution_employeur_etat:
+            ContributionEmployeurPublic.FINANCEMENT_HISTORIQUE,
+        },
       ),
       this.convertisseur, this.ageReference, this.scenarioActuel, parametres,
     );
-    this.scenarioFinancementPublic = variante({
-      traitement_contribution_employeur_etat:
-        ContributionEmployeurPublic.FINANCEMENT_HISTORIQUE,
-    });
-    this.scenarioAcquisitionCommune = variante({
-      source_cotisations: SourceCotisations.TAUX_UNIFORME,
-    });
     this._regimeFusionne = null;
   }
 
@@ -317,13 +327,13 @@ export class Simulateur {
       actuel: this.scenarioActuel.calculer(carriere),
       notionnelRetroactif: this.scenarioNotionnel.retroactif(carriere, fusionne),
       notionnelProspectif: this.scenarioNotionnel.prospectif(carriere, this.regimeFusionne),
-      notionnelFinancementPublic: this.scenarioFinancementPublic.retroactif(
+      notionnelRetroactifEmployeur: this.scenarioEmployeur.retroactif(
         carriere, fusionne,
-        "Comptes notionnels rétroactifs, financement public réel",
+        "Comptes notionnels rétroactifs, cotisations employeur incluses",
       ),
-      notionnelAcquisitionCommune: this.scenarioAcquisitionCommune.retroactif(
-        carriere, fusionne,
-        "Comptes notionnels rétroactifs, taux d'acquisition commun",
+      notionnelProspectifEmployeur: this.scenarioEmployeur.prospectif(
+        carriere, this.regimeFusionne,
+        "Comptes notionnels à compter de la bascule, cotisations employeur incluses",
       ),
       regimeFusionne: this.regimeFusionne,
       parametres: this.parametres,

@@ -83,7 +83,8 @@ export class ScenarioNotionnel {
    * ne peut rien changer : ses droits sont intégralement acquis. On renvoie
    * alors sa pension actuelle, de sorte que le tableau comparatif reste lisible.
    */
-  prospectif(carriere, regimeFusionne) {
+  prospectif(carriere, regimeFusionne,
+             libelle = "Comptes notionnels à compter de la bascule") {
     const anneeLiquidation = carriere.anneeLiquidation;
     const ageLiquidation = carriere.age_liquidation || 0.0;
     const bascule = this.parametres.annee_bascule;
@@ -112,7 +113,7 @@ export class ScenarioNotionnel {
       ecart_age: this.ageReference.ecart(ageLiquidation, anneeLiquidation),
       capital_capitalisation: compte.capital_hors_repartition,
       fiabilite: Math.min(compte.fiabilite, conversion.fiabilite),
-      libelle: "Comptes notionnels à compter de la bascule",
+      libelle,
       droits_acquis: droitsAcquis,
     });
   }

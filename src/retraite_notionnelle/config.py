@@ -52,15 +52,16 @@ class SourceCotisations(str, Enum):
     #: cotisations comptent »).
     TAUX_HISTORIQUES = "taux_historiques"
 
-    #: Taux unique appliqué à toute la carrière, quel que soit le régime.
-    #: Utile pour isoler l'effet des règles de liquidation de l'effet des
-    #: différences de taux de cotisation entre régimes, et c'est le scénario 5 :
-    #: un TAUX D'ACQUISITION COMMUN, public et privé confondus. Ce qui a été
+    #: Taux unique appliqué à toute la carrière, quel que soit le régime : un
+    #: TAUX D'ACQUISITION COMMUN, public et privé confondus. Ce qui a été
     #: prélevé au-delà — le surplus du compte d'affectation spéciale, le taux
     #: d'appel des complémentaires, la contribution d'équilibre d'un régime
-    #: spécial — finance les engagements hérités du passé et n'ouvre aucun droit
-    #: nouveau. Peu importe alors que la cotisation soit dite salariale ou
-    #: patronale : pour le compte de l'individu, seule compte la somme des deux.
+    #: spécial — finance alors les engagements hérités du passé et n'ouvre aucun
+    #: droit nouveau. Le taux est prélevé UNE FOIS sur la rémunération, et non
+    #: une fois par régime : les régimes qui découpent la même tranche voient
+    #: leurs assiettes réunies, pas additionnées. Aucun des cinq scénarios ne
+    #: l'emploie — il sert à isoler l'effet des règles de liquidation de celui
+    #: des différences de taux entre régimes.
     TAUX_UNIFORME = "taux_uniforme"
 
 
@@ -105,7 +106,8 @@ class ContributionEmployeurPublic(str, Enum):
     * ``FINANCEMENT_HISTORIQUE`` — la contribution réellement versée par
       l'employeur public s'ajoute à la retenue de l'agent, année par année,
       depuis ``data/reference/legislation/contribution_employeur_public.csv``.
-      C'est le scénario 4.
+      Ce sont les scénarios 4 et 5, qui reprennent respectivement le 2 et le 3
+      sans rien changer d'autre.
 
     Le dépôt a longtemps affirmé que le troisième traitement était impossible,
     au motif qu'avant la création du compte d'affectation spéciale « Pensions »
@@ -121,15 +123,14 @@ class ContributionEmployeurPublic(str, Enum):
     * la **SNCF** publie par arrêté les deux composantes T1 et T2 de la
       contribution de l'entreprise.
 
-    Reste entière l'objection de fond, et c'est elle qui justifie le scénario 5
-    plutôt qu'elle n'interdit le scénario 4 : ces taux sont des taux
-    d'ÉQUILIBRE, fixés pour que le compte tombe juste. 82,28 % en 2026 ne
-    signifie pas qu'un fonctionnaire acquiert 82 % de son traitement en droits
-    nouveaux, mais qu'il faut aujourd'hui cette contribution pour payer les
-    pensions d'aujourd'hui. Les porter à un compte notionnel répond à une
-    question précise — « et si tout ce qui a été consacré aux pensions avait été
-    porté au compte des actifs ? » — et à elle seule. Voir
-    :class:`SourceCotisations` pour l'autre lecture.
+    Reste entière l'objection de fond, et elle borne la portée des scénarios 4
+    et 5 sans les interdire : ces taux sont des taux d'ÉQUILIBRE, fixés pour que
+    le compte tombe juste. 82,28 % en 2026 ne signifie pas qu'un fonctionnaire
+    acquiert 82 % de son traitement en droits nouveaux, mais qu'il faut
+    aujourd'hui cette contribution pour payer les pensions d'aujourd'hui. Les
+    porter à un compte notionnel répond à une question précise — « et si tout ce
+    qui a été consacré aux pensions avait été porté au compte des actifs ? » — et
+    à elle seule.
     """
 
     EXCLUE = "exclue"
@@ -268,11 +269,11 @@ class Parametres:
     # --- Cotisations --------------------------------------------------------
     source_cotisations: SourceCotisations = SourceCotisations.TAUX_HISTORIQUES
 
-    #: Taux utilisé si ``source_cotisations == TAUX_UNIFORME``, et taux
-    #: d'acquisition commun du scénario 5. 25,31 % est l'effort contributif
-    #: retraite total — salarié et employeur — d'un salarié du privé non cadre
-    #: sous le plafond en 2025 : le taux que le privé supporte déjà, proposé
-    #: comme celui que tout le monde acquerrait.
+    #: Taux utilisé si ``source_cotisations == TAUX_UNIFORME``. 25,31 % est
+    #: l'effort contributif retraite total — salarié et employeur — d'un salarié
+    #: du privé non cadre sous le plafond en 2025 : le taux que le privé
+    #: supporte déjà. Aucun des cinq scénarios ne l'emploie ; c'est un
+    #: contrefactuel, à activer explicitement.
     taux_cotisation_uniforme: float = 0.2531
 
     #: Les cotisations prélevées sans contrepartie de droits (taux d'appel

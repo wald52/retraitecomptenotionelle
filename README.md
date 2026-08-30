@@ -26,27 +26,28 @@ comparables :
 | **1** | Système actuel | Le droit en vigueur, minima et majorations compris. C'est la référence. |
 | **2** | Notionnel **rétroactif** depuis 1941 | Contrefactuel : toute la carrière recalculée sur les seules cotisations, comme si la règle avait toujours existé. |
 | **3** | Notionnel **à compter de 2026** | Réforme prospective : les droits déjà acquis sont conservés, les règles notionnelles s'appliquent ensuite. |
-| **4** | Notionnel, **financement public réel** | Ce que l'employeur public a réellement versé — jusqu'à 82,28 % du traitement en 2026 — porté au compte, au lieu d'être remplacé par l'effort du privé. |
-| **5** | Notionnel, **taux d'acquisition commun** | Un seul taux pour tous, public et privé ; ce qui est prélevé au-delà finance les engagements du passé et n'ouvre aucun droit. |
+| **4** | Le scénario **2**, cotisations employeur incluses | Le même compte rétroactif, mais ce que l'employeur public a réellement versé — jusqu'à 82,28 % du traitement en 2026 — y est porté au lieu d'être remplacé par l'effort du privé. |
+| **5** | Le scénario **3**, cotisations employeur incluses | Le même compte prospectif, droits acquis conservés, avec la même correction sur la part employeur du public. |
 
 ```
 Agent de conduite SNCF né en 1955, parti à 50 ans (quinze ans avant l'âge de référence)
 
-Scénario                                      Courants   Constants   Mensuel    Écart
-------------------------------------------------------------------------------------
-1. Système actuel                              15,719€     22,008€    1,834€     réf.
-2. Notionnel rétroactif (depuis l'origine)      3,298€      4,617€      385€   -79.0%
-3. Notionnel à compter de 2026                 15,719€     22,008€    1,834€    +0.0%
-4. Notionnel, financement public réel           3,298€      4,617€      385€   -79.0%
-5. Notionnel, taux d'acquisition commun         4,104€      5,745€      479€   -73.9%
+Scénario                                                  Courants   Constants   Mensuel    Écart
+------------------------------------------------------------------------------------------------
+1. Système actuel                                          15,719€     22,008€    1,834€     réf.
+2. Notionnel rétroactif (depuis l'origine)                  3,298€      4,617€      385€   -79.0%
+3. Notionnel à compter de 2026                             15,719€     22,008€    1,834€    +0.0%
+4. Notionnel rétroactif, cotisations employeur              3,298€      4,617€      385€   -79.0%
+5. Notionnel à compter de 2026, cotisations employeur      15,719€     22,008€    1,834€    +0.0%
 ```
 
-> Les scénarios 4 et 5 ne diffèrent du 2 que par **ce qui alimente le compte** :
-> même carrière, même indexation, même liquidation. Ici, le 4 ne s'en écarte pas
-> d'un euro — aucune série de contribution employeur n'est publiée pour la SNCF
-> avant 2007, et le modèle le dit plutôt que d'inventer. Pour un fonctionnaire
-> d'État, l'écart est tout autre : voir
-> [« Ce que le public verse, et ce qu'il acquerrait »](#ce-que-le-public-verse-et-ce-quil-acquerrait).
+> Les scénarios 4 et 5 sont les scénarios 2 et 3, à une différence près : **ce
+> qui alimente le compte d'un agent public**. Même carrière, même indexation,
+> même liquidation, mêmes droits acquis figés à la bascule. Ici, ils ne s'en
+> écartent pas d'un euro — aucune série de contribution employeur n'est publiée
+> pour la SNCF avant 2007, et le modèle le dit plutôt que d'inventer. Pour un
+> fonctionnaire d'État, l'écart est tout autre : voir
+> [« Qui verse les cotisations d'un agent public »](#3-qui-verse-les-cotisations-dun-agent-public).
 
 > **Le scénario 2 n'est pas une proposition de réforme**, et l'écart qu'il
 > affiche ne mesure pas l'effet des comptes notionnels. Il vient pour
@@ -97,7 +98,7 @@ Le risque d'un portage, c'est qu'il déplace un chiffre sans que rien n'échoue.
 Il est traité de front : **le Python de `src/` reste la référence**, et
 `scripts/construire_temoins.py` fige depuis lui 86 simulations complètes et le
 HTML des quatre pages, dans `tests/temoins/`. `node --test` rejoue le tout côté
-JavaScript et compare valeur par valeur — 6 483 nombres, dont 98,1 % identiques
+JavaScript et compare valeur par valeur — 7 176 nombres, dont 98,2 % identiques
 au bit près, l'écart maximal étant d'un *ulp* (3 · 10⁻¹⁶, la précision d'un
 flottant). Les pages, elles, sont comparées caractère par caractère : le
 formatage à la française reproduit jusqu'à l'arrondi au pair de Python, faute de
@@ -178,12 +179,12 @@ print(simulateur.simuler(carriere).tableau())
 | Départ trop tôt = pension réduite | Âge de référence **à cliquet** : l'abaissement de 1982 ne le fait pas redescendre |
 | Régimes à départ précoce traités au même étalon | SNCF à 50 ans = 15 ans d'anticipation ; Opéra à 40 ans = 25 ans |
 | Indexation par triple lock inversé, depuis l'origine | `min(inflation, salaire moyen, productivité réelle)`, appliqué aux comptes **et** aux pensions liquidées |
-| Cinq résultats comparables | Système actuel / notionnel rétroactif / notionnel prospectif / financement public réel / taux d'acquisition commun |
+| Cinq résultats comparables | Système actuel / notionnel rétroactif / notionnel prospectif, puis les deux mêmes comptes notionnels avec les cotisations employeur du public |
 | Cas particulier **et** cas général | Simulation individuelle + grille 12 cas types × 7 générations |
 | Fusion des régimes au cas le plus défavorable | Âge 64/67, 172 trimestres, carrière entière, assiette déplafonnée, zéro avantage |
 | Droits acquis respectés à la bascule | Conversion à l'âge de référence ou à l'âge de départ effectif, au choix ; la cascade de calcul est affichée |
 | Statuts comparables au même étalon | Les fiches publiques ne portent que la retenue de l'agent ; elle est alignée sur l'effort contributif total du privé, sans quoi on compare un demi-effort à un effort entier |
-| Part employeur du public, quand elle est publiée | Taux implicite de l'État 1995-2005, taux appelé par le CAS « Pensions » 2006-2026, CNRACL depuis 1948, SNCF 2007-2018 — portés au compte par le scénario 4, et le modèle dit sur combien d'années il a dû s'en passer |
+| Part employeur du public, quand elle est publiée | Taux implicite de l'État 1995-2005, taux appelé par le CAS « Pensions » 2006-2026, CNRACL depuis 1948, SNCF 2007-2018 — portés au compte par les scénarios 4 et 5, et le modèle dit sur combien d'années il a dû s'en passer |
 | Capitalisation isolée | RAFP et assurances sociales de 1930 dans un compartiment séparé, jamais convertis |
 | Trimestres acquis par le revenu, pas par le temps | 150 SMIC horaires depuis 2014, 200 avant : un temps très partiel valide moins de quatre trimestres |
 | Motif d'interruption lu, pas seulement enregistré | Un chômage indemnisé ouvre des points complémentaires financés par l'UNEDIC ; un chômage non indemnisé n'ouvre rien |
@@ -231,7 +232,7 @@ c'est une forte hausse de prélèvement — et donc de pension. C'est la seule l
 du tableau des cas types qui progresse ; le résultat est correct, mais il traduit
 un effort contributif accru, pas un avantage accordé.
 
-### 3. Ce que le public verse, et ce qu'il acquerrait
+### 3. Qui verse les cotisations d'un agent public
 
 Les fiches de la fonction publique et des régimes spéciaux ne portent que la
 **retenue de l'agent** : 11,10 % aujourd'hui, 7,85 % hier. La part de
@@ -249,44 +250,41 @@ n'y aurait rien avant. C'était vrai de l'État, et faux du reste.
 - La **SNCF** publie par arrêté les deux composantes T1 et T2 de la contribution
   de l'entreprise, de 2007 à 2018.
 
-L'objection de fond reste entière, et c'est elle qui justifie **deux** scénarios
-plutôt qu'un : ce sont des taux d'**équilibre**, fixés pour que le compte tombe
-juste. 82,28 % ne dit pas qu'un fonctionnaire acquiert 82 % de son traitement en
-droits nouveaux, mais qu'il faut aujourd'hui cette contribution pour payer les
-pensions d'aujourd'hui.
+Les scénarios 4 et 5 les portent au compte, et ne changent rien d'autre.
 
 ```
 Fonctionnaire d'État née en 1975, 20 % de primes, partie à 64 ans
 
-Scénario                                      Courants   Constants   Mensuel    Écart
-------------------------------------------------------------------------------------
-1. Système actuel                              31,714€     25,310€    2,109€     réf.
-2. Notionnel rétroactif (depuis l'origine)     14,622€     11,670€      972€   -53.9%
-3. Notionnel à compter de 2026                 23,194€     18,511€    1,543€   -26.9%
-4. Notionnel, financement public réel          30,370€     24,238€    2,020€    -4.2%
-5. Notionnel, taux d'acquisition commun        14,697€     11,729€      977€   -53.7%
+Scénario                                                  Courants   Constants   Mensuel    Écart
+------------------------------------------------------------------------------------------------
+1. Système actuel                                          31,714€     25,310€    2,109€     réf.
+2. Notionnel rétroactif (depuis l'origine)                 14,622€     11,670€      972€   -53.9%
+3. Notionnel à compter de 2026                             23,194€     18,511€    1,543€   -26.9%
+4. Notionnel rétroactif, cotisations employeur             43,413€     34,647€    2,887€   +36.9%
+5. Notionnel à compter de 2026, cotisations employeur      36,237€     28,920€    2,410€   +14.3%
 
-Financement du régime public, en euros courants cumulés (scénarios 4 et 5) :
-  versé au régime                  678,985 €
-  ouvrant des droits               335,605 €   (taux d'acquisition commun 25.31%)
-  contribution de transition       343,381 €   soit +51% de ce qui a été versé
-  part employeur trouvée sur 28 années
+Cotisations des scénarios 4 et 5 :
+  retenue de l'agent           120,675 €
+  employeur public             873,300 €   soit 88% du total
+  total porté au compte        993,975 €
+  contribution employeur trouvée sur 41 année(s)
 ```
 
-Le scénario 4 referme presque tout l'écart : c'est ce que dit un taux
-d'équilibre porté à un compte individuel. Le scénario 5 ne le referme pas, et
-c'est ce que dit un taux d'acquisition. Les **51 %** qui les séparent sont la
-contribution de transition — la part du prélèvement qui paie les retraités du
-moment au lieu d'ouvrir des droits.
+L'employeur verse 88 % du total : c'est l'ordre de grandeur d'un taux
+d'**équilibre**. Et c'est la limite de ces deux scénarios. 82,28 % ne signifie
+pas qu'un fonctionnaire acquiert 82 % de son traitement en droits nouveaux, mais
+qu'il faut aujourd'hui cette contribution pour payer les pensions
+d'aujourd'hui — démographie et engagements hérités compris. Les porter au compte
+répond à une question précise, « et si tout ce qui a été consacré aux pensions
+avait été porté au compte des actifs ? », et à elle seule.
 
 Trois limites à connaître. La série n'existe que pour trois régimes : douze
 autres retombent sur l'alignement du scénario 2, et le modèle affiche sur
 combien d'années. L'État n'est couvert qu'à partir de 1995 : plus une carrière
 publique est ancienne, moins le scénario 4 s'écarte du 2 — non parce que le
 financement d'alors ressemblait à celui du privé, mais parce qu'on ne le connaît
-pas. Enfin la contribution de transition peut être **négative** : pour les
-carrières anciennes, le taux commun du scénario 5 accorde des droits que leur
-époque n'a pas financés.
+pas. Enfin le scénario 5, qui n'ouvre son compte qu'en 2026, prolonge le taux de
+2026 jusqu'à la liquidation : presque tout ce qu'il calcule est une projection.
 
 ---
 
@@ -412,7 +410,7 @@ docs/
   methodologie.md               ce que le modèle calcule, et pourquoi ainsi
   limites.md                    ce qu'il ne calcule pas, et ce qui reste à certifier
 
-tests/                          221 tests Python
+tests/                          224 tests Python
   temoins/                      chiffres et pages figés depuis le modèle Python
   js/                           le portage rejoué contre ces témoins (node --test)
 ```
@@ -445,7 +443,7 @@ sous « Options de modélisation ».
 python -m pytest tests
 ```
 
-221 tests couvrant le chargement et la fiabilité des données, la règle de
+224 tests couvrant le chargement et la fiabilité des données, la règle de
 certification, la calibration des tables de mortalité et sa concordance avec les
 tables observées, les propriétés du moteur
 (monotonie du diviseur, cliquet de l'âge de référence, règles de fusion), le

@@ -45,9 +45,12 @@ class CotisationAnnuelle:
     #: agent_seul``, cette année-là. Vide si l'année n'en compte aucun ;
     #: ``appelee`` ou ``implicite`` si la contribution réellement versée a été
     #: trouvée ; ``repli`` si elle ne l'a pas été et que le taux du statut pivot
-    #: privé lui a été substitué. Ne vaut que dans le scénario 4 — ailleurs, la
-    #: question ne se pose pas.
+    #: privé lui a été substitué. Ne vaut que dans les scénarios 4 et 5 —
+    #: ailleurs, la question ne se pose pas.
     origine_part_employeur: str = ""
+    #: Part de ``cotisation`` versée par l'employeur public, en euros. Nulle
+    #: partout ailleurs : pour le privé, la fiche ne sépare pas les deux parts.
+    part_employeur: float = 0.0
 
     @property
     def nulle(self) -> bool:
@@ -80,12 +83,17 @@ class CompteNotionnel:
         return self.capital / versees if versees else 0.0
 
     @property
+    def cotisations_employeur(self) -> float:
+        """Part des cotisations versée par l'employeur public, euros courants."""
+        return sum(c.part_employeur for c in self.cotisations)
+
+    @property
     def annees_part_employeur(self) -> dict[str, int]:
         """Nombre d'années par origine de la part employeur publique.
 
-        Ce que le scénario 4 doit dire de lui-même : sur combien d'années la
-        contribution réellement versée a été trouvée, et sur combien il a fallu
-        retomber sur l'alignement du scénario 2 faute de série.
+        Ce que les scénarios 4 et 5 doivent dire d'eux-mêmes : sur combien
+        d'années la contribution réellement versée a été trouvée, et sur combien
+        il a fallu retomber sur l'alignement du scénario 2 faute de série.
         """
         decompte: dict[str, int] = {}
         for cotisation in self.cotisations:
@@ -146,41 +154,40 @@ class ConstructeurCompte:
         return total
 
     def taux_effectif(self, regime: str, periode,
-                      annee: int) -> tuple[float, str, Fiabilite]:
-        """Taux à porter au compte notionnel, d'où vient sa part employeur, et
-        ce que vaut la donnée qui la porte.
+                      annee: int) -> tuple[float, float, str, Fiabilite]:
+        """Taux à porter au compte, sa part employeur, d'où elle vient et ce
+        qu'elle vaut.
 
-        Le deuxième terme ne vaut que pour les régimes dont la fiche s'arrête à
-        la retenue de l'agent, et seulement dans le scénario 4 : il dit si la
-        contribution réellement versée par l'employeur public a été trouvée pour
-        cette année-là (``appelee``, ``implicite``) ou s'il a fallu lui
-        substituer le taux du statut pivot privé (``repli``). Le troisième
-        qualifie le résultat : la fiabilité de la série employeur quand elle a
-        servi, ``estimee`` quand il a fallu s'en passer.
-
-        Sous un taux d'acquisition commun (scénario 5), cette méthode n'est
-        appelée que pour le compartiment de capitalisation, qui garde ses taux
-        propres : les régimes en répartition sont traités en bloc, une fois
-        leurs assiettes réunies.
+        Les trois derniers termes ne valent que pour les régimes dont la fiche
+        s'arrête à la retenue de l'agent, et seulement dans les scénarios 4 et
+        5 : la part employeur en points de taux, puis l'origine — la
+        contribution réellement versée a-t-elle été trouvée pour cette année-là
+        (``appelee``, ``implicite``) ou a-t-il fallu lui substituer le taux du
+        statut pivot privé (``repli``) — puis la fiabilité de la série employeur
+        quand elle a servi, ``estimee`` quand il a fallu s'en passer.
         """
         taux = periode.taux_cotisation_retraite
         traitement = self.parametres.traitement_contribution_employeur_etat
         if periode.perimetre_taux != "agent_seul":
-            return taux, "", Fiabilite.CERTIFIEE
+            return taux, 0.0, "", Fiabilite.CERTIFIEE
 
         if traitement is ContributionEmployeurPublic.FINANCEMENT_HISTORIQUE:
             # La retenue de l'agent, plus ce que l'employeur public a versé.
             contribution = self.contributions_publiques.taux(regime, annee)
             if contribution is not None:
-                return (taux + contribution.taux, contribution.nature,
-                        contribution.fiabilite)
+                return (taux + contribution.taux, contribution.taux,
+                        contribution.nature, contribution.fiabilite)
             # Aucune série pour ce régime cette année-là : plutôt que de laisser
-            # la part employeur à zéro — ce qui reviendrait au traitement EXCLUE
-            # et rendrait le scénario 4 incomparable aux autres — on retombe sur
-            # l'alignement du scénario 2. Le résultat le dit, et n'en tire pas
-            # plus de crédit qu'il n'en mérite.
+            # le taux à la seule retenue de l'agent — ce qui reviendrait au
+            # traitement EXCLUE et rendrait les scénarios 4 et 5 incomparables
+            # aux autres — on retombe sur l'alignement du scénario 2. La part
+            # employeur, elle, reste à zéro : l'écart entre la retenue et le
+            # taux du privé est une convention de comparaison, pas une
+            # cotisation que quelqu'un aurait versée, et la faire figurer dans
+            # la décomposition « agent / employeur » serait lui prêter une
+            # existence qu'elle n'a pas.
             pivot = self.taux_pivot_prive(annee)
-            return (pivot if pivot > 0 else taux), "repli", Fiabilite.ESTIMEE
+            return (pivot if pivot > 0 else taux), 0.0, "repli", Fiabilite.ESTIMEE
 
         if traitement is ContributionEmployeurPublic.ALIGNEE_SUR_LE_PRIVE:
             # La fiche ne porte que la retenue de l'agent : on lui substitue
@@ -188,8 +195,59 @@ class ConstructeurCompte:
             # de quoi on comparerait un demi-effort à un effort entier.
             pivot = self.taux_pivot_prive(annee)
             if pivot > 0:
-                return pivot, "", Fiabilite.CERTIFIEE
-        return taux, "", Fiabilite.CERTIFIEE
+                return pivot, 0.0, "", Fiabilite.CERTIFIEE
+        return taux, 0.0, "", Fiabilite.CERTIFIEE
+
+    def taux_unifie(self, ligne, annee: int,
+                    regime_fusionne: RegimeFusionne
+                    ) -> tuple[float, float, str, Fiabilite]:
+        """Taux du régime unique, après la bascule — et ce que l'employeur y met.
+
+        Le régime unique remplace tous les régimes, et son taux est une
+        convention : la somme des taux du statut pivot privé, soit l'effort
+        contributif d'un salarié pour une retraite complète. Cette convention
+        efface, à partir de la bascule, toute trace de ce que verse un employeur
+        public — au point que borner la contribution employeur au seul passé
+        laisserait le scénario 5 rigoureusement identique au scénario 3.
+
+        Sous ``FINANCEMENT_HISTORIQUE``, le régime unique conserve donc, pour un
+        agent public, l'effort contributif réel de son régime : retenue de
+        l'agent plus contribution de l'employeur. Comme l'assiette du régime
+        unique est la rémunération ENTIÈRE alors que ces taux portent sur le seul
+        traitement indiciaire, le taux est ramené à cette assiette en le
+        multipliant par la part hors primes — sans quoi 82 % s'appliqueraient à
+        des primes qui n'ont jamais rien versé au régime.
+        """
+        if self.parametres.source_cotisations is not SourceCotisations.TAUX_HISTORIQUES:
+            return self.parametres.taux_cotisation_uniforme, 0.0, "", Fiabilite.CERTIFIEE
+
+        unifie = regime_fusionne.taux_cotisation_retraite
+        if (self.parametres.traitement_contribution_employeur_etat
+                is not ContributionEmployeurPublic.FINANCEMENT_HISTORIQUE):
+            return unifie, 0.0, "", Fiabilite.CERTIFIEE
+
+        for code in self.affiliations.regimes(ligne.affiliation, annee):
+            if code not in self.catalogue:
+                continue
+            regime = self.catalogue[code]
+            if regime.hors_repartition:
+                continue
+            for periode in regime.periodes_actives(annee):
+                if periode.perimetre_taux != "agent_seul":
+                    continue
+                part = (1.0 - ligne.part_primes
+                        if periode.assiette == "hors_primes" else 1.0)
+                contribution = self.contributions_publiques.taux(code, annee)
+                if contribution is None:
+                    return unifie, 0.0, "repli", Fiabilite.ESTIMEE
+                return (
+                    (periode.taux_cotisation_retraite + contribution.taux) * part,
+                    contribution.taux * part,
+                    contribution.nature,
+                    contribution.fiabilite,
+                )
+        # Statut privé : la fiche porte déjà le total, le régime unique aussi.
+        return unifie, 0.0, "", Fiabilite.CERTIFIEE
 
     # -- assiette ------------------------------------------------------------
 
@@ -263,16 +321,19 @@ class ConstructeurCompte:
         # Après la bascule, un seul régime : le régime fusionné.
         if regime_fusionne is not None and annee >= regime_fusionne.annee_bascule:
             assiette = self._assiette(ligne.revenu, annee, 0.0, None)
-            taux = (
-                regime_fusionne.taux_cotisation_retraite
-                if self.parametres.source_cotisations is SourceCotisations.TAUX_HISTORIQUES
-                else self.parametres.taux_cotisation_uniforme
+            taux, taux_employeur, origine, fiabilite_taux = self.taux_unifie(
+                ligne, annee, regime_fusionne
             )
+            fiabilite = regime_fusionne.fiabilite
+            if origine:
+                fiabilite = min(fiabilite, fiabilite_taux)
             return CotisationAnnuelle(
                 annee=annee, revenu=ligne.revenu, assiette_retenue=assiette,
                 cotisation=assiette * taux, regimes=("regime_unifie",),
                 taux_effectif=taux, hors_repartition=0.0,
-                fiabilite=regime_fusionne.fiabilite,
+                fiabilite=fiabilite,
+                origine_part_employeur=origine,
+                part_employeur=assiette * taux_employeur,
             )
 
         # Pendant une période indemnisée, seuls les régimes complémentaires
@@ -287,12 +348,13 @@ class ConstructeurCompte:
         fiabilite = Fiabilite.CERTIFIEE
         retenus: list[str] = []
         origines: list[str] = []
+        part_employeur = 0.0
 
-        # Scénario 5 : un seul taux, prélevé une fois sur la rémunération. Les
-        # régimes en répartition n'y servent plus qu'à délimiter l'assiette,
-        # qu'on réunit avant de prélever. Le compartiment de capitalisation, lui,
-        # garde ses taux propres : il n'est pas un compte notionnel, et le taux
-        # d'acquisition commun n'a rien à y voir.
+        # Taux d'acquisition commun (``source_cotisations = taux_uniforme``) :
+        # un seul taux, prélevé une fois sur la rémunération. Les régimes en
+        # répartition n'y servent plus qu'à délimiter l'assiette, qu'on réunit
+        # avant de prélever. Le compartiment de capitalisation, lui, garde ses
+        # taux propres : il n'est pas un compte notionnel.
         acquisition_commune = (
             self.parametres.source_cotisations is SourceCotisations.TAUX_UNIFORME
         )
@@ -350,7 +412,9 @@ class ConstructeurCompte:
                 if assiette <= 0:
                     continue
 
-                taux, origine, fiabilite_taux = self.taux_effectif(code, periode, annee)
+                taux, taux_employeur, origine, fiabilite_taux = self.taux_effectif(
+                    code, periode, annee
+                )
                 if origine:
                     origines.append(origine)
                     fiabilite = min(fiabilite, fiabilite_taux)
@@ -363,6 +427,7 @@ class ConstructeurCompte:
                 else:
                     cotisation += montant
                     assiette_totale += assiette
+                    part_employeur += assiette * taux_employeur
                 retenus.append(code)
 
         if acquisition_commune:
@@ -392,6 +457,7 @@ class ConstructeurCompte:
             origine_part_employeur=(
                 "repli" if "repli" in origines else (origines[0] if origines else "")
             ),
+            part_employeur=part_employeur,
         )
 
     # -- accumulation --------------------------------------------------------

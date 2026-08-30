@@ -25,8 +25,8 @@ FEUILLE_DE_STYLE = """
   --actuel: #3f5c66;
   --retroactif: #a2472e;
   --prospectif: #6a6a4d;
-  --financement-public: #7c5a86;
-  --acquisition-commune: #35705f;
+  --retroactif-employeur: #7c5a86;
+  --prospectif-employeur: #35705f;
   --alerte: #8a5a00;
 }
 @media (prefers-color-scheme: dark) {
@@ -42,8 +42,8 @@ FEUILLE_DE_STYLE = """
     --actuel: #8fb2c0;
     --retroactif: #e08b6f;
     --prospectif: #bcbc8e;
-    --financement-public: #c39ccd;
-    --acquisition-commune: #79bda9;
+    --retroactif-employeur: #c39ccd;
+    --prospectif-employeur: #79bda9;
     --alerte: #e0b062;
   }
 }
@@ -134,8 +134,8 @@ td.nombre, th.nombre { font-variant-numeric: tabular-nums; }
 .barre.actuel > span { background: var(--actuel); }
 .barre.retroactif > span { background: var(--retroactif); }
 .barre.prospectif > span { background: var(--prospectif); }
-.barre.financement-public > span { background: var(--financement-public); }
-.barre.acquisition-commune > span { background: var(--acquisition-commune); }
+.barre.retroactif-employeur > span { background: var(--retroactif-employeur); }
+.barre.prospectif-employeur > span { background: var(--prospectif-employeur); }
 .scenario .glose { font-size: 0.88rem; color: var(--texte-doux); margin-top: 0.35rem; }
 .fiches { display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: 1rem; }
 .fiche .valeur { font-size: 1.2rem; font-variant-numeric: tabular-nums; }

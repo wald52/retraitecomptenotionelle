@@ -32,30 +32,37 @@ une seconde fois, sur le passé. À l'âge effectif de liquidation, la conversio
 est neutre. Le paramètre :attr:`Parametres.age_conversion_droits_acquis` permet
 de mesurer l'écart entre les deux conventions.
 
-**Scénarios 4 et 5 : ce que le public verse, et ce qu'il acquerrait.** Ils
-reprennent exactement le calcul du scénario 2 — même carrière, même indexation,
-même liquidation — et ne changent que le flux qui alimente le compte. Ils
-existent parce que la question de la part employeur des régimes publics n'a pas
-une réponse mais deux, qui ne mesurent pas la même chose.
+**Scénarios 4 et 5 : les mêmes, cotisations employeur du public incluses.** Ce
+sont exactement les scénarios 2 et 3 — même carrière, même indexation, même
+liquidation, mêmes droits acquis figés à la bascule — à une différence près, et
+une seule : ce qui alimente le compte pour un agent public.
 
-*Scénario 4, financement historique.* La contribution réellement versée par
-l'employeur public s'ajoute à la retenue de l'agent : taux implicite de l'État
-de 1995 à 2005, taux appelé par le compte d'affectation spéciale depuis 2006,
-taux CNRACL depuis 1948, T1 + T2 de la SNCF de 2007 à 2018. Il répond à :
-« qu'aurait donné un compte notionnel si tout ce qui a été consacré aux pensions
-avait été porté au compte des actifs ? » Le chiffre est spectaculaire, et c'est
-son défaut : un taux d'équilibre de 82 % transforme en droits individuels une
-contribution destinée à payer les retraités du moment.
+Les fiches de la fonction publique et des régimes spéciaux ne portent que la
+retenue de l'agent. Les scénarios 2 et 3 lui substituent l'effort contributif
+d'un salarié du privé de la même année, faute de mieux ; les scénarios 4 et 5 y
+ajoutent la contribution que l'employeur public a réellement versée — taux
+implicite de l'État de 1995 à 2005, taux appelé par le compte d'affectation
+spéciale depuis 2006, taux CNRACL depuis 1948, T1 + T2 de la SNCF de 2007 à
+2018. Rien d'autre ne bouge, et c'est ce qui les rend lisibles : le 4 se lit
+contre le 2, le 5 contre le 3, et l'écart mesure une chose à la fois.
 
-*Scénario 5, taux d'acquisition commun.* Un seul taux pour tout le monde, public
-et privé — celui que le privé supporte déjà. Ce qui est prélevé au-delà, surplus
-du CAS, taux d'appel des complémentaires, contribution d'équilibre d'un régime
-spécial, reste une contribution de transition et n'ouvre aucun droit. C'est la
-lecture qu'une réforme retiendrait : peu importe alors que la cotisation soit
-dite salariale ou patronale, seule compte la somme des deux.
+Un point de mécanique, sans lequel le scénario 5 n'existerait pas. À compter de
+la bascule, le régime unique remplace tous les régimes et applique un taux
+unique, celui du statut pivot privé : cette convention efface toute trace de ce
+que verse un employeur public. Porter la contribution employeur au seul passé
+laisserait donc le scénario 5 rigoureusement identique au scénario 3. Sous le
+traitement ``financement_historique``, le régime unique conserve pour un agent
+public l'effort contributif réel de son régime — voir
+:meth:`ConstructeurCompte.taux_unifie`, qui le ramène à l'assiette élargie du
+régime unique.
 
-Entre les deux, le scénario 2 tient une position intermédiaire : il aligne le
-public sur l'effort du privé, mais laisse au privé ses taux historiques.
+Ce que ces scénarios ne disent PAS. Les taux employeur publics sont des taux
+d'ÉQUILIBRE, fixés pour que le compte tombe juste : 82,28 % en 2026 ne signifie
+pas qu'un fonctionnaire acquiert 82 % de son traitement en droits nouveaux, mais
+qu'il faut aujourd'hui cette contribution pour payer les pensions
+d'aujourd'hui. Les porter au compte répond à une question précise — « et si tout
+ce qui a été consacré aux pensions avait été porté au compte des actifs ? » — et
+à elle seule.
 """
 
 from __future__ import annotations
@@ -193,8 +200,10 @@ class ScenarioNotionnel:
 
     # -- scénario 3 ----------------------------------------------------------
 
-    def prospectif(self, carriere: Carriere,
-                   regime_fusionne: RegimeFusionne) -> ResultatNotionnel:
+    def prospectif(
+        self, carriere: Carriere, regime_fusionne: RegimeFusionne,
+        libelle: str = "Comptes notionnels à compter de la bascule",
+    ) -> ResultatNotionnel:
         """Droits figés à la bascule, comptes notionnels au-delà.
 
         Pour un assuré dont la retraite est déjà liquidée à la bascule, ce
@@ -234,7 +243,7 @@ class ScenarioNotionnel:
             ecart_age=self.age_reference.ecart(age_liquidation, annee_liquidation),
             capital_capitalisation=compte.capital_hors_repartition,
             fiabilite=min(compte.fiabilite, conversion.fiabilite),
-            libelle="Comptes notionnels à compter de la bascule",
+            libelle=libelle,
             droits_acquis=droits_acquis,
         )
 

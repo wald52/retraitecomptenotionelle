@@ -8,9 +8,8 @@ Le paquet fournit :
   « triple lock inversé », coefficients de conversion actuariels, écart à
   l'âge de référence à cliquet, neutralisation des droits non contributifs ;
 * cinq scénarios comparables (``scenarios/``) : système actuel, comptes
-  notionnels rétroactifs, comptes notionnels prospectifs, et deux lectures de
-  la contribution employeur des régimes publics — financement réellement versé,
-  taux d'acquisition commun à tous ;
+  notionnels rétroactifs et prospectifs, puis les deux mêmes en y portant la
+  contribution que l'employeur public verse réellement ;
 * un simulateur individuel et des cas types (``simulateur``, ``castypes``).
 
 Toute grandeur produite par le paquet est accompagnée du niveau de fiabilité

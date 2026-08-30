@@ -428,11 +428,11 @@ def _resultats(contexte: Contexte, saisie: Saisie) -> str:
         "prospectif": comparaison.en_euros_constants(
             comparaison.notionnel_prospectif.pension_annuelle
         ),
-        "financement-public": comparaison.en_euros_constants(
-            comparaison.notionnel_financement_public.pension_annuelle
+        "retroactif-employeur": comparaison.en_euros_constants(
+            comparaison.notionnel_retroactif_employeur.pension_annuelle
         ),
-        "acquisition-commune": comparaison.en_euros_constants(
-            comparaison.notionnel_acquisition_commune.pension_annuelle
+        "prospectif-employeur": comparaison.en_euros_constants(
+            comparaison.notionnel_prospectif_employeur.pension_annuelle
         ),
     }
     reference = max(constants.values()) or 1.0
@@ -471,18 +471,17 @@ def _resultats(contexte: Contexte, saisie: Saisie) -> str:
                "droits acquis conservés, règles notionnelles ensuite",
                comparaison.variation("notionnel_prospectif"),
                comparaison.taux_remplacement_prospectif)
-        + bloc("financement-public",
-               "4. Comptes notionnels, financement public réel",
-               "la contribution que l'employeur public a réellement versée, "
-               "portée au compte",
-               comparaison.variation("notionnel_financement_public"),
-               comparaison.taux_remplacement("notionnel_financement_public"))
-        + bloc("acquisition-commune",
-               "5. Comptes notionnels, taux d'acquisition commun",
-               "un seul taux pour tous ; le surplus finance le passé sans "
-               "ouvrir de droits",
-               comparaison.variation("notionnel_acquisition_commune"),
-               comparaison.taux_remplacement("notionnel_acquisition_commune"))
+        + bloc("retroactif-employeur",
+               "4. Comptes notionnels rétroactifs, cotisations employeur",
+               "le scénario 2, la contribution de l'employeur public en plus",
+               comparaison.variation("notionnel_retroactif_employeur"),
+               comparaison.taux_remplacement("notionnel_retroactif_employeur"))
+        + bloc("prospectif-employeur",
+               f"5. Comptes notionnels à compter de {saisie.bascule}, "
+               "cotisations employeur",
+               "le scénario 3, la contribution de l'employeur public en plus",
+               comparaison.variation("notionnel_prospectif_employeur"),
+               comparaison.taux_remplacement("notionnel_prospectif_employeur"))
     )
 
     anticipation = (
@@ -547,7 +546,7 @@ def _resultats(contexte: Contexte, saisie: Saisie) -> str:
   {ouverture}
 </div>
 {_decomposition(contexte, saisie, comparaison)}
-{_financement_public(comparaison)}
+{_contribution_employeur(comparaison)}
 {_cascade(comparaison, saisie)}
 {_detail(contexte, comparaison, saisie)}
 """
@@ -560,68 +559,63 @@ NATURES_PART_EMPLOYEUR = {
 }
 
 
-def _financement_public(comparaison: Comparaison) -> str:
-    """Versé, acquisitif, transition — ce que les scénarios 4 et 5 séparent.
+def _contribution_employeur(comparaison: Comparaison) -> str:
+    """Qui a versé les cotisations des scénarios 4 et 5.
 
     Ne s'affiche que pour une carrière passée par un régime dont la fiche
     s'arrête à la retenue de l'agent. Pour un salarié du privé, la question ne
     se pose pas : sa fiche porte déjà le total.
     """
-    partage = comparaison.partage_financement
-    if not partage.concerne_un_regime_public:
+    employeur = comparaison.contribution_employeur
+    if not employeur.concerne_un_regime_public:
         return ""
 
-    lignes = [
-        ["Versé au régime", "retenue de l'agent et contribution de l'employeur",
-         g.euros(partage.versee)],
-        ["Ouvrant des droits",
-         "au taux d'acquisition commun de "
-         + g.pourcentage(comparaison.parametres.taux_cotisation_uniforme),
-         g.euros(partage.acquisitive)],
-        ["Contribution de transition",
-         "finance les engagements du passé, n'ouvre aucun droit nouveau",
-         g.euros(partage.transition)],
-    ]
     origines = "".join(
         f"<li>{escape(NATURES_PART_EMPLOYEUR.get(origine, origine))} — "
         f"{nombre} année{'s' if nombre > 1 else ''}</li>"
-        for origine, nombre in sorted(partage.annees_par_origine.items())
-    )
-    sens = (
-        "Elle est positive : une partie de ce qui a été prélevé sur cette "
-        "carrière a payé les retraités du moment plutôt que d'ouvrir des droits."
-        if partage.transition >= 0 else
-        "Elle est <strong>négative</strong> : le taux d'acquisition commun "
-        "dépasse ce que cette carrière a effectivement versé. C'est le cas de "
-        "toutes les carrières anciennes, dont l'époque cotisait bien moins "
-        "qu'aujourd'hui — le scénario 5 leur accorde des droits que leur époque "
-        "n'a pas financés, et c'est le prix d'un taux unique."
+        for origine, nombre in sorted(employeur.annees_par_origine.items())
     )
 
+    # Quand aucune série n'a été trouvée, il n'y a pas de partage à montrer :
+    # l'écart entre la retenue de l'agent et le taux du privé est une convention
+    # de comparaison, pas une cotisation que quelqu'un aurait versée.
+    partage = ""
+    if employeur.employeur > 0:
+        partage = g.tableau(
+            ["Sur toute la carrière, en euros courants cumulés", "", "Montant"],
+            [
+                ["Retenue de l'agent", "prélevée sur le traitement indiciaire",
+                 g.euros(employeur.agent)],
+                ["Contribution de l'employeur public",
+                 "taux implicite, puis taux appelé par décret",
+                 g.euros(employeur.employeur)],
+                ["Total porté au compte", "ce qui alimente les scénarios 4 et 5",
+                 g.euros(employeur.total)],
+            ],
+            ["", "", "nombre"],
+        ) + (
+            f"<p>L'employeur verse ici {g.pourcentage(employeur.part)} du total. "
+            "C'est l'ordre de grandeur d'un taux d'ÉQUILIBRE : 82,28 % du "
+            "traitement en 2026 contre 11,10 % pour l'agent.</p>"
+        )
+
     return f"""
-<h2>Ce que le public verse, et ce qu'il acquerrait</h2>
+<h2>Qui verse les cotisations d'un agent public</h2>
 <p>Les fiches de la fonction publique et des régimes spéciaux ne portent que la
 <strong>retenue de l'agent</strong> — 11,10 % aujourd'hui. La part de
-l'employeur manquait, et le modèle la remplaçait par l'effort d'un salarié du
-privé de la même année, faute de mieux. Elle existe pourtant : reconstituée par
-les documents budgétaires de 1995 à 2005, appelée par décret depuis 2006 pour
-l'État, versée à une caisse depuis 1948 pour la fonction publique territoriale
-et hospitalière. Le scénario 4 la porte au compte ; le scénario 5 répond à
-l'objection qu'elle soulève.</p>
-{g.tableau(
-    ["Sur toute la carrière, en euros courants cumulés", "", "Montant"],
-    lignes,
-    ["", "", "nombre"],
-)}
-<p>L'écart entre les deux premières lignes est la <strong>contribution de
-transition</strong>, {g.pourcentage(abs(partage.part_transition))} de ce qui a
-été versé. {sens}</p>
-<p class="discret">Un taux employeur de 82,28 % en 2026 ne signifie pas qu'un
-fonctionnaire acquiert 82 % de son traitement en droits nouveaux : il est fixé
-pour que le compte d'affectation spéciale « Pensions » soit à l'équilibre, donc
-pour payer les pensions d'aujourd'hui. Le porter au compte, comme le fait le
-scénario 4, répond à une question précise — « et si tout ce qui a été consacré
-aux pensions avait été porté au compte des actifs ? » — et à elle seule.</p>
+l'employeur manquait, et les scénarios 2 et 3 la remplacent par l'effort d'un
+salarié du privé de la même année, faute de mieux. Elle existe pourtant :
+reconstituée par les documents budgétaires de 1995 à 2005, appelée par décret
+depuis 2006 pour l'État, versée à une caisse depuis 1948 pour la fonction
+publique territoriale et hospitalière. Les scénarios 4 et 5 la portent au
+compte, et ne changent rien d'autre.</p>
+{partage}
+<p class="discret">Et c'est la limite de ces deux scénarios. Un taux de 82,28 %
+ne signifie pas qu'un fonctionnaire acquiert 82 % de son traitement en droits
+nouveaux : il est fixé pour que le compte d'affectation spéciale « Pensions »
+soit à l'équilibre, donc pour payer les pensions d'aujourd'hui. Le porter au
+compte répond à une question précise — « et si tout ce qui a été consacré aux
+pensions avait été porté au compte des actifs ? » — et à elle seule.</p>
 <p class="discret">Origine de la part employeur, année par année :</p>
 <ul class="serree">{origines}</ul>"""
 
@@ -900,21 +894,20 @@ libérales progressent parce que le régime unique relève leur taux de cotisati
 et déplafonne leur assiette — un effort contributif accru, pas un avantage
 accordé.</p>
 
-<h3>Scénario 4 — financement public réel porté au compte</h3>
-{grille("notionnel_financement_public")}
+<h3>Scénario 4 — le scénario 2, cotisations employeur incluses</h3>
+{grille("notionnel_retroactif_employeur")}
 <p class="discret">Seules les lignes publiques bougent, et seulement là où une
 série employeur existe : fonctionnaires d'État depuis 1995, territoriaux et
 hospitaliers depuis 1948, agents SNCF de 2007 à 2018. Partout ailleurs — le
 privé, dont les fiches portent déjà le total, les régimes spéciaux sans série —
 le chiffre est celui du scénario 2.</p>
 
-<h3>Scénario 5 — un taux d'acquisition commun à tous</h3>
-{grille("notionnel_acquisition_commune")}
-<p class="discret">Le même taux pour tout le monde, prélevé une fois sur la
-rémunération. Les carrières anciennes y gagnent — leur époque cotisait bien
-moins que le taux d'aujourd'hui — et les carrières récentes des régimes les plus
-sollicités y perdent, puisque le surplus qu'elles versent finance les
-engagements du passé au lieu d'ouvrir des droits.</p>
+<h3>Scénario 5 — le scénario 3, cotisations employeur incluses</h3>
+{grille("notionnel_prospectif_employeur")}
+<p class="discret">Même lecture, à compter de la bascule : les droits acquis
+restent ceux du scénario 3, et seul le flux postérieur change. L'écart y est
+plus faible que sur le scénario 4, parce qu'il ne porte que sur les années
+postérieures à la bascule.</p>
 {echecs}
 """
 

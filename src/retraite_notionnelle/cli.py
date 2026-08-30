@@ -317,8 +317,8 @@ def construire_analyseur() -> argparse.ArgumentParser:
         prog="retraite-notionnelle",
         description=(
             "Simulateur de retraite en comptes notionnels — système actuel, "
-            "comptes notionnels rétroactifs et prospectifs, financement public "
-            "réel et taux d'acquisition commun."
+            "comptes notionnels rétroactifs et prospectifs, avec et sans les "
+            "cotisations employeur des régimes publics."
         ),
     )
     sous = analyseur.add_subparsers(dest="commande", required=True)

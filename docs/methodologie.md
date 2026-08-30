@@ -550,23 +550,37 @@ d'équilibre**, fixés pour que le compte tombe. 82,28 % en 2026 ne dit pas qu'u
 fonctionnaire acquiert 82 % de son traitement en droits nouveaux, mais qu'il faut
 aujourd'hui cette contribution pour payer les pensions d'aujourd'hui. Cette
 objection ne rend pas la série inutilisable : elle interdit de la lire comme un
-taux d'acquisition. D'où deux scénarios plutôt qu'un.
+taux d'acquisition, et borne donc ce que les scénarios 4 et 5 démontrent.
 
-### Scénario 4 — le financement public réel, porté au compte
+### Scénarios 4 et 5 — les mêmes, cotisations employeur incluses
 
-La retenue de l'agent, plus la contribution de l'employeur public de l'année,
-lues dans `legislation/contribution_employeur_public.csv`. Le scénario répond à
-une question précise, et à elle seule :
+Ce sont **exactement les scénarios 2 et 3**, à une différence près et une
+seule : ce qui alimente le compte d'un agent public. Là où les scénarios 2 et 3
+substituent à la retenue de l'agent l'effort contributif d'un salarié du privé
+de la même année, les scénarios 4 et 5 y ajoutent la contribution que
+l'employeur public a réellement versée.
 
-> qu'aurait donné un compte notionnel si **tout ce qui a été consacré aux
-> pensions** avait été porté au compte des actifs ?
+| | Point de départ du compte | Part employeur du public |
+|---|---|---|
+| **2** | origine de la répartition | effort d'un salarié du privé |
+| **3** | année de bascule, droits acquis figés | effort d'un salarié du privé |
+| **4** | origine de la répartition | contribution réellement versée |
+| **5** | année de bascule, droits acquis figés | contribution réellement versée |
 
-Trois conventions à connaître.
+Le 4 se lit donc contre le 2, le 5 contre le 3, et l'écart mesure une chose à la
+fois. Pour un salarié du privé, dont la fiche porte déjà le total, les quatre
+scénarios se réduisent à deux : 4 = 2 et 5 = 3, au centime près, et c'est le
+test qui le vérifie.
+
+#### Ce qui alimente le compte, et sur quelle assiette
+
+La série est dans `legislation/contribution_employeur_public.csv`. Trois
+conventions à connaître.
 
 **L'assiette ne change pas.** Le taux du CAS porte sur le traitement indiciaire
-brut et la NBI, à l'exclusion des primes — exactement l'assiette
-`hors_primes` que les fiches portent déjà. Les primes relèvent du RAFP depuis
-2005, qui reste dans le compartiment de capitalisation.
+brut et la NBI, à l'exclusion des primes — exactement l'assiette `hors_primes`
+que les fiches portent déjà. Les primes relèvent du RAFP depuis 2005, qui reste
+dans le compartiment de capitalisation.
 
 **Le taux retenu est celui en vigueur au 1er janvier**, comme partout ailleurs
 dans le dépôt. Deux abattements d'un mois y échappent volontairement — décembre
@@ -574,57 +588,70 @@ dans le dépôt. Deux abattements d'un mois y échappent volontairement — déc
 budgétaire et ne sont pas des taux d'appel.
 
 **Là où la série n'existe pas, le modèle le dit.** Avant 1995 pour l'État, avant
-1948 pour la CNRACL, hors 2007-2018 pour la SNCF, et pour les dix régimes
-spéciaux dont aucune série n'est publiée, le scénario retombe sur l'alignement
-du scénario 2 — jamais sur zéro, qui rendrait les scénarios incomparables — et
-la fiabilité de l'année retombe à `estimee`. Le nombre d'années concernées est
-affiché sous la simulation, et la sortie JSON le porte dans
+1948 pour la CNRACL, hors 2007-2018 pour la SNCF, et pour les douze régimes
+spéciaux dont aucune série n'est publiée, les scénarios 4 et 5 retombent sur
+l'alignement du scénario 2 — jamais sur zéro, qui les rendrait incomparables —
+et la fiabilité de l'année retombe à `estimee`. Le nombre d'années concernées
+est affiché sous la simulation, et la sortie JSON le porte dans
 `annees_part_employeur`.
 
 La marche 2005 → 2006, où le taux de l'État passe de 59,4 % à 49,9 %, n'est pas
 une baisse du coût des droits : c'est un changement de mesure, le périmètre du
 taux implicite étant plus étroit que celui du CAS.
 
-### Scénario 5 — un taux d'acquisition commun à tous
+#### Après la bascule, le régime unique doit garder la trace de l'employeur
 
-Un seul taux, `taux_cotisation_uniforme`, prélevé une fois sur la rémunération
-de chacun, public et privé confondus. Sa valeur par défaut, 25,31 %, est
-l'effort contributif retraite total d'un salarié du privé non cadre sous le
-plafond : le taux que le privé supporte déjà.
+C'est le seul point de mécanique du scénario 5, et sans lui ce scénario
+n'existerait pas.
 
-Ce qui est prélevé au-delà — surplus du CAS, taux d'appel des complémentaires,
-composante T2 de la SNCF, contribution d'équilibre d'un régime spécial — reste
-une **contribution de transition** : elle finance les engagements hérités du
-passé et n'ouvre aucun droit nouveau. Peu importe alors que la cotisation soit
-dite salariale ou patronale ; pour le compte de l'individu, seule compte la
-somme des deux.
+À compter de la bascule, le régime unique remplace tous les régimes et applique
+un taux unique — la somme des taux du statut pivot privé (§7). Cette convention
+efface toute trace de ce que verse un employeur public. Or le scénario 5 n'ouvre
+son compte QU'À la bascule : porter la contribution employeur au seul passé le
+laisserait donc **rigoureusement identique au scénario 3**, à l'euro près. Un
+scénario qui ne peut pas différer d'un autre ne mesure rien.
 
-**Une seule fois sur la rémunération, et non une fois par régime.** C'est le
-seul point technique du scénario. Les régimes se recouvrent : un cadre cotise au
-régime général et à l'Arrco sur la même première tranche, puis à l'Agirc sur la
-seconde. Sommer leurs assiettes convient à des taux distincts, chacun n'ouvrant
-droit que dans son régime ; appliquer un taux unique à cette somme le compterait
-deux fois. Le modèle réunit donc les intervalles d'assiette — par assiette de
-départ : traitement indiciaire, primes, rémunération entière — avant de
-prélever. Le compartiment de capitalisation, lui, garde ses taux propres : il
-n'est pas un compte notionnel.
+Sous le traitement `financement_historique`, le régime unique conserve donc,
+pour un agent public, l'effort contributif réel de son régime : retenue de
+l'agent plus contribution de l'employeur. Comme l'assiette du régime unique est
+la rémunération **entière** alors que ces taux portent sur le seul traitement
+indiciaire, le taux est ramené à cette assiette en le multipliant par la part
+hors primes :
 
-La contribution de transition peut être **négative**, et elle l'est pour toutes
-les carrières anciennes : leur époque cotisait bien moins que 25,31 %, si bien
-que le taux commun leur accorde des droits que leur époque n'a pas financés.
-C'est le prix d'un taux unique, et le modèle l'affiche plutôt que de le masquer.
+```
+taux porté = (retenue de l'agent + contribution employeur) × (1 − part de primes)
+```
 
-### Ce que les trois lectures mesurent, côte à côte
+Pour un fonctionnaire d'État touchant 25 % de primes en 2030, cela fait
+(11,10 % + 82,28 %) × 0,75 = 70,0 % de la rémunération entière. Sans cette
+conversion, 82,28 % s'appliqueraient à des primes qui n'ont jamais rien versé au
+régime.
 
-| | Part employeur du public | Question posée |
-|---|---|---|
-| **2** | effort d'un salarié du privé de la même année | à effort contributif égal, que donnerait la règle notionnelle ? |
-| **4** | ce qui a réellement été versé | et si tout ce qui a été consacré aux pensions avait été porté au compte des actifs ? |
-| **5** | un taux commun à tous, le surplus finançant le passé | que donnerait une réforme qui fixerait un seul taux d'acquisition ? |
+Les statuts privés ne sont pas concernés : leur fiche porte déjà le total, et le
+régime unique aussi.
 
-Aucune des trois n'est la bonne réponse : ce sont trois questions différentes, et
-c'est précisément parce que la première passait pour la seule possible que le
-dépôt affirmait, à tort, que les deux autres ne l'étaient pas.
+#### Ce que ces deux scénarios ne disent pas
+
+Les taux employeur publics sont des taux d'**équilibre**, fixés pour que le
+compte tombe juste. Un taux de 82,28 % ne signifie pas qu'un fonctionnaire
+acquiert 82 % de son traitement en droits nouveaux : il signifie qu'il faut
+aujourd'hui cette contribution pour payer les pensions d'aujourd'hui, démographie
+et engagements hérités compris. Les porter à un compte notionnel répond à une
+question précise :
+
+> qu'aurait donné un compte notionnel si **tout ce qui a été consacré aux
+> pensions** avait été porté au compte des actifs ?
+
+Et à elle seule. Ce n'est pas une proposition de réforme, pas plus que le
+scénario 2 ne l'est.
+
+Une troisième lecture existe — fixer un **taux d'acquisition commun** à tous, le
+surplus restant une contribution de transition qui n'ouvre aucun droit — et le
+moteur sait la calculer : `source_cotisations = taux_uniforme`, soit
+`--cotisations taux_uniforme` en ligne de commande. Elle ne figure pas parmi les
+cinq scénarios parce qu'elle ne répond pas à la même question : elle ne mesure
+plus ce que le public verse, mais ce qu'une réforme choisirait de lui
+reconnaître.
 
 ---
 

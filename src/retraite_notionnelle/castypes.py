@@ -181,10 +181,10 @@ class ResultatCasTypes:
          "scénario 2, notionnel RÉTROACTIF"),
         ("notionnel_prospectif",
          "scénario 3, notionnel PROSPECTIF (bascule à l'année courante)"),
-        ("notionnel_financement_public",
-         "scénario 4, FINANCEMENT PUBLIC RÉEL porté au compte"),
-        ("notionnel_acquisition_commune",
-         "scénario 5, TAUX D'ACQUISITION COMMUN à tous"),
+        ("notionnel_retroactif_employeur",
+         "scénario 4, notionnel RÉTROACTIF, cotisations employeur incluses"),
+        ("notionnel_prospectif_employeur",
+         "scénario 5, notionnel PROSPECTIF, cotisations employeur incluses"),
     )
 
     def tableau(self, cas_types=CAS_TYPES, generations=GENERATIONS) -> str:
