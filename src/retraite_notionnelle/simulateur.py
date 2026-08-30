@@ -494,7 +494,7 @@ class Simulateur:
 
     @cached_property
     def scenario_employeur(self) -> ScenarioNotionnel:
-        """Scénarios 4 et 5 : le scénario notionnel, cotisations employeur incluses.
+        """Scénarios 4 et 5 : le scénario notionnel, part patronale comprise.
 
         Le même objet sert aux deux, comme :attr:`scenario_notionnel` sert aux
         scénarios 2 et 3 : c'est le point de départ du compte — origine de la

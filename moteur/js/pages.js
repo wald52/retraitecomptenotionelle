@@ -499,7 +499,7 @@ function resultats(contexte, saisie) {
     "droit en vigueur, minima et majorations compris",
     null, comparaison.tauxRemplacementActuel)
     + bloc("retroactif", "2. Comptes notionnels, rétroactifs depuis 1941",
-      "toute la carrière recalculée sur les seules cotisations",
+      "toute la carrière recalculée sur la seule part salariale",
       comparaison.variation("notionnel_retroactif"),
       comparaison.tauxRemplacementRetroactif)
     + bloc("prospectif", `3. Comptes notionnels à compter de ${saisie.bascule}`,
@@ -507,13 +507,13 @@ function resultats(contexte, saisie) {
       comparaison.variation("notionnel_prospectif"),
       comparaison.tauxRemplacementProspectif)
     + bloc("retroactif-employeur",
-      "4. Comptes notionnels rétroactifs, cotisations employeur",
-      "le scénario 2, la contribution de l'employeur public en plus",
+      "4. Comptes notionnels rétroactifs, salariale + patronale",
+      "le scénario 2, la part patronale en plus",
       comparaison.variation("notionnel_retroactif_employeur"),
       comparaison.tauxRemplacement("notionnel_retroactif_employeur"))
     + bloc("prospectif-employeur",
-      `5. Comptes notionnels à compter de ${saisie.bascule}, cotisations employeur`,
-      "le scénario 3, la contribution de l'employeur public en plus",
+      `5. Comptes notionnels à compter de ${saisie.bascule}, salariale + patronale`,
+      "le scénario 3, la part patronale en plus",
       comparaison.variation("notionnel_prospectif_employeur"),
       comparaison.tauxRemplacement("notionnel_prospectif_employeur"));
 
@@ -584,65 +584,64 @@ const NATURES_PART_EMPLOYEUR = {
 };
 
 /**
- * Qui a versé les cotisations des scénarios 4 et 5.
+ * Qui verse la cotisation : l'assuré, son employeur, dans quelle proportion.
  *
- * Ne s'affiche que pour une carrière passée par un régime dont la fiche
- * s'arrête à la retenue de l'agent. Pour un salarié du privé, la question ne se
- * pose pas : sa fiche porte déjà le total.
+ * C'est la mesure directe de ce qui sépare les scénarios 2 et 3 des scénarios 4
+ * et 5. Le bloc ne s'affiche pas pour un non-salarié, qui n'a pas d'employeur.
  */
 function contributionEmployeur(comparaison) {
   const employeur = comparaison.contributionEmployeur;
-  if (!employeur.concerne_un_regime_public) {
+  if (!(employeur.a_un_employeur || employeur.concerne_un_regime_public)) {
     return "";
   }
 
-  const origines = Object.entries(employeur.annees_par_origine)
-    .sort((a, b) => (a[0] < b[0] ? -1 : 1))
-    .map(([origine, nombre]) => `<li>${
-      echapper(NATURES_PART_EMPLOYEUR[origine] ?? origine)
-    } — ${nombre} année${nombre > 1 ? "s" : ""}</li>`)
-    .join("");
-
-  // Quand aucune série n'a été trouvée, il n'y a pas de partage à montrer :
-  // l'écart entre la retenue de l'agent et le taux du privé est une convention
-  // de comparaison, pas une cotisation que quelqu'un aurait versée.
-  const partage = employeur.employeur > 0
+  const partage = employeur.a_un_employeur
     ? g.tableau(
       ["Sur toute la carrière, en euros courants cumulés", "", "Montant"],
       [
-        ["Retenue de l'agent", "prélevée sur le traitement indiciaire",
+        ["Part salariale", "ce que l'assuré supporte — scénarios 2 et 3",
           g.euros(employeur.agent)],
-        ["Contribution de l'employeur public",
-          "taux implicite, puis taux appelé par décret",
-          g.euros(employeur.employeur)],
-        ["Total porté au compte", "ce qui alimente les scénarios 4 et 5",
-          g.euros(employeur.total)],
+        ["Part patronale", "ce que verse l'employeur", g.euros(employeur.employeur)],
+        ["Total", "scénarios 4 et 5", g.euros(employeur.total)],
       ],
       ["", "", "nombre"],
-    ) + `<p>L'employeur verse ici ${g.pourcentage(employeur.part)} du total. `
-      + "C'est l'ordre de grandeur d'un taux d'ÉQUILIBRE : 82,28 % du "
-      + "traitement en 2026 contre 11,10 % pour l'agent.</p>"
+    ) + `<p>L'employeur verse ici <strong>${g.pourcentage(employeur.part)}`
+      + "</strong> du total.</p>"
     : "";
 
-  return `
-<h2>Qui verse les cotisations d'un agent public</h2>
+  // La part patronale d'un agent public n'est dans aucune fiche : elle vient
+  // d'une série à part, qui ne couvre pas tous les régimes ni toutes les
+  // années. Le dire est le prix de s'en servir.
+  let public_ = "";
+  if (employeur.concerne_un_regime_public) {
+    const origines = Object.entries(employeur.annees_par_origine)
+      .sort((a, b) => (a[0] < b[0] ? -1 : 1))
+      .map(([origine, nombre]) => `<li>${
+        echapper(NATURES_PART_EMPLOYEUR[origine] ?? origine)
+      } — ${nombre} année${nombre > 1 ? "s" : ""}</li>`)
+      .join("");
+    public_ = `
 <p>Les fiches de la fonction publique et des régimes spéciaux ne portent que la
-<strong>retenue de l'agent</strong> — 11,10 % aujourd'hui. La part de
-l'employeur manquait, et les scénarios 2 et 3 la remplacent par l'effort d'un
-salarié du privé de la même année, faute de mieux. Elle existe pourtant :
-reconstituée par les documents budgétaires de 1995 à 2005, appelée par décret
-depuis 2006 pour l'État, versée à une caisse depuis 1948 pour la fonction
-publique territoriale et hospitalière. Les scénarios 4 et 5 la portent au
-compte, et ne changent rien d'autre.</p>
-${partage}
-<p class="discret">Et c'est la limite de ces deux scénarios. Un taux de 82,28 %
-ne signifie pas qu'un fonctionnaire acquiert 82 % de son traitement en droits
-nouveaux : il est fixé pour que le compte d'affectation spéciale « Pensions »
-soit à l'équilibre, donc pour payer les pensions d'aujourd'hui. Le porter au
-compte répond à une question précise — « et si tout ce qui a été consacré aux
-pensions avait été porté au compte des actifs ? » — et à elle seule.</p>
-<p class="discret">Origine de la part employeur, année par année :</p>
-<ul class="serree">${origines}</ul>`;
+<strong>retenue de l'agent</strong>. La part de l'employeur vient d'une série à
+part — reconstituée par les documents budgétaires de 1995 à 2005, appelée par
+décret depuis 2006 pour l'État, versée à une caisse depuis 1948 pour la fonction
+publique territoriale et hospitalière. Origine, année par année :</p>
+<ul class="serree">${origines}</ul>
+<p class="discret">Et c'est la limite de ces deux scénarios pour un agent
+public. Un taux de 82,28 % ne signifie pas qu'un fonctionnaire acquiert 82 % de
+son traitement en droits nouveaux : il est fixé pour que le compte
+d'affectation spéciale « Pensions » soit à l'équilibre, donc pour payer les
+pensions d'aujourd'hui. Le porter au compte répond à une question précise —
+« et si tout ce qui a été consacré aux pensions avait été porté au compte des
+actifs ? » — et à elle seule.</p>`;
+  }
+
+  return `
+<h2>Qui verse la cotisation</h2>
+<p>Une cotisation retraite a deux parts : ce que l'assuré supporte, et ce que
+son employeur verse. Les scénarios 2 et 3 ne portent au compte que la première ;
+les scénarios 4 et 5 y ajoutent la seconde, et ne changent rien d'autre.</p>
+${partage}${public_}`;
 }
 
 /** Sépare l'effet de la règle d'indexation de celui des comptes notionnels. */
@@ -927,20 +926,20 @@ libérales progressent parce que le régime unique relève leur taux de cotisati
 et déplafonne leur assiette — un effort contributif accru, pas un avantage
 accordé.</p>
 
-<h3>Scénario 4 — le scénario 2, cotisations employeur incluses</h3>
+<h3>Scénario 4 — le scénario 2, part patronale comprise</h3>
 ${grille("notionnel_retroactif_employeur")}
-<p class="discret">Seules les lignes publiques bougent, et seulement là où une
-série employeur existe : fonctionnaires d'État depuis 1995, territoriaux et
-hospitaliers depuis 1948, agents SNCF de 2007 à 2018. Partout ailleurs — le
-privé, dont les fiches portent déjà le total, les régimes spéciaux sans série —
-le chiffre est celui du scénario 2.</p>
+<p class="discret">Toutes les lignes bougent, sauf celles des non-salariés —
+artisan, exploitant agricole, profession libérale — qui n'ont pas d'employeur et
+pour qui ce scénario est le scénario 2. Les lignes publiques bougent le plus :
+la contribution de leur employeur est un taux d'équilibre, sans commune mesure
+avec la part patronale d'un salarié.</p>
 
-<h3>Scénario 5 — le scénario 3, cotisations employeur incluses</h3>
+<h3>Scénario 5 — le scénario 3, part patronale comprise</h3>
 ${grille("notionnel_prospectif_employeur")}
 <p class="discret">Même lecture, à compter de la bascule : les droits acquis
-restent ceux du scénario 3, et seul le flux postérieur change. L'écart y est
-plus faible que sur le scénario 4, parce qu'il ne porte que sur les années
-postérieures à la bascule.</p>
+restent ceux du scénario 3, et seul le flux postérieur change. À compter de la
+bascule il n'y a plus qu'un régime, dont la répartition salarié/employeur est
+celle du statut pivot privé : les écarts entre statuts s'y referment.</p>
 ${echecs}
 `;
 }

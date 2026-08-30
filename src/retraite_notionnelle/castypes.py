@@ -178,13 +178,13 @@ class ResultatCasTypes:
     #: Les quatre grilles, dans l'ordre, avec le titre qui les introduit.
     GRILLES = (
         ("notionnel_retroactif",
-         "scénario 2, notionnel RÉTROACTIF"),
+         "scénario 2, notionnel RÉTROACTIF, part salariale seule"),
         ("notionnel_prospectif",
-         "scénario 3, notionnel PROSPECTIF (bascule à l'année courante)"),
+         "scénario 3, notionnel PROSPECTIF, part salariale seule"),
         ("notionnel_retroactif_employeur",
-         "scénario 4, notionnel RÉTROACTIF, cotisations employeur incluses"),
+         "scénario 4, notionnel RÉTROACTIF, part patronale comprise"),
         ("notionnel_prospectif_employeur",
-         "scénario 5, notionnel PROSPECTIF, cotisations employeur incluses"),
+         "scénario 5, notionnel PROSPECTIF, part patronale comprise"),
     )
 
     def tableau(self, cas_types=CAS_TYPES, generations=GENERATIONS) -> str:

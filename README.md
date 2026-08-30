@@ -54,17 +54,15 @@ Scénario                                                  Courants   Constants 
 > Les scénarios 3 et 5 sont ici identiques au système actuel parce que cet agent
 > a liquidé en 2005, avant la bascule : ses droits sont intégralement acquis.
 
-> **Le scénario 2 n'est pas une proposition de réforme.** Un compte notionnel
-> réel serait alimenté par la cotisation entière ; n'y porter que la part
-> salariale répond à une autre question, « qu'est-ce que j'ai payé, moi ? ».
-> C'est le scénario 4 qui porte l'effort contributif complet.
-
 > **Le scénario 2 n'est pas une proposition de réforme**, et l'écart qu'il
-> affiche ne mesure pas l'effet des comptes notionnels. Il vient pour
-> l'essentiel de la règle d'indexation retenue — voir
+> affiche ne mesure pas l'effet des comptes notionnels. Deux raisons, et aucune
+> des deux n'est le passage au notionnel. La première : il ne porte au compte
+> que la part salariale — un système notionnel réel serait alimenté par la
+> cotisation entière, et c'est le scénario 4 qui la porte. La seconde, plus
+> lourde encore : la règle d'indexation retenue, voir
 > [« La règle d'indexation domine tout le reste »](#1-la-règle-dindexation-domine-tout-le-reste)
-> plus bas. Le modèle permet de séparer les deux effets ; c'est même son
-> principal résultat.
+> plus bas. Le modèle permet de séparer ces effets ; c'est même son principal
+> résultat.
 
 ---
 
@@ -237,7 +235,7 @@ simulation web affiche cette décomposition d'office.
 
 ### 2. La fusion augmente les cotisations des indépendants
 
-Le régime unique applique 25,74 % sur assiette déplafonnée. Pour les professions
+Le régime unique applique 25,73 % sur assiette déplafonnée. Pour les professions
 libérales et les indépendants, qui cotisent aujourd'hui moins et sous plafond,
 c'est une forte hausse de prélèvement — et donc de pension. C'est la seule ligne
 du tableau des cas types qui progresse ; le résultat est correct, mais il traduit

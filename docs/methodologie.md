@@ -290,9 +290,16 @@ défavorable » n'aurait pas de sens : un taux plus faible réduit les droits, m
 réduit tout autant les prélèvements. Retenir le maximum n'est pas meilleur : ce
 maximum est le taux de tranche 2 de l'Agirc-Arrco (21,59 %), qui ne s'applique
 aujourd'hui qu'au-dessus du plafond. Le régime fusionné retient donc la **somme
-des taux d'un statut pivot** — régime général 17,87 % + Agirc-Arrco 7,87 % =
-**25,74 %** — c'est-à-dire l'effort contributif réel d'un salarié pour une
+des taux d'un statut pivot** — régime général 17,86 % + Agirc-Arrco 7,87 % =
+**25,73 %** — c'est-à-dire l'effort contributif réel d'un salarié pour une
 retraite complète. Modifiable par `RegleFusion.critere_taux`.
+
+Le régime unique **hérite aussi de la répartition salarié/employeur** de ses
+régimes pivots : 10,45 % de part salariale sur 25,73 % en 2026. Ce n'est pas une
+décision de la fusion mais la conséquence de ce qui la compose, et c'est elle
+qui, après la bascule, sépare le scénario 5 du scénario 3. Une exception : un
+assuré qui n'avait pas d'employeur — artisan, libéral — n'en gagne pas un en
+changeant de régime ; le taux unique lui est alors intégralement personnel.
 
 **Conséquence à connaître.** Ce taux appliqué à une assiette déplafonnée
 augmente fortement les cotisations des indépendants et des professions

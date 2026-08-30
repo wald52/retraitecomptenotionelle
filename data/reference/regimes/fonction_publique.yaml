@@ -174,12 +174,15 @@ regimes:
            minimum_garanti, surcote_parentale]
         notes: >-
           Loi du 14 avril 2023 : catégories actives portées de 57 à 59 ans et de
-          52 à 54 ans. Retenue salariale 11,10 % ; contribution employeur de
-          l'État 74,28 % (civils) — cette contribution est un taux d'équilibre
-          budgétaire et non un taux de droits, et elle n'existe pas avant la
-          création du compte d'affectation spéciale Pensions en 2006. Elle
-          n'est donc jamais portée au compte notionnel ; le paramètre
-          `traitement_contribution_employeur_etat` dit ce qui l'est à sa place.
+          52 à 54 ans. `taux_cotisation_retraite` ne porte ici que la RETENUE
+          SALARIALE, 11,10 % : c'est ce que dit `perimetre_taux: agent_seul`,
+          et c'est pourquoi `part_salariale` y vaut un.
+          La contribution de l'employeur est portée à part, dans
+          `legislation/contribution_employeur_public.csv` — 74,28 % pour les
+          civils de 2013 à 2024, 82,28 % en 2026 — et les scénarios 4 et 5 l'y
+          lisent. À garder en tête en la lisant : c'est un taux d'ÉQUILIBRE
+          budgétaire, fixé pour payer les pensions du moment, et non un taux
+          d'acquisition de droits.
 
   - code: cnracl
     nom: Caisse nationale de retraites des agents des collectivités locales
@@ -301,8 +304,12 @@ regimes:
           [bonifications, categorie_active, majoration_enfants, reversion,
            minimum_garanti, surcote_parentale]
         notes: >-
-          Réforme de 2023. Taux employeur 31,65 % puis 43,65 % en 2025 :
-          taux d'équilibre, non générateur de droits supplémentaires.
+          Réforme de 2023. `taux_cotisation_retraite` ne porte que la retenue
+          salariale, 11,10 %. La contribution des employeurs territoriaux et
+          hospitaliers est dans
+          `legislation/contribution_employeur_public.csv`, où elle remonte à
+          1948 : 31,65 % en 2024, 34,65 % en 2025 (LFSS 2025, +3 points par an
+          jusqu'en 2028). C'est, là aussi, un taux d'équilibre.
 
   - code: fspoeie
     nom: Fonds spécial des pensions des ouvriers des établissements industriels de l'État

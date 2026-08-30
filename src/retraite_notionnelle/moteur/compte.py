@@ -95,7 +95,7 @@ class CompteNotionnel:
 
         Ce que les scénarios 4 et 5 doivent dire d'eux-mêmes : sur combien
         d'années la contribution réellement versée a été trouvée, et sur combien
-        il a fallu retomber sur l'alignement du scénario 2 faute de série.
+        il a fallu l'estimer, faute de série.
         """
         decompte: dict[str, int] = {}
         for cotisation in self.cotisations:

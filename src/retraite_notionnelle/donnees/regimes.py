@@ -263,7 +263,8 @@ class ContributionsEmployeurPubliques:
     * **avant** la première année d'un régime, la table ne rend rien. Il n'y a
       rien à extrapoler : l'État ne versait aucune cotisation en 1960, et lui en
       prêter une inventerait la donnée que tout ce fichier existe pour éviter.
-      L'appelant retombe alors sur l'alignement du scénario 2, et le sait.
+      L'appelant estime alors la part patronale par l'effort d'un salarié du
+      privé de la même année, et le résultat le dit.
     * **après** la dernière année connue, le dernier taux est prolongé, comme
       toute projection du modèle et avec la même conséquence : la fiabilité
       retombe à ``estimee``. Sans cela, une carrière qui se poursuit jusqu'en

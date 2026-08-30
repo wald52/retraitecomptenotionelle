@@ -7,8 +7,13 @@
 # Les fiches de data/reference/regimes/ ne portent, pour ces régimes, que la
 # RETENUE DE L'AGENT — 7,85 % hier, 11,10 % aujourd'hui. Ce fichier porte
 # l'autre moitié : ce que verse l'employeur public. Les deux s'additionnent
-# pour former l'effort contributif total, celui qui alimente le compte
-# notionnel du scénario 4.
+# pour former l'effort contributif total, celui qui alimente les scénarios 4
+# et 5 ; les scénarios 2 et 3, eux, ne portent que la retenue.
+#
+# Pour un salarié du privé, la même distinction se lit dans la fiche du régime,
+# dont le taux est déjà un total : c'est son champ `part_salariale` qui dit
+# combien l'employeur y met. Ce fichier n'existe que parce que les fiches
+# publiques, elles, s'arrêtent à la retenue.
 #
 # nature :
 #   appelee    : taux effectivement appelé, fixé par décret ou par arrêté
@@ -31,16 +36,18 @@
 # 78,28 % en 2025, 82,28 % en 2026. Il ne dit pas qu'un fonctionnaire acquiert
 # 82 % de son traitement en droits nouveaux ; il dit ce qu'il faut verser
 # aujourd'hui pour payer les pensions d'aujourd'hui. Le porter tel quel à un
-# compte notionnel — ce que fait le scénario 4 — répond à la question « et si
-# tout ce qui a été consacré aux pensions avait été porté au compte des
-# actifs ? », et à elle seule. Le scénario 5 répond à l'autre.
+# compte notionnel — ce que font les scénarios 4 et 5 — répond à la question
+# « et si tout ce qui a été consacré aux pensions avait été porté au compte des
+# actifs ? », et à elle seule.
 #
 # Régimes couverts. fonction_publique_etat (implicite 1995-2005, appelée
 # depuis 2006), cnracl (appelée depuis 1948), sncf (T1 + T2, 2007-2018). Les
 # autres régimes à `perimetre_taux: agent_seul` — FSPOEIE, RATP, IEG, marins,
 # mines, CRPCEN, Banque de France, Opéra, Comédie-Française, SEITA — n'ont pas
-# de série publiée exploitable : le modèle y retombe sur l'alignement du
-# scénario 2 et le signale. Voir docs/limites.md.
+# de série publiée exploitable : la part patronale y est ESTIMÉE par l'effort
+# d'un salarié du privé de la même année, la fiabilité retombe à `estimee`, et
+# le nombre d'années concernées est affiché sous la simulation.
+# Voir docs/limites.md.
 #
 # Fichier écrit par scripts/verifier_donnees.py --appliquer : ne pas
 # modifier à la main.

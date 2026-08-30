@@ -444,7 +444,7 @@ export class ConstructeurCompte {
     const cotisationsVersees = cotisations.reduce((total, c) => total + c.cotisation, 0.0);
     // Ce que le scénario 4 doit dire de lui-même : sur combien d'années la
     // contribution employeur réelle a été trouvée, et sur combien il a fallu
-    // retomber sur l'alignement du scénario 2 faute de série.
+    // l'estimer, faute de série.
     const anneesPartEmployeur = {};
     for (const detail of cotisations) {
       if (detail.origine_part_employeur && !detail.nulle) {

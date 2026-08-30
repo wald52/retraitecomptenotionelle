@@ -845,7 +845,7 @@ export class ValeursPoint {
  * depuis 2006), la CNRACL (appelée depuis 1948) et la SNCF (2007-2018).
  *
  * Avant la première année d'un régime, la table ne rend rien : il n'y a rien à
- * extrapoler, et l'appelant retombe sur l'alignement du scénario 2. Après la
+ * extrapoler, et l'appelant estime alors la part patronale. Après la
  * dernière, le dernier taux est prolongé, avec la fiabilité d'une projection.
  */
 export class ContributionsEmployeurPubliques {
