@@ -1,4 +1,4 @@
-"""Les trois scénarios comparés par le simulateur."""
+"""Les cinq scénarios comparés par le simulateur."""
 
 from .actuel import ScenarioActuel, ResultatActuel, PensionRegime
 from .notionnel import ScenarioNotionnel, ResultatNotionnel

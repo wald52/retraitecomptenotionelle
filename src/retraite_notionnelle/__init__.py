@@ -7,8 +7,10 @@ Le paquet fournit :
 * un moteur de comptes notionnels (``moteur/``) : accumulation, indexation
   « triple lock inversé », coefficients de conversion actuariels, écart à
   l'âge de référence à cliquet, neutralisation des droits non contributifs ;
-* trois scénarios comparables (``scenarios/``) : système actuel, comptes
-  notionnels rétroactifs, comptes notionnels prospectifs ;
+* cinq scénarios comparables (``scenarios/``) : système actuel, comptes
+  notionnels rétroactifs, comptes notionnels prospectifs, et deux lectures de
+  la contribution employeur des régimes publics — financement réellement versé,
+  taux d'acquisition commun à tous ;
 * un simulateur individuel et des cas types (``simulateur``, ``castypes``).
 
 Toute grandeur produite par le paquet est accompagnée du niveau de fiabilité

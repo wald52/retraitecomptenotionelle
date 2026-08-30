@@ -1,5 +1,5 @@
 /**
- * Simulateur : assemble les données, le moteur et les trois scénarios.
+ * Simulateur : assemble les données, le moteur et les cinq scénarios.
  *
  * Portage de ``src/retraite_notionnelle/simulateur.py``. C'est le point d'entrée
  * unique : une instance charge les données une fois et simule ensuite autant de
@@ -7,7 +7,9 @@
  */
 
 import { Carriere } from "./carriere.js";
-import { PARAMETRES_DEFAUT } from "./config.js";
+import {
+  ContributionEmployeurPublic, PARAMETRES_DEFAUT, SourceCotisations,
+} from "./config.js";
 import { ConstructeurCompte } from "./compte.js";
 import { Convertisseur } from "./conversion.js";
 import { AgeReference } from "./age-reference.js";
@@ -22,16 +24,30 @@ import {
   DonneeInsuffisante, Fiabilite, fiabiliteDepuisTexte, nomFiabilite,
 } from "./serie.js";
 
-/** Les trois résultats, côte à côte, pour une même carrière. */
+/**
+ * Les quatre scénarios notionnels, dans l'ordre où ils s'affichent, avec le
+ * numéro et le titre sous lesquels le tableau, la page et l'API les citent.
+ */
+export const SCENARIOS_NOTIONNELS = Object.freeze([
+  ["notionnel_retroactif", 2, "Notionnel rétroactif (depuis l'origine)"],
+  ["notionnel_prospectif", 3, "Notionnel à compter de {bascule}"],
+  ["notionnel_financement_public", 4, "Notionnel, financement public réel"],
+  ["notionnel_acquisition_commune", 5, "Notionnel, taux d'acquisition commun"],
+]);
+
+/** Les cinq résultats, côte à côte, pour une même carrière. */
 export class Comparaison {
   constructor({
     carriere, actuel, notionnelRetroactif, notionnelProspectif,
+    notionnelFinancementPublic, notionnelAcquisitionCommune,
     regimeFusionne, parametres, coefficientEurosConstants = 1.0,
   }) {
     this.carriere = carriere;
     this.actuel = actuel;
     this.notionnel_retroactif = notionnelRetroactif;
     this.notionnel_prospectif = notionnelProspectif;
+    this.notionnel_financement_public = notionnelFinancementPublic;
+    this.notionnel_acquisition_commune = notionnelAcquisitionCommune;
     this.regime_fusionne = regimeFusionne;
     this.parametres = parametres;
     //: Coefficient de passage des euros de l'année de liquidation aux euros
@@ -43,12 +59,34 @@ export class Comparaison {
     return montant * this.coefficient_euros_constants;
   }
 
+  /**
+   * Fiabilité de l'étalon et des deux scénarios de référence. Les scénarios 4
+   * et 5 en sont exclus à dessein : chacun porte la sienne, et les laisser
+   * qualifier l'ensemble ferait retomber toute simulation publique à
+   * « estimée » alors que les trois premiers ne se sont pas dégradés. La sortie
+   * JSON donne celle de chaque scénario, une à une.
+   */
   get fiabilite() {
     return Math.min(
       this.actuel.fiabilite,
       this.notionnel_retroactif.fiabilite,
       this.notionnel_prospectif.fiabilite,
     );
+  }
+
+  /** Versé, acquisitif, transition — les trois colonnes du financement. */
+  get partageFinancement() {
+    const versee = this.notionnel_financement_public.compte.cotisations_versees;
+    const acquisitive = this.notionnel_acquisition_commune.compte.cotisations_versees;
+    const annees = this.notionnel_financement_public.compte.annees_part_employeur;
+    return {
+      versee,
+      acquisitive,
+      transition: versee - acquisitive,
+      part_transition: versee ? (versee - acquisitive) / versee : 0.0,
+      annees_par_origine: annees,
+      concerne_un_regime_public: Object.keys(annees).length > 0,
+    };
   }
 
   /** Écart relatif d'un scénario notionnel au système actuel. */
@@ -70,6 +108,11 @@ export class Comparaison {
 
   get tauxRemplacementProspectif() {
     return tauxRemplacement(this.carriere, this.notionnel_prospectif.pension_annuelle);
+  }
+
+  /** Taux de remplacement de n'importe lequel des scénarios notionnels. */
+  tauxRemplacement(scenario) {
+    return tauxRemplacement(this.carriere, this[scenario].pension_annuelle);
   }
 
   /** Forme sérialisable, pour un export ou une comparaison. */
@@ -118,13 +161,24 @@ export class Comparaison {
             code: a.code, libelle: a.libelle, montant: a.montant, detail: a.detail,
           })),
         },
-        notionnel_retroactif: resumeNotionnel(
-          this.notionnel_retroactif, this.tauxRemplacementRetroactif,
-          this.variation("notionnel_retroactif"), this.coefficient_euros_constants,
-        ),
-        notionnel_prospectif: resumeNotionnel(
-          this.notionnel_prospectif, this.tauxRemplacementProspectif,
-          this.variation("notionnel_prospectif"), this.coefficient_euros_constants,
+        ...Object.fromEntries(SCENARIOS_NOTIONNELS.map(([cle]) => [
+          cle,
+          resumeNotionnel(
+            this[cle], this.tauxRemplacement(cle), this.variation(cle),
+            this.coefficient_euros_constants,
+          ),
+        ])),
+      },
+      financement: {
+        versee: this.partageFinancement.versee,
+        acquisitive: this.partageFinancement.acquisitive,
+        transition: this.partageFinancement.transition,
+        part_transition: this.partageFinancement.part_transition,
+        taux_acquisition_commun: this.parametres.taux_cotisation_uniforme,
+        annees_par_origine: Object.fromEntries(
+          Object.entries(this.partageFinancement.annees_par_origine).sort(
+            (a, b) => (a[0] < b[0] ? -1 : 1),
+          ),
         ),
       },
       unite: {
@@ -165,6 +219,11 @@ function resumeNotionnel(resultat, tauxRemplacementScenario, variation, coeffici
     },
     cotisations_versees: resultat.compte.cotisations_versees,
     rendement_cumule: resultat.compte.rendement_cumule,
+    annees_part_employeur: Object.fromEntries(
+      Object.entries(resultat.compte.annees_part_employeur).sort(
+        (a, b) => (a[0] < b[0] ? -1 : 1),
+      ),
+    ),
     rente_capitalisation: resultat.rente_capitalisation_annuelle,
     fiabilite: nomFiabilite(resultat.fiabilite),
   };
@@ -203,6 +262,25 @@ export class Simulateur {
       this.constructeur, this.convertisseur, this.ageReference,
       this.scenarioActuel, parametres,
     );
+
+    // Les scénarios 4 et 5 ne diffèrent du scénario 2 que par leur flux de
+    // cotisations : mêmes données, même indexation, même liquidation. Ils se
+    // construisent donc en dérivant les paramètres, ce qui garantit qu'aucune
+    // autre différence ne peut s'y glisser à l'insu du lecteur.
+    const variante = (modifications) => new ScenarioNotionnel(
+      new ConstructeurCompte(
+        this.macro, this.catalogue, this.affiliations, this.indexation,
+        { ...parametres, ...modifications },
+      ),
+      this.convertisseur, this.ageReference, this.scenarioActuel, parametres,
+    );
+    this.scenarioFinancementPublic = variante({
+      traitement_contribution_employeur_etat:
+        ContributionEmployeurPublic.FINANCEMENT_HISTORIQUE,
+    });
+    this.scenarioAcquisitionCommune = variante({
+      source_cotisations: SourceCotisations.TAUX_UNIFORME,
+    });
     this._regimeFusionne = null;
   }
 
@@ -228,7 +306,7 @@ export class Simulateur {
     return Carriere.depuisProfil({ ...options, macro: this.macro });
   }
 
-  /** Calcule les trois scénarios pour une carrière. */
+  /** Calcule les cinq scénarios pour une carrière. */
   simuler(carriere) {
     this._verifierFiabilite(carriere);
 
@@ -239,6 +317,14 @@ export class Simulateur {
       actuel: this.scenarioActuel.calculer(carriere),
       notionnelRetroactif: this.scenarioNotionnel.retroactif(carriere, fusionne),
       notionnelProspectif: this.scenarioNotionnel.prospectif(carriere, this.regimeFusionne),
+      notionnelFinancementPublic: this.scenarioFinancementPublic.retroactif(
+        carriere, fusionne,
+        "Comptes notionnels rétroactifs, financement public réel",
+      ),
+      notionnelAcquisitionCommune: this.scenarioAcquisitionCommune.retroactif(
+        carriere, fusionne,
+        "Comptes notionnels rétroactifs, taux d'acquisition commun",
+      ),
       regimeFusionne: this.regimeFusionne,
       parametres: this.parametres,
       coefficientEurosConstants: this.macro.coefficientPrix(

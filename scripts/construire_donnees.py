@@ -64,7 +64,7 @@ STYLE = RACINE / "moteur" / "style.css"
 
 #: Version du format. À incrémenter si la structure du paquet change, pour
 #: qu'un site en cache ne lise pas un paquet qu'il ne comprend pas.
-VERSION = 3
+VERSION = 4
 
 
 def _serie(serie: SerieAnnuelle) -> dict:
@@ -238,6 +238,20 @@ def _rendements() -> list:
 
 
 
+def _contribution_employeur_public() -> dict:
+    """Part employeur des régimes publics, indexée « régime|année »."""
+    from retraite_notionnelle.donnees.regimes import ContributionsEmployeurPubliques
+
+    table = ContributionsEmployeurPubliques(DONNEES)._table
+    return {
+        f"{regime}|{annee}": [
+            contribution.taux, contribution.nature, int(contribution.fiabilite)
+        ]
+        for regime, annees in sorted(table.items())
+        for annee, contribution in sorted(annees.items())
+    }
+
+
 def _periodes_non_travaillees() -> dict:
     """Ce qu'ouvre chaque motif d'interruption."""
     from retraite_notionnelle.donnees.chargement import charger_periodes_non_travaillees
@@ -367,6 +381,7 @@ def construire() -> bytes:
         "coefficients_minoration": _table_par_generation(CoefficientsMinoration),
         "annees_salaire_reference": _table_par_generation(AnneesSalaireReference),
         "periodes_non_travaillees": _periodes_non_travaillees(),
+        "contribution_employeur_public": _contribution_employeur_public(),
         "minimum_contributif": _minimum_contributif(),
         "minimum_garanti": _minimum_garanti(),
         "minimum_vieillesse": _minimum_vieillesse(),

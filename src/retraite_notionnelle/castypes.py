@@ -175,40 +175,40 @@ class ResultatCasTypes:
     resultats: dict[tuple[str, int], Comparaison] = field(default_factory=dict)
     echecs: dict[tuple[str, int], str] = field(default_factory=dict)
 
+    #: Les quatre grilles, dans l'ordre, avec le titre qui les introduit.
+    GRILLES = (
+        ("notionnel_retroactif",
+         "scénario 2, notionnel RÉTROACTIF"),
+        ("notionnel_prospectif",
+         "scénario 3, notionnel PROSPECTIF (bascule à l'année courante)"),
+        ("notionnel_financement_public",
+         "scénario 4, FINANCEMENT PUBLIC RÉEL porté au compte"),
+        ("notionnel_acquisition_commune",
+         "scénario 5, TAUX D'ACQUISITION COMMUN à tous"),
+    )
+
     def tableau(self, cas_types=CAS_TYPES, generations=GENERATIONS) -> str:
         lignes = [
-            "Écart de pension par rapport au système actuel — scénario notionnel RÉTROACTIF",
+            "Écart de pension par rapport au système actuel, par scénario",
             "(en euros constants ; négatif = pension plus faible qu'aujourd'hui)",
-            "",
-            f"{'Cas type':<46} " + " ".join(f"{g:>7}" for g in generations),
-            "-" * (46 + 8 * len(generations)),
         ]
-        for cas in cas_types:
-            cellules = []
-            for generation in generations:
-                comparaison = self.resultats.get((cas.code, generation))
-                if comparaison is None:
-                    cellules.append(f"{'—':>7}")
-                else:
-                    cellules.append(f"{comparaison.variation('notionnel_retroactif'):>+7.0%}")
-            lignes.append(f"{cas.libelle[:45]:<46} " + " ".join(cellules))
-
-        lignes += [
-            "",
-            "Écart de pension — scénario notionnel PROSPECTIF (bascule à l'année courante)",
-            "",
-            f"{'Cas type':<46} " + " ".join(f"{g:>7}" for g in generations),
-            "-" * (46 + 8 * len(generations)),
-        ]
-        for cas in cas_types:
-            cellules = []
-            for generation in generations:
-                comparaison = self.resultats.get((cas.code, generation))
-                if comparaison is None:
-                    cellules.append(f"{'—':>7}")
-                else:
-                    cellules.append(f"{comparaison.variation('notionnel_prospectif'):>+7.0%}")
-            lignes.append(f"{cas.libelle[:45]:<46} " + " ".join(cellules))
+        for scenario, titre in self.GRILLES:
+            lignes += [
+                "",
+                f"Écart de pension — {titre}",
+                "",
+                f"{'Cas type':<46} " + " ".join(f"{g:>7}" for g in generations),
+                "-" * (46 + 8 * len(generations)),
+            ]
+            for cas in cas_types:
+                cellules = []
+                for generation in generations:
+                    comparaison = self.resultats.get((cas.code, generation))
+                    if comparaison is None:
+                        cellules.append(f"{'—':>7}")
+                    else:
+                        cellules.append(f"{comparaison.variation(scenario):>+7.0%}")
+                lignes.append(f"{cas.libelle[:45]:<46} " + " ".join(cellules))
 
         if self.echecs:
             lignes += ["", "Cas non calculés :"]

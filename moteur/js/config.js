@@ -32,13 +32,24 @@ export const ModeIndexation = Object.freeze({
  * publique et les régimes spéciaux (11,10 %). `alignee_sur_le_prive` substitue
  * aux seconds le taux total du statut pivot privé, seul traitement qui rende
  * les statuts comparables. `exclue` conserve le taux stocké tel quel.
+ * `financement_historique` ajoute à la retenue de l'agent ce que l'employeur
+ * public a réellement versé — taux implicite de l'État de 1995 à 2005, taux
+ * appelé depuis 2006, CNRACL depuis 1948, SNCF de 2007 à 2018 : c'est le
+ * scénario 4.
  */
 export const ContributionEmployeurPublic = Object.freeze({
   EXCLUE: "exclue",
   ALIGNEE_SUR_LE_PRIVE: "alignee_sur_le_prive",
+  FINANCEMENT_HISTORIQUE: "financement_historique",
 });
 
-/** Origine du flux qui alimente le compte notionnel. */
+/**
+ * Origine du flux qui alimente le compte notionnel.
+ *
+ * `taux_uniforme` est le taux d'ACQUISITION COMMUN du scénario 5 : un seul taux
+ * pour tout le monde, prélevé une fois sur la rémunération. Ce qui est prélevé
+ * au-delà finance les engagements du passé et n'ouvre aucun droit.
+ */
 export const SourceCotisations = Object.freeze({
   TAUX_HISTORIQUES: "taux_historiques",
   TAUX_UNIFORME: "taux_uniforme",

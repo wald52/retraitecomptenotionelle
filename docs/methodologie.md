@@ -303,7 +303,7 @@ savoir qu'il traduit une hausse de prélèvement, pas un cadeau.
 
 ---
 
-## 8. Les trois scénarios
+## 8. Les cinq scénarios
 
 ### Scénario 1 — le système actuel
 
@@ -514,32 +514,117 @@ effort contributif complet à un demi-effort. À rémunération et carrière
 identiques, un fonctionnaire affichait une pension notionnelle inférieure de
 37 % à celle d'un salarié — écart qui ne traduisait aucune règle de retraite.
 
-Les périodes concernées portent désormais `perimetre_taux: agent_seul`, et le
-paramètre `traitement_contribution_employeur_etat` dit quoi en faire :
+Les périodes concernées portent `perimetre_taux: agent_seul`, et le paramètre
+`traitement_contribution_employeur_etat` dit quoi en faire :
 
-- `alignee_sur_le_prive` (défaut) leur substitue le taux total du statut pivot
-  privé de l'année. C'est déjà ce que fait la fusion des régimes après la
-  bascule, et c'est le seul traitement qui rende les 22 statuts comparables ;
-- `exclue` conserve le taux stocké, et reproduit les chiffres antérieurs.
+- `alignee_sur_le_prive` (défaut, scénarios 2 et 3) leur substitue le taux total
+  du statut pivot privé de l'année. C'est déjà ce que fait la fusion des régimes
+  après la bascule, et c'est le traitement qui rend les 22 statuts comparables à
+  effort contributif égal ;
+- `financement_historique` (scénario 4) y ajoute la contribution que l'employeur
+  public a réellement versée ;
+- `exclue` conserve le taux stocké, et reproduit les chiffres d'avant que la
+  question soit posée.
 
-**Pourquoi il n'existe pas de troisième option.** On aimerait utiliser la
-contribution employeur réelle de l'État — 74,28 % du traitement pour les
-civils. Elle n'est pas utilisable, pour deux raisons distinctes :
+**Ce que ce document affirmait, et qui était faux.** Il a longtemps soutenu
+qu'un troisième traitement était impossible, faute de série : le compte
+d'affectation spéciale « Pensions » datant de 2006, il n'y aurait rien avant.
+C'était vrai de l'État, et faux du reste.
 
-1. **Elle n'existe pas avant 2006.** Le compte d'affectation spéciale Pensions
-   a été créé par la LOLF ; auparavant les pensions étaient payées sur crédits
-   budgétaires, sans aucun taux. Il n'y a donc pas de série historique à
-   retrouver — elle n'a jamais été produite.
-2. **Depuis 2006, c'est un taux d'équilibre.** Il est recalculé chaque année
-   pour que le compte tombe juste. L'injecter dans un compte notionnel rendrait
-   le calcul circulaire : les cotisations y seraient égales aux pensions par
-   construction, et le scénario 2 afficherait mécaniquement un écart nul pour
-   les fonctionnaires. Ce ne serait pas un résultat, ce serait une tautologie.
+- La **CNRACL** est une caisse depuis 1947. Ses employeurs lui versent une
+  cotisation dont le taux est fixé par décret, et la série est publiée sans
+  interruption depuis 1948 : 12 % à l'origine, 10,2 % au creux de 1984, 34,65 %
+  en 2025. La fonction publique territoriale et hospitalière n'a jamais eu le
+  problème qu'on prêtait à toute la fonction publique.
+- L'**État** lui-même a un taux avant 2006, non pas appelé mais **reconstitué** :
+  l'annexe « pensions » au projet de loi de finances pour 2011 publie, page 26,
+  une série de « taux de cotisation employeur implicite » remontant à 1995 —
+  48,6 % en 1995, 59,4 % en 2005 — obtenue en simulant le compte du régime.
+- La **SNCF** publie par arrêté annuel les deux composantes de la contribution
+  de l'entreprise : T1, calée sur ce que coûteraient les mêmes salariés au
+  régime général et aux complémentaires du privé, et T2, qui finance les droits
+  spécifiques du régime et son déséquilibre démographique.
 
-L'alignement sur le privé est donc une convention, et elle est affichée comme
-telle. Elle répond à la question « à effort contributif égal, que donnerait la
-règle notionnelle ? », qui est la seule que ce modèle puisse honnêtement poser
-sur le secteur public.
+Reste l'objection de fond, et elle était juste : **ce sont des taux
+d'équilibre**, fixés pour que le compte tombe. 82,28 % en 2026 ne dit pas qu'un
+fonctionnaire acquiert 82 % de son traitement en droits nouveaux, mais qu'il faut
+aujourd'hui cette contribution pour payer les pensions d'aujourd'hui. Cette
+objection ne rend pas la série inutilisable : elle interdit de la lire comme un
+taux d'acquisition. D'où deux scénarios plutôt qu'un.
+
+### Scénario 4 — le financement public réel, porté au compte
+
+La retenue de l'agent, plus la contribution de l'employeur public de l'année,
+lues dans `legislation/contribution_employeur_public.csv`. Le scénario répond à
+une question précise, et à elle seule :
+
+> qu'aurait donné un compte notionnel si **tout ce qui a été consacré aux
+> pensions** avait été porté au compte des actifs ?
+
+Trois conventions à connaître.
+
+**L'assiette ne change pas.** Le taux du CAS porte sur le traitement indiciaire
+brut et la NBI, à l'exclusion des primes — exactement l'assiette
+`hors_primes` que les fiches portent déjà. Les primes relèvent du RAFP depuis
+2005, qui reste dans le compartiment de capitalisation.
+
+**Le taux retenu est celui en vigueur au 1er janvier**, comme partout ailleurs
+dans le dépôt. Deux abattements d'un mois y échappent volontairement — décembre
+2009 (40,14 %) et décembre 2013 (44,28 %) — parce qu'ils soldent l'exercice
+budgétaire et ne sont pas des taux d'appel.
+
+**Là où la série n'existe pas, le modèle le dit.** Avant 1995 pour l'État, avant
+1948 pour la CNRACL, hors 2007-2018 pour la SNCF, et pour les dix régimes
+spéciaux dont aucune série n'est publiée, le scénario retombe sur l'alignement
+du scénario 2 — jamais sur zéro, qui rendrait les scénarios incomparables — et
+la fiabilité de l'année retombe à `estimee`. Le nombre d'années concernées est
+affiché sous la simulation, et la sortie JSON le porte dans
+`annees_part_employeur`.
+
+La marche 2005 → 2006, où le taux de l'État passe de 59,4 % à 49,9 %, n'est pas
+une baisse du coût des droits : c'est un changement de mesure, le périmètre du
+taux implicite étant plus étroit que celui du CAS.
+
+### Scénario 5 — un taux d'acquisition commun à tous
+
+Un seul taux, `taux_cotisation_uniforme`, prélevé une fois sur la rémunération
+de chacun, public et privé confondus. Sa valeur par défaut, 25,31 %, est
+l'effort contributif retraite total d'un salarié du privé non cadre sous le
+plafond : le taux que le privé supporte déjà.
+
+Ce qui est prélevé au-delà — surplus du CAS, taux d'appel des complémentaires,
+composante T2 de la SNCF, contribution d'équilibre d'un régime spécial — reste
+une **contribution de transition** : elle finance les engagements hérités du
+passé et n'ouvre aucun droit nouveau. Peu importe alors que la cotisation soit
+dite salariale ou patronale ; pour le compte de l'individu, seule compte la
+somme des deux.
+
+**Une seule fois sur la rémunération, et non une fois par régime.** C'est le
+seul point technique du scénario. Les régimes se recouvrent : un cadre cotise au
+régime général et à l'Arrco sur la même première tranche, puis à l'Agirc sur la
+seconde. Sommer leurs assiettes convient à des taux distincts, chacun n'ouvrant
+droit que dans son régime ; appliquer un taux unique à cette somme le compterait
+deux fois. Le modèle réunit donc les intervalles d'assiette — par assiette de
+départ : traitement indiciaire, primes, rémunération entière — avant de
+prélever. Le compartiment de capitalisation, lui, garde ses taux propres : il
+n'est pas un compte notionnel.
+
+La contribution de transition peut être **négative**, et elle l'est pour toutes
+les carrières anciennes : leur époque cotisait bien moins que 25,31 %, si bien
+que le taux commun leur accorde des droits que leur époque n'a pas financés.
+C'est le prix d'un taux unique, et le modèle l'affiche plutôt que de le masquer.
+
+### Ce que les trois lectures mesurent, côte à côte
+
+| | Part employeur du public | Question posée |
+|---|---|---|
+| **2** | effort d'un salarié du privé de la même année | à effort contributif égal, que donnerait la règle notionnelle ? |
+| **4** | ce qui a réellement été versé | et si tout ce qui a été consacré aux pensions avait été porté au compte des actifs ? |
+| **5** | un taux commun à tous, le surplus finançant le passé | que donnerait une réforme qui fixerait un seul taux d'acquisition ? |
+
+Aucune des trois n'est la bonne réponse : ce sont trois questions différentes, et
+c'est précisément parce que la première passait pour la seule possible que le
+dépôt affirmait, à tort, que les deux autres ne l'étaient pas.
 
 ---
 

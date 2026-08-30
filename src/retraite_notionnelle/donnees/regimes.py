@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import csv
 from dataclasses import dataclass, field
 from functools import cached_property
 from pathlib import Path
@@ -222,6 +223,88 @@ class Regime:
         if annee < self.creation:
             return False
         return self.extinction is None or annee < self.extinction
+
+
+@dataclass(frozen=True)
+class ContributionEmployeur:
+    """Ce que l'employeur public a versé, une année, pour un régime."""
+
+    taux: float
+    #: ``appelee`` — taux fixé par décret ou par arrêté, effectivement prélevé.
+    #: ``implicite`` — taux reconstitué a posteriori, l'État n'appelant aucune
+    #: cotisation avant 2006.
+    nature: str
+    fiabilite: Fiabilite
+    #: Vrai si la valeur prolonge la dernière année connue au-delà de la série.
+    projetee: bool = False
+
+
+class ContributionsEmployeurPubliques:
+    """Contribution employeur des régimes publics, année par année.
+
+    Les fiches de régime ne portent, pour la fonction publique et les régimes
+    spéciaux, que la retenue de l'agent. Cette table porte l'autre moitié, pour
+    les trois régimes dont elle est publiée : l'État (reconstituée de 1995 à
+    2005, appelée depuis 2006), la CNRACL (appelée depuis 1948) et la SNCF
+    (T1 + T2, de 2007 à 2018).
+
+    Deux bornes, traitées différemment, et c'est délibéré :
+
+    * **avant** la première année d'un régime, la table ne rend rien. Il n'y a
+      rien à extrapoler : l'État ne versait aucune cotisation en 1960, et lui en
+      prêter une inventerait la donnée que tout ce fichier existe pour éviter.
+      L'appelant retombe alors sur l'alignement du scénario 2, et le sait.
+    * **après** la dernière année connue, le dernier taux est prolongé, comme
+      toute projection du modèle et avec la même conséquence : la fiabilité
+      retombe à ``estimee``. Sans cela, une carrière qui se poursuit jusqu'en
+      2060 basculerait au milieu sur une autre convention de calcul.
+    """
+
+    def __init__(self, racine: Path) -> None:
+        self._table: dict[str, dict[int, ContributionEmployeur]] = {}
+        chemin = racine / "reference" / "legislation" / "contribution_employeur_public.csv"
+        if not chemin.exists():
+            return
+        with chemin.open(encoding="utf-8") as flux:
+            lignes = (l for l in flux if not l.lstrip().startswith("#"))
+            for ligne in csv.DictReader(lignes):
+                self._table.setdefault(ligne["regime"], {})[int(ligne["annee"])] = (
+                    ContributionEmployeur(
+                        taux=float(ligne["taux"]),
+                        nature=ligne["nature"],
+                        fiabilite=Fiabilite.depuis_texte(ligne["fiabilite"]),
+                    )
+                )
+
+    def __bool__(self) -> bool:
+        return bool(self._table)
+
+    @property
+    def regimes(self) -> tuple[str, ...]:
+        return tuple(sorted(self._table))
+
+    def couverture(self, regime: str) -> tuple[int, int] | None:
+        """Première et dernière année publiées, ``None`` si le régime est absent."""
+        annees = self._table.get(regime)
+        return (min(annees), max(annees)) if annees else None
+
+    def taux(self, regime: str, annee: int) -> ContributionEmployeur | None:
+        """Contribution employeur du régime cette année-là, ``None`` si inconnue."""
+        annees = self._table.get(regime)
+        if not annees:
+            return None
+        if annee in annees:
+            return annees[annee]
+        premiere, derniere = min(annees), max(annees)
+        if annee < premiere:
+            return None
+        if annee > derniere:
+            base = annees[derniere]
+            return ContributionEmployeur(base.taux, base.nature,
+                                         Fiabilite.ESTIMEE, projetee=True)
+        # Trou interne : le taux reste en vigueur jusqu'à sa modification.
+        precedente = max(a for a in annees if a < annee)
+        return annees[precedente]
 
 
 class CatalogueRegimes:

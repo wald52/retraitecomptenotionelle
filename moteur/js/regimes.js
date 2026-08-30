@@ -818,3 +818,73 @@ export class ValeursPoint {
     return this._enVigueur(regime, "valeur_service", annee);
   }
 }
+
+/**
+ * Contribution employeur des régimes publics, année par année.
+ *
+ * Portage de ``ContributionsEmployeurPubliques`` du module Python. Les fiches
+ * de régime ne portent, pour la fonction publique et les régimes spéciaux, que
+ * la retenue de l'agent ; cette table porte l'autre moitié, pour les trois
+ * régimes dont elle est publiée — l'État (reconstituée de 1995 à 2005, appelée
+ * depuis 2006), la CNRACL (appelée depuis 1948) et la SNCF (2007-2018).
+ *
+ * Avant la première année d'un régime, la table ne rend rien : il n'y a rien à
+ * extrapoler, et l'appelant retombe sur l'alignement du scénario 2. Après la
+ * dernière, le dernier taux est prolongé, avec la fiabilité d'une projection.
+ */
+export class ContributionsEmployeurPubliques {
+  constructor(paquet) {
+    this._table = new Map();
+    for (const [cle, valeur] of Object.entries(
+      paquet.contribution_employeur_public ?? {},
+    )) {
+      const [regime, annee] = cle.split("|");
+      if (!this._table.has(regime)) {
+        this._table.set(regime, new Map());
+      }
+      this._table.get(regime).set(Number(annee), valeur);
+    }
+    this._bornes = new Map();
+    for (const [regime, annees] of this._table) {
+      const liste = [...annees.keys()].sort((a, b) => a - b);
+      this._bornes.set(regime, [liste[0], liste[liste.length - 1], liste]);
+    }
+  }
+
+  /** Première et dernière année publiées, ou ``null`` si le régime est absent. */
+  couverture(regime) {
+    const bornes = this._bornes.get(regime);
+    return bornes === undefined ? null : [bornes[0], bornes[1]];
+  }
+
+  /**
+   * Contribution employeur du régime cette année-là.
+   *
+   * @returns {[number, string, number]|null} taux, nature, fiabilité.
+   */
+  taux(regime, annee) {
+    const annees = this._table.get(regime);
+    if (annees === undefined) {
+      return null;
+    }
+    if (annees.has(annee)) {
+      return annees.get(annee);
+    }
+    const [premiere, derniere, liste] = this._bornes.get(regime);
+    if (annee < premiere) {
+      return null;
+    }
+    if (annee > derniere) {
+      const [taux, nature] = annees.get(derniere);
+      return [taux, nature, 0];
+    }
+    let applicable = premiere;
+    for (const candidate of liste) {
+      if (candidate > annee) {
+        break;
+      }
+      applicable = candidate;
+    }
+    return annees.get(applicable);
+  }
+}

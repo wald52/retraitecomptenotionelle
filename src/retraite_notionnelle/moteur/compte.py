@@ -24,7 +24,7 @@ from ..carriere import Affiliations, Carriere
 from ..config import ContributionEmployeurPublic, Parametres, SourceCotisations
 from ..donnees.chargement import Fiabilite
 from ..donnees.macro import DonneesMacro
-from ..donnees.regimes import CatalogueRegimes
+from ..donnees.regimes import CatalogueRegimes, ContributionsEmployeurPubliques
 from .fusion import RegimeFusionne
 from .indexation import Indexation
 
@@ -41,6 +41,13 @@ class CotisationAnnuelle:
     taux_effectif: float
     hors_repartition: float
     fiabilite: Fiabilite
+    #: D'où vient la part employeur des régimes à ``perimetre_taux:
+    #: agent_seul``, cette année-là. Vide si l'année n'en compte aucun ;
+    #: ``appelee`` ou ``implicite`` si la contribution réellement versée a été
+    #: trouvée ; ``repli`` si elle ne l'a pas été et que le taux du statut pivot
+    #: privé lui a été substitué. Ne vaut que dans le scénario 4 — ailleurs, la
+    #: question ne se pose pas.
+    origine_part_employeur: str = ""
 
     @property
     def nulle(self) -> bool:
@@ -72,6 +79,21 @@ class CompteNotionnel:
         versees = self.cotisations_versees
         return self.capital / versees if versees else 0.0
 
+    @property
+    def annees_part_employeur(self) -> dict[str, int]:
+        """Nombre d'années par origine de la part employeur publique.
+
+        Ce que le scénario 4 doit dire de lui-même : sur combien d'années la
+        contribution réellement versée a été trouvée, et sur combien il a fallu
+        retomber sur l'alignement du scénario 2 faute de série.
+        """
+        decompte: dict[str, int] = {}
+        for cotisation in self.cotisations:
+            if cotisation.origine_part_employeur and not cotisation.nulle:
+                origine = cotisation.origine_part_employeur
+                decompte[origine] = decompte.get(origine, 0) + 1
+        return decompte
+
 
 class ConstructeurCompte:
     """Construit un compte notionnel à partir d'une carrière."""
@@ -90,6 +112,9 @@ class ConstructeurCompte:
         self.indexation = indexation
         self.parametres = parametres
         self._taux_pivot: dict[int, float] = {}
+        self.contributions_publiques = ContributionsEmployeurPubliques(
+            parametres.racine_donnees
+        )
 
     # -- taux ----------------------------------------------------------------
 
@@ -120,23 +145,51 @@ class ConstructeurCompte:
         self._taux_pivot[annee] = total
         return total
 
-    def taux_effectif(self, periode, annee: int) -> float:
-        """Taux à porter au compte notionnel pour cette période et cette année."""
-        if self.parametres.source_cotisations is not SourceCotisations.TAUX_HISTORIQUES:
-            return self.parametres.taux_cotisation_uniforme
+    def taux_effectif(self, regime: str, periode,
+                      annee: int) -> tuple[float, str, Fiabilite]:
+        """Taux à porter au compte notionnel, d'où vient sa part employeur, et
+        ce que vaut la donnée qui la porte.
+
+        Le deuxième terme ne vaut que pour les régimes dont la fiche s'arrête à
+        la retenue de l'agent, et seulement dans le scénario 4 : il dit si la
+        contribution réellement versée par l'employeur public a été trouvée pour
+        cette année-là (``appelee``, ``implicite``) ou s'il a fallu lui
+        substituer le taux du statut pivot privé (``repli``). Le troisième
+        qualifie le résultat : la fiabilité de la série employeur quand elle a
+        servi, ``estimee`` quand il a fallu s'en passer.
+
+        Sous un taux d'acquisition commun (scénario 5), cette méthode n'est
+        appelée que pour le compartiment de capitalisation, qui garde ses taux
+        propres : les régimes en répartition sont traités en bloc, une fois
+        leurs assiettes réunies.
+        """
         taux = periode.taux_cotisation_retraite
-        aligne = (
-            self.parametres.traitement_contribution_employeur_etat
-            is ContributionEmployeurPublic.ALIGNEE_SUR_LE_PRIVE
-        )
-        if aligne and periode.perimetre_taux == "agent_seul":
+        traitement = self.parametres.traitement_contribution_employeur_etat
+        if periode.perimetre_taux != "agent_seul":
+            return taux, "", Fiabilite.CERTIFIEE
+
+        if traitement is ContributionEmployeurPublic.FINANCEMENT_HISTORIQUE:
+            # La retenue de l'agent, plus ce que l'employeur public a versé.
+            contribution = self.contributions_publiques.taux(regime, annee)
+            if contribution is not None:
+                return (taux + contribution.taux, contribution.nature,
+                        contribution.fiabilite)
+            # Aucune série pour ce régime cette année-là : plutôt que de laisser
+            # la part employeur à zéro — ce qui reviendrait au traitement EXCLUE
+            # et rendrait le scénario 4 incomparable aux autres — on retombe sur
+            # l'alignement du scénario 2. Le résultat le dit, et n'en tire pas
+            # plus de crédit qu'il n'en mérite.
+            pivot = self.taux_pivot_prive(annee)
+            return (pivot if pivot > 0 else taux), "repli", Fiabilite.ESTIMEE
+
+        if traitement is ContributionEmployeurPublic.ALIGNEE_SUR_LE_PRIVE:
             # La fiche ne porte que la retenue de l'agent : on lui substitue
             # l'effort contributif complet d'un salarié de la même année, faute
             # de quoi on comparerait un demi-effort à un effort entier.
             pivot = self.taux_pivot_prive(annee)
             if pivot > 0:
-                return pivot
-        return taux
+                return pivot, "", Fiabilite.CERTIFIEE
+        return taux, "", Fiabilite.CERTIFIEE
 
     # -- assiette ------------------------------------------------------------
 
@@ -156,6 +209,44 @@ class ConstructeurCompte:
             if plafond_global is not None:
                 plafond = min(plafond, plafond_global * pass_annuel)
         return max(0.0, min(revenu, plafond) - plancher)
+
+    @staticmethod
+    def _fusionner(bornes: list[tuple[float, float | None]]
+                   ) -> list[tuple[float, float | None]]:
+        """Réunion d'intervalles d'assiette, sans recouvrement.
+
+        Un taux d'acquisition COMMUN s'applique une fois à la rémunération, et
+        non une fois par régime. Or les régimes se recouvrent : un cadre cotise
+        au régime général et à l'Arrco sur la même première tranche, puis à
+        l'Agirc sur la seconde. Sommer leurs assiettes conviendrait à des taux
+        distincts, chacun n'ouvrant droit que dans son régime ; appliquer un taux
+        unique à cette somme le compterait deux fois. On réunit donc les
+        intervalles avant de prélever. ``None`` en borne haute vaut « sans
+        plafond de régime » — le plafond global du modèle s'applique ensuite.
+        """
+        ordonnees = sorted(bornes, key=lambda b: (b[0], b[1] is None, b[1] or 0.0))
+        fusionnees: list[tuple[float, float | None]] = []
+        for basse, haute in ordonnees:
+            if not fusionnees:
+                fusionnees.append((basse, haute))
+                continue
+            precedente_basse, precedente_haute = fusionnees[-1]
+            if precedente_haute is not None and basse > precedente_haute:
+                fusionnees.append((basse, haute))
+                continue
+            if precedente_haute is None or haute is None:
+                fusionnees[-1] = (precedente_basse, None)
+            else:
+                fusionnees[-1] = (precedente_basse, max(precedente_haute, haute))
+        return fusionnees
+
+    def _base_selon_assiette(self, assiette: str, base_ligne: float,
+                             part_primes: float) -> float:
+        if assiette == "primes_uniquement":
+            return base_ligne * part_primes
+        if assiette == "hors_primes":
+            return base_ligne * (1.0 - part_primes)
+        return base_ligne
 
     # -- cotisation d'une année ---------------------------------------------
 
@@ -195,6 +286,17 @@ class ConstructeurCompte:
         hors_repartition = 0.0
         fiabilite = Fiabilite.CERTIFIEE
         retenus: list[str] = []
+        origines: list[str] = []
+
+        # Scénario 5 : un seul taux, prélevé une fois sur la rémunération. Les
+        # régimes en répartition n'y servent plus qu'à délimiter l'assiette,
+        # qu'on réunit avant de prélever. Le compartiment de capitalisation, lui,
+        # garde ses taux propres : il n'est pas un compte notionnel, et le taux
+        # d'acquisition commun n'a rien à y voir.
+        acquisition_commune = (
+            self.parametres.source_cotisations is SourceCotisations.TAUX_UNIFORME
+        )
+        intervalles: dict[str, list[tuple[float, float | None]]] = {}
 
         for code in codes:
             if code not in self.catalogue:
@@ -203,17 +305,37 @@ class ConstructeurCompte:
             if familles_admises is not None and regime.famille not in familles_admises:
                 continue
             fiabilite = min(fiabilite, regime.fiabilite)
+            en_repartition = not (
+                regime.hors_repartition and self.parametres.isoler_capitalisation
+            )
             for periode in regime.periodes_actives(annee):
                 borne_basse, borne_haute = periode.bornes_assiette_en_euros(
                     self.macro.plafond_securite_sociale(annee)
                 )
 
-                if periode.assiette == "primes_uniquement":
-                    base = base_ligne * ligne.part_primes
-                elif periode.assiette == "hors_primes":
-                    base = base_ligne * (1.0 - ligne.part_primes)
-                else:
-                    base = base_ligne
+                base = self._base_selon_assiette(
+                    periode.assiette, base_ligne, ligne.part_primes
+                )
+
+                if acquisition_commune and en_repartition:
+                    # Regroupées par ASSIETTE DE DÉPART — traitement indiciaire,
+                    # primes, rémunération entière — et non par régime : c'est
+                    # la même rémunération qu'on découpe, et deux régimes qui la
+                    # découpent différemment doivent se réunir, pas s'ajouter.
+                    # Les planchers d'assiette propres à un régime — les 1 820
+                    # SMIC de la complémentaire agricole — ne survivent pas non
+                    # plus : un taux unique porte sur la rémunération réelle.
+                    if self._assiette(base, annee, borne_basse, borne_haute) > 0:
+                        groupe = (
+                            periode.assiette
+                            if periode.assiette in ("primes_uniquement", "hors_primes")
+                            else "total"
+                        )
+                        intervalles.setdefault(groupe, []).append(
+                            (borne_basse, borne_haute)
+                        )
+                        retenus.append(code)
+                    continue
 
                 assiette = self._assiette(base, annee, borne_basse, borne_haute)
                 repere = periode.repere_assiette(
@@ -228,7 +350,10 @@ class ConstructeurCompte:
                 if assiette <= 0:
                     continue
 
-                taux = self.taux_effectif(periode, annee)
+                taux, origine, fiabilite_taux = self.taux_effectif(code, periode, annee)
+                if origine:
+                    origines.append(origine)
+                    fiabilite = min(fiabilite, fiabilite_taux)
                 montant = assiette * taux
 
                 if regime.hors_repartition and self.parametres.isoler_capitalisation:
@@ -240,6 +365,17 @@ class ConstructeurCompte:
                     assiette_totale += assiette
                 retenus.append(code)
 
+        if acquisition_commune:
+            taux_commun = self.parametres.taux_cotisation_uniforme
+            for groupe, bornes in intervalles.items():
+                base = self._base_selon_assiette(groupe, base_ligne, ligne.part_primes)
+                for borne_basse, borne_haute in self._fusionner(bornes):
+                    assiette = self._assiette(base, annee, borne_basse, borne_haute)
+                    if assiette <= 0:
+                        continue
+                    assiette_totale += assiette
+                    cotisation += assiette * taux_commun
+
         taux_effectif = cotisation / base_ligne if base_ligne else 0.0
         return CotisationAnnuelle(
             annee=annee,
@@ -250,6 +386,12 @@ class ConstructeurCompte:
             taux_effectif=taux_effectif,
             hors_repartition=hors_repartition,
             fiabilite=fiabilite,
+            # Un même agent ne relève que d'un régime en répartition à la fois ;
+            # si deux périodes se recouvraient, le repli l'emporte, parce que
+            # c'est lui qui qualifie le résultat.
+            origine_part_employeur=(
+                "repli" if "repli" in origines else (origines[0] if origines else "")
+            ),
         )
 
     # -- accumulation --------------------------------------------------------

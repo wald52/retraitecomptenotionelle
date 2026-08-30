@@ -20,7 +20,7 @@
 # macroéconomiques de l'INSEE, interrogeable sans clé d'accès à l'adresse
 # https://api.insee.fr/series/BDM/V1/data/SERIES_BDM/<idbank>
 
-version_manifeste: "2026-08-13j"
+version_manifeste: "2026-08-30a"
 
 institutions:
 
@@ -244,6 +244,24 @@ institutions:
         acces: document
         statut_integration: saisi
         cible: data/reference/regimes/fonction_publique_etat.yaml
+
+      - id: sre_historique_taux
+        titre: Historique des taux de cotisations appelés par le CAS « Pensions »
+        url: https://retraitesdeletat.gouv.fr/files/files/Professionnels/CAS/Fiches/Historique%20taux%20cotisations.pdf
+        acces: api
+        statut_integration: certifie
+        cible: data/reference/legislation/contribution_employeur_public.csv
+        recuperation: scripts/fetch/contribution_employeur_public.py
+        note: >-
+          La fiche du SERVICE QUI APPELLE la cotisation : quatorze colonnes, une
+          par situation d'emploi, du 1er janvier 2006 au 1er janvier 2026. Le
+          modèle en retient la contribution employeur de l'État pour un agent
+          civil — 49,90 % en 2006, 74,28 % de 2013 à 2024, 78,28 % en 2025,
+          82,28 % en 2026 (décret n° 2025-1341 du 26 décembre 2025). Source
+          primaire, donc certifiable ; le récupérateur la recoupe en outre
+          contre la transcription OpenFisca des mêmes décrets. Les taux
+          militaires (126,07 %) et ceux des employeurs d'accueil ne sont pas
+          repris : le modèle ne distingue pas les corps.
 
       - id: sre_minimum_garanti
         titre: Montant du minimum garanti, article L. 17 du code des pensions
@@ -826,6 +844,25 @@ institutions:
           d'indice au 1er janvier 2004 valent 11 975,57 € par an, soit les
           997,96 € par mois que publie le Service des retraites de l'État.
           Le montant en euros, lui, ne vient pas d'ici — voir sre_minimum_garanti.
+
+      - id: openfisca_contribution_employeur_public
+        titre: Contribution employeur des régimes publics — État, CNRACL, SNCF
+        url: https://github.com/openfisca/openfisca-france/tree/master/openfisca_france/parameters/prelevements_sociaux/cotisations_secteur_public
+        acces: api
+        statut_integration: automatise
+        cible: data/reference/legislation/contribution_employeur_public.csv
+        recuperation: scripts/fetch/contribution_employeur_public.py
+        note: >-
+          Trois des quatre séries du fichier. `retraite/taux_implicite` porte le
+          taux employeur RECONSTITUÉ de l'État, 1995-2005, repris du tableau
+          p. 26 de l'annexe « pensions » au PLF 2011 — le seul document qui
+          chiffre ce que l'État consacrait à ses pensions avant qu'un taux
+          existe. `cnracl/employeur/cnracl` porte le taux réellement appelé
+          par la caisse territoriale et hospitalière depuis 1947, qui, elle,
+          n'a jamais eu ce problème. `sncf/…/cotisations_employeur/t1` et `t2`
+          portent les deux composantes de la contribution de l'entreprise,
+          2007-2018 : T1 calée sur le coût des mêmes salariés au privé, T2
+          finançant les droits spécifiques et le déséquilibre démographique.
 
       - id: openfisca_cotisations
         titre: Taux de cotisation vieillesse du régime général, 1967-2026

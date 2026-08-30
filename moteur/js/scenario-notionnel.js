@@ -40,10 +40,17 @@ export class ScenarioNotionnel {
     return carriere.sexe;
   }
 
-  // -- scénario 2 ------------------------------------------------------------
+  // -- scénarios 2, 4 et 5 ---------------------------------------------------
 
-  /** Comptes notionnels appliqués depuis l'origine de la répartition. */
-  retroactif(carriere, regimeFusionne = null) {
+  /**
+   * Comptes notionnels appliqués depuis l'origine de la répartition.
+   *
+   * Les scénarios 4 et 5 empruntent ce même chemin : ce qui les distingue du
+   * scénario 2 tient entièrement à ce qui alimente le compte, donc aux
+   * paramètres du constructeur. Seul le libellé change ici.
+   */
+  retroactif(carriere, regimeFusionne = null,
+             libelle = "Comptes notionnels rétroactifs") {
     const anneeLiquidation = carriere.anneeLiquidation;
     const ageLiquidation = carriere.age_liquidation || 0.0;
 
@@ -63,7 +70,7 @@ export class ScenarioNotionnel {
       ecart_age: this.ageReference.ecart(ageLiquidation, anneeLiquidation),
       capital_capitalisation: compte.capital_hors_repartition,
       fiabilite: Math.min(compte.fiabilite, conversion.fiabilite),
-      libelle: "Comptes notionnels rétroactifs",
+      libelle,
     });
   }
 

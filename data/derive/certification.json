@@ -37,6 +37,42 @@
    "source": "DILA, base LEGI, code de la sécurité sociale L. 161-17-3",
    "valeurs": 18
   },
+  "employeur_public_cnracl": {
+   "ajoutees": 78,
+   "corrigees": 0,
+   "empreinte": "5f73b6f1ee98c804",
+   "identiques": 0,
+   "niveau": "haute",
+   "source": "OpenFisca-France, décrets CNRACL et barèmes de la Caisse des dépôts",
+   "valeurs": 78
+  },
+  "employeur_public_etat": {
+   "ajoutees": 21,
+   "corrigees": 0,
+   "empreinte": "adce04ab61f245f8",
+   "identiques": 0,
+   "niveau": "certifiee",
+   "source": "Service des retraites de l'État, fiche « Historique des taux de cotisations »",
+   "valeurs": 21
+  },
+  "employeur_public_etat_implicite": {
+   "ajoutees": 11,
+   "corrigees": 0,
+   "empreinte": "f388868c5194a5a4",
+   "identiques": 0,
+   "niveau": "haute",
+   "source": "OpenFisca-France, taux implicite du jaune « pensions » du PLF 2011",
+   "valeurs": 11
+  },
+  "employeur_public_sncf": {
+   "ajoutees": 12,
+   "corrigees": 0,
+   "empreinte": "c1d8e81d6f45f365",
+   "identiques": 0,
+   "niveau": "haute",
+   "source": "OpenFisca-France, arrêtés annuels fixant les composantes T1 et T2",
+   "valeurs": 12
+  },
   "esperance_65_derivee": {
    "ajoutees": 0,
    "corrigees": 0,

@@ -261,6 +261,10 @@ modèle n'a pas, ou décrit un dispositif qu'il représenterait faussement.
 | Taux de cotisation, régime général | 1967-2026 | moyenne | OpenFisca-France, recoupé à chaque exécution |
 | Taux de cotisation, complémentaires du privé | Arrco 1962-2018, Agirc 1981-2018, Agirc-Arrco 2019- | moyenne | OpenFisca-France, taux effectifs par tranche, recoupés à chaque exécution |
 | Taux de cotisation, autres régimes | tous | moyenne / estimée | Comptes de la Sécurité sociale |
+| Contribution employeur, État | 2006-2026 | **certifiée** | Service des retraites de l'État, fiche « Historique des taux de cotisations » |
+| Contribution employeur, État (implicite) | 1995-2005 | haute | OpenFisca-France, jaune « pensions » du PLF 2011 |
+| Contribution employeur, CNRACL | 1948-2025 | haute | OpenFisca-France, décrets et barèmes de la Caisse des dépôts |
+| Contribution employeur, SNCF (T1 + T2) | 2007-2018 | haute | OpenFisca-France, arrêtés annuels |
 | Valeurs d'achat et de service du point, Ircantec | 1971-2021 | **certifiée** | Caisse des dépôts, qui gère le régime |
 | Valeurs d'achat et de service du point, autres | Agirc 1947-2018, Arrco 1949-2018, Agirc-Arrco 2019-2025, RAFP 2005-2021, RCI 2013-2023 | haute | OpenFisca-France-Pension, recoupé à l'INSEE depuis 2001 |
 | Valeurs du point, Arrco avant 1999 | 1949-1998 | moyenne | UNIRS, la plus grosse caisse Arrco |
@@ -536,7 +540,10 @@ plus volontiers.
   l'agent seule », lui, y est très sensible — +11 à +14 % sur la pension
   notionnelle des générations 1940 et 1960 pour ce même point — ce qui est une
   raison de plus de ne pas en faire le défaut, et de lire ses résultats en
-  sachant sur quoi ils reposent.
+  sachant sur quoi ils reposent. Le **scénario 4** y est sensible aussi, mais
+  autrement : il ajoute à la retenue de la fiche une contribution employeur
+  qui, elle, est datée décret par décret, si bien que l'incertitude de la fiche
+  n'y pèse plus que pour un dixième du taux total.
 * *Valeur du point de la MSA* — **trouvée, après huit sources infructueuses.**
   Ont été essayés sans succès : OpenFisca-France-Pension (ne modélise pas ce
   régime), les barèmes IPP (même périmètre — c'est la source amont d'OpenFisca,
@@ -900,6 +907,26 @@ un chiffre plus précis d'apparence et pas davantage de vérité.
 Le catalogue compte **37 régimes**, actuels et disparus. Il est structurellement
 extensible : ajouter un régime consiste à écrire une fiche YAML conforme à
 `data/reference/regimes/_schema.yaml`, sans toucher au moteur.
+
+### Ce que le scénario 4 ne couvre pas
+
+Le scénario 4 porte au compte la contribution que l'employeur public a
+réellement versée. Elle n'est publiée que pour trois régimes, et pas sur toute
+leur durée. Partout ailleurs, le scénario retombe sur l'alignement du scénario 2
+— jamais sur zéro, qui rendrait les scénarios incomparables — la fiabilité de
+l'année retombe à `estimee`, et le nombre d'années concernées est affiché sous
+la simulation.
+
+| Régime | Couvert | Découvert | Ce qui manque |
+|---|---|---|---|
+| Fonction publique d'État | 1995-2026 | 1930-1994 | rien à retrouver : l'État ne versait aucune cotisation, les pensions étaient payées sur crédits budgétaires, et le plus ancien chiffrage a posteriori — le jaune « pensions » — s'arrête à 1995 |
+| CNRACL | 1948-2025 | 1945-1947 | le décret fondateur date du 19 septembre 1947 ; la convention « taux au 1er janvier » fait donc commencer la série en 1948 |
+| SNCF | 2007-2018 | 1930-2006, 2019- | les composantes T1 et T2 datent du décret du 28 juin 2007 ; OpenFisca cesse de les suivre après la fermeture du régime aux nouveaux entrants |
+| FSPOEIE, RATP, IEG, marins, mines, CRPCEN, Banque de France, Opéra, Comédie-Française, port de Strasbourg, SEITA, chemins de fer secondaires | rien | tout | aucune série de taux employeur publiée sous une forme exploitable. Pour ces douze régimes, le scénario 4 rend exactement le scénario 2, et le dit |
+
+Une conséquence à garder en tête : **plus une carrière publique est ancienne,
+moins le scénario 4 s'écarte du scénario 2**, non parce que le financement
+d'alors ressemblait à celui du privé, mais parce qu'on ne le connaît pas.
 
 ---
 

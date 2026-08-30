@@ -610,6 +610,75 @@ def source_plafond_ancien() -> dict[tuple, float]:
     }
 
 
+def _contributions_employeur(nom: str) -> dict[str, float]:
+    """Une des quatre séries de contribution employeur publique."""
+    chemin = BRUT / "contribution_employeur_public.json"
+    if not chemin.exists():
+        raise SourceAbsente(
+            f"{chemin} absent "
+            "(lancer scripts/fetch/contribution_employeur_public.py)"
+        )
+    return json.loads(chemin.read_text(encoding="utf-8"))["series"][nom]
+
+
+def source_employeur_etat_appele() -> dict[tuple, float]:
+    """Contribution employeur de l'État appelée depuis 2006, agents civils.
+
+    Fiche « Historique des taux de cotisations » du Service des retraites de
+    l'État, qui appelle la cotisation : source PRIMAIRE, donc certifiable. Le
+    script de récupération la recoupe année par année contre la transcription
+    OpenFisca des mêmes décrets.
+    """
+    return {
+        (annee, "fonction_publique_etat"): taux
+        for annee, taux in sorted(
+            _contributions_employeur("fonction_publique_etat_explicite").items())
+    }
+
+
+def source_employeur_etat_implicite() -> dict[tuple, float]:
+    """Taux de cotisation employeur IMPLICITE de l'État, 1995-2005.
+
+    Reconstitution publiée par l'annexe « pensions » au projet de loi de
+    finances pour 2011, transcrite par OpenFisca. Deux raisons de ne pas
+    dépasser `haute` : ce n'est pas le producteur qui la sert, et ce n'est pas
+    un taux appelé mais une simulation du compte du régime, sur un périmètre
+    plus étroit que celui du CAS.
+    """
+    return {
+        (annee, "fonction_publique_etat"): taux
+        for annee, taux in sorted(
+            _contributions_employeur("fonction_publique_etat_implicite").items())
+    }
+
+
+def source_employeur_cnracl() -> dict[tuple, float]:
+    """Contribution employeur à la CNRACL, depuis 1948.
+
+    La fonction publique territoriale et hospitalière n'a jamais eu le problème
+    de l'État : ses employeurs cotisent à une caisse, dont le taux est fixé par
+    décret depuis 1947. Transcription OpenFisca des décrets et des barèmes de la
+    Caisse des dépôts : niveau `haute`.
+    """
+    return {
+        (annee, "cnracl"): taux
+        for annee, taux in sorted(_contributions_employeur("cnracl").items())
+    }
+
+
+def source_employeur_sncf() -> dict[tuple, float]:
+    """Contribution employeur de la SNCF, T1 + T2, 2007-2018.
+
+    T1 est calée sur ce que coûteraient les mêmes salariés au régime général et
+    aux complémentaires du privé ; T2 finance les droits spécifiques du régime
+    et son déséquilibre démographique. Leur somme est ce que l'entreprise verse.
+    """
+    return {
+        (annee, "sncf"): taux
+        for annee, taux in sorted(_contributions_employeur("sncf").items())
+    }
+
+
 # ---------------------------------------------------------------------------
 # Contrôles de certification
 # ---------------------------------------------------------------------------
@@ -1015,6 +1084,60 @@ CERTIFICATIONS = (
             "# Fichier écrit par scripts/verifier_donnees.py --appliquer : ne pas",
             "# modifier à la main.",
         ),
+    ),
+    # -- contribution employeur des régimes publics --------------------------
+    # Quatre séries dans un seul fichier, de trois niveaux différents : le taux
+    # appelé par l'État depuis 2006 vient de son producteur et se certifie ; le
+    # taux implicite d'avant 2006 est une reconstitution budgétaire transcrite
+    # par un tiers ; la CNRACL et la SNCF sont des transcriptions de décrets et
+    # d'arrêtés. Le fichier est créé par la première d'entre elles.
+    Certification(
+        nom="employeur_public_etat",
+        chemin=REFERENCE / "legislation" / "contribution_employeur_public.csv",
+        cles=("annee", "regime"),
+        colonne="taux",
+        source=source_employeur_etat_appele,
+        origine="Service des retraites de l'État, fiche « Historique des taux "
+                "de cotisations »",
+        decimales=6,
+        tolerance=5e-7,
+        gabarit={"nature": "appelee"},
+    ),
+    Certification(
+        nom="employeur_public_etat_implicite",
+        chemin=REFERENCE / "legislation" / "contribution_employeur_public.csv",
+        cles=("annee", "regime"),
+        colonne="taux",
+        source=source_employeur_etat_implicite,
+        origine="OpenFisca-France, taux implicite du jaune « pensions » du PLF 2011",
+        decimales=6,
+        tolerance=5e-7,
+        niveau="haute",
+        gabarit={"nature": "implicite"},
+    ),
+    Certification(
+        nom="employeur_public_cnracl",
+        chemin=REFERENCE / "legislation" / "contribution_employeur_public.csv",
+        cles=("annee", "regime"),
+        colonne="taux",
+        source=source_employeur_cnracl,
+        origine="OpenFisca-France, décrets CNRACL et barèmes de la Caisse des dépôts",
+        decimales=6,
+        tolerance=5e-7,
+        niveau="haute",
+        gabarit={"nature": "appelee"},
+    ),
+    Certification(
+        nom="employeur_public_sncf",
+        chemin=REFERENCE / "legislation" / "contribution_employeur_public.csv",
+        cles=("annee", "regime"),
+        colonne="taux",
+        source=source_employeur_sncf,
+        origine="OpenFisca-France, arrêtés annuels fixant les composantes T1 et T2",
+        decimales=6,
+        tolerance=5e-7,
+        niveau="haute",
+        gabarit={"nature": "appelee"},
     ),
 )
 

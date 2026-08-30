@@ -14,6 +14,7 @@
 
 import { SourceCotisations, ContributionEmployeurPublic,
 } from "./config.js";
+import { ContributionsEmployeurPubliques } from "./regimes.js";
 import { Fiabilite } from "./serie.js";
 
 /** Construit un compte notionnel à partir d'une carrière. */
@@ -25,6 +26,7 @@ export class ConstructeurCompte {
     this.indexation = indexation;
     this.parametres = parametres;
     this._tauxPivot = new Map();
+    this.contributionsPubliques = new ContributionsEmployeurPubliques(macro.paquet);
   }
 
   // -- taux ------------------------------------------------------------------
@@ -62,22 +64,87 @@ export class ConstructeurCompte {
     return total;
   }
 
-  /** Taux à porter au compte notionnel pour cette période et cette année. */
-  tauxEffectif(periode, annee) {
-    if (this.parametres.source_cotisations !== SourceCotisations.TAUX_HISTORIQUES) {
-      return this.parametres.taux_cotisation_uniforme;
+  /**
+   * Taux à porter au compte notionnel, d'où vient sa part employeur, et ce que
+   * vaut la donnée qui la porte.
+   *
+   * Sous un taux d'acquisition commun (scénario 5), cette méthode n'est appelée
+   * que pour le compartiment de capitalisation, qui garde ses taux propres.
+   *
+   * @returns {[number, string, number]} taux, origine, fiabilité.
+   */
+  tauxEffectif(regime, periode, annee) {
+    const taux = periode.taux_cotisation_retraite;
+    const traitement = this.parametres.traitement_contribution_employeur_etat;
+    if (periode.perimetre_taux !== "agent_seul") {
+      return [taux, "", Fiabilite.CERTIFIEE];
     }
-    const aligne = this.parametres.traitement_contribution_employeur_etat
-      === ContributionEmployeurPublic.ALIGNEE_SUR_LE_PRIVE;
-    if (aligne && periode.perimetre_taux === "agent_seul") {
+
+    if (traitement === ContributionEmployeurPublic.FINANCEMENT_HISTORIQUE) {
+      // La retenue de l'agent, plus ce que l'employeur public a versé.
+      const contribution = this.contributionsPubliques.taux(regime, annee);
+      if (contribution !== null) {
+        return [taux + contribution[0], contribution[1], contribution[2]];
+      }
+      // Aucune série pour ce régime cette année-là : on retombe sur
+      // l'alignement du scénario 2, et le résultat le dit.
+      const pivot = this.tauxPivotPrive(annee);
+      return [pivot > 0 ? pivot : taux, "repli", Fiabilite.ESTIMEE];
+    }
+
+    if (traitement === ContributionEmployeurPublic.ALIGNEE_SUR_LE_PRIVE) {
       // La fiche ne porte que la retenue de l'agent : on lui substitue l'effort
       // contributif complet d'un salarié de la même année.
       const pivot = this.tauxPivotPrive(annee);
       if (pivot > 0) {
-        return pivot;
+        return [pivot, "", Fiabilite.CERTIFIEE];
       }
     }
-    return periode.taux_cotisation_retraite;
+    return [taux, "", Fiabilite.CERTIFIEE];
+  }
+
+  /**
+   * Réunion d'intervalles d'assiette, sans recouvrement.
+   *
+   * Un taux d'acquisition commun s'applique une fois à la rémunération, et non
+   * une fois par régime : les régimes qui découpent la même tranche doivent se
+   * réunir, pas s'ajouter. ``null`` en borne haute vaut « sans plafond de
+   * régime » — le plafond global du modèle s'applique ensuite.
+   */
+  static fusionner(bornes) {
+    const ordonnees = [...bornes].sort((a, b) => (
+      a[0] - b[0]
+      || (a[1] === null ? 1 : 0) - (b[1] === null ? 1 : 0)
+      || (a[1] ?? 0) - (b[1] ?? 0)
+    ));
+    const fusionnees = [];
+    for (const [basse, haute] of ordonnees) {
+      if (fusionnees.length === 0) {
+        fusionnees.push([basse, haute]);
+        continue;
+      }
+      const [precedenteBasse, precedenteHaute] = fusionnees[fusionnees.length - 1];
+      if (precedenteHaute !== null && basse > precedenteHaute) {
+        fusionnees.push([basse, haute]);
+      } else if (precedenteHaute === null || haute === null) {
+        fusionnees[fusionnees.length - 1] = [precedenteBasse, null];
+      } else {
+        fusionnees[fusionnees.length - 1] = [
+          precedenteBasse, Math.max(precedenteHaute, haute),
+        ];
+      }
+    }
+    return fusionnees;
+  }
+
+  _baseSelonAssiette(assiette, baseLigne, partPrimes) {
+    if (assiette === "primes_uniquement") {
+      return baseLigne * partPrimes;
+    }
+    if (assiette === "hors_primes") {
+      return baseLigne * (1.0 - partPrimes);
+    }
+    return baseLigne;
   }
 
   // -- assiette --------------------------------------------------------------
@@ -113,7 +180,7 @@ export class ConstructeurCompte {
       return {
         annee, revenu: 0.0, assiette_retenue: 0.0, cotisation: 0.0,
         regimes: [], taux_effectif: 0.0, hors_repartition: 0.0,
-        fiabilite: Fiabilite.CERTIFIEE, nulle: true,
+        fiabilite: Fiabilite.CERTIFIEE, nulle: true, origine_part_employeur: "",
       };
     }
 
@@ -128,6 +195,7 @@ export class ConstructeurCompte {
         annee, revenu: ligne.revenu, assiette_retenue: assiette, cotisation,
         regimes: ["regime_unifie"], taux_effectif: taux, hors_repartition: 0.0,
         fiabilite: regimeFusionne.fiabilite, nulle: cotisation <= 0,
+        origine_part_employeur: "",
       };
     }
 
@@ -142,6 +210,15 @@ export class ConstructeurCompte {
     let horsRepartition = 0.0;
     let fiabilite = Fiabilite.CERTIFIEE;
     const retenus = [];
+    const origines = [];
+
+    // Scénario 5 : un seul taux, prélevé une fois sur la rémunération. Les
+    // régimes en répartition n'y servent plus qu'à délimiter l'assiette, qu'on
+    // réunit avant de prélever. Le compartiment de capitalisation garde ses
+    // taux propres.
+    const acquisitionCommune = this.parametres.source_cotisations
+      === SourceCotisations.TAUX_UNIFORME;
+    const intervalles = new Map();
 
     for (const code of codes) {
       if (!this.catalogue.contient(code)) {
@@ -152,18 +229,33 @@ export class ConstructeurCompte {
         continue;
       }
       fiabilite = Math.min(fiabilite, regime.fiabilite);
+      const enRepartition = !(
+        regime.hors_repartition && this.parametres.isoler_capitalisation
+      );
       for (const periode of regime.periodesActives(annee)) {
         const [borneBasse, borneHaute] = periode.bornesAssietteEnEuros(
           this.macro.plafond_securite_sociale.valeur(annee),
         );
 
-        let base;
-        if (periode.assiette === "primes_uniquement") {
-          base = baseLigne * ligne.part_primes;
-        } else if (periode.assiette === "hors_primes") {
-          base = baseLigne * (1.0 - ligne.part_primes);
-        } else {
-          base = baseLigne;
+        const base = this._baseSelonAssiette(
+          periode.assiette, baseLigne, ligne.part_primes,
+        );
+
+        if (acquisitionCommune && enRepartition) {
+          // Regroupées par ASSIETTE DE DÉPART, et non par régime : c'est la
+          // même rémunération qu'on découpe. Les planchers d'assiette propres à
+          // un régime ne survivent pas non plus : un taux unique porte sur la
+          // rémunération réelle.
+          if (this._assiette(base, annee, borneBasse, borneHaute) > 0) {
+            const groupe = (periode.assiette === "primes_uniquement"
+              || periode.assiette === "hors_primes") ? periode.assiette : "total";
+            if (!intervalles.has(groupe)) {
+              intervalles.set(groupe, []);
+            }
+            intervalles.get(groupe).push([borneBasse, borneHaute]);
+            retenus.push(code);
+          }
+          continue;
         }
 
         let assiette = this._assiette(base, annee, borneBasse, borneHaute);
@@ -181,7 +273,11 @@ export class ConstructeurCompte {
           continue;
         }
 
-        const taux = this.tauxEffectif(periode, annee);
+        const [taux, origine, fiabiliteTaux] = this.tauxEffectif(code, periode, annee);
+        if (origine) {
+          origines.push(origine);
+          fiabilite = Math.min(fiabilite, fiabiliteTaux);
+        }
         const montant = assiette * taux;
 
         if (regime.hors_repartition && this.parametres.isoler_capitalisation) {
@@ -196,6 +292,21 @@ export class ConstructeurCompte {
       }
     }
 
+    if (acquisitionCommune) {
+      const tauxCommun = this.parametres.taux_cotisation_uniforme;
+      for (const [groupe, bornes] of intervalles) {
+        const base = this._baseSelonAssiette(groupe, baseLigne, ligne.part_primes);
+        for (const [borneBasse, borneHaute] of ConstructeurCompte.fusionner(bornes)) {
+          const assiette = this._assiette(base, annee, borneBasse, borneHaute);
+          if (assiette <= 0) {
+            continue;
+          }
+          assietteTotale += assiette;
+          cotisation += assiette * tauxCommun;
+        }
+      }
+    }
+
     return {
       annee,
       revenu: baseLigne,
@@ -206,6 +317,10 @@ export class ConstructeurCompte {
       hors_repartition: horsRepartition,
       fiabilite,
       nulle: cotisation <= 0,
+      // Un même agent ne relève que d'un régime en répartition à la fois ; si
+      // deux périodes se recouvraient, le repli l'emporte.
+      origine_part_employeur: origines.includes("repli")
+        ? "repli" : (origines[0] ?? ""),
     };
   }
 
@@ -248,6 +363,16 @@ export class ConstructeurCompte {
     }
 
     const cotisationsVersees = cotisations.reduce((total, c) => total + c.cotisation, 0.0);
+    // Ce que le scénario 4 doit dire de lui-même : sur combien d'années la
+    // contribution employeur réelle a été trouvée, et sur combien il a fallu
+    // retomber sur l'alignement du scénario 2 faute de série.
+    const anneesPartEmployeur = {};
+    for (const detail of cotisations) {
+      if (detail.origine_part_employeur && !detail.nulle) {
+        const origine = detail.origine_part_employeur;
+        anneesPartEmployeur[origine] = (anneesPartEmployeur[origine] ?? 0) + 1;
+      }
+    }
     return {
       capital,
       capital_hors_repartition: capitalHors,
@@ -259,6 +384,7 @@ export class ConstructeurCompte {
       annees_cotisees: cotisations.filter((c) => !c.nulle).length,
       /** Rapport entre capital revalorisé et cotisations versées. */
       rendement_cumule: cotisationsVersees ? capital / cotisationsVersees : 0.0,
+      annees_part_employeur: anneesPartEmployeur,
     };
   }
 }

@@ -1,4 +1,4 @@
-"""Scénarios 2 et 3 — les comptes notionnels.
+"""Scénarios 2 à 5 — les comptes notionnels.
 
 **Scénario 2, rétroactif.** Le compte notionnel est ouvert à l'entrée dans la
 vie active, ou à l'année d'origine de la répartition si la carrière a commencé
@@ -31,6 +31,31 @@ capital d'ouverture minoré du rapport des diviseurs — l'anticipation est pay�
 une seconde fois, sur le passé. À l'âge effectif de liquidation, la conversion
 est neutre. Le paramètre :attr:`Parametres.age_conversion_droits_acquis` permet
 de mesurer l'écart entre les deux conventions.
+
+**Scénarios 4 et 5 : ce que le public verse, et ce qu'il acquerrait.** Ils
+reprennent exactement le calcul du scénario 2 — même carrière, même indexation,
+même liquidation — et ne changent que le flux qui alimente le compte. Ils
+existent parce que la question de la part employeur des régimes publics n'a pas
+une réponse mais deux, qui ne mesurent pas la même chose.
+
+*Scénario 4, financement historique.* La contribution réellement versée par
+l'employeur public s'ajoute à la retenue de l'agent : taux implicite de l'État
+de 1995 à 2005, taux appelé par le compte d'affectation spéciale depuis 2006,
+taux CNRACL depuis 1948, T1 + T2 de la SNCF de 2007 à 2018. Il répond à :
+« qu'aurait donné un compte notionnel si tout ce qui a été consacré aux pensions
+avait été porté au compte des actifs ? » Le chiffre est spectaculaire, et c'est
+son défaut : un taux d'équilibre de 82 % transforme en droits individuels une
+contribution destinée à payer les retraités du moment.
+
+*Scénario 5, taux d'acquisition commun.* Un seul taux pour tout le monde, public
+et privé — celui que le privé supporte déjà. Ce qui est prélevé au-delà, surplus
+du CAS, taux d'appel des complémentaires, contribution d'équilibre d'un régime
+spécial, reste une contribution de transition et n'ouvre aucun droit. C'est la
+lecture qu'une réforme retiendrait : peu importe alors que la cotisation soit
+dite salariale ou patronale, seule compte la somme des deux.
+
+Entre les deux, le scénario 2 tient une position intermédiaire : il aligne le
+public sur l'effort du privé, mais laisse au privé ses taux historiques.
 """
 
 from __future__ import annotations
@@ -131,8 +156,15 @@ class ScenarioNotionnel:
     # -- scénario 2 ----------------------------------------------------------
 
     def retroactif(self, carriere: Carriere,
-                   regime_fusionne: RegimeFusionne | None = None) -> ResultatNotionnel:
-        """Comptes notionnels appliqués depuis l'origine de la répartition."""
+                   regime_fusionne: RegimeFusionne | None = None,
+                   libelle: str = "Comptes notionnels rétroactifs") -> ResultatNotionnel:
+        """Comptes notionnels appliqués depuis l'origine de la répartition.
+
+        Les scénarios 4 et 5 empruntent ce même chemin : ce qui les distingue du
+        scénario 2 tient entièrement à ce qui alimente le compte, donc aux
+        paramètres du constructeur, et non au calcul de la pension. Seul le
+        libellé change ici.
+        """
         annee_liquidation = carriere.annee_liquidation
         age_liquidation = carriere.age_liquidation or 0.0
 
@@ -156,7 +188,7 @@ class ScenarioNotionnel:
             ecart_age=self.age_reference.ecart(age_liquidation, annee_liquidation),
             capital_capitalisation=compte.capital_hors_repartition,
             fiabilite=min(compte.fiabilite, conversion.fiabilite),
-            libelle="Comptes notionnels rétroactifs",
+            libelle=libelle,
         )
 
     # -- scénario 3 ----------------------------------------------------------

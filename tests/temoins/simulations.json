@@ -43,6 +43,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 393281.72202653706,
+    "annees_par_origine": {},
+    "part_transition": -0.0018649428189493717,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -732.0826310717384,
+    "versee": 392549.6393954653
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -111,7 +119,38 @@
      "taux_remplacement": 0.5227751582739286,
      "total_contributif": 39364.238773130215
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 443320.4825571974,
+     "cotisations_versees": 393281.72202653706,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17173.87610541216,
+     "pension_annuelle_euros_constants": 13706.32081505217,
+     "pension_mensuelle": 1431.15634211768,
+     "rendement_cumule": 1.1272338828075106,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.2280769571317625,
+     "variation_vs_actuel": -0.5637188310844476
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 441878.0871816279,
+     "cotisations_versees": 392549.6393954653,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17117.99887787654,
+     "pension_annuelle_euros_constants": 13661.72568683778,
+     "pension_mensuelle": 1426.4999064897117,
+     "rendement_cumule": 1.1256616815700797,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.22733488190360435,
+     "variation_vs_actuel": -0.5651383232244496
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 432389.314741273,
      "capital_notionnel": 645355.3438350847,
      "cotisations_versees": 199632.9231365155,
@@ -133,6 +172,7 @@
      "variation_vs_actuel": -0.36489200284594914
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 441878.0871816279,
      "cotisations_versees": 392549.6393954653,
@@ -198,6 +238,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 393281.72202653706,
+    "annees_par_origine": {},
+    "part_transition": -0.0018649428189493717,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -732.0826310717384,
+    "versee": 392549.6393954653
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -266,7 +314,38 @@
      "taux_remplacement": 0.5227751582739286,
      "total_contributif": 39364.238773130215
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 443320.4825571974,
+     "cotisations_versees": 393281.72202653706,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17173.87610541216,
+     "pension_annuelle_euros_constants": 13706.32081505217,
+     "pension_mensuelle": 1431.15634211768,
+     "rendement_cumule": 1.1272338828075106,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.2280769571317625,
+     "variation_vs_actuel": -0.5637188310844476
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 441878.0871816279,
+     "cotisations_versees": 392549.6393954653,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17117.99887787654,
+     "pension_annuelle_euros_constants": 13661.72568683778,
+     "pension_mensuelle": 1426.4999064897117,
+     "rendement_cumule": 1.1256616815700797,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.22733488190360435,
+     "variation_vs_actuel": -0.5651383232244496
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 432389.314741273,
      "capital_notionnel": 645355.3438350847,
      "cotisations_versees": 199632.9231365155,
@@ -288,6 +367,7 @@
      "variation_vs_actuel": -0.36489200284594914
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 441878.0871816279,
      "cotisations_versees": 392549.6393954653,
@@ -353,6 +433,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 578428.7808350989,
+    "annees_par_origine": {},
+    "part_transition": -1.2618409294012507,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -322695.15548761736,
+    "versee": 255733.62534748155
+   },
    "regime_fusionne": {
     "age_ouverture": 65.0,
     "age_taux_plein": 67.0,
@@ -424,7 +512,38 @@
      "taux_remplacement": 0.5036458550912388,
      "total_contributif": 56969.13661526659
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 673190.780387662,
+     "cotisations_versees": 578428.7808350989,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 24926.769785825632,
+     "pension_annuelle_euros_constants": 15335.654003209125,
+     "pension_mensuelle": 2077.2308154854695,
+     "rendement_cumule": 1.1638265637746303,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.22036957253237213,
+     "variation_vs_actuel": -0.5624513330057075
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 297629.58642978815,
+     "cotisations_versees": 255733.62534748155,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 11020.567123800429,
+     "pension_annuelle_euros_constants": 6780.1646896843195,
+     "pension_mensuelle": 918.3805936500357,
+     "rendement_cumule": 1.1638265637746303,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.09742929737800254,
+     "variation_vs_actuel": -0.8065519721980983
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 297629.58642978815,
      "cotisations_versees": 255733.62534748155,
@@ -439,6 +558,7 @@
      "variation_vs_actuel": -0.8065519721980983
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 297629.58642978815,
      "cotisations_versees": 255733.62534748155,
@@ -504,6 +624,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 578428.7808350989,
+    "annees_par_origine": {},
+    "part_transition": -0.5480122324159017,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -204769.7303944087,
+    "versee": 373659.05044069025
+   },
    "regime_fusionne": {
     "age_ouverture": 65.0,
     "age_taux_plein": 67.0,
@@ -574,7 +702,38 @@
      "taux_remplacement": 0.5036458550912388,
      "total_contributif": 56969.13661526659
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 673190.780387662,
+     "cotisations_versees": 578428.7808350989,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 24926.769785825632,
+     "pension_annuelle_euros_constants": 15335.654003209125,
+     "pension_mensuelle": 2077.2308154854695,
+     "rendement_cumule": 1.1638265637746303,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.22036957253237213,
+     "variation_vs_actuel": -0.5624513330057075
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 434874.3286976798,
+     "cotisations_versees": 373659.05044069025,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 16102.437218421539,
+     "pension_annuelle_euros_constants": 9906.674948734462,
+     "pension_mensuelle": 1341.8697682017948,
+     "rendement_cumule": 1.1638265637746303,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.14235648008314045,
+     "variation_vs_actuel": -0.7173480558926637
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 434874.3286976798,
      "cotisations_versees": 373659.05044069025,
@@ -589,6 +748,7 @@
      "variation_vs_actuel": -0.7173480558926637
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 434874.3286976798,
      "cotisations_versees": 373659.05044069025,
@@ -654,6 +814,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 578428.7808350989,
+    "annees_par_origine": {},
+    "part_transition": 0.01326444999404963,
+    "taux_acquisition_commun": 0.2531,
+    "transition": 7775.679753769888,
+    "versee": 586204.4605888688
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -722,7 +890,38 @@
      "taux_remplacement": 0.5036458550912388,
      "total_contributif": 56969.13661526659
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 673190.780387662,
+     "cotisations_versees": 578428.7808350989,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 24926.769785825632,
+     "pension_annuelle_euros_constants": 15335.654003209125,
+     "pension_mensuelle": 2077.2308154854695,
+     "rendement_cumule": 1.1638265637746303,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.22036957253237213,
+     "variation_vs_actuel": -0.5624513330057075
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 681913.5468889903,
+     "cotisations_versees": 586204.4605888688,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 25249.754590146502,
+     "pension_annuelle_euros_constants": 15534.363392749668,
+     "pension_mensuelle": 2104.146215845542,
+     "rendement_cumule": 1.1632691197947853,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.2232249775396874,
+     "variation_vs_actuel": -0.5567818631223547
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 203939.5379940996,
      "capital_notionnel": 758322.0531649184,
      "cotisations_versees": 491528.41385483235,
@@ -744,6 +943,7 @@
      "variation_vs_actuel": -0.5071192102131674
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 681913.5468889903,
      "cotisations_versees": 586204.4605888688,
@@ -809,6 +1009,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 578428.7808350989,
+    "annees_par_origine": {},
+    "part_transition": 0.01326444999404963,
+    "taux_acquisition_commun": 0.2531,
+    "transition": 7775.679753769888,
+    "versee": 586204.4605888688
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -877,7 +1085,38 @@
      "taux_remplacement": 0.5036458550912388,
      "total_contributif": 56969.13661526659
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 673190.780387662,
+     "cotisations_versees": 578428.7808350989,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 24926.769785825632,
+     "pension_annuelle_euros_constants": 15335.654003209125,
+     "pension_mensuelle": 2077.2308154854695,
+     "rendement_cumule": 1.1638265637746303,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.22036957253237213,
+     "variation_vs_actuel": -0.5624513330057075
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 681913.5468889903,
+     "cotisations_versees": 586204.4605888688,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 25249.754590146502,
+     "pension_annuelle_euros_constants": 15534.363392749668,
+     "pension_mensuelle": 2104.146215845542,
+     "rendement_cumule": 1.1632691197947853,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.2232249775396874,
+     "variation_vs_actuel": -0.5567818631223547
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 591859.1276374261,
      "capital_notionnel": 931369.810323715,
      "cotisations_versees": 316933.84571151785,
@@ -899,6 +1138,7 @@
      "variation_vs_actuel": -0.39464468192628066
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 681913.5468889903,
      "cotisations_versees": 586204.4605888688,
@@ -964,6 +1204,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 578428.7808350989,
+    "annees_par_origine": {},
+    "part_transition": 0.008954402072810792,
+    "taux_acquisition_commun": 0.2531,
+    "transition": 5226.2821054009255,
+    "versee": 583655.0629404999
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -1032,7 +1280,38 @@
      "taux_remplacement": 0.5036458550912388,
      "total_contributif": 56969.13661526659
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 673190.780387662,
+     "cotisations_versees": 578428.7808350989,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 24926.769785825632,
+     "pension_annuelle_euros_constants": 15335.654003209125,
+     "pension_mensuelle": 2077.2308154854695,
+     "rendement_cumule": 1.1638265637746303,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.22036957253237213,
+     "variation_vs_actuel": -0.5624513330057075
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 679271.6434913466,
+     "cotisations_versees": 583655.0629404999,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 25151.93073440158,
+     "pension_annuelle_euros_constants": 15474.179389051884,
+     "pension_mensuelle": 2095.994227866798,
+     "rendement_cumule": 1.1638237832961182,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.22236014822328576,
+     "variation_vs_actuel": -0.5584990008842547
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 1538550.6371487663,
      "capital_notionnel": 1538550.6371487663,
      "cotisations_versees": 0,
@@ -1047,6 +1326,7 @@
      "variation_vs_actuel": 0.0
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 679271.6434913466,
      "cotisations_versees": 583655.0629404999,
@@ -1112,6 +1392,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 393281.72202653706,
+    "annees_par_origine": {},
+    "part_transition": -0.0018649428189493717,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -732.0826310717384,
+    "versee": 392549.6393954653
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -1180,7 +1468,38 @@
      "taux_remplacement": 0.5227751582739286,
      "total_contributif": 39364.238773130215
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 443320.4825571974,
+     "cotisations_versees": 393281.72202653706,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17173.87610541216,
+     "pension_annuelle_euros_constants": 13706.32081505217,
+     "pension_mensuelle": 1431.15634211768,
+     "rendement_cumule": 1.1272338828075106,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.2280769571317625,
+     "variation_vs_actuel": -0.5637188310844476
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 441878.0871816279,
+     "cotisations_versees": 392549.6393954653,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17117.99887787654,
+     "pension_annuelle_euros_constants": 13661.72568683778,
+     "pension_mensuelle": 1426.4999064897117,
+     "rendement_cumule": 1.1256616815700797,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.22733488190360435,
+     "variation_vs_actuel": -0.5651383232244496
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 432389.314741273,
      "capital_notionnel": 645355.3438350847,
      "cotisations_versees": 199632.9231365155,
@@ -1202,6 +1521,7 @@
      "variation_vs_actuel": -0.36489200284594914
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 441878.0871816279,
      "cotisations_versees": 392549.6393954653,
@@ -1267,6 +1587,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 393281.72202653706,
+    "annees_par_origine": {},
+    "part_transition": -0.0018649428189493717,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -732.0826310717384,
+    "versee": 392549.6393954653
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -1335,7 +1663,38 @@
      "taux_remplacement": 0.5227751582739286,
      "total_contributif": 39364.238773130215
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 443320.4825571974,
+     "cotisations_versees": 393281.72202653706,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17173.87610541216,
+     "pension_annuelle_euros_constants": 13706.32081505217,
+     "pension_mensuelle": 1431.15634211768,
+     "rendement_cumule": 1.1272338828075106,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.2280769571317625,
+     "variation_vs_actuel": -0.5637188310844476
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 441878.0871816279,
+     "cotisations_versees": 392549.6393954653,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17117.99887787654,
+     "pension_annuelle_euros_constants": 13661.72568683778,
+     "pension_mensuelle": 1426.4999064897117,
+     "rendement_cumule": 1.1256616815700797,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.22733488190360435,
+     "variation_vs_actuel": -0.5651383232244496
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 482714.47875659214,
      "capital_notionnel": 695680.5078504039,
      "cotisations_versees": 199632.9231365155,
@@ -1357,6 +1716,7 @@
      "variation_vs_actuel": -0.3153659325506576
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 441878.0871816279,
      "cotisations_versees": 392549.6393954653,
@@ -1422,6 +1782,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 495785.150566512,
+    "annees_par_origine": {},
+    "part_transition": 0.002374183862344062,
+    "taux_acquisition_commun": 0.2531,
+    "transition": 1179.8863708458957,
+    "versee": 496965.0369373579
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -1490,7 +1858,38 @@
      "taux_remplacement": 0.6541221379821472,
      "total_contributif": 57961.11696281066
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 573852.555621303,
+     "cotisations_versees": 495785.150566512,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 27017.94639468822,
+     "pension_annuelle_euros_constants": 19431.14513572866,
+     "pension_mensuelle": 2251.495532890685,
+     "rendement_cumule": 1.1574621687752988,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.3049119441731942,
+     "variation_vs_actuel": -0.5338608396380002
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 574300.5049544371,
+     "cotisations_versees": 496965.0369373579,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 27039.036604972374,
+     "pension_annuelle_euros_constants": 19446.31308857703,
+     "pension_mensuelle": 2253.2530504143647,
+     "rendement_cumule": 1.1556155106879828,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.30514995845180826,
+     "variation_vs_actuel": -0.5334969713865019
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 392442.85837821837,
      "capital_notionnel": 733106.9051167908,
      "cotisations_versees": 311577.19699807366,
@@ -1512,6 +1911,7 @@
      "variation_vs_actuel": -0.4044988841484928
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 574300.5049544371,
      "cotisations_versees": 496965.0369373579,
@@ -1577,6 +1977,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 81465.40572578309,
+    "annees_par_origine": {},
+    "part_transition": -0.41933135121896586,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -24068.37461263388,
+    "versee": 57397.031113149205
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -1645,7 +2053,38 @@
      "taux_remplacement": 0.5375368236410555,
      "total_contributif": 13974.63747276798
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 99259.66101596048,
+     "cotisations_versees": 81465.40572578309,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 3879.3989415772835,
+     "pension_annuelle_euros_constants": 6340.38106452564,
+     "pension_mensuelle": 323.2832451314403,
+     "rendement_cumule": 1.2184271364224688,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.14922174466103574,
+     "variation_vs_actuel": -0.7223971677879323
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 68344.86686525143,
+     "cotisations_versees": 57397.031113149205,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 2671.1455737962274,
+     "pension_annuelle_euros_constants": 4365.645573384421,
+     "pension_mensuelle": 222.59546448301896,
+     "rendement_cumule": 1.1907387113894496,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.1027460719477891,
+     "variation_vs_actuel": -0.808857612299323
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 357559.97237136815,
      "capital_notionnel": 357559.97237136815,
      "cotisations_versees": 0,
@@ -1660,6 +2099,7 @@
      "variation_vs_actuel": 0.0
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 68344.86686525143,
      "cotisations_versees": 57397.031113149205,
@@ -1725,6 +2165,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 393281.72202653706,
+    "annees_par_origine": {},
+    "part_transition": -0.0018649428189493717,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -732.0826310717384,
+    "versee": 392549.6393954653
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -1806,7 +2254,38 @@
      "taux_remplacement": 0.5959462032900286,
      "total_contributif": 39364.238773130215
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 443320.4825571974,
+     "cotisations_versees": 393281.72202653706,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17173.87610541216,
+     "pension_annuelle_euros_constants": 13706.32081505217,
+     "pension_mensuelle": 1431.15634211768,
+     "rendement_cumule": 1.1272338828075106,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.2280769571317625,
+     "variation_vs_actuel": -0.6172859968355826
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 441878.0871816279,
+     "cotisations_versees": 392549.6393954653,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17117.99887787654,
+     "pension_annuelle_euros_constants": 13661.72568683778,
+     "pension_mensuelle": 1426.4999064897117,
+     "rendement_cumule": 1.1256616815700797,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.22733488190360435,
+     "variation_vs_actuel": -0.6185312018961424
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 432389.314741273,
      "capital_notionnel": 645355.3438350847,
      "cotisations_versees": 199632.9231365155,
@@ -1828,6 +2307,7 @@
      "variation_vs_actuel": -0.44287138352375144
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 441878.0871816279,
      "cotisations_versees": 392549.6393954653,
@@ -1893,6 +2373,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 6348.0185589858875,
+    "annees_par_origine": {},
+    "part_transition": -1.1531473586252305,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -3399.767695636222,
+    "versee": 2948.2508633496655
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -1973,7 +2461,38 @@
      "taux_remplacement": 0.22064483448477373,
      "total_contributif": 632.6562255094578
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 8671.281459286893,
+     "cotisations_versees": 6348.0185589858875,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 412.67289793813273,
+     "pension_annuelle_euros_constants": 3483.5874435417763,
+     "pension_mensuelle": 34.389408161511064,
+     "rendement_cumule": 1.3659823736671861,
+     "rente_capitalisation": 1.0799751265220496,
+     "taux_remplacement": 0.13154370308841157,
+     "variation_vs_actuel": -0.403821515261944
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 3945.8172668403663,
+     "cotisations_versees": 2948.2508633496655,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 187.78445306920608,
+     "pension_annuelle_euros_constants": 1585.186635886899,
+     "pension_mensuelle": 15.64870442243384,
+     "rendement_cumule": 1.3383587251314537,
+     "rente_capitalisation": 1.0799751265220496,
+     "taux_remplacement": 0.05985821327878591,
+     "variation_vs_actuel": -0.7287123742617387
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 14544.774226625788,
      "capital_notionnel": 14544.774226625788,
      "cotisations_versees": 0,
@@ -1988,6 +2507,7 @@
      "variation_vs_actuel": 0.0
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 3945.8172668403663,
      "cotisations_versees": 2948.2508633496655,
@@ -2053,6 +2573,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 336460.21601412114,
+    "annees_par_origine": {},
+    "part_transition": 0.004534424983503315,
+    "taux_acquisition_commun": 0.2531,
+    "transition": 1532.6030831594253,
+    "versee": 337992.81909728056
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -2134,7 +2662,38 @@
      "taux_remplacement": 0.4225158217322234,
      "total_contributif": 25677.592781984287
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 373249.82282548863,
+     "cotisations_versees": 336460.21601412114,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 14459.395551941234,
+     "pension_annuelle_euros_constants": 11539.917547453892,
+     "pension_mensuelle": 1204.9496293284362,
+     "rendement_cumule": 1.109343111192152,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.19202740949155997,
+     "variation_vs_actuel": -0.545514275171308
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 374689.1421562886,
+     "cotisations_versees": 337992.81909728056,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 14515.153615996158,
+     "pension_annuelle_euros_constants": 11584.417572333085,
+     "pension_mensuelle": 1209.5961346663464,
+     "rendement_cumule": 1.1085713097604188,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.19276790217400092,
+     "variation_vs_actuel": -0.54376169539949
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 276068.8254135686,
      "capital_notionnel": 484404.0167938877,
      "cotisations_versees": 195404.6720656266,
@@ -2156,6 +2715,7 @@
      "variation_vs_actuel": -0.41016794323990247
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 374689.1421562886,
      "cotisations_versees": 337992.81909728056,
@@ -2221,6 +2781,18 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "moyenne",
+   "financement": {
+    "acquisitive": 234437.60363231882,
+    "annees_par_origine": {
+     "appelee": 18,
+     "implicite": 11,
+     "repli": 5
+    },
+    "part_transition": 0.6423195895165257,
+    "taux_acquisition_commun": 0.2531,
+    "transition": 421001.1533167437,
+    "versee": 655438.7569490625
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -2297,7 +2869,42 @@
      "taux_remplacement": 0.6339026218562874,
      "total_contributif": 26828.598576967008
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 244521.29625355027,
+     "cotisations_versees": 234437.60363231882,
+     "droits_acquis": null,
+     "fiabilite": "moyenne",
+     "pension_annuelle": 10007.296353034311,
+     "pension_annuelle_euros_constants": 10278.444297902186,
+     "pension_mensuelle": 833.9413627528593,
+     "rendement_cumule": 1.0430122662277603,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.1975267096882863,
+     "variation_vs_actuel": -0.6883958152596696
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {
+      "appelee": 18,
+      "implicite": 11,
+      "repli": 5
+     },
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 674206.586052946,
+     "cotisations_versees": 655438.7569490625,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 27592.627771788197,
+     "pension_annuelle_euros_constants": 28340.250711080498,
+     "pension_mensuelle": 2299.3856476490164,
+     "rendement_cumule": 1.0286339934965765,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.5446307157439556,
+     "variation_vs_actuel": -0.14082905328725814
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 784717.6264892516,
      "capital_notionnel": 784717.6264892516,
      "cotisations_versees": 0,
@@ -2312,6 +2919,7 @@
      "variation_vs_actuel": 0.0
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 233608.79917594523,
      "cotisations_versees": 224705.85332688616,
@@ -2377,6 +2985,16 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 434877.8436801099,
+    "annees_par_origine": {
+     "appelee": 11
+    },
+    "part_transition": 0.2855419341342589,
+    "taux_acquisition_commun": 0.2531,
+    "transition": 173804.2672190774,
+    "versee": 608682.1108991873
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -2453,7 +3071,40 @@
      "taux_remplacement": 0.5890703851744186,
      "total_contributif": 50655.929554575545
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 493698.28718388564,
+     "cotisations_versees": 434877.8436801099,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 18513.34656058565,
+     "pension_annuelle_euros_constants": 12422.051325931261,
+     "pension_mensuelle": 1542.7788800488042,
+     "rendement_cumule": 1.1352573932164804,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.18744752488065217,
+     "variation_vs_actuel": -0.6817909547003443
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {
+      "appelee": 11
+     },
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 715533.4896408337,
+     "cotisations_versees": 608682.1108991873,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 26832.014234823455,
+     "pension_annuelle_euros_constants": 18003.695707436233,
+     "pension_mensuelle": 2236.001186235288,
+     "rendement_cumule": 1.1755454560407537,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.27167398608460863,
+     "variation_vs_actuel": -0.5388089557342655
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 178733.60899451302,
      "capital_notionnel": 588364.784777259,
      "cotisations_versees": 370161.2028322256,
@@ -2475,6 +3126,7 @@
      "variation_vs_actuel": -0.6207744662841521
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 500478.37389848894,
      "cotisations_versees": 440988.9832268737,
@@ -2540,6 +3192,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 8529.735779160479,
+    "annees_par_origine": {},
+    "part_transition": -1.064843159267353,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -4398.79937322687,
+    "versee": 4130.936405933609
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -2626,7 +3286,38 @@
      "taux_remplacement": 0.2624878291029764,
      "total_contributif": 938.2936604371499
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 12098.221909578684,
+     "cotisations_versees": 8529.735779160479,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 556.6268248801118,
+     "pension_annuelle_euros_constants": 3912.371443888932,
+     "pension_mensuelle": 46.38556874000932,
+     "rendement_cumule": 1.418358343424493,
+     "rente_capitalisation": 0.6781546482606289,
+     "taux_remplacement": 0.13027355747547723,
+     "variation_vs_actuel": -0.5036967697867253
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 5718.36010447151,
+     "cotisations_versees": 4130.936405933609,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 263.09590386608534,
+     "pension_annuelle_euros_constants": 1849.226187601577,
+     "pension_mensuelle": 21.924658655507113,
+     "rendement_cumule": 1.3842769635131034,
+     "rente_capitalisation": 0.6781546482606289,
+     "taux_remplacement": 0.0615752562073221,
+     "variation_vs_actuel": -0.7654167188713137
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 24376.673720982544,
      "capital_notionnel": 24376.673720982544,
      "cotisations_versees": 0,
@@ -2641,6 +3332,7 @@
      "variation_vs_actuel": 0.0
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 5718.36010447151,
      "cotisations_versees": 4130.936405933609,
@@ -2706,6 +3398,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 8529.735779160479,
+    "annees_par_origine": {},
+    "part_transition": -1.064843159267353,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -4398.79937322687,
+    "versee": 4130.936405933609
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -2779,7 +3479,38 @@
      "taux_remplacement": 0.21959928562221614,
      "total_contributif": 938.2936604371499
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 12098.221909578684,
+     "cotisations_versees": 8529.735779160479,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 556.6268248801118,
+     "pension_annuelle_euros_constants": 3912.371443888932,
+     "pension_mensuelle": 46.38556874000932,
+     "rendement_cumule": 1.418358343424493,
+     "rente_capitalisation": 0.6781546482606289,
+     "taux_remplacement": 0.13027355747547723,
+     "variation_vs_actuel": -0.40676693411657494
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 5718.36010447151,
+     "cotisations_versees": 4130.936405933609,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 263.09590386608534,
+     "pension_annuelle_euros_constants": 1849.226187601577,
+     "pension_mensuelle": 21.924658655507113,
+     "rendement_cumule": 1.3842769635131034,
+     "rente_capitalisation": 0.6781546482606289,
+     "taux_remplacement": 0.0615752562073221,
+     "variation_vs_actuel": -0.7196017462768434
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 20393.707979784253,
      "capital_notionnel": 20393.707979784253,
      "cotisations_versees": 0,
@@ -2794,6 +3525,7 @@
      "variation_vs_actuel": 0.0
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 5718.36010447151,
      "cotisations_versees": 4130.936405933609,
@@ -2859,6 +3591,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 336460.21601412114,
+    "annees_par_origine": {},
+    "part_transition": 0.004534424983503315,
+    "taux_acquisition_commun": 0.2531,
+    "transition": 1532.6030831594253,
+    "versee": 337992.81909728056
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -2934,7 +3674,38 @@
      "taux_remplacement": 0.37511123938827473,
      "total_contributif": 25677.592781984287
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 373249.82282548863,
+     "cotisations_versees": 336460.21601412114,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 14459.395551941234,
+     "pension_annuelle_euros_constants": 11539.917547453892,
+     "pension_mensuelle": 1204.9496293284362,
+     "rendement_cumule": 1.109343111192152,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.19202740949155997,
+     "variation_vs_actuel": -0.4880787635030208
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 374689.1421562886,
+     "cotisations_versees": 337992.81909728056,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 14515.153615996158,
+     "pension_annuelle_euros_constants": 11584.417572333085,
+     "pension_mensuelle": 1209.5961346663464,
+     "rendement_cumule": 1.1085713097604188,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.19276790217400092,
+     "variation_vs_actuel": -0.4861047019322491
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 276068.8254135686,
      "capital_notionnel": 484404.0167938877,
      "cotisations_versees": 195404.6720656266,
@@ -2956,6 +3727,7 @@
      "variation_vs_actuel": -0.33562807514801973
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 374689.1421562886,
      "cotisations_versees": 337992.81909728056,
@@ -3021,6 +3793,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 180809.9170300489,
+    "annees_par_origine": {},
+    "part_transition": -0.45681813341292965,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -56697.021341099506,
+    "versee": 124112.8956889494
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -3102,7 +3882,38 @@
      "taux_remplacement": 0.3523709854016745,
      "total_contributif": 10796.174597108591
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 203581.78549579147,
+     "cotisations_versees": 180809.9170300489,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 8502.57472680342,
+     "pension_annuelle_euros_constants": 10468.0458458489,
+     "pension_mensuelle": 708.547893900285,
+     "rendement_cumule": 1.1259436918051242,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.20590024755988562,
+     "variation_vs_actuel": -0.4156719591280311
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 139098.77177296995,
+     "cotisations_versees": 124112.8956889494,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 5809.447532479277,
+     "pension_annuelle_euros_constants": 7152.3703187622505,
+     "pension_mensuelle": 484.1206277066064,
+     "rendement_cumule": 1.1207439082041726,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.14068287825249773,
+     "variation_vs_actuel": -0.600753512403609
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 348403.24484855233,
      "capital_notionnel": 348403.24484855233,
      "cotisations_versees": 0,
@@ -3117,6 +3928,7 @@
      "variation_vs_actuel": 0.0
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 139098.77177296995,
      "cotisations_versees": 124112.8956889494,
@@ -3182,6 +3994,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 393281.72202653706,
+    "annees_par_origine": {},
+    "part_transition": -0.0018649428189493717,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -732.0826310717384,
+    "versee": 392549.6393954653
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -3250,7 +4070,38 @@
      "taux_remplacement": 0.5227751582739286,
      "total_contributif": 39364.238773130215
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 443320.4825571974,
+     "cotisations_versees": 393281.72202653706,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17173.87610541216,
+     "pension_annuelle_euros_constants": 4079.593454404521,
+     "pension_mensuelle": 1431.15634211768,
+     "rendement_cumule": 1.1272338828075106,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.2280769571317625,
+     "variation_vs_actuel": -0.5637188310844476
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 441878.0871816279,
+     "cotisations_versees": 392549.6393954653,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17117.99887787654,
+     "pension_annuelle_euros_constants": 4066.3200168703606,
+     "pension_mensuelle": 1426.4999064897117,
+     "rendement_cumule": 1.1256616815700797,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.22733488190360435,
+     "variation_vs_actuel": -0.5651383232244496
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 432389.314741273,
      "capital_notionnel": 645355.3438350847,
      "cotisations_versees": 199632.9231365155,
@@ -3272,6 +4123,7 @@
      "variation_vs_actuel": -0.36489200284594914
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 441878.0871816279,
      "cotisations_versees": 392549.6393954653,
@@ -3337,6 +4189,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 393281.72202653706,
+    "annees_par_origine": {},
+    "part_transition": -0.0018649428189493717,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -732.0826310717384,
+    "versee": 392549.6393954653
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -3405,7 +4265,38 @@
      "taux_remplacement": 0.5227751582739286,
      "total_contributif": 39364.238773130215
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 443320.4825571974,
+     "cotisations_versees": 393281.72202653706,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17173.87610541216,
+     "pension_annuelle_euros_constants": 8898.702653047008,
+     "pension_mensuelle": 1431.15634211768,
+     "rendement_cumule": 1.1272338828075106,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.2280769571317625,
+     "variation_vs_actuel": -0.5637188310844476
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 441878.0871816279,
+     "cotisations_versees": 392549.6393954653,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17117.99887787654,
+     "pension_annuelle_euros_constants": 8869.74967645255,
+     "pension_mensuelle": 1426.4999064897117,
+     "rendement_cumule": 1.1256616815700797,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.22733488190360435,
+     "variation_vs_actuel": -0.5651383232244496
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 432389.314741273,
      "capital_notionnel": 645355.3438350847,
      "cotisations_versees": 199632.9231365155,
@@ -3427,6 +4318,7 @@
      "variation_vs_actuel": -0.36489200284594914
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 441878.0871816279,
      "cotisations_versees": 392549.6393954653,
@@ -3492,6 +4384,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 393281.72202653706,
+    "annees_par_origine": {},
+    "part_transition": -0.0018649428189493717,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -732.0826310717384,
+    "versee": 392549.6393954653
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -3560,7 +4460,38 @@
      "taux_remplacement": 0.5227751582739286,
      "total_contributif": 39364.238773130215
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 443320.4825571974,
+     "cotisations_versees": 393281.72202653706,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17173.87610541216,
+     "pension_annuelle_euros_constants": 20784.851327956247,
+     "pension_mensuelle": 1431.15634211768,
+     "rendement_cumule": 1.1272338828075106,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.2280769571317625,
+     "variation_vs_actuel": -0.5637188310844476
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 441878.0871816279,
+     "cotisations_versees": 392549.6393954653,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17117.99887787654,
+     "pension_annuelle_euros_constants": 20717.225367467327,
+     "pension_mensuelle": 1426.4999064897117,
+     "rendement_cumule": 1.1256616815700797,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.22733488190360435,
+     "variation_vs_actuel": -0.5651383232244496
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 432389.314741273,
      "capital_notionnel": 645355.3438350847,
      "cotisations_versees": 199632.9231365155,
@@ -3582,6 +4513,7 @@
      "variation_vs_actuel": -0.36489200284594914
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 441878.0871816279,
      "cotisations_versees": 392549.6393954653,
@@ -3647,6 +4579,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 76773.02109622367,
+    "annees_par_origine": {},
+    "part_transition": -0.44313641037550405,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -23574.293280710146,
+    "versee": 53198.72781551353
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -3715,7 +4655,38 @@
      "taux_remplacement": 0.5342816956222772,
      "total_contributif": 13741.738775976313
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 94735.29954923144,
+     "cotisations_versees": 76773.02109622367,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 4473.505650481875,
+     "pension_annuelle_euros_constants": 7449.849837467618,
+     "pension_mensuelle": 372.79213754015626,
+     "rendement_cumule": 1.233966023435429,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.17393084116063642,
+     "variation_vs_actuel": -0.6744585438996569
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 63818.98718578745,
+     "cotisations_versees": 53198.72781551353,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 3013.6031779293266,
+     "pension_annuelle_euros_constants": 5018.634802187035,
+     "pension_mensuelle": 251.1335981607772,
+     "rendement_cumule": 1.1996337094207148,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.11716952578458324,
+     "variation_vs_actuel": -0.7806970990310345
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 291008.4039190104,
      "capital_notionnel": 291008.4039190104,
      "cotisations_versees": 0,
@@ -3730,6 +4701,7 @@
      "variation_vs_actuel": 0.0
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 63818.98718578745,
      "cotisations_versees": 53198.72781551353,
@@ -3795,6 +4767,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "moyenne",
+   "financement": {
+    "acquisitive": 138125.14099798945,
+    "annees_par_origine": {},
+    "part_transition": -0.2410008572462662,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -26823.73440228097,
+    "versee": 111301.40659570848
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -3858,7 +4838,38 @@
      "taux_remplacement": 0.7613135945625243,
      "total_contributif": 24577.47351198758
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 164378.66564514872,
+     "cotisations_versees": 138125.14099798945,
+     "droits_acquis": null,
+     "fiabilite": "moyenne",
+     "pension_annuelle": 7021.810971953375,
+     "pension_annuelle_euros_constants": 10013.426144283982,
+     "pension_mensuelle": 585.1509143294479,
+     "rendement_cumule": 1.1900705726522403,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.21750812380243237,
+     "variation_vs_actuel": -0.7142989099946131
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 129287.59760134187,
+     "cotisations_versees": 111301.40659570848,
+     "droits_acquis": null,
+     "fiabilite": "moyenne",
+     "pension_annuelle": 5522.815675693422,
+     "pension_annuelle_euros_constants": 7875.789749672732,
+     "pension_mensuelle": 460.2346396411185,
+     "rendement_cumule": 1.1615989550874812,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.17107513724377077,
+     "variation_vs_actuel": -0.7752895279085669
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 575351.902374784,
      "capital_notionnel": 575351.902374784,
      "cotisations_versees": 0,
@@ -3873,6 +4884,7 @@
      "variation_vs_actuel": 0.0
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 129287.59760134187,
      "cotisations_versees": 111301.40659570848,
@@ -3938,6 +4950,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "moyenne",
+   "financement": {
+    "acquisitive": 204707.66976360237,
+    "annees_par_origine": {},
+    "part_transition": -0.1400327470293703,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -25144.696421812434,
+    "versee": 179562.97334178994
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -4001,7 +5021,38 @@
      "taux_remplacement": 0.657473044886173,
      "total_contributif": 27150.10672038053
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 235614.16840956142,
+     "cotisations_versees": 204707.66976360237,
+     "droits_acquis": null,
+     "fiabilite": "moyenne",
+     "pension_annuelle": 9840.40428134154,
+     "pension_annuelle_euros_constants": 12115.130589096043,
+     "pension_mensuelle": 820.033690111795,
+     "rendement_cumule": 1.1509787038348394,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.23829742668775325,
+     "variation_vs_actuel": -0.637555594801595
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 203296.08080853833,
+     "cotisations_versees": 179562.97334178994,
+     "droits_acquis": null,
+     "fiabilite": "moyenne",
+     "pension_annuelle": 8490.64229656536,
+     "pension_annuelle_euros_constants": 10453.355092659676,
+     "pension_mensuelle": 707.55352471378,
+     "rendement_cumule": 1.1321714996419308,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.20561128916564034,
+     "variation_vs_actuel": -0.6872703896153836
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 650069.8176885481,
      "capital_notionnel": 650069.8176885481,
      "cotisations_versees": 0,
@@ -4016,6 +5067,7 @@
      "variation_vs_actuel": 0.0
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 203296.08080853833,
      "cotisations_versees": 179562.97334178994,
@@ -4081,6 +5133,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "moyenne",
+   "financement": {
+    "acquisitive": 271699.5664689827,
+    "annees_par_origine": {},
+    "part_transition": -0.07100352887509359,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -18012.665218193433,
+    "versee": 253686.9012507893
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -4149,7 +5209,38 @@
      "taux_remplacement": 0.6120991943310342,
      "total_contributif": 31010.783527912172
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 291137.3134965956,
+     "cotisations_versees": 271699.5664689827,
+     "droits_acquis": null,
+     "fiabilite": "moyenne",
+     "pension_annuelle": 11915.106864825424,
+     "pension_annuelle_euros_constants": 12237.946983205542,
+     "pension_mensuelle": 992.9255720687853,
+     "rendement_cumule": 1.071541325149048,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.23518358721131094,
+     "variation_vs_actuel": -0.6157753687809635
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 269524.8172989009,
+     "cotisations_versees": 253686.9012507893,
+     "droits_acquis": null,
+     "fiabilite": "moyenne",
+     "pension_annuelle": 11030.59227369186,
+     "pension_annuelle_euros_constants": 11329.46644711235,
+     "pension_mensuelle": 919.216022807655,
+     "rendement_cumule": 1.062430957097208,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.21772480007297287,
+     "variation_vs_actuel": -0.6442981757051236
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 757726.834359627,
      "capital_notionnel": 757726.834359627,
      "cotisations_versees": 0,
@@ -4164,6 +5255,7 @@
      "variation_vs_actuel": 0.0
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 269524.8172989009,
      "cotisations_versees": 253686.9012507893,
@@ -4229,6 +5321,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 347655.65343977103,
+    "annees_par_origine": {},
+    "part_transition": -0.017922890139361894,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -6121.283000204479,
+    "versee": 341534.37043956656
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -4297,7 +5397,38 @@
      "taux_remplacement": 0.5386963120170329,
      "total_contributif": 35417.814977492955
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 385768.05197670567,
+     "cotisations_versees": 347655.65343977103,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 15221.374942769826,
+     "pension_annuelle_euros_constants": 13248.86090856724,
+     "pension_mensuelle": 1268.4479118974855,
+     "rendement_cumule": 1.1096268625573706,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.23151339377398816,
+     "variation_vs_actuel": -0.5702339358754178
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 377851.9823285021,
+     "cotisations_versees": 341534.37043956656,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 14909.028019350511,
+     "pension_annuelle_euros_constants": 12976.990531603227,
+     "pension_mensuelle": 1242.4190016125426,
+     "rendement_cumule": 1.1063366238724188,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.22676267338587905,
+     "variation_vs_actuel": -0.579052857189954
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 524677.1003446312,
      "capital_notionnel": 647857.2120660736,
      "cotisations_versees": 118004.9681151175,
@@ -4319,6 +5450,7 @@
      "variation_vs_actuel": -0.27825271502479465
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 377851.9823285021,
      "cotisations_versees": 341534.37043956656,
@@ -4384,6 +5516,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 446600.5326472705,
+    "annees_par_origine": {},
+    "part_transition": 0.004563466527230689,
+    "taux_acquisition_commun": 0.2531,
+    "transition": 2047.3897764924332,
+    "versee": 448647.9224237629
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -4452,7 +5592,38 @@
      "taux_remplacement": 0.5075296832315623,
      "total_contributif": 43768.08199390189
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 510116.2401982917,
+     "cotisations_versees": 446600.5326472705,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 19424.362479333486,
+     "pension_annuelle_euros_constants": 14214.358079201422,
+     "pension_mensuelle": 1618.6968732777905,
+     "rendement_cumule": 1.1422204025922795,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.22524269026649885,
+     "variation_vs_actuel": -0.556197996475152
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 511863.9446550105,
+     "cotisations_versees": 448647.9224237629,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 19490.912105083207,
+     "pension_annuelle_euros_constants": 14263.057757836941,
+     "pension_mensuelle": 1624.2426754236005,
+     "rendement_cumule": 1.1409034101612041,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.22601439213089952,
+     "variation_vs_actuel": -0.5546774906015111
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 336805.31750612514,
      "capital_notionnel": 650714.9824443224,
      "cotisations_versees": 288381.48066680983,
@@ -4474,6 +5645,7 @@
      "variation_vs_actuel": -0.4338768496761265
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 511863.9446550105,
      "cotisations_versees": 448647.9224237629,
@@ -4539,6 +5711,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 578428.7808350989,
+    "annees_par_origine": {},
+    "part_transition": 0.01326444999404963,
+    "taux_acquisition_commun": 0.2531,
+    "transition": 7775.679753769888,
+    "versee": 586204.4605888688
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -4607,7 +5787,38 @@
      "taux_remplacement": 0.5036458550912388,
      "total_contributif": 56969.13661526659
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 673190.780387662,
+     "cotisations_versees": 578428.7808350989,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 24926.769785825632,
+     "pension_annuelle_euros_constants": 15335.654003209125,
+     "pension_mensuelle": 2077.2308154854695,
+     "rendement_cumule": 1.1638265637746303,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.22036957253237213,
+     "variation_vs_actuel": -0.5624513330057075
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 681913.5468889903,
+     "cotisations_versees": 586204.4605888688,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 25249.754590146502,
+     "pension_annuelle_euros_constants": 15534.363392749668,
+     "pension_mensuelle": 2104.146215845542,
+     "rendement_cumule": 1.1632691197947853,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.2232249775396874,
+     "variation_vs_actuel": -0.5567818631223547
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 203939.5379940996,
      "capital_notionnel": 758322.0531649184,
      "cotisations_versees": 491528.41385483235,
@@ -4629,6 +5840,7 @@
      "variation_vs_actuel": -0.5071192102131674
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 681913.5468889903,
      "cotisations_versees": 586204.4605888688,
@@ -4694,6 +5906,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 756481.2606786384,
+    "annees_par_origine": {},
+    "part_transition": 0.016080621450986415,
+    "taux_acquisition_commun": 0.2531,
+    "transition": 12363.50157639687,
+    "versee": 768844.7622550352
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -4757,7 +5977,38 @@
      "taux_remplacement": 0.5028735523975914,
      "total_contributif": 74609.0438564789
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 888707.2416584111,
+     "cotisations_versees": 756481.2606786384,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 32389.081451495993,
+     "pension_annuelle_euros_constants": 16752.929140641972,
+     "pension_mensuelle": 2699.0901209579993,
+     "rendement_cumule": 1.1747908214688,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.2183061410053755,
+     "variation_vs_actuel": -0.5658826359737166
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 903165.6989953298,
+     "cotisations_versees": 768844.7622550352,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 32916.02230490297,
+     "pension_annuelle_euros_constants": 17025.484038244005,
+     "pension_mensuelle": 2743.001858741914,
+     "rendement_cumule": 1.1747048862586107,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.22185778307394186,
+     "variation_vs_actuel": -0.5588199418796786
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 67559.6078969376,
      "capital_notionnel": 923964.1333009184,
      "cotisations_versees": 737658.7031087998,
@@ -4779,6 +6030,7 @@
      "variation_vs_actuel": -0.5486602840605671
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 903165.6989953298,
      "cotisations_versees": 768844.7622550352,
@@ -4844,6 +6096,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 866500.3401902758,
+    "annees_par_origine": {},
+    "part_transition": 0.016323357947920804,
+    "taux_acquisition_commun": 0.2531,
+    "transition": 14378.90726510936,
+    "versee": 880879.2474553852
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -4907,7 +6167,38 @@
      "taux_remplacement": 0.5028385501925149,
      "total_contributif": 85441.80161557635
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 1018093.4770608152,
+     "cotisations_versees": 866500.3401902758,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 36975.284215622676,
+     "pension_annuelle_euros_constants": 17536.04096607955,
+     "pension_mensuelle": 3081.273684635223,
+     "rendement_cumule": 1.1749487332425639,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.21760541042419204,
+     "variation_vs_actuel": -0.5672459672376343
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 1034987.9559373677,
+     "cotisations_versees": 880879.2474553852,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 37588.86064274878,
+     "pension_annuelle_euros_constants": 17827.03808997341,
+     "pension_mensuelle": 3132.4050535623987,
+     "rendement_cumule": 1.1749487332425639,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.2212164049867429,
+     "variation_vs_actuel": -0.5600647466228498
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 1034987.9559373677,
      "cotisations_versees": 880879.2474553852,
@@ -4922,6 +6213,7 @@
      "variation_vs_actuel": -0.5600647466228498
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 1034987.9559373677,
      "cotisations_versees": 880879.2474553852,
@@ -4987,6 +6279,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 393281.72202653706,
+    "annees_par_origine": {},
+    "part_transition": -0.0018649428189493717,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -732.0826310717384,
+    "versee": 392549.6393954653
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -5055,7 +6355,38 @@
      "taux_remplacement": 0.5227751582739286,
      "total_contributif": 39364.238773130215
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 529435.976060995,
+     "cotisations_versees": 393281.72202653706,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 20509.920512067412,
+     "pension_annuelle_euros_constants": 16368.788775704777,
+     "pension_mensuelle": 1709.1600426722844,
+     "rendement_cumule": 1.3462003098767727,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.272381158027132,
+     "variation_vs_actuel": -0.4789707320323604
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 525847.0888471298,
+     "cotisations_versees": 392549.6393954653,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 20370.889930823592,
+     "pension_annuelle_euros_constants": 16257.829680743655,
+     "pension_mensuelle": 1697.574160901966,
+     "rendement_cumule": 1.3395683910369791,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.2705347680960693,
+     "variation_vs_actuel": -0.482502632701013
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 476041.18386063253,
      "capital_notionnel": 699693.5550970908,
      "cotisations_versees": 199632.9231365155,
@@ -5077,6 +6408,7 @@
      "variation_vs_actuel": -0.3114166069214903
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 525847.0888471298,
      "cotisations_versees": 392549.6393954653,
@@ -5142,6 +6474,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 393281.72202653706,
+    "annees_par_origine": {},
+    "part_transition": -0.0018649428189493717,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -732.0826310717384,
+    "versee": 392549.6393954653
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -5210,7 +6550,38 @@
      "taux_remplacement": 0.5227751582739286,
      "total_contributif": 39364.238773130215
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 615332.1397388814,
+     "cotisations_versees": 393281.72202653706,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 23837.46825907208,
+     "pension_annuelle_euros_constants": 19024.475626355634,
+     "pension_mensuelle": 1986.4556882560066,
+     "rendement_cumule": 1.5646090455669874,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.31657251938255165,
+     "variation_vs_actuel": -0.39443848015312344
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 609806.3836608708,
+     "cotisations_versees": 392549.6393954653,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 23623.40494820253,
+     "pension_annuelle_euros_constants": 18853.63356394052,
+     "pension_mensuelle": 1968.6170790168774,
+     "rendement_cumule": 1.5534503727986746,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.3137296603635972,
+     "variation_vs_actuel": -0.3998764948980109
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 540581.1415299986,
      "capital_notionnel": 779466.6352444246,
      "cotisations_versees": 199632.9231365155,
@@ -5232,6 +6603,7 @@
      "variation_vs_actuel": -0.23291021250922117
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 609806.3836608708,
      "cotisations_versees": 392549.6393954653,
@@ -5297,6 +6669,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 393281.72202653706,
+    "annees_par_origine": {},
+    "part_transition": -0.0018649428189493717,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -732.0826310717384,
+    "versee": 392549.6393954653
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -5365,7 +6745,38 @@
      "taux_remplacement": 0.5227751582739286,
      "total_contributif": 39364.238773130215
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 510059.90913719055,
+     "cotisations_versees": 393281.72202653706,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 19759.30738713322,
+     "pension_annuelle_euros_constants": 15769.730983789375,
+     "pension_mensuelle": 1646.6089489277683,
+     "rendement_cumule": 1.2969326581182274,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.26241267121219547,
+     "variation_vs_actuel": -0.4980391339201814
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 507175.42371338734,
+     "cotisations_versees": 392549.6393954653,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 19647.564760195444,
+     "pension_annuelle_euros_constants": 15680.55016729081,
+     "pension_mensuelle": 1637.2970633496204,
+     "rendement_cumule": 1.2920032852264192,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.2609286778389205,
+     "variation_vs_actuel": -0.5008778177210238
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 476041.18386063253,
      "capital_notionnel": 699693.5550970908,
      "cotisations_versees": 199632.9231365155,
@@ -5387,6 +6798,7 @@
      "variation_vs_actuel": -0.3114166069214903
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 507175.42371338734,
      "cotisations_versees": 392549.6393954653,
@@ -5452,6 +6864,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 347655.65343977103,
+    "annees_par_origine": {},
+    "part_transition": -0.0710404488028428,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -23059.45931062894,
+    "versee": 324596.1941291421
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -5520,7 +6940,38 @@
      "taux_remplacement": 0.5381205668087056,
      "total_contributif": 35379.96129851311
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 385768.05197670567,
+     "cotisations_versees": 347655.65343977103,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 15221.374942769826,
+     "pension_annuelle_euros_constants": 13248.86090856724,
+     "pension_mensuelle": 1268.4479118974855,
+     "rendement_cumule": 1.1096268625573706,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.23151339377398816,
+     "variation_vs_actuel": -0.5697741211658837
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 357901.1032875839,
+     "cotisations_versees": 324596.1941291421,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 14121.819724719619,
+     "pension_annuelle_euros_constants": 12291.795321522079,
+     "pension_mensuelle": 1176.8183103933015,
+     "rendement_cumule": 1.1026041270995042,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.21478942756661093,
+     "variation_vs_actuel": -0.6008525954686924
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 515031.9437187266,
      "capital_notionnel": 638212.055440169,
      "cotisations_versees": 118004.9681151175,
@@ -5542,6 +6993,7 @@
      "variation_vs_actuel": -0.2882372165674971
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 357901.1032875839,
      "cotisations_versees": 324596.1941291421,
@@ -5607,6 +7059,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 371846.8737195977,
+    "annees_par_origine": {},
+    "part_transition": 0.001233152172157422,
+    "taux_acquisition_commun": 0.2531,
+    "transition": 459.10993244772544,
+    "versee": 372305.9836520454
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -5675,7 +7135,38 @@
      "taux_remplacement": 0.5125054337999618,
      "total_contributif": 38590.94287348905
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 416292.95606023865,
+     "cotisations_versees": 371846.8737195977,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 16126.85163946133,
+     "pension_annuelle_euros_constants": 12870.699715689037,
+     "pension_mensuelle": 1343.9043032884442,
+     "rendement_cumule": 1.1195279172204546,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.21417199166148534,
+     "variation_vs_actuel": -0.5821078616210735
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 416353.9103161338,
+     "cotisations_versees": 372305.9836520454,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 16129.212957920614,
+     "pension_annuelle_euros_constants": 12872.584263367778,
+     "pension_mensuelle": 1344.1010798267178,
+     "rendement_cumule": 1.1183110897977275,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.21420335105442068,
+     "variation_vs_actuel": -0.5820466732104399
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 410767.8803401681,
      "capital_notionnel": 623733.9094339798,
      "cotisations_versees": 199632.9231365155,
@@ -5697,6 +7188,7 @@
      "variation_vs_actuel": -0.37387002734897057
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 416353.9103161338,
      "cotisations_versees": 372305.9836520454,
@@ -5762,6 +7254,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 235033.29538785585,
+    "annees_par_origine": {},
+    "part_transition": -0.020480394616429816,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -4716.969245991728,
+    "versee": 230316.32614186412
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -5830,7 +7330,38 @@
      "taux_remplacement": 0.24858009915331455,
      "total_contributif": 13516.719631911976
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 246739.13407463205,
+     "cotisations_versees": 235033.29538785585,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 6880.290789461764,
+     "pension_annuelle_euros_constants": 6761.9565498395705,
+     "pension_mensuelle": 573.3575657884803,
+     "rendement_cumule": 1.0498050230179474,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.1265324289637659,
+     "variation_vs_actuel": -0.49097924815885763
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 241607.73441917467,
+     "cotisations_versees": 230316.32614186412,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 6737.202333230854,
+     "pension_annuelle_euros_constants": 6621.329074428357,
+     "pension_mensuelle": 561.4335277692378,
+     "rendement_cumule": 1.0490256529637225,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.12390095153387243,
+     "variation_vs_actuel": -0.5015652823540989
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 428219.5294334086,
      "capital_notionnel": 442350.3085781116,
      "cotisations_versees": 13990.870440300001,
@@ -5852,6 +7383,7 @@
      "variation_vs_actuel": -0.08743504554293713
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 241607.73441917467,
      "cotisations_versees": 230316.32614186412,
@@ -5917,6 +7449,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 294258.78198117414,
+    "annees_par_origine": {},
+    "part_transition": -0.009579310883776325,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -2792.0504337707534,
+    "versee": 291466.7315474034
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -5985,7 +7525,38 @@
      "taux_remplacement": 0.29992984049240884,
      "total_contributif": 18678.14652457683
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 319497.69549776014,
+     "cotisations_versees": 294258.78198117414,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 10127.71525003014,
+     "pension_annuelle_euros_constants": 9126.515061975479,
+     "pension_mensuelle": 843.976270835845,
+     "rendement_cumule": 1.085771147921766,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.16262877130218334,
+     "variation_vs_actuel": -0.45777728873129764
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 316133.2954322357,
+     "cotisations_versees": 291466.7315474034,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 10021.067576726176,
+     "pension_annuelle_euros_constants": 9030.410306588485,
+     "pension_mensuelle": 835.0889647271814,
+     "rendement_cumule": 1.0846290887261025,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.16091624486917483,
+     "variation_vs_actuel": -0.46348704548706754
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 427641.1008900721,
      "capital_notionnel": 517193.42531789624,
      "cotisations_versees": 86582.96598396065,
@@ -6007,6 +7578,7 @@
      "variation_vs_actuel": -0.12226590276554017
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 316133.2954322357,
      "cotisations_versees": 291466.7315474034,
@@ -6072,6 +7644,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 334227.3845845929,
+    "annees_par_origine": {},
+    "part_transition": -0.005686177936291426,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -1889.731033023796,
+    "versee": 332337.6535515691
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -6140,7 +7720,38 @@
      "taux_remplacement": 0.38490283929335467,
      "total_contributif": 26002.23672681641
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 369171.7600238351,
+     "cotisations_versees": 334227.3845845929,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 12710.926578577317,
+     "pension_annuelle_euros_constants": 10873.452185477065,
+     "pension_mensuelle": 1059.2438815481098,
+     "rendement_cumule": 1.104552699901219,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.18815580296206258,
+     "variation_vs_actuel": -0.5111602623989501
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 366639.79294903093,
+     "cotisations_versees": 332337.6535515691,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 12623.74860054039,
+     "pension_annuelle_euros_constants": 10798.876538300507,
+     "pension_mensuelle": 1051.9790500450324,
+     "rendement_cumule": 1.1032147246358865,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.18686533508336423,
+     "variation_vs_actuel": -0.5145129731273705
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 428875.6946335101,
      "capital_notionnel": 568401.2248932469,
      "cotisations_versees": 133080.83091816402,
@@ -6162,6 +7773,7 @@
      "variation_vs_actuel": -0.2473500529645315
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 366639.79294903093,
      "cotisations_versees": 332337.6535515691,
@@ -6227,6 +7839,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 362893.332333186,
+    "annees_par_origine": {},
+    "part_transition": -0.003652810091830337,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -1320.7559559199726,
+    "versee": 361572.576377266
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -6295,7 +7915,38 @@
      "taux_remplacement": 0.45220461445743904,
      "total_contributif": 32252.118284950477
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 405058.3167116873,
+     "cotisations_versees": 362893.332333186,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 14776.533670819586,
+     "pension_annuelle_euros_constants": 12209.39012389172,
+     "pension_mensuelle": 1231.3778059016322,
+     "rendement_cumule": 1.1161911245582987,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.20718070833655314,
+     "variation_vs_actuel": -0.5418430026745056
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 403056.26141963946,
+     "cotisations_versees": 361572.576377266,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 14703.498662739887,
+     "pension_annuelle_euros_constants": 12149.043568589135,
+     "pension_mensuelle": 1225.291555228324,
+     "rendement_cumule": 1.1147312814982109,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.2061566897781818,
+     "variation_vs_actuel": -0.5441075053479247
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 430342.1525949144,
      "capital_notionnel": 605539.9330564388,
      "cotisations_versees": 165644.30959045,
@@ -6317,6 +7968,7 @@
      "variation_vs_actuel": -0.31508045621171654
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 403056.26141963946,
      "cotisations_versees": 361572.576377266,
@@ -6382,6 +8034,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 393281.72202653706,
+    "annees_par_origine": {},
+    "part_transition": -0.0018649428189493717,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -732.0826310717384,
+    "versee": 392549.6393954653
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -6450,7 +8110,38 @@
      "taux_remplacement": 0.5227751582739286,
      "total_contributif": 39364.238773130215
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 443320.4825571974,
+     "cotisations_versees": 393281.72202653706,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17173.87610541216,
+     "pension_annuelle_euros_constants": 13706.32081505217,
+     "pension_mensuelle": 1431.15634211768,
+     "rendement_cumule": 1.1272338828075106,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.2280769571317625,
+     "variation_vs_actuel": -0.5637188310844476
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 441878.0871816279,
+     "cotisations_versees": 392549.6393954653,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17117.99887787654,
+     "pension_annuelle_euros_constants": 13661.72568683778,
+     "pension_mensuelle": 1426.4999064897117,
+     "rendement_cumule": 1.1256616815700797,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.22733488190360435,
+     "variation_vs_actuel": -0.5651383232244496
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 432389.314741273,
      "capital_notionnel": 645355.3438350847,
      "cotisations_versees": 199632.9231365155,
@@ -6472,6 +8163,7 @@
      "variation_vs_actuel": -0.36489200284594914
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 441878.0871816279,
      "cotisations_versees": 392549.6393954653,
@@ -6537,6 +8229,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 442308.54768646,
+    "annees_par_origine": {},
+    "part_transition": 0.00043844943600158845,
+    "taux_acquisition_commun": 0.2531,
+    "transition": 194.01499903871445,
+    "versee": 442502.56268549873
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -6605,7 +8305,38 @@
      "taux_remplacement": 0.5882777201500586,
      "total_contributif": 48052.369460860085
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 505487.5088018832,
+     "cotisations_versees": 442308.54768646,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 21526.021331289554,
+     "pension_annuelle_euros_constants": 16308.464776231443,
+     "pension_mensuelle": 1793.835110940796,
+     "rendement_cumule": 1.1428391141113758,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.2635307872380179,
+     "variation_vs_actuel": -0.5520299712000037
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 504947.58642099774,
+     "cotisations_versees": 442502.56268549873,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 21503.028912118352,
+     "pension_annuelle_euros_constants": 16291.04534453977,
+     "pension_mensuelle": 1791.9190760098627,
+     "rendement_cumule": 1.1411178804401203,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.26324930417937736,
+     "variation_vs_actuel": -0.5525084578891966
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 436420.76471168234,
      "capital_notionnel": 710364.3369428292,
      "cotisations_versees": 253601.24713037058,
@@ -6627,6 +8358,7 @@
      "variation_vs_actuel": -0.37046528957159475
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 504947.58642099774,
      "cotisations_versees": 442502.56268549873,
@@ -6692,6 +8424,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 495785.150566512,
+    "annees_par_origine": {},
+    "part_transition": 0.002374183862344062,
+    "taux_acquisition_commun": 0.2531,
+    "transition": 1179.8863708458957,
+    "versee": 496965.0369373579
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -6760,7 +8500,38 @@
      "taux_remplacement": 0.6541221379821472,
      "total_contributif": 57961.11696281066
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 573852.555621303,
+     "cotisations_versees": 495785.150566512,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 27017.94639468822,
+     "pension_annuelle_euros_constants": 19431.14513572866,
+     "pension_mensuelle": 2251.495532890685,
+     "rendement_cumule": 1.1574621687752988,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.3049119441731942,
+     "variation_vs_actuel": -0.5338608396380002
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 574300.5049544371,
+     "cotisations_versees": 496965.0369373579,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 27039.036604972374,
+     "pension_annuelle_euros_constants": 19446.31308857703,
+     "pension_mensuelle": 2253.2530504143647,
+     "rendement_cumule": 1.1556155106879828,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.30514995845180826,
+     "variation_vs_actuel": -0.5334969713865019
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 441467.68262890365,
      "capital_notionnel": 782131.7293674761,
      "cotisations_versees": 311577.19699807366,
@@ -6782,6 +8553,7 @@
      "variation_vs_actuel": -0.364676127955716
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 574300.5049544371,
      "cotisations_versees": 496965.0369373579,
@@ -6847,6 +8619,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 285887.81476409506,
+    "annees_par_origine": {},
+    "part_transition": -0.057963273714180856,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -15663.108607300383,
+    "versee": 270224.7061567947
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -6915,7 +8695,38 @@
      "taux_remplacement": 0.590327269754327,
      "total_contributif": 31240.355246306885
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 308070.0456955974,
+     "cotisations_versees": 285887.81476409506,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 12526.795965332502,
+     "pension_annuelle_euros_constants": 12526.795965332502,
+     "pension_mensuelle": 1043.8996637777084,
+     "rendement_cumule": 1.0775906834287652,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.23671015270732085,
+     "variation_vs_actuel": -0.5990187734240515
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 289258.7248905851,
+     "cotisations_versees": 270224.7061567947,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 11761.886877755567,
+     "pension_annuelle_euros_constants": 11761.886877755567,
+     "pension_mensuelle": 980.1572398129639,
+     "rendement_cumule": 1.0704377442184956,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.22225619756758394,
+     "variation_vs_actuel": -0.62350342097515
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 768290.4467280514,
      "capital_notionnel": 768290.4467280514,
      "cotisations_versees": 0,
@@ -6930,6 +8741,7 @@
      "variation_vs_actuel": 0.0
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 289258.7248905851,
      "cotisations_versees": 270224.7061567947,
@@ -6995,6 +8807,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 409152.0444955193,
+    "annees_par_origine": {},
+    "part_transition": -0.0010507625727046868,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -429.47038349643117,
+    "versee": 408722.5741120229
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -7063,7 +8883,38 @@
      "taux_remplacement": 0.5446469824252937,
      "total_contributif": 42138.96336855115
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 463387.43131105247,
+     "cotisations_versees": 409152.0444955193,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 18196.809172028505,
+     "pension_annuelle_euros_constants": 14272.938357357421,
+     "pension_mensuelle": 1516.4007643357088,
+     "rendement_cumule": 1.1325555806091716,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.23519413894056107,
+     "variation_vs_actuel": -0.5681714091332153
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 462237.05382245505,
+     "cotisations_versees": 408722.5741120229,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 18151.634878939505,
+     "pension_annuelle_euros_constants": 14237.505227598189,
+     "pension_mensuelle": 1512.6362399116254,
+     "rendement_cumule": 1.13093105959879,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.23461026025804746,
+     "variation_vs_actuel": -0.5692434405615611
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 433611.4672970544,
      "capital_notionnel": 666303.9201814814,
      "cotisations_versees": 217206.5790288249,
@@ -7085,6 +8936,7 @@
      "variation_vs_actuel": -0.37907447742611877
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 462237.05382245505,
      "cotisations_versees": 408722.5741120229,
@@ -7150,6 +9002,17 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 349962.0767449719,
+    "annees_par_origine": {
+     "appelee": 20,
+     "implicite": 10
+    },
+    "part_transition": 0.4709395165515362,
+    "taux_acquisition_commun": 0.2531,
+    "transition": 311516.3131432459,
+    "versee": 661478.3898882178
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -7213,7 +9076,41 @@
      "taux_remplacement": 0.6159347060178421,
      "total_contributif": 46379.02251590837
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 391877.7122360506,
+     "cotisations_versees": 349962.0767449719,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 15181.024886541254,
+     "pension_annuelle_euros_constants": 12115.84362895529,
+     "pension_mensuelle": 1265.085407211771,
+     "rendement_cumule": 1.1197719360935896,
+     "rente_capitalisation": 636.4810097300482,
+     "taux_remplacement": 0.2016109782679018,
+     "variation_vs_actuel": -0.6726747554600996
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {
+      "appelee": 20,
+      "implicite": 10
+     },
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 758436.4855603946,
+     "cotisations_versees": 661478.3898882178,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 29381.214605075023,
+     "pension_annuelle_euros_constants": 23448.89126026392,
+     "pension_mensuelle": 2448.4345504229186,
+     "rendement_cumule": 1.1465778733732506,
+     "rente_capitalisation": 636.4810097300482,
+     "taux_remplacement": 0.390196015321725,
+     "variation_vs_actuel": -0.36649776102984843
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 475451.4613378764,
      "capital_notionnel": 688417.4904316881,
      "cotisations_versees": 199632.9231365155,
@@ -7235,6 +9132,7 @@
      "variation_vs_actuel": -0.42498280365237073
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 391517.4344023085,
      "cotisations_versees": 350107.9618184963,
@@ -7300,6 +9198,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 513945.9546042821,
+    "annees_par_origine": {},
+    "part_transition": -0.0036661277902973453,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -1877.309091853036,
+    "versee": 512068.64551242907
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -7368,7 +9274,38 @@
      "taux_remplacement": 0.4312296024405598,
      "total_contributif": 47457.59545720597
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 575278.5539544336,
+     "cotisations_versees": 513945.9546042821,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 22285.824816225173,
+     "pension_annuelle_euros_constants": 17786.122520295343,
+     "pension_mensuelle": 1857.1520680187643,
+     "rendement_cumule": 1.1193366711046013,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.20250304051385545,
+     "variation_vs_actuel": -0.5304055209387712
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 572377.9802216983,
+     "cotisations_versees": 512068.64551242907,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 22173.458941241755,
+     "pension_annuelle_euros_constants": 17696.444294964404,
+     "pension_mensuelle": 1847.7882451034795,
+     "rendement_cumule": 1.117775878757266,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.2014820134025961,
+     "variation_vs_actuel": -0.5327732320269729
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 504690.18475215574,
      "capital_notionnel": 806805.2912754465,
      "cotisations_versees": 283423.1099057164,
@@ -7390,6 +9327,7 @@
      "variation_vs_actuel": -0.3414124203727128
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 572377.9802216983,
      "cotisations_versees": 512068.64551242907,
@@ -7455,6 +9393,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 389453.55635541753,
+    "annees_par_origine": {},
+    "part_transition": -0.007296568146730324,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -2821.0901374974637,
+    "versee": 386632.46621792007
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -7523,7 +9469,38 @@
      "taux_remplacement": 0.6541607841690564,
      "total_contributif": 37890.302134522906
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 444803.4445142301,
+     "cotisations_versees": 389453.55635541753,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17231.32484942735,
+     "pension_annuelle_euros_constants": 13752.170156869994,
+     "pension_mensuelle": 1435.9437374522793,
+     "rendement_cumule": 1.142121922513143,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.29749187366608143,
+     "variation_vs_actuel": -0.5452312629165494
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 440855.5117482719,
+     "cotisations_versees": 386632.46621792007,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17078.385134564716,
+     "pension_annuelle_euros_constants": 13630.110303613614,
+     "pension_mensuelle": 1423.1987612137264,
+     "rendement_cumule": 1.1402444188424408,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.2948514311737009,
+     "variation_vs_actuel": -0.5492676444243993
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 500558.35387548094,
      "capital_notionnel": 677439.7133959564,
      "cotisations_versees": 165489.62338187822,
@@ -7545,6 +9522,7 @@
      "variation_vs_actuel": -0.30738305489584006
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 440855.5117482719,
      "cotisations_versees": 386632.46621792007,
@@ -7610,6 +9588,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 388993.4608096028,
+    "annees_par_origine": {},
+    "part_transition": -0.002069199567052673,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -803.243030562473,
+    "versee": 388190.21777904034
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -7678,7 +9664,38 @@
      "taux_remplacement": 0.5372998835856376,
      "total_contributif": 38948.91645046161
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 425312.91230224894,
+     "cotisations_versees": 388993.4608096028,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 16476.277432023344,
+     "pension_annuelle_euros_constants": 13149.573394788162,
+     "pension_mensuelle": 1373.0231193352786,
+     "rendement_cumule": 1.0933677687461771,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.22729006999232942,
+     "variation_vs_actuel": -0.5769772580713712
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 423930.61130249785,
+     "cotisations_versees": 388190.21777904034,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 16422.72821188992,
+     "pension_annuelle_euros_constants": 13106.836228988226,
+     "pension_mensuelle": 1368.56068432416,
+     "rendement_cumule": 1.0920692791486084,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.22655135907644594,
+     "variation_vs_actuel": -0.578352115834142
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 415987.4333151304,
      "capital_notionnel": 620343.4827697799,
      "cotisations_versees": 195273.5015200905,
@@ -7700,6 +9717,7 @@
      "variation_vs_actuel": -0.38299686318402015
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 423930.61130249785,
      "cotisations_versees": 388190.21777904034,
@@ -7765,6 +9783,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 397676.3562392616,
+    "annees_par_origine": {},
+    "part_transition": -0.0016602732949912947,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -659.1570534604252,
+    "versee": 397017.19918580115
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -7833,7 +9859,38 @@
      "taux_remplacement": 0.5087451224411923,
      "total_contributif": 39787.56179430826
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 462033.92052969796,
+     "cotisations_versees": 397676.3562392616,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17898.819521949597,
+     "pension_annuelle_euros_constants": 14284.891836458968,
+     "pension_mensuelle": 1491.5682934957997,
+     "rendement_cumule": 1.1618340222663772,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.22886391421325256,
+     "variation_vs_actuel": -0.5501403274098067
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 460529.0140330493,
+     "cotisations_versees": 397017.19918580115,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17840.520664259577,
+     "pension_annuelle_euros_constants": 14238.364026327703,
+     "pension_mensuelle": 1486.7100553549647,
+     "rendement_cumule": 1.1599724520184453,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.22811847372491548,
+     "variation_vs_actuel": -0.5516055807468021
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 449386.3571278544,
      "capital_notionnel": 671298.2113615775,
      "cotisations_versees": 204100.4829268513,
@@ -7855,6 +9912,7 @@
      "variation_vs_actuel": -0.34638999399159753
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 460529.0140330493,
      "cotisations_versees": 397017.19918580115,
@@ -7920,6 +9978,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 383436.7534956806,
+    "annees_par_origine": {},
+    "part_transition": -0.002340799060161244,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -895.4523182689445,
+    "versee": 382541.30117741163
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -7988,7 +10054,38 @@
      "taux_remplacement": 0.5574915709192267,
      "total_contributif": 38408.78252718215
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 402358.3453120405,
+     "cotisations_versees": 383436.7534956806,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 15587.036115517376,
+     "pension_annuelle_euros_constants": 12439.877651601266,
+     "pension_mensuelle": 1298.9196762931147,
+     "rendement_cumule": 1.0493473607938135,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.22624099693513555,
+     "variation_vs_actuel": -0.5941804168229928
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 401052.55977531394,
+     "cotisations_versees": 382541.30117741163,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 15536.451042392344,
+     "pension_annuelle_euros_constants": 12399.506145690259,
+     "pension_mensuelle": 1294.7042535326952,
+     "rendement_cumule": 1.0483902222869192,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.22550677028107327,
+     "variation_vs_actuel": -0.5954974352181797
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 395011.03040680476,
      "capital_notionnel": 588389.4125677309,
      "cotisations_versees": 189624.5849184619,
@@ -8010,6 +10107,7 @@
      "variation_vs_actuel": -0.40654904033661854
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 401052.55977531394,
      "cotisations_versees": 382541.30117741163,
@@ -8075,6 +10173,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 78656.34440530745,
+    "annees_par_origine": {},
+    "part_transition": -0.0018649428189495938,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -146.41652621436515,
+    "versee": 78509.92787909308
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -8143,7 +10249,38 @@
      "taux_remplacement": 0.3898460228176616,
      "total_contributif": 5870.972131735634
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 88664.0965114395,
+     "cotisations_versees": 78656.34440530745,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 3434.7752210824324,
+     "pension_annuelle_euros_constants": 2741.2641630104345,
+     "pension_mensuelle": 286.23126842353605,
+     "rendement_cumule": 1.1272338828075101,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.22807695713176251,
+     "variation_vs_actuel": -0.41495630638140835
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 88375.6174363256,
+     "cotisations_versees": 78509.92787909308,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 3423.5997755753087,
+     "pension_annuelle_euros_constants": 2732.345137367557,
+     "pension_mensuelle": 285.2999812979424,
+     "rendement_cumule": 1.1256616815700797,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.2273348819036044,
+     "variation_vs_actuel": -0.4168598149071454
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 68262.70347168959,
      "capital_notionnel": 110855.90929045193,
      "cotisations_versees": 39926.584627303106,
@@ -8165,6 +10302,7 @@
      "variation_vs_actuel": -0.2685252184082668
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 88375.6174363256,
      "cotisations_versees": 78509.92787909308,
@@ -8230,6 +10368,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 216304.94711459547,
+    "annees_par_origine": {},
+    "part_transition": -0.0018649428189497625,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -402.64544708954054,
+    "versee": 215902.30166750593
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -8298,7 +10444,38 @@
      "taux_remplacement": 0.5297456730514118,
      "total_contributif": 21939.009836530662
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 243826.26540645855,
+     "cotisations_versees": 216304.94711459547,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 9445.631857976687,
+     "pension_annuelle_euros_constants": 7538.476448278692,
+     "pension_mensuelle": 787.1359881647239,
+     "rendement_cumule": 1.12723388280751,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.22807695713176243,
+     "variation_vs_actuel": -0.5694595185308338
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 243032.94794989537,
+     "cotisations_versees": 215902.30166750593,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 9414.899382832098,
+     "pension_annuelle_euros_constants": 7513.94912776078,
+     "pension_mensuelle": 784.5749485693415,
+     "rendement_cumule": 1.1256616815700797,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.22733488190360435,
+     "variation_vs_actuel": -0.5708603326684625
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 237814.1231077002,
      "capital_notionnel": 354945.43910929665,
      "cotisations_versees": 109798.10772508354,
@@ -8320,6 +10497,7 @@
      "variation_vs_actuel": -0.3732488991920009
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 243032.94794989537,
      "cotisations_versees": 215902.30166750593,
@@ -8385,6 +10563,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 589922.5830398058,
+    "annees_par_origine": {},
+    "part_transition": -0.014162656719216786,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -8238.196288487059,
+    "versee": 581684.3867513187
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -8453,7 +10639,38 @@
      "taux_remplacement": 0.46012433090464416,
      "total_contributif": 51970.07855210613
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 664980.7238357961,
+     "cotisations_versees": 589922.5830398058,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 25760.814158118243,
+     "pension_annuelle_euros_constants": 20559.481222578255,
+     "pension_mensuelle": 2146.73451317652,
+     "rendement_cumule": 1.1272338828075101,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.22807695713176251,
+     "variation_vs_actuel": -0.5043145041181727
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 654528.6027115887,
+     "cotisations_versees": 581684.3867513187,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 25355.907459040245,
+     "pension_annuelle_euros_constants": 20236.328715615786,
+     "pension_mensuelle": 2112.9922882533538,
+     "rendement_cumule": 1.1252297940591147,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.2244920592600905,
+     "variation_vs_actuel": -0.5121056545331568
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 619638.849246981,
      "capital_notionnel": 939087.8928876985,
      "cotisations_versees": 299449.38470477326,
@@ -8475,6 +10692,7 @@
      "variation_vs_actuel": -0.29999136639996316
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 654528.6027115887,
      "cotisations_versees": 581684.3867513187,
@@ -8540,6 +10758,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 1179845.1660796115,
+    "annees_par_origine": {},
+    "part_transition": -0.054627076895964556,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -61113.06453695474,
+    "versee": 1118732.1015426568
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -8608,7 +10834,38 @@
      "taux_remplacement": 0.41051868538055886,
      "total_contributif": 92734.44977095276
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 1329961.4476715922,
+     "cotisations_versees": 1179845.1660796115,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 51521.628316236485,
+     "pension_annuelle_euros_constants": 41118.96244515651,
+     "pension_mensuelle": 4293.46902635304,
+     "rendement_cumule": 1.1272338828075101,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.22807695713176251,
+     "variation_vs_actuel": -0.4444175983845151
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 1256141.8205975045,
+     "cotisations_versees": 1118732.1015426568,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 48661.91580711608,
+     "pension_annuelle_euros_constants": 38836.650819741335,
+     "pension_mensuelle": 4055.1596505930065,
+     "rendement_cumule": 1.1228262949327805,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.21541752557520444,
+     "variation_vs_actuel": -0.47525524842917155
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 1113443.0058476436,
      "capital_notionnel": 1752341.0931290789,
      "cotisations_versees": 598898.7694095465,
@@ -8630,6 +10887,7 @@
      "variation_vs_actuel": -0.2679713576099376
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 1256141.8205975045,
      "cotisations_versees": 1118732.1015426568,
@@ -8695,6 +10953,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 2596664.56965951,
+    "annees_par_origine": {},
+    "part_transition": -0.05565916018385378,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -136907.9857188426,
+    "versee": 2459756.5839406676
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -8763,7 +11029,38 @@
      "taux_remplacement": 0.3094173857268901,
      "total_contributif": 186389.57356009414
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 2906505.4684264725,
+     "cotisations_versees": 2596664.56965951,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 112595.66561538017,
+     "pension_annuelle_euros_constants": 89861.61923122258,
+     "pension_mensuelle": 9382.972134615015,
+     "rendement_cumule": 1.1193226504444471,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.18691526480507512,
+     "variation_vs_actuel": -0.3959122097616794
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 2740387.370745913,
+     "cotisations_versees": 2459756.5839406676,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 106160.38517903218,
+     "pension_annuelle_euros_constants": 84725.67801131253,
+     "pension_mensuelle": 8846.698764919349,
+     "rendement_cumule": 1.1140888446594417,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.1762323300732554,
+     "variation_vs_actuel": -0.430438177676259
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 1984169.5098998563,
      "capital_notionnel": 3600455.979249828,
      "cotisations_versees": 1512683.3785478498,
@@ -8785,6 +11082,7 @@
      "variation_vs_actuel": -0.2516816087282723
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 2740387.370745913,
      "cotisations_versees": 2459756.5839406676,
@@ -8850,6 +11148,16 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 393281.72202653706,
+    "annees_par_origine": {
+     "repli": 30
+    },
+    "part_transition": -0.0018649428189493717,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -732.0826310717384,
+    "versee": 392549.6393954653
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -8908,7 +11216,40 @@
      "taux_remplacement": 0.7631249999999999,
      "total_contributif": 57462.24593557378
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 443320.4825571974,
+     "cotisations_versees": 393281.72202653706,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17173.87610541216,
+     "pension_annuelle_euros_constants": 13706.32081505217,
+     "pension_mensuelle": 1431.15634211768,
+     "rendement_cumule": 1.1272338828075106,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.2280769571317625,
+     "variation_vs_actuel": -0.7011276565021949
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {
+      "repli": 30
+     },
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 441878.0871816279,
+     "cotisations_versees": 392549.6393954653,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17117.99887787654,
+     "pension_annuelle_euros_constants": 13661.72568683778,
+     "pension_mensuelle": 1426.4999064897117,
+     "rendement_cumule": 1.1256616815700797,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.22733488190360435,
+     "variation_vs_actuel": -0.7021000728535898
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 588656.9943030999,
      "capital_notionnel": 801623.0233969117,
      "cotisations_versees": 199632.9231365155,
@@ -8930,6 +11271,7 @@
      "variation_vs_actuel": -0.45957166196687127
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 441878.0871816279,
      "cotisations_versees": 392549.6393954653,
@@ -8995,6 +11337,16 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 393281.72202653706,
+    "annees_par_origine": {
+     "repli": 27
+    },
+    "part_transition": -0.0018649428189493717,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -732.0826310717384,
+    "versee": 392549.6393954653
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -9063,7 +11415,40 @@
      "taux_remplacement": 0.551505665291862,
      "total_contributif": 41527.60579703614
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 443320.4825571974,
+     "cotisations_versees": 393281.72202653706,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17173.87610541216,
+     "pension_annuelle_euros_constants": 13706.32081505217,
+     "pension_mensuelle": 1431.15634211768,
+     "rendement_cumule": 1.1272338828075106,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.2280769571317625,
+     "variation_vs_actuel": -0.5864467556991241
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {
+      "repli": 27
+     },
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 441878.0871816279,
+     "cotisations_versees": 392549.6393954653,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17117.99887787654,
+     "pension_annuelle_euros_constants": 13661.72568683778,
+     "pension_mensuelle": 1426.4999064897117,
+     "rendement_cumule": 1.1256616815700797,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.22733488190360435,
+     "variation_vs_actuel": -0.5877922998609695
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 552354.1297113535,
      "capital_notionnel": 765320.1588051652,
      "cotisations_versees": 199632.9231365155,
@@ -9085,6 +11470,7 @@
      "variation_vs_actuel": -0.28606809959000123
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 441878.0871816279,
      "cotisations_versees": 392549.6393954653,
@@ -9150,6 +11536,16 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 393281.72202653706,
+    "annees_par_origine": {
+     "repli": 27
+    },
+    "part_transition": -0.0018649428189493717,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -732.0826310717384,
+    "versee": 392549.6393954653
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -9218,7 +11614,40 @@
      "taux_remplacement": 0.551505665291862,
      "total_contributif": 41527.60579703614
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 443320.4825571974,
+     "cotisations_versees": 393281.72202653706,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17173.87610541216,
+     "pension_annuelle_euros_constants": 13706.32081505217,
+     "pension_mensuelle": 1431.15634211768,
+     "rendement_cumule": 1.1272338828075106,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.2280769571317625,
+     "variation_vs_actuel": -0.5864467556991241
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {
+      "repli": 27
+     },
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 441878.0871816279,
+     "cotisations_versees": 392549.6393954653,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17117.99887787654,
+     "pension_annuelle_euros_constants": 13661.72568683778,
+     "pension_mensuelle": 1426.4999064897117,
+     "rendement_cumule": 1.1256616815700797,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.22733488190360435,
+     "variation_vs_actuel": -0.5877922998609695
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 552354.1297113535,
      "capital_notionnel": 765320.1588051652,
      "cotisations_versees": 199632.9231365155,
@@ -9240,6 +11669,7 @@
      "variation_vs_actuel": -0.28606809959000123
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 441878.0871816279,
      "cotisations_versees": 392549.6393954653,
@@ -9305,6 +11735,17 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 393281.72202653706,
+    "annees_par_origine": {
+     "appelee": 13,
+     "repli": 11
+    },
+    "part_transition": 0.1523533832022112,
+    "taux_acquisition_commun": 0.2531,
+    "transition": 70687.24125708186,
+    "versee": 463968.9632836189
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -9373,7 +11814,41 @@
      "taux_remplacement": 0.5346851047857164,
      "total_contributif": 40261.0410998
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 443320.4825571974,
+     "cotisations_versees": 393281.72202653706,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17173.87610541216,
+     "pension_annuelle_euros_constants": 13706.32081505217,
+     "pension_mensuelle": 1431.15634211768,
+     "rendement_cumule": 1.1272338828075106,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.2280769571317625,
+     "variation_vs_actuel": -0.5734368601437514
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {
+      "appelee": 13,
+      "repli": 11
+     },
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 524466.1888576127,
+     "cotisations_versees": 463968.9632836189,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 20317.39498469086,
+     "pension_annuelle_euros_constants": 16215.135830550566,
+     "pension_mensuelle": 1693.1162487242384,
+     "rendement_cumule": 1.1303906734317755,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.26982433065835915,
+     "variation_vs_actuel": -0.49535843014273695
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 527011.4869172445,
      "capital_notionnel": 739977.5160110563,
      "cotisations_versees": 199632.9231365155,
@@ -9395,6 +11870,7 @@
      "variation_vs_actuel": -0.28799334776511554
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 441878.0871816279,
      "cotisations_versees": 392549.6393954653,
@@ -9460,6 +11936,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 393281.72202653706,
+    "annees_par_origine": {},
+    "part_transition": -0.07156190558585894,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -26264.455010576174,
+    "versee": 367017.2670159609
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -9533,7 +12017,38 @@
      "taux_remplacement": 0.41059224109291875,
      "total_contributif": 30917.021899321477
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 443320.4825571974,
+     "cotisations_versees": 393281.72202653706,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17173.87610541216,
+     "pension_annuelle_euros_constants": 13706.32081505217,
+     "pension_mensuelle": 1431.15634211768,
+     "rendement_cumule": 1.1272338828075106,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.2280769571317625,
+     "variation_vs_actuel": -0.44451712841756374
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 410702.98236780014,
+     "cotisations_versees": 367017.2670159609,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 15910.300590268456,
+     "pension_annuelle_euros_constants": 12697.87221100369,
+     "pension_mensuelle": 1325.8583825223714,
+     "rendement_cumule": 1.1190290465269566,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.21129609433577698,
+     "variation_vs_actuel": -0.48538702588887994
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 348595.16943945753,
      "capital_notionnel": 561561.1985332693,
      "cotisations_versees": 199632.9231365155,
@@ -9555,6 +12070,7 @@
      "variation_vs_actuel": -0.2963608960019376
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 410702.98236780014,
      "cotisations_versees": 367017.2670159609,
@@ -9620,6 +12136,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 393281.72202653706,
+    "annees_par_origine": {},
+    "part_transition": -0.35124392425430323,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -102230.11027289066,
+    "versee": 291051.6117536464
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -9683,7 +12207,38 @@
      "taux_remplacement": 0.5042478252151619,
      "total_contributif": 37969.15648811382
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 443320.4825571974,
+     "cotisations_versees": 393281.72202653706,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17173.87610541216,
+     "pension_annuelle_euros_constants": 13706.32081505217,
+     "pension_mensuelle": 1431.15634211768,
+     "rendement_cumule": 1.1272338828075106,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.2280769571317625,
+     "variation_vs_actuel": -0.5476887638842223
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 322277.19903848076,
+     "cotisations_versees": 291051.6117536464,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 12484.757428666806,
+     "pension_annuelle_euros_constants": 9963.976074189008,
+     "pension_mensuelle": 1040.3964523889006,
+     "rendement_cumule": 1.1072853955238169,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.16580330889665254,
+     "variation_vs_actuel": -0.6711868636698543
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 497206.9725169437,
      "capital_notionnel": 710173.0016107555,
      "cotisations_versees": 199632.9231365155,
@@ -9705,6 +12260,7 @@
      "variation_vs_actuel": -0.27542434682528094
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 322277.19903848076,
      "cotisations_versees": 291051.6117536464,
@@ -9770,6 +12326,16 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 393281.72202653706,
+    "annees_par_origine": {
+     "repli": 30
+    },
+    "part_transition": -0.0018649428189493717,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -732.0826310717384,
+    "versee": 392549.6393954653
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -9828,7 +12394,40 @@
      "taux_remplacement": 0.7631249999999999,
      "total_contributif": 57462.24593557378
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 443320.4825571974,
+     "cotisations_versees": 393281.72202653706,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17173.87610541216,
+     "pension_annuelle_euros_constants": 13706.32081505217,
+     "pension_mensuelle": 1431.15634211768,
+     "rendement_cumule": 1.1272338828075106,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.2280769571317625,
+     "variation_vs_actuel": -0.7011276565021949
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {
+      "repli": 30
+     },
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 441878.0871816279,
+     "cotisations_versees": 392549.6393954653,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17117.99887787654,
+     "pension_annuelle_euros_constants": 13661.72568683778,
+     "pension_mensuelle": 1426.4999064897117,
+     "rendement_cumule": 1.1256616815700797,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.22733488190360435,
+     "variation_vs_actuel": -0.7021000728535898
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 588656.9943030999,
      "capital_notionnel": 801623.0233969117,
      "cotisations_versees": 199632.9231365155,
@@ -9850,6 +12449,7 @@
      "variation_vs_actuel": -0.45957166196687127
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 441878.0871816279,
      "cotisations_versees": 392549.6393954653,
@@ -9915,6 +12515,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 393281.72202653706,
+    "annees_par_origine": {},
+    "part_transition": -0.07156190558585894,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -26264.455010576174,
+    "versee": 367017.2670159609
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -9988,7 +12596,38 @@
      "taux_remplacement": 0.41059224109291875,
      "total_contributif": 30917.021899321477
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 443320.4825571974,
+     "cotisations_versees": 393281.72202653706,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17173.87610541216,
+     "pension_annuelle_euros_constants": 13706.32081505217,
+     "pension_mensuelle": 1431.15634211768,
+     "rendement_cumule": 1.1272338828075106,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.2280769571317625,
+     "variation_vs_actuel": -0.44451712841756374
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 410702.98236780014,
+     "cotisations_versees": 367017.2670159609,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 15910.300590268456,
+     "pension_annuelle_euros_constants": 12697.87221100369,
+     "pension_mensuelle": 1325.8583825223714,
+     "rendement_cumule": 1.1190290465269566,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.21129609433577698,
+     "variation_vs_actuel": -0.48538702588887994
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 348595.16943945753,
      "capital_notionnel": 561561.1985332693,
      "cotisations_versees": 199632.9231365155,
@@ -10010,6 +12649,7 @@
      "variation_vs_actuel": -0.2963608960019376
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 410702.98236780014,
      "cotisations_versees": 367017.2670159609,
@@ -10075,6 +12715,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 393281.72202653706,
+    "annees_par_origine": {},
+    "part_transition": -0.021445537612249144,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -8257.060852843919,
+    "versee": 385024.66117369314
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -10138,7 +12786,38 @@
      "taux_remplacement": 0.5429085083601463,
      "total_contributif": 40880.25189570023
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 443320.4825571974,
+     "cotisations_versees": 393281.72202653706,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17173.87610541216,
+     "pension_annuelle_euros_constants": 13706.32081505217,
+     "pension_mensuelle": 1431.15634211768,
+     "rendement_cumule": 1.1272338828075106,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.2280769571317625,
+     "variation_vs_actuel": -0.5798979871937017
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 432786.30825194105,
+     "cotisations_versees": 385024.66117369314,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 16765.790732618796,
+     "pension_annuelle_euros_constants": 13380.631436305963,
+     "pension_mensuelle": 1397.149227718233,
+     "rendement_cumule": 1.124048280265096,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.22265739607836932,
+     "variation_vs_actuel": -0.5898804445874215
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 450265.7224097395,
      "capital_notionnel": 663231.7515035513,
      "cotisations_versees": 199632.9231365155,
@@ -10160,6 +12839,7 @@
      "variation_vs_actuel": -0.37150435243483193
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 432786.30825194105,
      "cotisations_versees": 385024.66117369314,
@@ -10225,6 +12905,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 393281.72202653706,
+    "annees_par_origine": {},
+    "part_transition": -0.11468701028220982,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -40463.649869251996,
+    "versee": 352818.07215728506
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -10288,7 +12976,38 @@
      "taux_remplacement": 0.31466428778216604,
      "total_contributif": 23693.781086559855
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 443320.4825571974,
+     "cotisations_versees": 393281.72202653706,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17173.87610541216,
+     "pension_annuelle_euros_constants": 13706.32081505217,
+     "pension_mensuelle": 1431.15634211768,
+     "rendement_cumule": 1.1272338828075106,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.2280769571317625,
+     "variation_vs_actuel": -0.275173681960203
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 393477.4302779062,
+     "cotisations_versees": 352818.07215728506,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 15242.99666663124,
+     "pension_annuelle_euros_constants": 12165.302766437102,
+     "pension_mensuelle": 1270.2497222192699,
+     "rendement_cumule": 1.1152417104713823,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.20243399195125475,
+     "variation_vs_actuel": -0.356666772139727
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 272469.2431121694,
      "capital_notionnel": 485435.27220598113,
      "cotisations_versees": 199632.9231365155,
@@ -10310,6 +13029,7 @@
      "variation_vs_actuel": -0.2063162546199041
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 393477.4302779062,
      "cotisations_versees": 352818.07215728506,
@@ -10375,6 +13095,17 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 393281.72202653706,
+    "annees_par_origine": {
+     "appelee": 20,
+     "implicite": 10
+    },
+    "part_transition": 0.5032706668322626,
+    "taux_acquisition_commun": 0.2531,
+    "transition": 398460.7738685709,
+    "versee": 791742.495895108
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -10438,7 +13169,41 @@
      "taux_remplacement": 0.7631249999999999,
      "total_contributif": 57462.24593557378
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 443320.4825571974,
+     "cotisations_versees": 393281.72202653706,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17173.87610541216,
+     "pension_annuelle_euros_constants": 13706.32081505217,
+     "pension_mensuelle": 1431.15634211768,
+     "rendement_cumule": 1.1272338828075106,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.2280769571317625,
+     "variation_vs_actuel": -0.7011276565021949
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {
+      "appelee": 20,
+      "implicite": 10
+     },
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 912287.1271278923,
+     "cotisations_versees": 791742.495895108,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 35341.263736523586,
+     "pension_annuelle_euros_constants": 28205.554518324996,
+     "pension_mensuelle": 2945.1053113769653,
+     "rendement_cumule": 1.1522523192297542,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.4693482033259349,
+     "variation_vs_actuel": -0.38496549932719415
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 588656.9943030999,
      "capital_notionnel": 801623.0233969117,
      "cotisations_versees": 199632.9231365155,
@@ -10460,6 +13225,7 @@
      "variation_vs_actuel": -0.45957166196687127
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 441878.0871816279,
      "cotisations_versees": 392549.6393954653,
@@ -10525,6 +13291,16 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 393281.72202653706,
+    "annees_par_origine": {
+     "appelee": 30
+    },
+    "part_transition": 0.2135368384777952,
+    "taux_acquisition_commun": 0.2531,
+    "transition": 106782.03336327372,
+    "versee": 500063.7553898108
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -10588,7 +13364,40 @@
      "taux_remplacement": 0.7631249999999999,
      "total_contributif": 57462.24593557378
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 443320.4825571974,
+     "cotisations_versees": 393281.72202653706,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17173.87610541216,
+     "pension_annuelle_euros_constants": 13706.32081505217,
+     "pension_mensuelle": 1431.15634211768,
+     "rendement_cumule": 1.1272338828075106,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.2280769571317625,
+     "variation_vs_actuel": -0.7011276565021949
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {
+      "appelee": 30
+     },
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 568565.3772374757,
+     "cotisations_versees": 500063.7553898108,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 22025.76179241508,
+     "pension_annuelle_euros_constants": 17578.568487961875,
+     "pension_mensuelle": 1835.4801493679233,
+     "rendement_cumule": 1.1369857765321671,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.2925122259697648,
+     "variation_vs_actuel": -0.6166915957808159
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 588656.9943030999,
      "capital_notionnel": 801623.0233969117,
      "cotisations_versees": 199632.9231365155,
@@ -10610,6 +13419,7 @@
      "variation_vs_actuel": -0.45957166196687127
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 441878.0871816279,
      "cotisations_versees": 392549.6393954653,
@@ -10675,6 +13485,16 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 393281.72202653706,
+    "annees_par_origine": {
+     "repli": 30
+    },
+    "part_transition": -0.0018649428189493717,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -732.0826310717384,
+    "versee": 392549.6393954653
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -10733,7 +13553,40 @@
      "taux_remplacement": 0.4845372792850009,
      "total_contributif": 36484.97992757218
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 443320.4825571974,
+     "cotisations_versees": 393281.72202653706,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17173.87610541216,
+     "pension_annuelle_euros_constants": 13706.32081505217,
+     "pension_mensuelle": 1431.15634211768,
+     "rendement_cumule": 1.1272338828075106,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.2280769571317625,
+     "variation_vs_actuel": -0.5292891447520398
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {
+      "repli": 30
+     },
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 441878.0871816279,
+     "cotisations_versees": 392549.6393954653,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17117.99887787654,
+     "pension_annuelle_euros_constants": 13661.72568683778,
+     "pension_mensuelle": 1426.4999064897117,
+     "rendement_cumule": 1.1256616815700797,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.22733488190360435,
+     "variation_vs_actuel": -0.5308206579294226
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 489250.08989257604,
      "capital_notionnel": 702216.1189863877,
      "cotisations_versees": 199632.9231365155,
@@ -10755,6 +13608,7 @@
      "variation_vs_actuel": -0.25439774848584984
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 441878.0871816279,
      "cotisations_versees": 392549.6393954653,
@@ -10820,6 +13674,16 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 393281.72202653706,
+    "annees_par_origine": {
+     "repli": 15
+    },
+    "part_transition": -0.04896992329366825,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -18359.89319881535,
+    "versee": 374921.8288277217
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -10888,7 +13752,40 @@
      "taux_remplacement": 0.530350567658429,
      "total_contributif": 39934.65651218321
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 443320.4825571974,
+     "cotisations_versees": 393281.72202653706,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17173.87610541216,
+     "pension_annuelle_euros_constants": 13706.32081505217,
+     "pension_mensuelle": 1431.15634211768,
+     "rendement_cumule": 1.1272338828075106,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.2280769571317625,
+     "variation_vs_actuel": -0.5699505741291958
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {
+      "repli": 15
+     },
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 421607.70023596537,
+     "cotisations_versees": 374921.8288277217,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 16332.740520298492,
+     "pension_annuelle_euros_constants": 13035.017836751811,
+     "pension_mensuelle": 1361.0617100248744,
+     "rendement_cumule": 1.1245216144235124,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.21690629049771634,
+     "variation_vs_actuel": -0.5910133716734055
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 510215.3358552967,
      "capital_notionnel": 723181.3649491085,
      "cotisations_versees": 199632.9231365155,
@@ -10910,6 +13807,7 @@
      "variation_vs_actuel": -0.2984674901487261
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 421607.70023596537,
      "cotisations_versees": 374921.8288277217,
@@ -10975,6 +13873,16 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 393281.72202653706,
+    "annees_par_origine": {
+     "repli": 30
+    },
+    "part_transition": -0.0018649428189493717,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -732.0826310717384,
+    "versee": 392549.6393954653
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -11038,7 +13946,40 @@
      "taux_remplacement": 0.7631249999999999,
      "total_contributif": 57462.24593557378
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 443320.4825571974,
+     "cotisations_versees": 393281.72202653706,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17173.87610541216,
+     "pension_annuelle_euros_constants": 13706.32081505217,
+     "pension_mensuelle": 1431.15634211768,
+     "rendement_cumule": 1.1272338828075106,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.2280769571317625,
+     "variation_vs_actuel": -0.7011276565021949
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {
+      "repli": 30
+     },
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 441878.0871816279,
+     "cotisations_versees": 392549.6393954653,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17117.99887787654,
+     "pension_annuelle_euros_constants": 13661.72568683778,
+     "pension_mensuelle": 1426.4999064897117,
+     "rendement_cumule": 1.1256616815700797,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.22733488190360435,
+     "variation_vs_actuel": -0.7021000728535898
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 588656.9943030999,
      "capital_notionnel": 801623.0233969117,
      "cotisations_versees": 199632.9231365155,
@@ -11060,6 +14001,7 @@
      "variation_vs_actuel": -0.45957166196687127
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 441878.0871816279,
      "cotisations_versees": 392549.6393954653,
@@ -11125,6 +14067,16 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 393281.72202653706,
+    "annees_par_origine": {
+     "repli": 27
+    },
+    "part_transition": -0.0018649428189493717,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -732.0826310717384,
+    "versee": 392549.6393954653
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -11193,7 +14145,40 @@
      "taux_remplacement": 0.7478233057784023,
      "total_contributif": 56310.049746754914
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 443320.4825571974,
+     "cotisations_versees": 393281.72202653706,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17173.87610541216,
+     "pension_annuelle_euros_constants": 13706.32081505217,
+     "pension_mensuelle": 1431.15634211768,
+     "rendement_cumule": 1.1272338828075106,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.2280769571317625,
+     "variation_vs_actuel": -0.695012237022542
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {
+      "repli": 27
+     },
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 441878.0871816279,
+     "cotisations_versees": 392549.6393954653,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17117.99887787654,
+     "pension_annuelle_euros_constants": 13661.72568683778,
+     "pension_mensuelle": 1426.4999064897117,
+     "rendement_cumule": 1.1256616815700797,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.22733488190360435,
+     "variation_vs_actuel": -0.6960045506110917
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 848135.4644186535,
      "capital_notionnel": 1061101.4935124652,
      "cotisations_versees": 199632.9231365155,
@@ -11215,6 +14200,7 @@
      "variation_vs_actuel": -0.27000221390255175
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 441878.0871816279,
      "cotisations_versees": 392549.6393954653,
@@ -11280,6 +14266,16 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 393281.72202653706,
+    "annees_par_origine": {
+     "repli": 27
+    },
+    "part_transition": -0.0018649428189493717,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -732.0826310717384,
+    "versee": 392549.6393954653
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -11348,7 +14344,40 @@
      "taux_remplacement": 0.7478233057784023,
      "total_contributif": 56310.049746754914
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 443320.4825571974,
+     "cotisations_versees": 393281.72202653706,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17173.87610541216,
+     "pension_annuelle_euros_constants": 13706.32081505217,
+     "pension_mensuelle": 1431.15634211768,
+     "rendement_cumule": 1.1272338828075106,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.2280769571317625,
+     "variation_vs_actuel": -0.695012237022542
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {
+      "repli": 27
+     },
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 441878.0871816279,
+     "cotisations_versees": 392549.6393954653,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17117.99887787654,
+     "pension_annuelle_euros_constants": 13661.72568683778,
+     "pension_mensuelle": 1426.4999064897117,
+     "rendement_cumule": 1.1256616815700797,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.22733488190360435,
+     "variation_vs_actuel": -0.6960045506110917
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 848135.4644186535,
      "capital_notionnel": 1061101.4935124652,
      "cotisations_versees": 199632.9231365155,
@@ -11370,6 +14399,7 @@
      "variation_vs_actuel": -0.27000221390255175
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 441878.0871816279,
      "cotisations_versees": 392549.6393954653,
@@ -11435,6 +14465,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 393281.72202653706,
+    "annees_par_origine": {},
+    "part_transition": -0.4492772212999341,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -121917.68190605432,
+    "versee": 271364.04012048274
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -11493,7 +14531,38 @@
      "taux_remplacement": 0.19303528951955748,
      "total_contributif": 14535.287509408681
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 443320.4825571974,
+     "cotisations_versees": 393281.72202653706,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17173.87610541216,
+     "pension_annuelle_euros_constants": 13706.32081505217,
+     "pension_mensuelle": 1431.15634211768,
+     "rendement_cumule": 1.1272338828075106,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.2280769571317625,
+     "variation_vs_actuel": 0.18152985238823272
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 297983.1844187878,
+     "cotisations_versees": 271364.04012048274,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 11543.626996851379,
+     "pension_annuelle_euros_constants": 9212.868080391048,
+     "pension_mensuelle": 961.9689164042816,
+     "rendement_cumule": 1.0980938531372337,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.15330466480285243,
+     "variation_vs_actuel": -0.20582052543651463
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 176578.90650744736,
      "capital_notionnel": 389544.9356012591,
      "cotisations_versees": 199632.9231365155,
@@ -11515,6 +14584,7 @@
      "variation_vs_actuel": 0.03820822264885204
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 297983.1844187878,
      "cotisations_versees": 271364.04012048274,
@@ -11580,6 +14650,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 393281.72202653706,
+    "annees_par_origine": {},
+    "part_transition": 0.011867835327372435,
+    "taux_acquisition_commun": 0.2531,
+    "transition": 4723.459959248197,
+    "versee": 398005.18198578525
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -11648,7 +14726,38 @@
      "taux_remplacement": 0.5227751582739286,
      "total_contributif": 39364.238773130215
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 443320.4825571974,
+     "cotisations_versees": 393281.72202653706,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17173.87610541216,
+     "pension_annuelle_euros_constants": 13706.32081505217,
+     "pension_mensuelle": 1431.15634211768,
+     "rendement_cumule": 1.1272338828075106,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.2280769571317625,
+     "variation_vs_actuel": -0.5637188310844476
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 448517.70069007546,
+     "cotisations_versees": 398005.18198578525,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17375.212122624795,
+     "pension_annuelle_euros_constants": 13867.00533534352,
+     "pension_mensuelle": 1447.9343435520661,
+     "rendement_cumule": 1.1269142237100176,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.23075079184939007,
+     "variation_vs_actuel": -0.5586041375583515
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 432389.314741273,
      "capital_notionnel": 645355.3438350847,
      "cotisations_versees": 199632.9231365155,
@@ -11670,6 +14779,7 @@
      "variation_vs_actuel": -0.36489200284594914
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 448517.70069007546,
      "cotisations_versees": 398005.18198578525,
@@ -11735,6 +14845,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 393281.72202653706,
+    "annees_par_origine": {},
+    "part_transition": -0.0018649428189493717,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -732.0826310717384,
+    "versee": 392549.6393954653
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -11808,7 +14926,38 @@
      "taux_remplacement": 0.5459244454977131,
      "total_contributif": 41107.347747002575
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 443320.4825571974,
+     "cotisations_versees": 393281.72202653706,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17173.87610541216,
+     "pension_annuelle_euros_constants": 13706.32081505217,
+     "pension_mensuelle": 1431.15634211768,
+     "rendement_cumule": 1.1272338828075106,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.2280769571317625,
+     "variation_vs_actuel": -0.5822188234787191
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 441878.0871816279,
+     "cotisations_versees": 392549.6393954653,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17117.99887787654,
+     "pension_annuelle_euros_constants": 13661.72568683778,
+     "pension_mensuelle": 1426.4999064897117,
+     "rendement_cumule": 1.1256616815700797,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.22733488190360435,
+     "variation_vs_actuel": -0.5835781237157356
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 467267.1130664984,
      "capital_notionnel": 680233.1421603102,
      "cotisations_versees": 199632.9231365155,
@@ -11830,6 +14979,7 @@
      "variation_vs_actuel": -0.35895449539975643
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 441878.0871816279,
      "cotisations_versees": 392549.6393954653,
@@ -11895,6 +15045,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 393281.72202653706,
+    "annees_par_origine": {},
+    "part_transition": -0.0018649428189493717,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -732.0826310717384,
+    "versee": 392549.6393954653
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -11963,7 +15121,38 @@
      "taux_remplacement": 0.5227751582739286,
      "total_contributif": 39364.238773130215
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 443320.4825571974,
+     "cotisations_versees": 393281.72202653706,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17173.87610541216,
+     "pension_annuelle_euros_constants": 13706.32081505217,
+     "pension_mensuelle": 1431.15634211768,
+     "rendement_cumule": 1.1272338828075106,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.2280769571317625,
+     "variation_vs_actuel": -0.5637188310844476
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 441878.0871816279,
+     "cotisations_versees": 392549.6393954653,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 17117.99887787654,
+     "pension_annuelle_euros_constants": 13661.72568683778,
+     "pension_mensuelle": 1426.4999064897117,
+     "rendement_cumule": 1.1256616815700797,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.22733488190360435,
+     "variation_vs_actuel": -0.5651383232244496
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 432389.314741273,
      "capital_notionnel": 645355.3438350847,
      "cotisations_versees": 199632.9231365155,
@@ -11985,6 +15174,7 @@
      "variation_vs_actuel": -0.36489200284594914
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 441878.0871816279,
      "cotisations_versees": 392549.6393954653,
@@ -12050,6 +15240,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 196374.2434739684,
+    "annees_par_origine": {},
+    "part_transition": 0.016323357947920804,
+    "taux_acquisition_commun": 0.2531,
+    "transition": 3258.6796625471034,
+    "versee": 199632.9231365155
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -12102,7 +15300,38 @@
      "taux_remplacement": 0.0,
      "total_contributif": 0
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 209489.70837016613,
+     "cotisations_versees": 196374.2434739684,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 8115.461474180757,
+     "pension_annuelle_euros_constants": 6476.87906006634,
+     "pension_mensuelle": 676.2884561817298,
+     "rendement_cumule": 1.066788111639174,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.10777705320512286,
+     "variation_vs_actuel": null
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 212966.02909381175,
+     "cotisations_versees": 199632.9231365155,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 8250.131320848317,
+     "pension_annuelle_euros_constants": 6584.357890774671,
+     "pension_mensuelle": 687.5109434040264,
+     "rendement_cumule": 1.066788111639174,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.10956553057952632,
+     "variation_vs_actuel": null
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 212966.02909381175,
      "cotisations_versees": 199632.9231365155,
@@ -12124,6 +15353,7 @@
      "variation_vs_actuel": null
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 212966.02909381175,
      "cotisations_versees": 199632.9231365155,
@@ -12189,6 +15419,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 344873.41532748204,
+    "annees_par_origine": {},
+    "part_transition": -0.0326871127189621,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -10916.100396471855,
+    "versee": 333957.3149310102
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -12264,7 +15502,38 @@
      "taux_remplacement": 0.584433662827183,
      "total_contributif": 35177.534537804364
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 382883.8160310773,
+     "cotisations_versees": 344873.41532748204,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 15222.468582224383,
+     "pension_annuelle_euros_constants": 13717.614029058122,
+     "pension_mensuelle": 1268.5390485186986,
+     "rendement_cumule": 1.1102155139082022,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.2444392738733322,
+     "variation_vs_actuel": -0.5817501806948228
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 368843.48621908703,
+     "cotisations_versees": 333957.3149310102,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 14664.261443404646,
+     "pension_annuelle_euros_constants": 13214.589829189805,
+     "pension_mensuelle": 1222.0217869503872,
+     "rendement_cumule": 1.1044629649609075,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.23547569829116022,
+     "variation_vs_actuel": -0.5970873800252154
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 620022.0227931713,
      "capital_notionnel": 710353.792689117,
      "cotisations_versees": 87327.3027295439,
@@ -12286,6 +15555,7 @@
      "variation_vs_actuel": -0.22403263602331114
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 368843.48621908703,
      "cotisations_versees": 333957.3149310102,
@@ -12351,6 +15621,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 385471.17026295734,
+    "annees_par_origine": {},
+    "part_transition": -0.026028652501809798,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -9778.76701179432,
+    "versee": 375692.403251163
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -12426,7 +15704,38 @@
      "taux_remplacement": 0.6513085927362524,
      "total_contributif": 42480.35866501548
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 435036.3422843688,
+     "cotisations_versees": 385471.17026295734,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 19038.379710483947,
+     "pension_annuelle_euros_constants": 16286.217231385659,
+     "pension_mensuelle": 1586.531642540329,
+     "rendement_cumule": 1.1285833438272428,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.2818190789930349,
+     "variation_vs_actuel": -0.5673032996400869
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 421780.50645307364,
+     "cotisations_versees": 375692.403251163,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 18458.268093576615,
+     "pension_annuelle_euros_constants": 15789.965766971358,
+     "pension_mensuelle": 1538.1890077980513,
+     "rendement_cumule": 1.12267510016991,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.2732318712539248,
+     "variation_vs_actuel": -0.5804878450842578
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 625009.368001202,
      "capital_notionnel": 766228.5650973103,
      "cotisations_versees": 134667.1691454561,
@@ -12448,6 +15757,7 @@
      "variation_vs_actuel": -0.23789224114431018
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 421780.50645307364,
      "cotisations_versees": 375692.403251163,
@@ -12513,6 +15823,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 282823.5347361433,
+    "annees_par_origine": {},
+    "part_transition": -0.007901088585578635,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -2217.0963275500108,
+    "versee": 280606.4384085933
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -12588,7 +15906,38 @@
      "taux_remplacement": 0.3827611124333267,
      "total_contributif": 22010.337024967965
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 305948.24458337465,
+     "cotisations_versees": 282823.5347361433,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 12163.709579668173,
+     "pension_annuelle_euros_constants": 10961.236167062125,
+     "pension_mensuelle": 1013.6424649723477,
+     "rendement_cumule": 1.0817637396011095,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.19532235006430942,
+     "variation_vs_actuel": -0.4897016867189383
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 303274.24390163296,
+     "cotisations_versees": 280606.4384085933,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 12057.398240138076,
+     "pension_annuelle_euros_constants": 10865.434496346972,
+     "pension_mensuelle": 1004.783186678173,
+     "rendement_cumule": 1.0807814874868726,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.19361522440996035,
+     "variation_vs_actuel": -0.49416171570019085
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 384235.92002763407,
      "capital_notionnel": 473575.6684186978,
      "cotisations_versees": 86379.96505334704,
@@ -12610,6 +15959,7 @@
      "variation_vs_actuel": -0.21011194186095028
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 303274.24390163296,
      "cotisations_versees": 280606.4384085933,
@@ -12675,6 +16025,18 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 344873.41532748204,
+    "annees_par_origine": {
+     "appelee": 20,
+     "implicite": 11,
+     "repli": 9
+    },
+    "part_transition": 0.5682983885397386,
+    "taux_acquisition_commun": 0.2531,
+    "transition": 453996.4664895516,
+    "versee": 798869.8818170336
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -12745,7 +16107,42 @@
      "taux_remplacement": 0.8012812500000001,
      "total_contributif": 47523.649341348064
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 382883.8160310773,
+     "cotisations_versees": 344873.41532748204,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 15222.468582224383,
+     "pension_annuelle_euros_constants": 13717.614029058122,
+     "pension_mensuelle": 1268.5390485186986,
+     "rendement_cumule": 1.1102155139082022,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.2444392738733322,
+     "variation_vs_actuel": -0.6949394811455626
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {
+      "appelee": 20,
+      "implicite": 11,
+      "repli": 9
+     },
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 881082.4079804149,
+     "cotisations_versees": 798869.8818170336,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 35029.55390714098,
+     "pension_annuelle_euros_constants": 31566.621242323406,
+     "pension_mensuelle": 2919.1294922617485,
+     "rendement_cumule": 1.1029110347437163,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.562497381743131,
+     "variation_vs_actuel": -0.298002565587138
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 815411.1359796572,
      "capital_notionnel": 905742.9058756029,
      "cotisations_versees": 87327.3027295439,
@@ -12767,6 +16164,7 @@
      "variation_vs_actuel": -0.2783544531098424
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 369156.8554989749,
      "cotisations_versees": 334245.5531333965,
@@ -12832,6 +16230,14 @@
     "table": "unisexe_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 344873.41532748204,
+    "annees_par_origine": {},
+    "part_transition": -0.0326871127189621,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -10916.100396471855,
+    "versee": 333957.3149310102
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -12900,7 +16306,38 @@
      "taux_remplacement": 0.5648736243158314,
      "total_contributif": 35177.534537804364
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 382883.8160310773,
+     "cotisations_versees": 344873.41532748204,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 15222.468582224383,
+     "pension_annuelle_euros_constants": 13717.614029058122,
+     "pension_mensuelle": 1268.5390485186986,
+     "rendement_cumule": 1.1102155139082022,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.2444392738733322,
+     "variation_vs_actuel": -0.5672673260866192
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 368843.48621908703,
+     "cotisations_versees": 333957.3149310102,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 14664.261443404646,
+     "pension_annuelle_euros_constants": 13214.589829189805,
+     "pension_mensuelle": 1222.0217869503872,
+     "rendement_cumule": 1.1044629649609075,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.23547569829116022,
+     "variation_vs_actuel": -0.583135610949501
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 620022.0227931713,
      "capital_notionnel": 710353.792689117,
      "cotisations_versees": 87327.3027295439,
@@ -12922,6 +16359,7 @@
      "variation_vs_actuel": -0.19716299497515744
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 368843.48621908703,
      "cotisations_versees": 333957.3149310102,
@@ -12987,6 +16425,14 @@
     "table": "H_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 393281.72202653706,
+    "annees_par_origine": {},
+    "part_transition": -0.0018649428189493717,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -732.0826310717384,
+    "versee": 392549.6393954653
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -13055,7 +16501,38 @@
      "taux_remplacement": 0.5227751582739286,
      "total_contributif": 39364.238773130215
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 443320.4825571974,
+     "cotisations_versees": 393281.72202653706,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 18344.913986947733,
+     "pension_annuelle_euros_constants": 14640.915940368548,
+     "pension_mensuelle": 1528.7428322456444,
+     "rendement_cumule": 1.1272338828075106,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.2436288776805831,
+     "variation_vs_actuel": -0.5339700561040734
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 441878.0871816279,
+     "cotisations_versees": 392549.6393954653,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 18285.22664981555,
+     "pension_annuelle_euros_constants": 14593.279996897869,
+     "pension_mensuelle": 1523.7688874846292,
+     "rendement_cumule": 1.1256616815700797,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.24283620244822157,
+     "variation_vs_actuel": -0.5354863393853577
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 398411.63023224246,
      "capital_notionnel": 611377.6593260542,
      "cotisations_versees": 199632.9231365155,
@@ -13077,6 +16554,7 @@
      "variation_vs_actuel": -0.35730401033707393
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 441878.0871816279,
      "cotisations_versees": 392549.6393954653,
@@ -13142,6 +16620,14 @@
     "table": "F_generation"
    },
    "fiabilite": "estimee",
+   "financement": {
+    "acquisitive": 393281.72202653706,
+    "annees_par_origine": {},
+    "part_transition": -0.0018649428189493717,
+    "taux_acquisition_commun": 0.2531,
+    "transition": -732.0826310717384,
+    "versee": 392549.6393954653
+   },
    "regime_fusionne": {
     "age_ouverture": 64.0,
     "age_taux_plein": 67.0,
@@ -13210,7 +16696,38 @@
      "taux_remplacement": 0.5227751582739286,
      "total_contributif": 39364.238773130215
     },
+    "notionnel_acquisition_commune": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 443320.4825571974,
+     "cotisations_versees": 393281.72202653706,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 16143.372462660589,
+     "pension_annuelle_euros_constants": 12883.88484067235,
+     "pension_mensuelle": 1345.281038555049,
+     "rendement_cumule": 1.1272338828075106,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.2143913957762857,
+     "variation_vs_actuel": -0.5898975068284578
+    },
+    "notionnel_financement_public": {
+     "annees_part_employeur": {},
+     "capital_droits_acquis": 0.0,
+     "capital_notionnel": 441878.0871816279,
+     "cotisations_versees": 392549.6393954653,
+     "droits_acquis": null,
+     "fiabilite": "estimee",
+     "pension_annuelle": 16090.848100032626,
+     "pension_annuelle_euros_constants": 12841.96560471384,
+     "pension_mensuelle": 1340.9040083360521,
+     "rendement_cumule": 1.1256616815700797,
+     "rente_capitalisation": 0.0,
+     "taux_remplacement": 0.21369384813299647,
+     "variation_vs_actuel": -0.591231823565298
+    },
     "notionnel_prospectif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 466366.9992503032,
      "capital_notionnel": 679333.028344115,
      "cotisations_versees": 199632.9231365155,
@@ -13232,6 +16749,7 @@
      "variation_vs_actuel": -0.3715693734458776
     },
     "notionnel_retroactif": {
+     "annees_part_employeur": {},
      "capital_droits_acquis": 0.0,
      "capital_notionnel": 441878.0871816279,
      "cotisations_versees": 392549.6393954653,

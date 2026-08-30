@@ -54,7 +54,13 @@ class SourceCotisations(str, Enum):
 
     #: Taux unique appliqué à toute la carrière, quel que soit le régime.
     #: Utile pour isoler l'effet des règles de liquidation de l'effet des
-    #: différences de taux de cotisation entre régimes.
+    #: différences de taux de cotisation entre régimes, et c'est le scénario 5 :
+    #: un TAUX D'ACQUISITION COMMUN, public et privé confondus. Ce qui a été
+    #: prélevé au-delà — le surplus du compte d'affectation spéciale, le taux
+    #: d'appel des complémentaires, la contribution d'équilibre d'un régime
+    #: spécial — finance les engagements hérités du passé et n'ouvre aucun droit
+    #: nouveau. Peu importe alors que la cotisation soit dite salariale ou
+    #: patronale : pour le compte de l'individu, seule compte la somme des deux.
     TAUX_UNIFORME = "taux_uniforme"
 
 
@@ -88,7 +94,7 @@ class ContributionEmployeurPublic(str, Enum):
     37 % entre un fonctionnaire et un salarié de même rémunération qui ne
     traduit rien de réel.
 
-    Trois traitements sont concevables, deux sont disponibles :
+    Trois traitements :
 
     * ``EXCLUE`` — le taux stocké est utilisé tel quel. C'est ce que le modèle
       faisait sans le dire. Sous-estime massivement les carrières publiques.
@@ -96,20 +102,39 @@ class ContributionEmployeurPublic(str, Enum):
       reçoivent le taux total du statut pivot privé de l'année. Seul traitement
       qui rende les 22 statuts comparables, et c'est déjà ce que fait la fusion
       des régimes après la bascule.
+    * ``FINANCEMENT_HISTORIQUE`` — la contribution réellement versée par
+      l'employeur public s'ajoute à la retenue de l'agent, année par année,
+      depuis ``data/reference/legislation/contribution_employeur_public.csv``.
+      C'est le scénario 4.
 
-    Un troisième traitement, « contribution réelle de l'État », **n'est pas
-    disponible, et ne peut pas l'être** : avant la création du compte
-    d'affectation spéciale Pensions par la LOLF, en 2006, il n'existait aucun
-    taux de contribution employeur de l'État. Les pensions étaient payées sur
-    crédits budgétaires, sans taux. Le taux de 74,28 % qui existe depuis est un
-    taux d'ÉQUILIBRE, recalculé pour que le compte tombe juste : l'injecter
-    dans un compte notionnel rendrait le calcul circulaire, puisque les
-    cotisations y seraient égales aux pensions par construction. Il n'y a donc
-    pas de série historique de cotisations employeur publiques à retrouver.
+    Le dépôt a longtemps affirmé que le troisième traitement était impossible,
+    au motif qu'avant la création du compte d'affectation spéciale « Pensions »
+    par la LOLF, en 2006, il n'existait aucun taux de contribution employeur de
+    l'État. C'était vrai de l'État, et faux du reste :
+
+    * la **CNRACL** est une caisse depuis 1947, ses employeurs lui versent une
+      cotisation, et son taux est fixé par décret depuis 1948 ;
+    * l'État lui-même, avant 2006, a bien un taux — non pas appelé mais
+      **reconstitué** : l'annexe « pensions » au projet de loi de finances pour
+      2011 publie une série de « taux de cotisation employeur implicite »
+      remontant à 1995 ;
+    * la **SNCF** publie par arrêté les deux composantes T1 et T2 de la
+      contribution de l'entreprise.
+
+    Reste entière l'objection de fond, et c'est elle qui justifie le scénario 5
+    plutôt qu'elle n'interdit le scénario 4 : ces taux sont des taux
+    d'ÉQUILIBRE, fixés pour que le compte tombe juste. 82,28 % en 2026 ne
+    signifie pas qu'un fonctionnaire acquiert 82 % de son traitement en droits
+    nouveaux, mais qu'il faut aujourd'hui cette contribution pour payer les
+    pensions d'aujourd'hui. Les porter à un compte notionnel répond à une
+    question précise — « et si tout ce qui a été consacré aux pensions avait été
+    porté au compte des actifs ? » — et à elle seule. Voir
+    :class:`SourceCotisations` pour l'autre lecture.
     """
 
     EXCLUE = "exclue"
     ALIGNEE_SUR_LE_PRIVE = "alignee_sur_le_prive"
+    FINANCEMENT_HISTORIQUE = "financement_historique"
 
 
 class AgeConversionDroitsAcquis(str, Enum):
@@ -243,7 +268,11 @@ class Parametres:
     # --- Cotisations --------------------------------------------------------
     source_cotisations: SourceCotisations = SourceCotisations.TAUX_HISTORIQUES
 
-    #: Taux utilisé si ``source_cotisations == TAUX_UNIFORME``.
+    #: Taux utilisé si ``source_cotisations == TAUX_UNIFORME``, et taux
+    #: d'acquisition commun du scénario 5. 25,31 % est l'effort contributif
+    #: retraite total — salarié et employeur — d'un salarié du privé non cadre
+    #: sous le plafond en 2025 : le taux que le privé supporte déjà, proposé
+    #: comme celui que tout le monde acquerrait.
     taux_cotisation_uniforme: float = 0.2531
 
     #: Les cotisations prélevées sans contrepartie de droits (taux d'appel

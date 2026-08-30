@@ -18,7 +18,7 @@ Il n'y a donc ni minimum, ni majoration, ni trimestre gratuit : ce qui n'a pas
 été cotisé n'existe pas, et partir tôt coûte deux fois — moins de cotisations
 accumulées, et une rente à servir plus longtemps.
 
-Le modèle calcule **trois scénarios pour une même carrière**, afin qu'ils soient
+Le modèle calcule **cinq scénarios pour une même carrière**, afin qu'ils soient
 comparables :
 
 | | Scénario | Ce qu'il mesure |
@@ -26,16 +26,27 @@ comparables :
 | **1** | Système actuel | Le droit en vigueur, minima et majorations compris. C'est la référence. |
 | **2** | Notionnel **rétroactif** depuis 1941 | Contrefactuel : toute la carrière recalculée sur les seules cotisations, comme si la règle avait toujours existé. |
 | **3** | Notionnel **à compter de 2026** | Réforme prospective : les droits déjà acquis sont conservés, les règles notionnelles s'appliquent ensuite. |
+| **4** | Notionnel, **financement public réel** | Ce que l'employeur public a réellement versé — jusqu'à 82,28 % du traitement en 2026 — porté au compte, au lieu d'être remplacé par l'effort du privé. |
+| **5** | Notionnel, **taux d'acquisition commun** | Un seul taux pour tous, public et privé ; ce qui est prélevé au-delà finance les engagements du passé et n'ouvre aucun droit. |
 
 ```
 Agent de conduite SNCF né en 1955, parti à 50 ans (quinze ans avant l'âge de référence)
 
 Scénario                                      Courants   Constants   Mensuel    Écart
 ------------------------------------------------------------------------------------
-1. Système actuel                              20,435€     28,611€    2,384€     réf.
-2. Notionnel rétroactif (depuis l'origine)      3,399€      4,759€      397€   -83.4%
-3. Notionnel à compter de 2026                 20,435€     28,611€    2,384€    +0.0%
+1. Système actuel                              15,719€     22,008€    1,834€     réf.
+2. Notionnel rétroactif (depuis l'origine)      3,298€      4,617€      385€   -79.0%
+3. Notionnel à compter de 2026                 15,719€     22,008€    1,834€    +0.0%
+4. Notionnel, financement public réel           3,298€      4,617€      385€   -79.0%
+5. Notionnel, taux d'acquisition commun         4,104€      5,745€      479€   -73.9%
 ```
+
+> Les scénarios 4 et 5 ne diffèrent du 2 que par **ce qui alimente le compte** :
+> même carrière, même indexation, même liquidation. Ici, le 4 ne s'en écarte pas
+> d'un euro — aucune série de contribution employeur n'est publiée pour la SNCF
+> avant 2007, et le modèle le dit plutôt que d'inventer. Pour un fonctionnaire
+> d'État, l'écart est tout autre : voir
+> [« Ce que le public verse, et ce qu'il acquerrait »](#ce-que-le-public-verse-et-ce-quil-acquerrait).
 
 > **Le scénario 2 n'est pas une proposition de réforme**, et l'écart qu'il
 > affiche ne mesure pas l'effet des comptes notionnels. Il vient pour
@@ -53,7 +64,7 @@ Scénario                                      Courants   Constants   Mensuel   
 Rien à installer, rien à lancer : une adresse à ouvrir. Le modèle et ses données
 de référence s'exécutent **dans votre navigateur**. Aucune donnée saisie ne
 quitte votre machine, puisqu'il n'y a pas de serveur de calcul. Le premier
-chargement transfère 206 Ko compressés (758 Ko bruts) et prend quelques dixièmes
+chargement transfère 212 Ko compressés (781 Ko bruts) et prend quelques dixièmes
 de seconde ; les suivants sont immédiats.
 
 Quatre pages : **Simuler** (une carrière, avec le détail du calcul, la
@@ -68,7 +79,7 @@ la page.
 <details>
 <summary>Comment la page fonctionne, et comment on sait qu'elle dit vrai</summary>
 
-`index.html` charge deux choses : `moteur/donnees.json` (515 Ko — les séries, les
+`index.html` charge deux choses : `moteur/donnees.json` (521 Ko — les séries, les
 tables de mortalité observées de 1899 à 2024, les 37 fiches de régime) et
 `moteur/js/`, un portage du modèle en JavaScript sans aucune bibliothèque. Le site est servi depuis la racine
 du dépôt, telle quelle : c'est ce que GitHub Pages publie sans aucun réglage, et
@@ -84,9 +95,9 @@ poids de ce qu'on voulait exécuter.
 
 Le risque d'un portage, c'est qu'il déplace un chiffre sans que rien n'échoue.
 Il est traité de front : **le Python de `src/` reste la référence**, et
-`scripts/construire_temoins.py` fige depuis lui 73 simulations complètes et le
+`scripts/construire_temoins.py` fige depuis lui 86 simulations complètes et le
 HTML des quatre pages, dans `tests/temoins/`. `node --test` rejoue le tout côté
-JavaScript et compare valeur par valeur — 3 638 nombres, dont 98,5 % identiques
+JavaScript et compare valeur par valeur — 6 483 nombres, dont 98,1 % identiques
 au bit près, l'écart maximal étant d'un *ulp* (3 · 10⁻¹⁶, la précision d'un
 flottant). Les pages, elles, sont comparées caractère par caractère : le
 formatage à la française reproduit jusqu'à l'arrondi au pair de Python, faute de
@@ -167,11 +178,12 @@ print(simulateur.simuler(carriere).tableau())
 | Départ trop tôt = pension réduite | Âge de référence **à cliquet** : l'abaissement de 1982 ne le fait pas redescendre |
 | Régimes à départ précoce traités au même étalon | SNCF à 50 ans = 15 ans d'anticipation ; Opéra à 40 ans = 25 ans |
 | Indexation par triple lock inversé, depuis l'origine | `min(inflation, salaire moyen, productivité réelle)`, appliqué aux comptes **et** aux pensions liquidées |
-| Trois résultats comparables | Système actuel / notionnel rétroactif / notionnel prospectif |
+| Cinq résultats comparables | Système actuel / notionnel rétroactif / notionnel prospectif / financement public réel / taux d'acquisition commun |
 | Cas particulier **et** cas général | Simulation individuelle + grille 12 cas types × 7 générations |
 | Fusion des régimes au cas le plus défavorable | Âge 64/67, 172 trimestres, carrière entière, assiette déplafonnée, zéro avantage |
 | Droits acquis respectés à la bascule | Conversion à l'âge de référence ou à l'âge de départ effectif, au choix ; la cascade de calcul est affichée |
 | Statuts comparables au même étalon | Les fiches publiques ne portent que la retenue de l'agent ; elle est alignée sur l'effort contributif total du privé, sans quoi on compare un demi-effort à un effort entier |
+| Part employeur du public, quand elle est publiée | Taux implicite de l'État 1995-2005, taux appelé par le CAS « Pensions » 2006-2026, CNRACL depuis 1948, SNCF 2007-2018 — portés au compte par le scénario 4, et le modèle dit sur combien d'années il a dû s'en passer |
 | Capitalisation isolée | RAFP et assurances sociales de 1930 dans un compartiment séparé, jamais convertis |
 | Trimestres acquis par le revenu, pas par le temps | 150 SMIC horaires depuis 2014, 200 avant : un temps très partiel valide moins de quatre trimestres |
 | Motif d'interruption lu, pas seulement enregistré | Un chômage indemnisé ouvre des points complémentaires financés par l'UNEDIC ; un chômage non indemnisé n'ouvre rien |
@@ -183,11 +195,11 @@ print(simulateur.simuler(carriere).tableau())
 | Suppression des avantages | Ni majorations enfants, ni MDA, ni AVPF, ni bonifications, ni réversion, ni trimestres gratuits |
 | Tout le monde peut simuler | 22 statuts d'affiliation, cinq informations suffisent |
 | Utilisable sans rien installer | Le modèle s'exécute dans le navigateur, sur une simple adresse |
-| Portage vérifié, pas cru sur parole | Le site rejoue 71 simulations témoins figées depuis le modèle Python |
+| Portage vérifié, pas cru sur parole | Le site rejoue 86 simulations témoins figées depuis le modèle Python |
 
 ---
 
-## Deux résultats à connaître avant de lire les chiffres
+## Trois résultats à connaître avant de lire les chiffres
 
 ### 1. La règle d'indexation domine tout le reste
 
@@ -218,6 +230,63 @@ libérales et les indépendants, qui cotisent aujourd'hui moins et sous plafond,
 c'est une forte hausse de prélèvement — et donc de pension. C'est la seule ligne
 du tableau des cas types qui progresse ; le résultat est correct, mais il traduit
 un effort contributif accru, pas un avantage accordé.
+
+### 3. Ce que le public verse, et ce qu'il acquerrait
+
+Les fiches de la fonction publique et des régimes spéciaux ne portent que la
+**retenue de l'agent** : 11,10 % aujourd'hui, 7,85 % hier. La part de
+l'employeur y manquait, et le dépôt a longtemps soutenu qu'elle ne pouvait pas
+s'y trouver — le compte d'affectation spéciale « Pensions » datant de 2006, il
+n'y aurait rien avant. C'était vrai de l'État, et faux du reste.
+
+- La **CNRACL** est une caisse depuis 1947 : le taux versé par les employeurs
+  territoriaux et hospitaliers est fixé par décret et publié depuis 1948.
+- L'**État** a bien un taux avant 2006, non pas appelé mais **reconstitué** :
+  l'annexe « pensions » au PLF 2011 publie une série de « taux implicite »
+  remontant à 1995 — 48,6 % en 1995, 59,4 % en 2005.
+- Depuis 2006 le taux est appelé par décret : 49,90 %, puis 74,28 % de 2013 à
+  2024, 78,28 % en 2025 et **82,28 % en 2026**.
+- La **SNCF** publie par arrêté les deux composantes T1 et T2 de la contribution
+  de l'entreprise, de 2007 à 2018.
+
+L'objection de fond reste entière, et c'est elle qui justifie **deux** scénarios
+plutôt qu'un : ce sont des taux d'**équilibre**, fixés pour que le compte tombe
+juste. 82,28 % ne dit pas qu'un fonctionnaire acquiert 82 % de son traitement en
+droits nouveaux, mais qu'il faut aujourd'hui cette contribution pour payer les
+pensions d'aujourd'hui.
+
+```
+Fonctionnaire d'État née en 1975, 20 % de primes, partie à 64 ans
+
+Scénario                                      Courants   Constants   Mensuel    Écart
+------------------------------------------------------------------------------------
+1. Système actuel                              31,714€     25,310€    2,109€     réf.
+2. Notionnel rétroactif (depuis l'origine)     14,622€     11,670€      972€   -53.9%
+3. Notionnel à compter de 2026                 23,194€     18,511€    1,543€   -26.9%
+4. Notionnel, financement public réel          30,370€     24,238€    2,020€    -4.2%
+5. Notionnel, taux d'acquisition commun        14,697€     11,729€      977€   -53.7%
+
+Financement du régime public, en euros courants cumulés (scénarios 4 et 5) :
+  versé au régime                  678,985 €
+  ouvrant des droits               335,605 €   (taux d'acquisition commun 25.31%)
+  contribution de transition       343,381 €   soit +51% de ce qui a été versé
+  part employeur trouvée sur 28 années
+```
+
+Le scénario 4 referme presque tout l'écart : c'est ce que dit un taux
+d'équilibre porté à un compte individuel. Le scénario 5 ne le referme pas, et
+c'est ce que dit un taux d'acquisition. Les **51 %** qui les séparent sont la
+contribution de transition — la part du prélèvement qui paie les retraités du
+moment au lieu d'ouvrir des droits.
+
+Trois limites à connaître. La série n'existe que pour trois régimes : douze
+autres retombent sur l'alignement du scénario 2, et le modèle affiche sur
+combien d'années. L'État n'est couvert qu'à partir de 1995 : plus une carrière
+publique est ancienne, moins le scénario 4 s'écarte du 2 — non parce que le
+financement d'alors ressemblait à celui du privé, mais parce qu'on ne le connaît
+pas. Enfin la contribution de transition peut être **négative** : pour les
+carrières anciennes, le taux commun du scénario 5 accorde des droits que leur
+époque n'a pas financés.
 
 ---
 
@@ -313,7 +382,8 @@ data/
     regimes/                    37 fiches de régime + schéma + valeurs du point
     legislation/                âges et durées par génération, barèmes des
                                 minima, décote de la fonction publique,
-                                carrière longue, profils d'affiliation
+                                carrière longue, contribution employeur des
+                                régimes publics, profils d'affiliation
   brut/                         téléchargements bruts, non versionnés
   derive/                       calibrations et journal de certification
 
@@ -334,7 +404,7 @@ src/retraite_notionnelle/
 index.html                      le site : charge les données, puis le moteur JavaScript
 .nojekyll                       servir les fichiers sans transformation
 moteur/                         ce que le navigateur charge, et rien d'autre
-  donnees.json                  séries, tables et régimes (515 Ko, produit par script)
+  donnees.json                  séries, tables et régimes (521 Ko, produit par script)
   style.css                     extraite de gabarit.py (produite par script)
   js/                           portage du modèle, sans bibliothèque ni étape de build
 
@@ -342,7 +412,7 @@ docs/
   methodologie.md               ce que le modèle calcule, et pourquoi ainsi
   limites.md                    ce qu'il ne calcule pas, et ce qui reste à certifier
 
-tests/                          205 tests Python
+tests/                          221 tests Python
   temoins/                      chiffres et pages figés depuis le modèle Python
   js/                           le portage rejoué contre ces témoins (node --test)
 ```
@@ -358,7 +428,7 @@ sous « Options de modélisation ».
 --indexation      triple_lock_inverse | triple_lock_inverse_nominal | prix | salaires
 --age-reference   cliquet_legal | cliquet_puis_esperance_vie | legal_sans_cliquet
 --conversion-acquis  reference | liquidation
---cotisation-publique  alignee_sur_le_prive | exclue
+--cotisation-publique  alignee_sur_le_prive | financement_historique | exclue
 --table           unisexe | par_sexe
 --projection      cor_central | cor_favorable | cor_defavorable | stagnation
 --bascule ANNÉE   année de passage au régime unique (défaut 2026)
@@ -375,7 +445,7 @@ sous « Options de modélisation ».
 python -m pytest tests
 ```
 
-205 tests couvrant le chargement et la fiabilité des données, la règle de
+221 tests couvrant le chargement et la fiabilité des données, la règle de
 certification, la calibration des tables de mortalité et sa concordance avec les
 tables observées, les propriétés du moteur
 (monotonie du diviseur, cliquet de l'âge de référence, règles de fusion), le

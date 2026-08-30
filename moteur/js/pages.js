@@ -39,6 +39,7 @@ export const TABLES = [["unisexe", "Unisexe (défaut)"], ["par_sexe", "Par sexe"
 
 export const COTISATIONS_PUBLIQUES = [
   ["alignee_sur_le_prive", "Alignée sur le privé (défaut)"],
+  ["financement_historique", "Contribution employeur réellement versée"],
   ["exclue", "Retenue de l'agent seule"],
 ];
 
@@ -446,7 +447,7 @@ function formulaire(saisie, contexte) {
     <summary>Options de modélisation (profil, indexation, âge de référence, projection)</summary>
     <div class="grille">${avance}</div>
   </details>
-  <p style="margin-top:1.4rem"><button type="submit">Calculer les trois scénarios</button></p>
+  <p style="margin-top:1.4rem"><button type="submit">Calculer les cinq scénarios</button></p>
 </form>
 `;
 }
@@ -463,6 +464,12 @@ function resultats(contexte, saisie) {
     retroactif: comparaison.enEurosConstants(retro.pension_annuelle),
     prospectif: comparaison.enEurosConstants(
       comparaison.notionnel_prospectif.pension_annuelle,
+    ),
+    "financement-public": comparaison.enEurosConstants(
+      comparaison.notionnel_financement_public.pension_annuelle,
+    ),
+    "acquisition-commune": comparaison.enEurosConstants(
+      comparaison.notionnel_acquisition_commune.pension_annuelle,
     ),
   };
   const reference = Math.max(...Object.values(constants)) || 1.0;
@@ -498,7 +505,19 @@ function resultats(contexte, saisie) {
     + bloc("prospectif", `3. Comptes notionnels à compter de ${saisie.bascule}`,
       "droits acquis conservés, règles notionnelles ensuite",
       comparaison.variation("notionnel_prospectif"),
-      comparaison.tauxRemplacementProspectif);
+      comparaison.tauxRemplacementProspectif)
+    + bloc("financement-public",
+      "4. Comptes notionnels, financement public réel",
+      "la contribution que l'employeur public a réellement versée, "
+      + "portée au compte",
+      comparaison.variation("notionnel_financement_public"),
+      comparaison.tauxRemplacement("notionnel_financement_public"))
+    + bloc("acquisition-commune",
+      "5. Comptes notionnels, taux d'acquisition commun",
+      "un seul taux pour tous ; le surplus finance le passé sans "
+      + "ouvrir de droits",
+      comparaison.variation("notionnel_acquisition_commune"),
+      comparaison.tauxRemplacement("notionnel_acquisition_commune"));
 
   const anticipation = `départ ${g.nombre(Math.abs(ecart.ecart), 2).replace(/0+$/, "").replace(/,$/, "")} ans `
     + (ecart.anticipe ? "plus tôt" : "plus tard");
@@ -522,7 +541,7 @@ function resultats(contexte, saisie) {
   let minimum = "";
   if (comparaison.actuel.minimum_applique) {
     minimum = '<p class="discret">Le minimum contributif s\'applique dans le '
-      + "scénario 1 ; il est supprimé dans les scénarios 2 et 3.</p>";
+      + "scénario 1 ; il est supprimé dans les scénarios 2 à 5.</p>";
   }
 
   let ouverture = "";
@@ -534,7 +553,7 @@ function resultats(contexte, saisie) {
       + `${g.nombre(comparaison.carriere.age_liquidation, 2)} ans${attente}. `
       + "Ni l'âge légal du régime, ni le départ anticipé pour carrière longue "
       + "ne le permettent. Le montant du scénario 1 reste calculé, parce qu'il "
-      + "faut bien comparer les trois scénarios sur la même carrière, mais il "
+      + "faut bien comparer les cinq scénarios sur la même carrière, mais il "
       + "ne décrit aucune pension que le système actuel servirait.</p>";
   }
 
@@ -554,9 +573,83 @@ function resultats(contexte, saisie) {
   ${ouverture}
 </div>
 ${decomposition(contexte, saisie, comparaison)}
+${financementPublic(comparaison)}
 ${cascade(comparaison, saisie)}
 ${detail(contexte, comparaison, saisie)}
 `;
+}
+
+const NATURES_PART_EMPLOYEUR = {
+  appelee: "contribution appelée par décret ou par arrêté",
+  implicite: "taux implicite reconstitué par les documents budgétaires",
+  repli: "aucune série publiée : effort du privé de la même année",
+};
+
+/**
+ * Versé, acquisitif, transition — ce que les scénarios 4 et 5 séparent.
+ *
+ * Ne s'affiche que pour une carrière passée par un régime dont la fiche
+ * s'arrête à la retenue de l'agent. Pour un salarié du privé, la question ne se
+ * pose pas : sa fiche porte déjà le total.
+ */
+function financementPublic(comparaison) {
+  const partage = comparaison.partageFinancement;
+  if (!partage.concerne_un_regime_public) {
+    return "";
+  }
+
+  const lignes = [
+    ["Versé au régime", "retenue de l'agent et contribution de l'employeur",
+      g.euros(partage.versee)],
+    ["Ouvrant des droits",
+      "au taux d'acquisition commun de "
+      + g.pourcentage(comparaison.parametres.taux_cotisation_uniforme),
+      g.euros(partage.acquisitive)],
+    ["Contribution de transition",
+      "finance les engagements du passé, n'ouvre aucun droit nouveau",
+      g.euros(partage.transition)],
+  ];
+  const origines = Object.entries(partage.annees_par_origine)
+    .sort((a, b) => (a[0] < b[0] ? -1 : 1))
+    .map(([origine, nombre]) => `<li>${
+      echapper(NATURES_PART_EMPLOYEUR[origine] ?? origine)
+    } — ${nombre} année${nombre > 1 ? "s" : ""}</li>`)
+    .join("");
+  const sens = partage.transition >= 0
+    ? "Elle est positive : une partie de ce qui a été prélevé sur cette "
+      + "carrière a payé les retraités du moment plutôt que d'ouvrir des droits."
+    : "Elle est <strong>négative</strong> : le taux d'acquisition commun "
+      + "dépasse ce que cette carrière a effectivement versé. C'est le cas de "
+      + "toutes les carrières anciennes, dont l'époque cotisait bien moins "
+      + "qu'aujourd'hui — le scénario 5 leur accorde des droits que leur époque "
+      + "n'a pas financés, et c'est le prix d'un taux unique.";
+
+  return `
+<h2>Ce que le public verse, et ce qu'il acquerrait</h2>
+<p>Les fiches de la fonction publique et des régimes spéciaux ne portent que la
+<strong>retenue de l'agent</strong> — 11,10 % aujourd'hui. La part de
+l'employeur manquait, et le modèle la remplaçait par l'effort d'un salarié du
+privé de la même année, faute de mieux. Elle existe pourtant : reconstituée par
+les documents budgétaires de 1995 à 2005, appelée par décret depuis 2006 pour
+l'État, versée à une caisse depuis 1948 pour la fonction publique territoriale
+et hospitalière. Le scénario 4 la porte au compte ; le scénario 5 répond à
+l'objection qu'elle soulève.</p>
+${g.tableau(
+    ["Sur toute la carrière, en euros courants cumulés", "", "Montant"],
+    lignes,
+    ["", "", "nombre"],
+  )}
+<p>L'écart entre les deux premières lignes est la <strong>contribution de
+transition</strong>, ${g.pourcentage(Math.abs(partage.part_transition))} de ce qui a
+été versé. ${sens}</p>
+<p class="discret">Un taux employeur de 82,28 % en 2026 ne signifie pas qu'un
+fonctionnaire acquiert 82 % de son traitement en droits nouveaux : il est fixé
+pour que le compte d'affectation spéciale « Pensions » soit à l'équilibre, donc
+pour payer les pensions d'aujourd'hui. Le porter au compte, comme le fait le
+scénario 4, répond à une question précise — « et si tout ce qui a été consacré
+aux pensions avait été porté au compte des actifs ? » — et à elle seule.</p>
+<p class="discret">Origine de la part employeur, année par année :</p>
+<ul class="serree">${origines}</ul>`;
 }
 
 /** Sépare l'effet de la règle d'indexation de celui des comptes notionnels. */
@@ -840,6 +933,22 @@ sont intégralement acquis avant la bascule. Les indépendants et professions
 libérales progressent parce que le régime unique relève leur taux de cotisation
 et déplafonne leur assiette — un effort contributif accru, pas un avantage
 accordé.</p>
+
+<h3>Scénario 4 — financement public réel porté au compte</h3>
+${grille("notionnel_financement_public")}
+<p class="discret">Seules les lignes publiques bougent, et seulement là où une
+série employeur existe : fonctionnaires d'État depuis 1995, territoriaux et
+hospitaliers depuis 1948, agents SNCF de 2007 à 2018. Partout ailleurs — le
+privé, dont les fiches portent déjà le total, les régimes spéciaux sans série —
+le chiffre est celui du scénario 2.</p>
+
+<h3>Scénario 5 — un taux d'acquisition commun à tous</h3>
+${grille("notionnel_acquisition_commune")}
+<p class="discret">Le même taux pour tout le monde, prélevé une fois sur la
+rémunération. Les carrières anciennes y gagnent — leur époque cotisait bien
+moins que le taux d'aujourd'hui — et les carrières récentes des régimes les plus
+sollicités y perdent, puisque le surplus qu'elles versent finance les
+engagements du passé au lieu d'ouvrir des droits.</p>
 ${echecs}
 `;
 }
@@ -934,7 +1043,7 @@ la garantie minimale de points de l'Agirc, 120 points par an de 1989 à 2018
 même quand la tranche B est nulle.</p>
 <p>Enfin, le scénario dit si le droit <strong>ouvre</strong> la liquidation
 demandée — âge légal du régime, ou départ anticipé pour carrière longue. Quand
-il ne l'ouvre pas, le montant reste calculé, parce qu'il faut comparer les trois
+il ne l'ouvre pas, le montant reste calculé, parce qu'il faut comparer les cinq
 scénarios sur la même carrière, mais la page le signale : il ne décrit alors
 aucune pension que le système actuel servirait.</p>
 

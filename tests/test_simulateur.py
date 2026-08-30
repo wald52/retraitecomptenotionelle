@@ -12,7 +12,7 @@ from retraite_notionnelle.config import (
     Neutralisations,
     Parametres,
 )
-from retraite_notionnelle.simulateur import Simulateur
+from retraite_notionnelle.simulateur import SCENARIOS_NOTIONNELS, Simulateur
 
 
 @pytest.fixture(scope="module")
@@ -384,6 +384,131 @@ def test_le_perimetre_de_cotisation_publique_est_pilotable():
     assert avec_alignement > avec_exclusion * 1.5
 
 
+# -- scénarios 4 et 5 : la part employeur du public ---------------------------
+
+
+def test_les_cinq_scenarios_sont_calcules(simulateur, salarie_moyen):
+    comparaison = simulateur.simuler(salarie_moyen)
+    for cle, _, _ in SCENARIOS_NOTIONNELS:
+        assert getattr(comparaison, cle).pension_annuelle > 0, cle
+
+
+def test_le_financement_public_reel_ne_touche_pas_le_prive(simulateur, salarie_moyen):
+    """Les fiches du privé portent déjà le total : rien à ajouter, rien à changer."""
+    comparaison = simulateur.simuler(salarie_moyen)
+    assert (comparaison.notionnel_financement_public.pension_annuelle
+            == pytest.approx(comparaison.notionnel_retroactif.pension_annuelle))
+    assert not comparaison.partage_financement.concerne_un_regime_public
+
+
+def test_le_financement_public_reel_releve_la_pension_d_un_fonctionnaire(simulateur):
+    """82 % de contribution employeur portés au compte, cela se voit."""
+    carriere = simulateur.carriere_simple(
+        annee_naissance=1975, sexe="F", affiliation="fonctionnaire_etat",
+        age_debut=23, age_liquidation=64, part_primes=0.20,
+    )
+    comparaison = simulateur.simuler(carriere)
+    assert (comparaison.notionnel_financement_public.pension_annuelle
+            > comparaison.notionnel_retroactif.pension_annuelle * 1.5)
+
+    partage = comparaison.partage_financement
+    assert partage.concerne_un_regime_public
+    # La carrière commence en 1998 : taux implicite jusqu'en 2005, appelé
+    # ensuite, et le régime fusionné prend la main à la bascule.
+    assert set(partage.annees_par_origine) == {"implicite", "appelee"}
+    assert partage.annees_par_origine["implicite"] == 8
+    assert partage.transition > 0
+
+
+def test_le_repli_est_compte_quand_aucune_serie_n_existe(simulateur):
+    """Aucun taux employeur SNCF avant 2007 : le modèle le dit, il ne l'invente pas."""
+    carriere = simulateur.carriere_simple(
+        annee_naissance=1955, sexe="H", affiliation="agent_sncf",
+        age_debut=20, age_liquidation=50,
+    )
+    comparaison = simulateur.simuler(carriere)
+    origines = comparaison.partage_financement.annees_par_origine
+    assert set(origines) == {"repli"}
+    assert (comparaison.notionnel_financement_public.pension_annuelle
+            == pytest.approx(comparaison.notionnel_retroactif.pension_annuelle))
+
+
+def test_le_taux_d_acquisition_commun_ne_compte_pas_deux_fois_la_meme_tranche():
+    """Régime général et Arrco découpent la même première tranche.
+
+    Sous un taux unique, les additionner prélèverait deux fois sur les mêmes
+    euros. Le compte d'un cadre ne doit donc pas dépasser ce que le taux commun
+    prélève sur sa rémunération plafonnée.
+    """
+    simulateur = Simulateur(Parametres())
+    carriere = simulateur.carriere_simple(
+        annee_naissance=1975, sexe="H", affiliation="salarie_prive_cadre",
+        age_debut=23, age_liquidation=64,
+    )
+    comparaison = simulateur.simuler(carriere)
+    compte = comparaison.notionnel_acquisition_commune.compte
+    taux = simulateur.parametres.taux_cotisation_uniforme
+    for cotisation in compte.cotisations:
+        if cotisation.nulle:
+            continue
+        assert cotisation.cotisation <= cotisation.revenu * taux + 1e-6, cotisation.annee
+
+
+def test_le_taux_d_acquisition_commun_est_bien_le_taux_retenu():
+    """Un salarié non cadre sous le plafond doit voir exactement le taux commun."""
+    simulateur = Simulateur(Parametres().avec(taux_cotisation_uniforme=0.20))
+    carriere = simulateur.carriere_simple(
+        annee_naissance=1975, sexe="H", affiliation="salarie_prive_non_cadre",
+        age_debut=23, age_liquidation=64, niveau_salaire=0.9,
+    )
+    compte = simulateur.simuler(carriere).notionnel_acquisition_commune.compte
+    annee = next(c for c in compte.cotisations if c.annee == 2010)
+    assert annee.cotisation == pytest.approx(annee.revenu * 0.20)
+
+
+def test_la_contribution_de_transition_est_negative_sur_une_carriere_ancienne(simulateur):
+    """Le taux commun d'aujourd'hui dépasse ce que cotisaient les années 1960.
+
+    Le scénario 5 accorde alors des droits que l'époque n'a pas financés. C'est
+    le prix d'un taux unique, et le modèle doit l'afficher plutôt que le masquer.
+    """
+    carriere = simulateur.carriere_simple(
+        annee_naissance=1940, sexe="H", affiliation="salarie_prive_non_cadre",
+        age_debut=20, age_liquidation=60,
+    )
+    partage = simulateur.simuler(carriere).partage_financement
+    assert partage.transition < 0
+    assert partage.part_transition < 0
+
+
+def test_le_compartiment_de_capitalisation_garde_ses_taux(simulateur):
+    """Le RAFP n'est pas un compte notionnel : le taux commun ne s'y applique pas."""
+    carriere = simulateur.carriere_simple(
+        annee_naissance=1975, sexe="F", affiliation="fonctionnaire_etat",
+        age_debut=23, age_liquidation=64, part_primes=0.20,
+    )
+    comparaison = simulateur.simuler(carriere)
+    assert (comparaison.notionnel_acquisition_commune.capital_capitalisation
+            == pytest.approx(
+                comparaison.notionnel_retroactif.capital_capitalisation))
+
+
+def test_les_scenarios_4_et_5_ne_qualifient_pas_la_fiabilite_d_ensemble(simulateur):
+    """Un repli du scénario 4 ne doit pas dégrader l'étalon ni le scénario 2."""
+    carriere = simulateur.carriere_simple(
+        annee_naissance=1955, sexe="H", affiliation="agent_sncf",
+        age_debut=20, age_liquidation=50,
+    )
+    comparaison = simulateur.simuler(carriere)
+    assert comparaison.fiabilite == min(
+        comparaison.actuel.fiabilite,
+        comparaison.notionnel_retroactif.fiabilite,
+        comparaison.notionnel_prospectif.fiabilite,
+    )
+    assert (comparaison.notionnel_financement_public.fiabilite
+            <= comparaison.notionnel_retroactif.fiabilite)
+
+
 def test_la_cascade_des_avantages_est_exactement_additive(simulateur):
     """Sous-total contributif + avantages = pension. Sinon la page ment."""
     for enfants, salaire, debut in ((0, 1.0, 22), (1, 1.0, 22), (3, 2.0, 22),
@@ -542,7 +667,8 @@ def test_dictionnaire_est_serialisable(simulateur, salarie_moyen):
     donnees = simulateur.simuler(salarie_moyen).dictionnaire()
     json.dumps(donnees, ensure_ascii=False)
     assert set(donnees["scenarios"]) == {
-        "actuel", "notionnel_retroactif", "notionnel_prospectif"
+        "actuel", "notionnel_retroactif", "notionnel_prospectif",
+        "notionnel_financement_public", "notionnel_acquisition_commune",
     }
     assert donnees["unite"]["euros_constants_de"] == 2026
 
@@ -1787,7 +1913,7 @@ def test_le_minimum_vieillesse_complete_les_toutes_petites_pensions(simulateur):
     )
 
     # Et le paramètre la retire d'un seul geste : ce n'est pas une pension.
-    from retraite_notionnelle.simulateur import Simulateur
+    from retraite_notionnelle.simulateur import SCENARIOS_NOTIONNELS, Simulateur
 
     sans = Simulateur(simulateur.parametres.avec(
         minimum_vieillesse_dans_le_scenario_actuel=False

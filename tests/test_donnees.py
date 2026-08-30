@@ -8,7 +8,10 @@ from retraite_notionnelle.config import RACINE_DONNEES
 from retraite_notionnelle.donnees.chargement import DonneeInsuffisante, Fiabilite
 from retraite_notionnelle.donnees.macro import DonneesMacro
 from retraite_notionnelle.donnees.mortalite import DonneesMortalite
-from retraite_notionnelle.donnees.regimes import CatalogueRegimes
+from retraite_notionnelle.donnees.regimes import (
+    CatalogueRegimes,
+    ContributionsEmployeurPubliques,
+)
 
 
 @pytest.fixture(scope="module")
@@ -218,6 +221,14 @@ def test_journal_de_certification_decrit_les_series_certifiees():
         "valeurs_point_msa": "regimes/valeurs_point.csv",
         "valeurs_point_unirs": "regimes/valeurs_point.csv",
         "valeurs_point_texte": "regimes/valeurs_point.csv",
+        "employeur_public_etat":
+            "legislation/contribution_employeur_public.csv",
+        "employeur_public_etat_implicite":
+            "legislation/contribution_employeur_public.csv",
+        "employeur_public_cnracl":
+            "legislation/contribution_employeur_public.csv",
+        "employeur_public_sncf":
+            "legislation/contribution_employeur_public.csv",
     }
     assert set(journal["series"]) == set(fichiers)
 
@@ -500,3 +511,67 @@ def test_la_loi_parametrique_sous_estime_la_mortalite_des_grands_ages(mortalite)
     assert -0.30 < biais < -0.15, biais
     # Et jamais dans l'autre sens sur la médiane.
     assert statistics.median(ecarts) < 0
+
+
+# -- contribution employeur des régimes publics -------------------------------
+
+
+@pytest.fixture(scope="module")
+def employeurs() -> ContributionsEmployeurPubliques:
+    return ContributionsEmployeurPubliques(RACINE_DONNEES)
+
+
+def test_les_trois_regimes_publies_sont_charges(employeurs):
+    assert employeurs.regimes == ("cnracl", "fonction_publique_etat", "sncf")
+
+
+def test_les_taux_appeles_par_l_etat_sont_ceux_des_decrets(employeurs):
+    """Repères tirés de la fiche du Service des retraites de l'État."""
+    for annee, attendu in ((2006, 0.4990), (2013, 0.7428), (2024, 0.7428),
+                           (2025, 0.7828), (2026, 0.8228)):
+        contribution = employeurs.taux("fonction_publique_etat", annee)
+        assert contribution.taux == pytest.approx(attendu), annee
+        assert contribution.nature == "appelee"
+        assert contribution.fiabilite is Fiabilite.CERTIFIEE
+
+
+def test_le_taux_de_l_etat_d_avant_2006_est_annonce_comme_implicite(employeurs):
+    """Reconstitution budgétaire, pas cotisation appelée : elle doit le dire."""
+    contribution = employeurs.taux("fonction_publique_etat", 2005)
+    assert contribution.taux == pytest.approx(0.594)
+    assert contribution.nature == "implicite"
+    assert contribution.fiabilite is Fiabilite.HAUTE
+
+
+def test_avant_la_premiere_annee_rien_n_est_invente(employeurs):
+    """L'État ne versait aucune cotisation en 1960 : ne pas lui en prêter une."""
+    assert employeurs.taux("fonction_publique_etat", 1994) is None
+    assert employeurs.taux("cnracl", 1947) is None
+    assert employeurs.taux("sncf", 2006) is None
+    assert employeurs.taux("ratp", 2020) is None
+
+
+def test_au_dela_de_la_serie_le_dernier_taux_est_prolonge(employeurs):
+    """Une carrière qui court jusqu'en 2060 ne doit pas changer de convention
+    au milieu — mais la prolongation ne se fait pas passer pour une observation."""
+    contribution = employeurs.taux("fonction_publique_etat", 2050)
+    assert contribution.taux == pytest.approx(0.8228)
+    assert contribution.projetee
+    assert contribution.fiabilite is Fiabilite.ESTIMEE
+
+
+def test_la_cnracl_remonte_a_1948(employeurs):
+    """La fonction publique territoriale n'a jamais eu le problème de l'État."""
+    debut, fin = employeurs.couverture("cnracl")
+    assert debut == 1948
+    assert fin >= 2025
+    assert employeurs.taux("cnracl", 1948).taux == pytest.approx(0.12)
+
+
+def test_les_taux_employeur_publics_restent_plausibles(employeurs):
+    """Aucune erreur de virgule : entre 5 % et 100 % du traitement."""
+    for regime in employeurs.regimes:
+        debut, fin = employeurs.couverture(regime)
+        for annee in range(debut, fin + 1):
+            taux = employeurs.taux(regime, annee).taux
+            assert 0.05 < taux < 1.0, (regime, annee, taux)
