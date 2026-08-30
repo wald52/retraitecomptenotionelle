@@ -895,9 +895,9 @@ n'est plus une limite : c'est un paramètre connu du résultat.
 - La certification des séries est tracée dans `data/derive/certification.json`,
   que `scripts/verifier_donnees.py --appliquer` COMPLÈTE au lieu de le
   remplacer : les récupérateurs sont indépendants et lents, on ne lance
-  presque jamais les treize d'un coup, et réécrire le journal à partir des
+  presque jamais les dix-sept d'un coup, et réécrire le journal à partir des
   seules sources présentes ce jour-là effaçait la trace de toutes les autres.
-- 166 tests couvrent le chargement, la fiabilité, la règle de certification, la
+- 199 tests couvrent le chargement, la fiabilité, la règle de certification, la
   concordance des tables de mortalité observées avec les espérances publiées, les
   propriétés du moteur et le comportement des scénarios : `python -m pytest tests`.
   Aucun test n'accède au réseau : les sources sont simulées.
