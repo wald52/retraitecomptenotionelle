@@ -30,6 +30,7 @@ Ce qui suit est le recensement complet de ses paramètres et de leur état.
 | Minimum vieillesse (ASPA) | montants servis 2007, 2010, 2016-2026 | transcrit des publications |
 | Décote de la fonction publique | article L. 14, montée en charge 2006-2020 | reprise des textes, non recontrôlée |
 | Carrière longue | trois étapes, 2004, 2012, 2023 | **certifiée** pour 2023 (L. 351-1-1, D. 351-1-1) ; 2004 et 2012 transcrites |
+| Trimestres accordés au titre des enfants | MDA à 4 puis 8 trimestres par enfant (1972, 1975) ; bonification de la fonction publique à 4 puis 2 (2004) | reprise des textes, non recontrôlée |
 | Durée requise par génération | table 1934-1975, 151 → 172 trimestres | **certifiée** depuis 1958 (L. 161-17-3) ; 1934-1957 transcrite |
 | Âge légal par génération | table 1900-1975, 60 → 64 ans | **certifié** (D. 161-2-1-9), recontrôlé à chaque exécution |
 | Âge d'annulation de la décote par génération | table 1930-1955, 65 → 67 ans | reprise des textes, non recontrôlée |
@@ -56,8 +57,24 @@ l'être.
 
 ### Ce qui vient d'être refermé
 
-**Six erreurs de calcul.**
+**Sept erreurs de calcul.**
 
+- **Les trimestres pour enfants étaient servis huit par enfant, à tout le
+  monde et de tout temps.** Le droit n'en a jamais servi autant. La majoration
+  de durée d'assurance naît avec la loi du 31 décembre 1971, vaut un an par
+  enfant jusqu'en 1974, deux ans ensuite, et va à la mère ; la fonction publique
+  ne l'applique pas mais sert sa bonification, un an par enfant né avant 2004 et
+  deux trimestres pour les enfants nés depuis. Trois conséquences chiffrées : un
+  assuré liquidant en 1965 se voyait créditer de trimestres que la loi ne
+  connaissait pas encore, un père de trois enfants recevait trois ans de durée
+  d'assurance qui ne lui étaient pas dus — de quoi effacer une décote entière —,
+  et une fonctionnaire mère de trois enfants en recevait vingt-quatre au lieu de
+  douze. Les règles et leurs dates sont désormais dans
+  `legislation/majoration_duree_assurance.csv`.
+- **Les régimes alignés n'appliquaient pas les règles familiales du régime
+  général.** L'article L. 634-2 les leur donne depuis l'alignement de 1973 :
+  une artisane, une commerçante n'avaient ni majoration de durée d'assurance ni
+  majoration pour trois enfants.
 - **Le salaire de référence ne portait pas sur les bonnes années.** Il balayait
   TOUTE la carrière, régimes confondus : un polypensionné passé de la fonction
   publique au privé liquidait sa pension civile sur son dernier salaire privé,
@@ -122,9 +139,11 @@ modèle n'a pas, ou décrit un dispositif qu'il représenterait faussement.
 - **Pension de réversion.** Elle ne concerne pas l'assuré mais son conjoint
   survivant, et suppose de connaître un ménage. Hors périmètre par
   construction : le modèle décrit une carrière, pas une famille.
-- **Bonifications et catégorie active.** Bonifications de dépaysement, de
-  campagne militaire, du cinquième pour les emplois de sécurité ; ouverture à
-  57 ans, voire 52, pour les catégories actives. Toutes supposent de connaître
+- **Bonifications de service et catégorie active.** Bonifications de
+  dépaysement, de campagne militaire, du cinquième pour les emplois de
+  sécurité ; ouverture à 57 ans, voire 52, pour les catégories actives. La
+  bonification POUR ENFANTS, elle, est désormais servie : elle ne demande que le
+  nombre d'enfants. Les autres supposent de connaître
   le CORPS d'appartenance et le détail des services, que la saisie ne demande
   pas. Conséquence mesurable : un fonctionnaire de catégorie active est traité
   comme un sédentaire, ce qui lui oppose l'âge d'ouverture du sédentaire — la
@@ -157,8 +176,19 @@ modèle n'a pas, ou décrit un dispositif qu'il représenterait faussement.
   selon un calendrier qui lui est propre, régime par régime. Le modèle applique
   d'emblée le coefficient plein à partir de la date d'entrée en vigueur portée
   par chaque fiche.
-- **Taux de cotisation.** Ils restent lus à l'année de liquidation, quand cinq
-  autres paramètres sont désormais lus à la génération.
+- **Année de naissance des enfants.** Le modèle ne la collecte pas : il présume
+  les enfants nés aux trente ans de leur mère, l'âge moyen des mères à
+  l'accouchement. La convention ne déplace qu'une chose, la bascule des quatre
+  aux deux trimestres de la fonction publique, qui tombe ainsi sur les
+  générations nées à partir de 1974. Elle ne peut pas non plus savoir si les
+  parents ont attribué au père les quatre trimestres d'éducation ouverts en
+  2010, ni si un père fonctionnaire a interrompu son activité les deux mois
+  qu'exige la bonification depuis 2003 : dans les deux cas le modèle retient
+  l'attribution par défaut, celle de la mère.
+- **Montée en charge des bonifications dans les régimes spéciaux.** Ils suivent
+  ici le calendrier de la fonction publique — un an par enfant né avant 2004 —
+  faute d'un barème publié régime par régime, quand leurs propres réformes sont
+  de 2008 et 2009.
 - **Un ménage, un patrimoine, des ressources.** Le minimum vieillesse est servi
   sous le barème d'une personne seule sans autre ressource — le cas le plus
   favorable — et à tous, alors que la DREES estime le non-recours à la moitié
@@ -765,15 +795,25 @@ l'Institut des politiques publiques (PENSIPP). Écarts connus :
   tranches en euros de la classe C1, depuis 2019 seulement — les tranches
   antérieures ne sont pas publiées. Restent au rendement instantané le RCI et le
   RAFP, faute d'un prix d'achat publié ;
-- **montée en charge des réformes** — cinq paramètres sont lus à la génération :
-  durée requise, âge d'ouverture, âge d'annulation de la décote, coefficient de
-  minoration et nombre d'années retenues au salaire de référence. Trois d'entre
-  eux sont désormais lus dans le texte même des articles du code, et
-  recontrôlés à chaque exécution. La décote de la fonction publique et le
-  barème du minimum garanti, eux, sont lus à l'année de liquidation, comme
-  leurs articles l'écrivent. Restent approchés les taux de cotisation, lus à
-  l'année de liquidation, et la montée en charge propre à chaque régime
+- **montée en charge des réformes** — le modèle a trois horloges, comme le
+  droit. Ce qui s'ACQUIERT est lu à l'année travaillée : taux de cotisation,
+  assiette et ses bornes, plafond de la Sécurité sociale, prix d'achat du point,
+  heures de SMIC pour valider un trimestre. Ce qui commande la MONTÉE EN CHARGE
+  est lu à la génération : durée requise, âge d'ouverture, âge d'annulation de
+  la décote, coefficient de minoration et nombre d'années retenues au salaire de
+  référence — trois de ces cinq tables sont lues dans le texte même des articles
+  du code, et recontrôlées à chaque exécution. Ce qui LIQUIDE est lu à l'année
+  de liquidation : formule du régime, valeur de service du point, décote de la
+  fonction publique et barème du minimum garanti, comme leurs articles
+  l'écrivent. Reste approchée la montée en charge propre à chaque régime
   spécial ;
+- **avantages datés** — la fiche de chaque période dit ce que le régime
+  accordait cette année-là, et le moteur ne sert que cela : ni minimum
+  contributif avant 1983, ni surcote avant 2004, ni trimestres pour enfants
+  avant 1972. Restent hors du modèle les avantages familiaux des régimes que
+  leur fiche ne déclare pas, faute de barème sourcé : le régime de base des
+  professions libérales, celui des avocats, et celui des exploitants
+  agricoles ;
 - **revalorisation des salaires portés au compte** — les coefficients annuels
   suivent désormais les salaires jusqu'en 1986 et les prix depuis 1987, comme
   l'ont fait les arrêtés. La règle des prix appliquée à toute la période
@@ -897,7 +937,7 @@ n'est plus une limite : c'est un paramètre connu du résultat.
   remplacer : les récupérateurs sont indépendants et lents, on ne lance
   presque jamais les dix-sept d'un coup, et réécrire le journal à partir des
   seules sources présentes ce jour-là effaçait la trace de toutes les autres.
-- 199 tests couvrent le chargement, la fiabilité, la règle de certification, la
+- 201 tests couvrent le chargement, la fiabilité, la règle de certification, la
   concordance des tables de mortalité observées avec les espérances publiées, les
   propriétés du moteur et le comportement des scénarios : `python -m pytest tests`.
   Aucun test n'accède au réseau : les sources sont simulées.

@@ -52,6 +52,7 @@ from retraite_notionnelle.scenarios.actuel import (  # noqa: E402
     AnneesSalaireReference,
     CoefficientsMinoration,
     DureesRequises,
+    MajorationsPourEnfants,
     Rendements,
     ValeursPoint,
 )
@@ -62,7 +63,7 @@ STYLE = RACINE / "moteur" / "style.css"
 
 #: Version du format. À incrémenter si la structure du paquet change, pour
 #: qu'un site en cache ne lise pas un paquet qu'il ne comprend pas.
-VERSION = 2
+VERSION = 3
 
 
 def _serie(serie: SerieAnnuelle) -> dict:
@@ -306,6 +307,16 @@ def _minimum_vieillesse() -> dict:
             for annee, (valeur, fiabilite) in sorted(table.items())}
 
 
+def _majorations_enfants() -> list:
+    """Trimestres accordés au titre des enfants, dispositif par dispositif."""
+    return [
+        [dispositif, reference, debut, fin, trimestres, beneficiaire,
+         int(fiabilite)]
+        for dispositif, reference, debut, fin, trimestres, beneficiaire, fiabilite
+        in MajorationsPourEnfants(DONNEES)._table
+    ]
+
+
 def _carriere_longue() -> dict:
     """Portes du départ anticipé pour carrière longue, par année."""
     from retraite_notionnelle.scenarios.actuel import CarriereLongue
@@ -351,6 +362,7 @@ def construire() -> bytes:
         "minimum_vieillesse": _minimum_vieillesse(),
         "decote_fonction_publique": _decote_fonction_publique(),
         "carriere_longue": _carriere_longue(),
+        "majorations_enfants": _majorations_enfants(),
         "certification": journal_certification(DONNEES),
     }
     texte = json.dumps(paquet, ensure_ascii=False, sort_keys=True,

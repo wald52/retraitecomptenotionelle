@@ -375,6 +375,57 @@ export class MinimumVieillesse {
 MinimumVieillesse.AGE_OUVERTURE = 65;
 
 /**
+ * Trimestres accordés au titre des enfants, dispositif par dispositif.
+ *
+ * Le module en servait huit par enfant, à tout assuré, à toute date et dans
+ * tout régime. Le droit n'en a jamais servi autant : la majoration de durée
+ * d'assurance n'existe pas avant 1972, elle vaut un an par enfant jusqu'en
+ * 1974, elle est attribuée à la mère, et la fonction publique ne l'applique
+ * pas — elle a sa propre bonification, qui vaut un an par enfant né avant 2004
+ * et deux trimestres pour les enfants nés depuis.
+ *
+ * Deux horloges, et la distinction est dans les textes : la MDA se lit à
+ * l'ANNÉE DE LIQUIDATION, la bonification à l'ANNÉE DE NAISSANCE DE L'ENFANT.
+ */
+export class MajorationsPourEnfants {
+  constructor(paquet) {
+    this._table = paquet.majorations_enfants ?? [];
+  }
+
+  /**
+   * Trimestres accordés PAR ENFANT, ou `null` si rien n'est dû.
+   *
+   * @returns {[number, number]|null} trimestres et fiabilité.
+   */
+  parEnfant(dispositif, sexe, anneeNaissance, anneeLiquidation) {
+    for (const [code, reference, debut, fin, trimestres, beneficiaire, fiabilite]
+      of this._table) {
+      if (code !== dispositif) {
+        continue;
+      }
+      const annee = reference === "liquidation"
+        ? anneeLiquidation
+        : anneeNaissance + MajorationsPourEnfants.AGE_PRESUME_A_LA_NAISSANCE;
+      if (annee < debut || annee > fin) {
+        continue;
+      }
+      if (beneficiaire === "mere" && sexe !== "F") {
+        return null;
+      }
+      return [trimestres, fiabilite];
+    }
+    return null;
+  }
+}
+
+/**
+ * Âge présumé de la mère à la naissance de ses enfants. Le modèle ne collecte
+ * pas leur date de naissance ; il la déduit de cette convention, qui est l'âge
+ * moyen des mères à l'accouchement.
+ */
+MajorationsPourEnfants.AGE_PRESUME_A_LA_NAISSANCE = 30;
+
+/**
  * Départ anticipé pour carrière longue — article L. 351-1-1.
  *
  * La principale porte d'entrée avant l'âge légal, et la seule qui se déduise de

@@ -46,11 +46,17 @@ regimes:
         taux_cotisation_retraite: 0.1655
         decote_par_trimestre: 0.0125
         surcote_par_trimestre: null
-        avantages_non_contributifs: [minimum_contributif, minimum_vieillesse, reversion]
+        avantages_non_contributifs:
+          [minimum_contributif, minimum_vieillesse, majoration_enfants, mda,
+           reversion, periodes_assimilees]
         notes: >-
           Loi du 3 juillet 1972 : ALIGNEMENT du régime de base des artisans sur
           le régime général à compter du 1er janvier 1973. Les points acquis
           avant 1973 sont conservés et convertis (« droits en points »).
+          L'alignement de l'article L. 634-2 emporte les règles familiales du
+          régime général : majoration de durée d'assurance et majoration pour
+          trois enfants. La fiche ne les portait pas, et le moteur ne les
+          servait donc pas à une artisane.
 
   - code: organic
     nom: Organisation autonome nationale de l'industrie et du commerce
@@ -94,8 +100,12 @@ regimes:
         taux_cotisation_retraite: 0.1655
         decote_par_trimestre: 0.0125
         surcote_par_trimestre: null
-        avantages_non_contributifs: [minimum_contributif, minimum_vieillesse, reversion]
-        notes: Aligné sur le régime général en 1973.
+        avantages_non_contributifs:
+          [minimum_contributif, minimum_vieillesse, majoration_enfants, mda,
+           reversion, periodes_assimilees]
+        notes: >-
+          Aligné sur le régime général en 1973, règles familiales comprises,
+          symétrique de la CANCAVA.
 
   - code: rsi
     nom: Régime social des indépendants
@@ -127,7 +137,9 @@ regimes:
         taux_cotisation_retraite: 0.1775
         decote_par_trimestre: 0.0125
         surcote_par_trimestre: 0.0125
-        avantages_non_contributifs: [minimum_contributif, minimum_vieillesse, reversion]
+        avantages_non_contributifs:
+          [minimum_contributif, minimum_vieillesse, majoration_enfants, mda,
+           reversion, periodes_assimilees]
         notes: >-
           Fusion CANCAVA + ORGANIC + AMPI. Supprimé au 1er janvier 2018
           (« suppression du RSI »), adossement au régime général achevé en 2020

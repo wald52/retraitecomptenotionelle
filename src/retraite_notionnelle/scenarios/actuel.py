@@ -25,10 +25,16 @@ est une **approximation documentée**, pas un simulateur officiel :
   l'unification Arrco de 1999 et la fusion Agirc-Arrco de 2019. Restent au
   rendement instantané (``regimes/rendements_points.csv``) la CNBF, le RCI et le
   RAFP, et les années postérieures au dernier barème publié ;
-* montée en charge des réformes — cinq paramètres sont lus à la GÉNÉRATION :
-  durée requise, âge d'ouverture, âge d'annulation de la décote, coefficient de
-  minoration et nombre d'années retenues au salaire de référence. Les taux de
-  cotisation, eux, restent ceux de l'année de liquidation.
+* trois horloges, comme dans le droit — ce qui s'ACQUIERT est lu à l'année
+  travaillée (taux de cotisation, assiette, plafond, prix d'achat du point,
+  heures pour valider un trimestre) ; ce qui commande la MONTÉE EN CHARGE des
+  réformes est lu à la GÉNÉRATION (durée requise, âge d'ouverture, âge
+  d'annulation de la décote, coefficient de minoration, années retenues au
+  salaire de référence) ; ce qui LIQUIDE est lu à l'année de liquidation
+  (formule du régime, valeur de service du point, barèmes des minima) ;
+* avantages datés — la fiche de chaque période dit ce que le régime accordait
+  cette année-là, et le moteur ne sert que cela : ni minimum contributif avant
+  1983, ni surcote avant 2004, ni trimestres pour enfants avant 1972.
 
 Un écart de quelques pour cent avec la pension réelle est donc attendu.
 Ce que le modèle mesure de façon robuste, ce sont les ÉCARTS ENTRE SCÉNARIOS,
@@ -74,6 +80,26 @@ class AvantageApplique:
     libelle: str
     montant: float
     detail: str = ""
+
+
+@dataclass(frozen=True)
+class _MajorationEnfants:
+    """Trimestres dus au titre des enfants, et régime qui les porte."""
+
+    #: Code du régime dans lequel le droit attribue les trimestres.
+    regime: str
+    #: Dispositif qui les accorde : ``mda`` ou ``bonifications``.
+    dispositif: str
+    #: Trimestres accordés au total, tous enfants confondus.
+    trimestres: int
+    fiabilite: Fiabilite
+
+
+#: Ce que chaque dispositif s'appelle dans la cascade des avantages.
+_LIBELLE_MAJORATION = {
+    "mda": "Majoration de durée d'assurance",
+    "bonifications": "Bonification pour enfants",
+}
 
 
 @dataclass(frozen=True)
@@ -320,6 +346,79 @@ def _coefficient_anticipation(trimestres_manquants: float,
         if manquants <= borne:
             break
     return max(0.0, coefficient)
+
+
+class MajorationsPourEnfants:
+    """Trimestres accordés au titre des enfants, dispositif par dispositif.
+
+    Le module en servait huit par enfant, à tout assuré, à toute date et dans
+    tout régime. Le droit n'en a jamais servi autant : la majoration de durée
+    d'assurance n'existe pas avant 1972, elle vaut un an par enfant jusqu'en
+    1974, elle est attribuée à la mère, et la fonction publique ne l'applique
+    pas — elle a sa propre bonification, qui vaut un an par enfant né avant
+    2004 et deux trimestres pour les enfants nés depuis. Un père de trois
+    enfants recevait ainsi douze trimestres que la loi ne lui a jamais donnés,
+    de quoi effacer une décote entière.
+
+    Le fichier ``legislation/majoration_duree_assurance.csv`` porte ces règles
+    et leurs dates ; le ``dispositif`` de chaque ligne reprend le code que la
+    fiche de régime déclare dans ``avantages_non_contributifs``, de sorte que
+    c'est la fiche qui dit quel régime accorde quoi, et la table combien.
+
+    Deux horloges, et la distinction est dans les textes : la MDA se lit à
+    l'ANNÉE DE LIQUIDATION, puisque c'est le droit en vigueur au départ qui la
+    sert ; la bonification se lit à l'ANNÉE DE NAISSANCE DE L'ENFANT, que
+    l'article désigne expressément.
+    """
+
+    #: Âge présumé de la mère à la naissance de ses enfants. Le modèle ne
+    #: collecte pas leur date de naissance ; il la déduit de cette convention,
+    #: qui est l'âge moyen des mères à l'accouchement (vingt-huit ans dans les
+    #: années 1980, trente et un aujourd'hui — INSEE, état civil). Elle ne
+    #: commande qu'une bascule, celle des quatre trimestres aux deux
+    #: trimestres de la fonction publique, et c'est pourquoi les lignes qui en
+    #: dépendent sont au niveau « moyenne ».
+    AGE_PRESUME_A_LA_NAISSANCE = 30
+
+    def __init__(self, racine: Path) -> None:
+        self._table: list[tuple[str, str, int, int, int, str, Fiabilite]] = []
+        chemin = (racine / "reference" / "legislation"
+                  / "majoration_duree_assurance.csv")
+        if not chemin.exists():
+            return
+        with chemin.open(encoding="utf-8") as flux:
+            lignes = (l for l in flux if not l.lstrip().startswith("#"))
+            for ligne in csv.DictReader(lignes):
+                self._table.append((
+                    ligne["dispositif"],
+                    ligne["reference"],
+                    int(ligne["debut"]),
+                    int(ligne["fin"]),
+                    int(ligne["trimestres_par_enfant"]),
+                    ligne["beneficiaire"],
+                    Fiabilite.depuis_texte(ligne["fiabilite"]),
+                ))
+
+    def par_enfant(self, dispositif: str, sexe: str, annee_naissance: int,
+                   annee_liquidation: int) -> tuple[int, Fiabilite] | None:
+        """Trimestres accordés PAR ENFANT, ou ``None`` si rien n'est dû.
+
+        ``None`` couvre les trois cas où le droit ne donne rien : le dispositif
+        n'existe pas encore à la date qui le commande, il n'a jamais existé
+        dans ce régime, ou l'assuré n'en est pas le bénéficiaire.
+        """
+        for (code, reference, debut, fin, trimestres, beneficiaire,
+             fiabilite) in self._table:
+            if code != dispositif:
+                continue
+            annee = (annee_liquidation if reference == "liquidation"
+                     else annee_naissance + self.AGE_PRESUME_A_LA_NAISSANCE)
+            if not debut <= annee <= fin:
+                continue
+            if beneficiaire == "mere" and sexe != "F":
+                return None
+            return trimestres, fiabilite
+        return None
 
 
 class DecoteFonctionPublique:
@@ -704,6 +803,7 @@ class ScenarioActuel:
         self.ages_annulation_decote = AgesAnnulationDecote(parametres.racine_donnees)
         self.coefficients_minoration = CoefficientsMinoration(parametres.racine_donnees)
         self.annees_salaire_reference = AnneesSalaireReference(parametres.racine_donnees)
+        self.majorations_enfants = MajorationsPourEnfants(parametres.racine_donnees)
         self.decote_fonction_publique = DecoteFonctionPublique(
             parametres.racine_donnees
         )
@@ -1027,15 +1127,28 @@ class ScenarioActuel:
             )
         return plafond * servie[0] / publiee[0]
 
-    def _regime_porteur_mda(self, trimestres_par_regime: dict[str, int],
-                            annee_liquidation: int) -> str | None:
-        """Régime auquel sont attribués les trimestres de la MDA.
+    def _majoration_pour_enfants(self, carriere: Carriere,
+                                 trimestres_par_regime: dict[str, int],
+                                 annee_liquidation: int
+                                 ) -> _MajorationEnfants | None:
+        """Trimestres dus au titre des enfants, et régime qui les porte.
 
-        Celui, parmi les régimes en annuités dont la fiche porte l'avantage
-        ``mda``, où l'assuré a validé le plus de trimestres. Départage par le
-        code, pour que le résultat ne dépende pas de l'ordre d'un dictionnaire.
+        Le droit n'attribue pas ces trimestres au-dessus des régimes : il les
+        donne DANS un régime, et ils comptent donc aussi dans sa
+        proratisation, pas seulement dans la décote tous régimes confondus.
+        On retient donc, parmi les régimes en annuités dont la fiche de
+        l'année de liquidation porte un dispositif que la table sert, celui
+        qui accorde le plus ; à égalité, celui où l'assuré a validé le plus de
+        trimestres ; à égalité encore, le dernier code par ordre alphabétique,
+        pour que le résultat ne dépende pas de l'ordre d'un dictionnaire.
+
+        Renvoie ``None`` quand rien n'est dû : pas d'enfant, aucun régime
+        porteur, dispositif pas encore né, ou assuré qui n'en est pas le
+        bénéficiaire.
         """
-        candidats = []
+        if carriere.nombre_enfants <= 0:
+            return None
+        candidats: list[tuple[int, int, str, str, Fiabilite]] = []
         for code, valides in trimestres_par_regime.items():
             if code not in self.catalogue:
                 continue
@@ -1043,10 +1156,27 @@ class ScenarioActuel:
             periode = regime.periode(min(annee_liquidation, _derniere_annee(regime)))
             if periode is None or periode.type_calcul != "annuites":
                 continue
-            if "mda" not in periode.avantages_non_contributifs:
-                continue
-            candidats.append((valides, code))
-        return max(candidats, key=lambda c: (c[0], c[1]))[1] if candidats else None
+            for dispositif in periode.avantages_non_contributifs:
+                accorde = self.majorations_enfants.par_enfant(
+                    dispositif, carriere.sexe, carriere.annee_naissance,
+                    annee_liquidation,
+                )
+                if accorde is None:
+                    continue
+                trimestres, fiabilite = accorde
+                candidats.append((
+                    trimestres * carriere.nombre_enfants, valides, dispositif,
+                    code, fiabilite,
+                ))
+        if not candidats:
+            return None
+        trimestres, _, dispositif, code, fiabilite = max(
+            candidats, key=lambda c: (c[0], c[1], c[3])
+        )
+        return _MajorationEnfants(
+            regime=code, dispositif=dispositif, trimestres=trimestres,
+            fiabilite=fiabilite,
+        )
 
     # -- calcul --------------------------------------------------------------
 
@@ -1081,10 +1211,6 @@ class ScenarioActuel:
         age_liquidation = carriere.age_liquidation or 0.0
 
         trimestres = carriere.trimestres_actuels
-        trimestres_mda = (
-            8 * carriere.nombre_enfants if avantages_non_contributifs else 0
-        )
-        trimestres += trimestres_mda
 
         pensions: list[PensionRegime] = []
         fiabilite_globale = Fiabilite.CERTIFIEE
@@ -1129,21 +1255,26 @@ class ScenarioActuel:
                         + ligne.trimestres_valides
                     )
 
-        # Les trimestres de la majoration de durée d'assurance ne flottent pas
-        # au-dessus des régimes : le droit les attribue DANS un régime, et ils
-        # comptent donc aussi dans sa proratisation, pas seulement dans la
-        # décote tous régimes confondus. Les ignorer là amputait la pension
-        # d'une mère de famille de la part que la MDA est censée lui rendre.
-        # Faute de connaître l'année de naissance des enfants, ils vont au
-        # régime de base où l'assuré a validé le plus de trimestres parmi ceux
-        # qui portent la MDA — exact pour une carrière mono-affiliée, qui est
-        # le cas ordinaire, approché pour un polypensionné.
-        if trimestres_mda:
-            regime_mda = self._regime_porteur_mda(
-                trimestres_par_regime, annee_liquidation
+        # Les trimestres accordés au titre des enfants ne flottent pas au-dessus
+        # des régimes : le droit les attribue DANS un régime, et ils comptent
+        # donc aussi dans sa proratisation, pas seulement dans la décote tous
+        # régimes confondus. Les ignorer là amputait la pension d'une mère de
+        # famille de la part que la majoration est censée lui rendre. Le régime
+        # retenu est celui qui accorde le plus — exact pour une carrière
+        # mono-affiliée, qui est le cas ordinaire, approché pour un
+        # polypensionné, à qui le droit ferait porter la majoration par chacun
+        # de ses régimes.
+        majoration_enfants = (
+            self._majoration_pour_enfants(
+                carriere, trimestres_par_regime, annee_liquidation
+            ) if avantages_non_contributifs else None
+        )
+        if majoration_enfants is not None:
+            trimestres += majoration_enfants.trimestres
+            trimestres_par_regime[majoration_enfants.regime] += (
+                majoration_enfants.trimestres
             )
-            if regime_mda is not None:
-                trimestres_par_regime[regime_mda] += trimestres_mda
+            fiabilite_globale = min(fiabilite_globale, majoration_enfants.fiabilite)
 
         for ligne in carriere.lignes:
             if ligne.annee >= annee_liquidation:
@@ -1477,27 +1608,29 @@ class ScenarioActuel:
         # que les pensions personnelles.
         minimum_applique = False
 
-        if avantages_non_contributifs and carriere.nombre_enfants > 0:
-            # Effet de la MDA : la même carrière sans les huit trimestres par
-            # enfant, tout le reste égal. C'est la seule façon d'isoler un
-            # avantage qui agit sur la décote et sur la proratisation.
+        if avantages_non_contributifs and majoration_enfants is not None:
+            # Effet des trimestres accordés au titre des enfants : la même
+            # carrière sans eux, tout le reste égal. C'est la seule façon
+            # d'isoler un avantage qui agit sur la décote et sur la
+            # proratisation.
             sans_mda = self.calculer(
                 carriere, ignorer_penalite_age, avantages_non_contributifs=False,
                 avpf=avpf,
             )
             effet = total - sans_mda.total_contributif
-            # La MDA est déjà incorporée aux pensions de régime : la base
-            # contributive de la cascade est celle d'AVANT, sans quoi son effet
-            # serait compté deux fois.
+            # Ces trimestres sont déjà incorporés aux pensions de régime : la
+            # base contributive de la cascade est celle d'AVANT, sans quoi leur
+            # effet serait compté deux fois.
             total_contributif = sans_mda.total_contributif
             if abs(effet) > 1e-9:
                 avantages.append(AvantageApplique(
                     code="majoration_duree_assurance",
-                    libelle="Majoration de durée d'assurance",
+                    libelle=_LIBELLE_MAJORATION[majoration_enfants.dispositif],
                     montant=effet,
-                    detail=f"{8 * carriere.nombre_enfants} trimestres pour "
+                    detail=f"{majoration_enfants.trimestres} trimestres pour "
                            f"{carriere.nombre_enfants} enfant"
-                           f"{'s' if carriere.nombre_enfants > 1 else ''}",
+                           f"{'s' if carriere.nombre_enfants > 1 else ''}, "
+                           f"au titre du régime « {majoration_enfants.regime} »",
                 ))
 
         if (avantages_non_contributifs and avpf

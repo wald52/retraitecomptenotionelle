@@ -583,9 +583,11 @@ institutions:
           Portent aussi les tables par génération de
           `data/reference/legislation/` qu'aucun numéro d'article ne rassemble :
           l'âge d'annulation de la décote (loi du 9 novembre 2010), le nombre
-          d'années retenues au salaire annuel moyen (article R. 351-29), et les
-          générations 1934-1957 de la durée requise, fixées par des décrets de
-          montée en charge non codifiés. Saisies depuis les textes, donc au
+          d'années retenues au salaire annuel moyen (article R. 351-29), les
+          trimestres accordés au titre des enfants (loi du 31 décembre 1971,
+          loi du 3 janvier 1975, articles L. 12 b et L. 12 bis du code des
+          pensions), et les générations 1934-1957 de la durée requise, fixées
+          par des décrets de montée en charge non codifiés. Saisies depuis les textes, donc au
           niveau `haute` : Légifrance refuse les requêtes automatisées et son
           API demande une clé. Les trois autres tables — âge d'ouverture, durée
           requise des générations 1958 et suivantes, coefficient de minoration —

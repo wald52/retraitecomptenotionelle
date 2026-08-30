@@ -122,6 +122,36 @@ def _cas() -> list[dict]:
     }))
     cas.append(("enfants", {"enfants": "3", "sexe": "F"}))
 
+    # Les trimestres accordés au titre des enfants ne dépendent pas du seul
+    # nombre d'enfants : la MDA n'existe pas avant 1972, elle vaut un an par
+    # enfant jusqu'en 1974, elle va à la mère, et la fonction publique sert sa
+    # propre bonification — un an par enfant né avant 2004, deux trimestres
+    # ensuite. Un cas par branche, pour que la table se lise dans les témoins.
+    # La carrière commence à trente ans : une carrière complète est au taux
+    # plein et proratisée à un, et ces trimestres n'y déplacent rien — ils ne se
+    # voient que sur une carrière incomplète, qui est aussi le cas où le droit
+    # les a voulus.
+    enfants = {"enfants": "3", "sexe": "F", "debut": "30"}
+    cas.append(("enfants_carriere_incomplete", dict(enfants)))
+    cas.append(("enfants_pere", {**enfants, "sexe": "H"}))
+    cas.append(("enfants_avant_1972", {
+        **enfants, "naissance": "1910", "liquidation": "60",
+    }))
+    cas.append(("enfants_loi_boulin", {
+        **enfants, "naissance": "1913", "liquidation": "60",
+    }))
+    cas.append(("enfants_fonction_publique_nes_avant_2004", {
+        **enfants, "statut": "fonctionnaire_etat", "naissance": "1960",
+    }))
+    cas.append(("enfants_fonction_publique_nes_depuis_2004", {
+        **enfants, "statut": "fonctionnaire_etat", "naissance": "1985",
+    }))
+    # Artisane liquidant avant l'absorption du RSI par la CNAV : c'est bien son
+    # régime aligné qui porte les trimestres, comme l'article L. 634-2 le veut.
+    cas.append(("enfants_regime_aligne", {
+        **enfants, "statut": "artisan", "naissance": "1950",
+    }))
+
     # Retraité de longue date : la bascule est postérieure à sa liquidation.
     cas.append(("deja_liquide", {"naissance": "1935", "liquidation": "60"}))
     cas.append(("liquidation_a_la_bascule", {"naissance": "1962", "liquidation": "64"}))

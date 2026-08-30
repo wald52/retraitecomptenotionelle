@@ -10,8 +10,10 @@
  * annuités par la formule taux × salaire de référence × durée / durée requise ;
  * régimes en points calculés en points quand le barème est connu — prix d'achat
  * publié, ou nombre de points par tranche d'assiette —, au rendement instantané
- * sinon ; montée en charge des réformes lue à la génération pour cinq
- * paramètres, à l'année de liquidation pour les autres. Un écart de quelques
+ * sinon ; trois horloges, comme dans le droit — ce qui s'acquiert lu à l'année
+ * travaillée, la montée en charge des réformes à la génération pour cinq
+ * paramètres, la liquidation à son année ; avantages datés, chaque fiche de
+ * période disant ce que le régime accordait cette année-là. Un écart de quelques
  * pour cent avec la pension réelle est attendu — ce que le modèle mesure de
  * façon robuste, ce sont les écarts ENTRE SCÉNARIOS.
  */
@@ -20,10 +22,16 @@ import { formatFixe, formatPourcentage } from "./format.js";
 import {
   AgesAnnulationDecote, AgesOuverture, AnneesSalaireReference, CarriereLongue,
   CoefficientsMinoration, DecoteFonctionPublique, DureesRequises,
-  MinimumContributif, MinimumGaranti, MinimumVieillesse, Rendements,
-  ValeursPoint,
+  MajorationsPourEnfants, MinimumContributif, MinimumGaranti, MinimumVieillesse,
+  Rendements, ValeursPoint,
 } from "./regimes.js";
 import { Fiabilite } from "./serie.js";
+
+/** Ce que chaque dispositif s'appelle dans la cascade des avantages. */
+const LIBELLE_MAJORATION = {
+  mda: "Majoration de durée d'assurance",
+  bonifications: "Bonification pour enfants",
+};
 
 export class ScenarioActuel {
   constructor(paquet, macro, catalogue, affiliations, parametres) {
@@ -43,6 +51,7 @@ export class ScenarioActuel {
     this.minimumGaranti = new MinimumGaranti(paquet, macro);
     this.minimumVieillesse = new MinimumVieillesse(paquet, macro);
     this.carriereLongue = new CarriereLongue(paquet);
+    this.majorationsEnfants = new MajorationsPourEnfants(paquet);
   }
 
   // -- valorisation des points -----------------------------------------------
@@ -354,12 +363,21 @@ export class ScenarioActuel {
   }
 
   /**
-   * Régime auquel sont attribués les trimestres de la MDA : celui, parmi les
-   * régimes en annuités dont la fiche porte l'avantage ``mda``, où l'assuré a
-   * validé le plus de trimestres. Départage par le code, pour que le résultat
-   * ne dépende pas de l'ordre d'une table de hachage.
+   * Trimestres dus au titre des enfants, et régime qui les porte.
+   *
+   * Le droit n'attribue pas ces trimestres au-dessus des régimes : il les donne
+   * DANS un régime, et ils comptent donc aussi dans sa proratisation. On retient
+   * celui qui accorde le plus ; à égalité, celui où l'assuré a validé le plus de
+   * trimestres ; à égalité encore, le dernier code par ordre alphabétique, pour
+   * que le résultat ne dépende pas de l'ordre d'une table de hachage.
+   *
+   * @returns {{regime: string, dispositif: string, trimestres: number,
+   *            fiabilite: number}|null}
    */
-  regimePorteurMda(trimestresParRegime, anneeLiquidation) {
+  majorationPourEnfants(carriere, trimestresParRegime, anneeLiquidation) {
+    if (carriere.nombre_enfants <= 0) {
+      return null;
+    }
     const candidats = [];
     for (const [code, valides] of trimestresParRegime) {
       if (!this.catalogue.contient(code)) {
@@ -370,16 +388,29 @@ export class ScenarioActuel {
       if (periode === null || periode.type_calcul !== "annuites") {
         continue;
       }
-      if (!periode.avantages_non_contributifs.includes("mda")) {
-        continue;
+      for (const dispositif of periode.avantages_non_contributifs) {
+        const accorde = this.majorationsEnfants.parEnfant(
+          dispositif, carriere.sexe, carriere.annee_naissance, anneeLiquidation,
+        );
+        if (accorde === null) {
+          continue;
+        }
+        candidats.push([
+          accorde[0] * carriere.nombre_enfants, valides, dispositif, code,
+          accorde[1],
+        ]);
       }
-      candidats.push([valides, code]);
     }
     if (candidats.length === 0) {
       return null;
     }
-    candidats.sort((a, b) => (a[0] - b[0]) || (a[1] < b[1] ? -1 : 1));
-    return candidats[candidats.length - 1][1];
+    candidats.sort((a, b) => (a[0] - b[0]) || (a[1] - b[1])
+      || (a[3] < b[3] ? -1 : 1));
+    const retenu = candidats[candidats.length - 1];
+    return {
+      regime: retenu[3], dispositif: retenu[2], trimestres: retenu[0],
+      fiabilite: retenu[4],
+    };
   }
 
   calculer(carriere, ignorerPenaliteAge = false, avantagesNonContributifs = true,
@@ -388,8 +419,6 @@ export class ScenarioActuel {
     const ageLiquidation = carriere.age_liquidation || 0.0;
 
     let trimestres = carriere.trimestresActuels;
-    const trimestresMda = avantagesNonContributifs ? 8 * carriere.nombre_enfants : 0;
-    trimestres += trimestresMda;
 
     const pensions = [];
     let fiabiliteGlobale = Fiabilite.CERTIFIEE;
@@ -436,19 +465,21 @@ export class ScenarioActuel {
       }
     }
 
-    // Les trimestres de la MDA ne flottent pas au-dessus des régimes : le droit
-    // les attribue DANS un régime, et ils comptent donc aussi dans sa
-    // proratisation, pas seulement dans la décote tous régimes confondus.
-    // Faute de connaître l'année de naissance des enfants, ils vont au régime
-    // de base où l'assuré a validé le plus de trimestres parmi ceux qui portent
-    // la MDA — exact pour une carrière mono-affiliée, approché sinon.
-    if (trimestresMda) {
-      const regimeMda = this.regimePorteurMda(trimestresParRegime, anneeLiquidation);
-      if (regimeMda !== null) {
-        trimestresParRegime.set(
-          regimeMda, trimestresParRegime.get(regimeMda) + trimestresMda,
-        );
-      }
+    // Les trimestres accordés au titre des enfants ne flottent pas au-dessus des
+    // régimes : le droit les attribue DANS un régime, et ils comptent donc aussi
+    // dans sa proratisation, pas seulement dans la décote tous régimes
+    // confondus. Le régime retenu est celui qui accorde le plus — exact pour une
+    // carrière mono-affiliée, approché pour un polypensionné.
+    const majorationEnfants = avantagesNonContributifs
+      ? this.majorationPourEnfants(carriere, trimestresParRegime, anneeLiquidation)
+      : null;
+    if (majorationEnfants !== null) {
+      trimestres += majorationEnfants.trimestres;
+      trimestresParRegime.set(
+        majorationEnfants.regime,
+        trimestresParRegime.get(majorationEnfants.regime) + majorationEnfants.trimestres,
+      );
+      fiabiliteGlobale = Math.min(fiabiliteGlobale, majorationEnfants.fiabilite);
     }
 
     for (const ligne of carriere.lignes) {
@@ -766,21 +797,23 @@ export class ScenarioActuel {
     // enfin, qui est différentielle et complète tout le reste.
     let minimumApplique = false;
 
-    if (avantagesNonContributifs && carriere.nombre_enfants > 0) {
-      // Effet de la MDA : la même carrière sans les huit trimestres par enfant.
+    if (avantagesNonContributifs && majorationEnfants !== null) {
+      // Effet des trimestres accordés au titre des enfants : la même carrière
+      // sans eux, tout le reste égal.
       const sansMda = this.calculer(carriere, ignorerPenaliteAge, false, avpf);
       const effet = total - sansMda.total_contributif;
-      // La MDA est déjà incorporée aux pensions de régime : la base
+      // Ces trimestres sont déjà incorporés aux pensions de régime : la base
       // contributive de la cascade est celle d'AVANT.
       totalContributif = sansMda.total_contributif;
       if (Math.abs(effet) > 1e-9) {
-        const nombre = 8 * carriere.nombre_enfants;
         avantages.push({
           code: "majoration_duree_assurance",
-          libelle: "Majoration de durée d'assurance",
+          libelle: LIBELLE_MAJORATION[majorationEnfants.dispositif],
           montant: effet,
-          detail: `${nombre} trimestres pour ${carriere.nombre_enfants} enfant`
-            + `${carriere.nombre_enfants > 1 ? "s" : ""}`,
+          detail: `${majorationEnfants.trimestres} trimestres pour `
+            + `${carriere.nombre_enfants} enfant`
+            + `${carriere.nombre_enfants > 1 ? "s" : ""}, `
+            + `au titre du régime « ${majorationEnfants.regime} »`,
         });
       }
     }

@@ -1137,6 +1137,70 @@ def test_la_mda_compte_dans_la_proratisation_du_regime_qui_la_porte(simulateur):
     assert "/" in base_avec.detail
 
 
+def test_les_trimestres_pour_enfants_suivent_la_date_le_sexe_et_le_regime(simulateur):
+    """Huit trimestres par enfant, à tout le monde et de tout temps : c'est ce
+    que le module servait, et le droit n'en a jamais servi autant.
+
+    La majoration de durée d'assurance naît en 1972 à un an par enfant, passe à
+    deux ans en 1975, et va à la mère. La fonction publique ne l'applique pas :
+    elle a sa bonification, un an par enfant né avant 2004 et deux trimestres
+    pour les enfants nés depuis. Un père de trois enfants recevait douze
+    trimestres — trois ans de durée d'assurance — que la loi ne lui a jamais
+    donnés.
+    """
+    def trimestres(**kw):
+        reglages = dict(affiliation="salarie_prive_non_cadre", age_debut=30,
+                        age_liquidation=60, nombre_enfants=2, sexe="F")
+        reglages.update(kw)
+        carriere = simulateur.carriere_simple(**reglages)
+        resultat = simulateur.scenario_actuel.calculer(carriere)
+        sans = simulateur.scenario_actuel.calculer(
+            simulateur.carriere_simple(**{**reglages, "nombre_enfants": 0})
+        )
+        return resultat.trimestres_valides - sans.trimestres_valides
+
+    # La MDA se lit à l'ANNÉE DE LIQUIDATION : rien avant la loi Boulin, un an
+    # par enfant jusqu'en 1974, deux ans ensuite.
+    assert trimestres(annee_naissance=1910) == 0     # liquidation en 1970
+    assert trimestres(annee_naissance=1913) == 8     # en 1973, 4 par enfant
+    assert trimestres(annee_naissance=1920) == 16    # en 1980, 8 par enfant
+    assert trimestres(annee_naissance=1960) == 16
+
+    # Elle va à la mère : l'attribution par défaut des quatre trimestres
+    # d'éducation ouverts en 2010 est la sienne, faute d'accord des parents.
+    assert trimestres(annee_naissance=1960, sexe="H") == 0
+
+    # La fonction publique sert sa propre bonification, lue à l'année de
+    # naissance de l'enfant — présumé né aux trente ans de sa mère.
+    fonctionnaire = dict(affiliation="fonctionnaire_etat")
+    assert trimestres(annee_naissance=1960, **fonctionnaire) == 8   # nés en 1990
+    assert trimestres(annee_naissance=1985, **fonctionnaire) == 4   # nés en 2015
+
+    # Les régimes alignés appliquent les règles familiales du régime général
+    # (article L. 634-2), ce que leur fiche ne disait pas.
+    assert trimestres(annee_naissance=1950, affiliation="artisan") == 16
+
+
+def test_les_trimestres_pour_enfants_nomment_le_dispositif_qui_les_accorde(simulateur):
+    """La cascade doit dire ce qu'elle applique : la fonction publique ne sert
+    pas une MDA, mais une bonification, et le montant n'est pas le même."""
+    commun = dict(annee_naissance=1960, sexe="F", age_debut=30,
+                  age_liquidation=62, nombre_enfants=3)
+    privee = simulateur.scenario_actuel.calculer(
+        simulateur.carriere_simple(affiliation="salarie_prive_non_cadre", **commun))
+    publique = simulateur.scenario_actuel.calculer(
+        simulateur.carriere_simple(affiliation="fonctionnaire_etat", **commun))
+
+    def avantage(resultat):
+        return next(a for a in resultat.avantages_appliques
+                    if a.code == "majoration_duree_assurance")
+
+    assert avantage(privee).libelle == "Majoration de durée d'assurance"
+    assert "24 trimestres" in avantage(privee).detail
+    assert avantage(publique).libelle == "Bonification pour enfants"
+    assert "12 trimestres" in avantage(publique).detail
+
+
 # -- régimes que le barème en points fait sortir du rendement instantané -----
 
 

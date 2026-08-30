@@ -166,12 +166,15 @@ class Neutralisations:
 
     **Ce que le scénario 1 sert vraiment**, et il ne l'a pas toujours fait :
     minimum contributif, minimum garanti, minimum vieillesse, majoration pour
-    enfants, majoration de durée d'assurance, AVPF, périodes assimilées,
-    garantie minimale de points, carrière longue, décote et surcote.
+    enfants, majoration de durée d'assurance et bonification pour enfants de la
+    fonction publique, AVPF, périodes assimilées, garantie minimale de points,
+    carrière longue, décote et surcote.
 
     **Ce qu'il ne sert pas**, et qu'il ne peut donc pas retirer : la réversion,
-    qui concerne le conjoint survivant et non l'assuré ; les bonifications et la
-    catégorie active, qui supposent de connaître le corps d'appartenance ; la
+    qui concerne le conjoint survivant et non l'assuré ; les bonifications de
+    SERVICE — dépaysement, campagne militaire, cinquième — et la catégorie
+    active, qui supposent de connaître le corps d'appartenance, la bonification
+    pour ENFANTS étant, elle, servie depuis qu'elle est datée ; la
     pension majorée de référence du régime agricole ; les coefficients de
     solidarité et majorants de l'Agirc-Arrco, dispositif éteint dont l'effet
     temporaire serait représenté faussement par un modèle qui ne calcule qu'une

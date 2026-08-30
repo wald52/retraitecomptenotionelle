@@ -1,0 +1,87 @@
+# Trimestres accordés au titre des enfants — MDA et bonifications
+# ----------------------------------------------------------------
+# source_id: legifrance_textes
+#
+# À quoi cela sert dans ce modèle. Le scénario « système actuel » ajoutait HUIT
+# TRIMESTRES PAR ENFANT à tout assuré qui en déclarait, sans regarder ni la date
+# de liquidation, ni le sexe, ni le régime. Trois erreurs dans un seul chiffre :
+#
+#   * la majoration de durée d'assurance n'existe pas avant 1972, et elle vaut
+#     un an par enfant jusqu'en 1974. Un assuré liquidant en 1965 se voyait donc
+#     créditer de trimestres que la loi ne lui accordait pas ;
+#   * elle est attribuée à la MÈRE. Un père de trois enfants recevait douze
+#     trimestres — trois ans de durée d'assurance — que le droit ne lui a jamais
+#     donnés, ce qui effaçait à lui seul une décote entière ;
+#   * la fonction publique et les régimes spéciaux n'appliquent pas la MDA du
+#     régime général mais leur propre bonification, qui vaut un an par enfant né
+#     avant 2004 et deux trimestres seulement pour les enfants nés depuis.
+#
+# Les trimestres accordés ici jouent sur la durée d'assurance tous régimes — donc
+# sur la décote — ET dans la proratisation du régime qui les porte.
+#
+# DEUX DISPOSITIFS, ET ILS NE SE LISENT PAS À LA MÊME DATE
+#
+# `dispositif` reprend le code porté par la fiche de régime dans son champ
+# `avantages_non_contributifs` : c'est elle qui dit quel régime accorde quoi, et
+# à partir de quelle période.
+#
+#   mda           Majoration de durée d'assurance de l'article L. 351-4 du code
+#                 de la sécurité sociale. Régime général et régimes alignés
+#                 (artisans, commerçants, salariés agricoles).
+#                 * Loi n° 71-1132 du 31 décembre 1971, dite loi Boulin : UN AN
+#                   par enfant élevé, aux femmes assurées, pour les pensions
+#                   prenant effet à compter du 1er janvier 1972.
+#                 * Loi n° 75-3 du 3 janvier 1975 : DEUX ANS par enfant.
+#                 * Loi n° 2009-1646 du 24 décembre 2009 : pour les enfants nés
+#                   à compter du 1er janvier 2010, les huit trimestres se
+#                   partagent en quatre au titre de la maternité, qui restent à
+#                   la mère, et quatre au titre de l'éducation, attribués au
+#                   choix des parents et, À DÉFAUT D'ACCORD, à la mère. Le total
+#                   servi à la mère est donc inchangé, et c'est cette attribution
+#                   par défaut que le modèle retient : il ne connaît pas l'accord
+#                   éventuel des parents.
+#
+#   bonifications Bonification pour enfants de l'article L. 12 b du code des
+#                 pensions civiles et militaires, et majoration de durée
+#                 d'assurance de l'article L. 12 bis. Fonction publique et
+#                 régimes spéciaux.
+#                 * Enfants nés avant le 1er janvier 2004 : UN AN par enfant.
+#                   Réservée aux femmes jusqu'à la loi du 21 août 2003, ouverte
+#                   ensuite aux deux parents sous condition d'une interruption
+#                   d'activité d'au moins deux mois — condition que le modèle ne
+#                   peut pas vérifier, et qu'il présume remplie par la mère seule.
+#                 * Enfants nés à compter du 1er janvier 2004 : la bonification
+#                   disparaît, remplacée par DEUX TRIMESTRES par enfant pour les
+#                   femmes fonctionnaires ayant accouché après leur recrutement.
+#
+# `reference` dit à quelle date se lit la ligne, et la distinction n'est pas
+# cosmétique : la MDA se lit à l'ANNÉE DE LIQUIDATION, puisque c'est le droit en
+# vigueur au départ qui la sert, tandis que la bonification se lit à l'ANNÉE DE
+# NAISSANCE DE L'ENFANT, que le texte désigne expressément.
+#
+#   liquidation        année de départ en retraite de l'assuré ;
+#   naissance_enfant   année de naissance de l'enfant.
+#
+# CONVENTION, ET C'EST LA SEULE DE CE FICHIER : le modèle ne collecte pas la date
+# de naissance des enfants. Il les présume nés à trente ans de leur mère — l'âge
+# moyen des mères à l'accouchement, qui était de vingt-huit ans dans les années
+# 1980 et de trente et un ans aujourd'hui (INSEE, statistiques de l'état civil).
+# La convention ne déplace qu'une chose : le passage des quatre trimestres aux
+# deux trimestres de la fonction publique, qui bascule ainsi pour les mères nées
+# à partir de 1974. Elle est écrite dans le code sous le nom
+# `MajorationsPourEnfants.AGE_PRESUME_A_LA_NAISSANCE`, et c'est pourquoi les
+# lignes qu'elle commande sont au niveau `moyenne` et non `haute`.
+#
+# `beneficiaire` : `mere` réserve les trimestres aux femmes, `deux_parents` les
+# ouvre à l'un comme à l'autre. Aucune ligne n'utilise aujourd'hui la seconde
+# valeur — le partage ouvert en 2010 et en 2003 suppose un accord ou une
+# interruption d'activité que le modèle ne connaît pas, et son attribution PAR
+# DÉFAUT va à la mère dans les deux cas.
+#
+# `fin` vaut 2100 pour une règle toujours en vigueur, comme partout ailleurs
+# dans data/.
+dispositif,reference,debut,fin,trimestres_par_enfant,beneficiaire,fiabilite
+mda,liquidation,1972,1974,4,mere,haute
+mda,liquidation,1975,2100,8,mere,haute
+bonifications,naissance_enfant,1900,2003,4,mere,moyenne
+bonifications,naissance_enfant,2004,2100,2,mere,moyenne

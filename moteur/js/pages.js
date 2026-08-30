@@ -901,9 +901,13 @@ contributifs que la carrière suffit à déterminer :</p>
   compte un salaire forfaitaire égal au SMIC — c'est ce qui la distingue d'une
   période assimilée, laquelle valide des trimestres sans jamais ajouter de
   salaire ;</li>
-  <li><strong>la majoration de durée d'assurance</strong>, huit trimestres par
-  enfant, attribués DANS un régime et non au-dessus d'eux : ils comptent donc
-  aussi dans sa proratisation ;</li>
+  <li><strong>les trimestres accordés au titre des enfants</strong>, datés : la
+  majoration de durée d'assurance du régime général et des régimes alignés naît
+  en 1972 à un an par enfant, passe à deux ans en 1975 et va à la mère ; la
+  fonction publique et les régimes spéciaux servent leur bonification, un an par
+  enfant né avant 2004 et deux trimestres pour les enfants nés depuis. Ils sont
+  attribués DANS un régime et non au-dessus d'eux : ils comptent donc aussi dans
+  sa proratisation ;</li>
   <li><strong>le minimum contributif</strong>, réservé aux pensions liquidées au
   taux plein, proratisé par la durée d'assurance acquise dans le régime, et sa
   majoration au titre des périodes cotisées proratisée par la seule durée

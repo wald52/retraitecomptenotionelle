@@ -380,7 +380,17 @@ précédent, et le modèle en prenait deux à l'envers.
    carrière de moins de vingt-cinq années portées au compte, les années au SMIC
    s'ajoutent aux années retenues au lieu de les remplacer, et abaissent la
    moyenne. C'est la règle, et le modèle la montre telle qu'elle est.
-2. **Majoration de durée d'assurance** — huit trimestres par enfant, attribués
+2. **Trimestres accordés au titre des enfants** — datés, sexués, et propres à
+   chaque famille de régimes (`legislation/majoration_duree_assurance.csv`). La
+   majoration de durée d'assurance de l'article L. 351-4 naît avec la loi du
+   31 décembre 1971 à un an par enfant, passe à deux ans en 1975, et va à la
+   mère : le partage ouvert en 2010 entre maternité et éducation laisse à la
+   mère, à défaut d'accord des parents, les mêmes huit trimestres. La fonction
+   publique et les régimes spéciaux ne l'appliquent pas : ils servent la
+   bonification de l'article L. 12 b, un an par enfant né avant 2004, puis les
+   deux trimestres de l'article L. 12 bis pour les enfants nés depuis. Les
+   régimes alignés — artisans, commerçants, salariés agricoles — suivent le
+   régime général (L. 634-2). Dans tous les cas ces trimestres sont attribués
    DANS un régime et non au-dessus d'eux : ils comptent donc aussi dans sa
    proratisation, pas seulement dans la décote tous régimes confondus.
 3. **Minimum contributif** — réservé aux pensions liquidées AU TAUX PLEIN
