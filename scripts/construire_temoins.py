@@ -151,6 +151,25 @@ def _cas() -> list[dict]:
     cas.append(("enfants_regime_aligne", {
         **enfants, "statut": "artisan", "naissance": "1950",
     }))
+    # La loi Boulin ne visait que les mères d'AU MOINS DEUX enfants : le même
+    # départ, avec un enfant, ne donne rien.
+    cas.append(("enfants_loi_boulin_enfant_unique", {
+        **enfants, "enfants": "1", "naissance": "1913", "liquidation": "60",
+    }))
+
+    # Surcote parentale : durée requise atteinte à 63 ans, trimestres pour
+    # enfants, et une année de travail de plus que la loi de 2023 a imposée.
+    parentale = {"enfants": "2", "sexe": "F", "debut": "18",
+                 "naissance": "1968", "liquidation": "64"}
+    cas.append(("surcote_parentale", dict(parentale)))
+    cas.append(("surcote_parentale_pere", {**parentale, "sexe": "H"}))
+    cas.append(("surcote_parentale_duree_incomplete", {**parentale, "debut": "30"}))
+    cas.append(("surcote_parentale_fonction_publique", {
+        **parentale, "statut": "fonctionnaire_etat",
+    }))
+    cas.append(("surcote_parentale_avec_surcote_ordinaire", {
+        **parentale, "liquidation": "67",
+    }))
 
     # Retraité de longue date : la bascule est postérieure à sa liquidation.
     cas.append(("deja_liquide", {"naissance": "1935", "liquidation": "60"}))

@@ -121,6 +121,31 @@ regimes:
     hors_repartition: false
     periodes:
       - debut: 2006
+        fin: 2008
+        type_calcul: annuites
+        age_ouverture: 62
+        age_ouverture_par_generation: true
+        age_taux_plein: 67
+        duree_requise_trimestres: 172
+        duree_requise_par_generation: true
+        taux_plein: 0.50
+        age_taux_plein_par_generation: true
+        decote_par_generation: true
+        salaire_reference_par_generation: true
+        salaire_reference: 25_meilleures_annees
+        assiette: plafonnee
+        taux_cotisation_retraite: 0.1775
+        decote_par_trimestre: 0.0125
+        surcote_par_trimestre: 0.0075
+        avantages_non_contributifs:
+          [minimum_contributif, minimum_vieillesse, majoration_enfants, mda,
+           reversion, periodes_assimilees]
+        notes: >-
+          Fusion CANCAVA + ORGANIC + AMPI. Supprimé au 1er janvier 2018
+          (« suppression du RSI »), adossement au régime général achevé en 2020
+          sous le nom de Sécurité sociale des indépendants puis intégration
+          complète à la CNAV.
+      - debut: 2009
         fin: 2018
         type_calcul: annuites
         age_ouverture: 62
@@ -141,10 +166,9 @@ regimes:
           [minimum_contributif, minimum_vieillesse, majoration_enfants, mda,
            reversion, periodes_assimilees]
         notes: >-
-          Fusion CANCAVA + ORGANIC + AMPI. Supprimé au 1er janvier 2018
-          (« suppression du RSI »), adossement au régime général achevé en 2020
-          sous le nom de Sécurité sociale des indépendants puis intégration
-          complète à la CNAV.
+          Loi de financement de la sécurité sociale pour 2009 : la surcote passe
+          de 0,75 % à 1,25 % par trimestre au 1er janvier 2009. Même période,
+          même barème par ailleurs — seul le taux de surcote change.
 
   - code: rci
     nom: Régime complémentaire des indépendants
@@ -562,7 +586,8 @@ regimes:
         decote_par_trimestre: 0.0125
         surcote_par_trimestre: 0.0125
         avantages_non_contributifs:
-          [minimum_contributif, majoration_enfants, mda, reversion, periodes_assimilees]
+          [minimum_contributif, majoration_enfants, mda, reversion,
+           periodes_assimilees, surcote_parentale]
         notes: >-
           Régime ALIGNÉ sur le régime général depuis l'origine (mêmes règles de
           calcul, gestion distincte). Complémentaire : Agirc-Arrco.

@@ -1201,6 +1201,106 @@ def test_les_trimestres_pour_enfants_nomment_le_dispositif_qui_les_accorde(simul
     assert "12 trimestres" in avantage(publique).detail
 
 
+def test_la_loi_boulin_ne_visait_que_les_meres_de_deux_enfants(simulateur):
+    """Le seuil de trois enfants du projet a été abaissé à deux au débat, pas à
+    un : jusqu'en 1974, une mère d'un enfant unique n'avait droit à rien."""
+    def trimestres(nombre_enfants, annee_naissance):
+        commun = dict(annee_naissance=annee_naissance, sexe="F",
+                      affiliation="salarie_prive_non_cadre",
+                      age_debut=30, age_liquidation=60)
+        avec = simulateur.scenario_actuel.calculer(
+            simulateur.carriere_simple(**commun, nombre_enfants=nombre_enfants))
+        sans = simulateur.scenario_actuel.calculer(
+            simulateur.carriere_simple(**commun, nombre_enfants=0))
+        return avec.trimestres_valides - sans.trimestres_valides
+
+    # Liquidation en 1973, sous la loi Boulin.
+    assert trimestres(1, 1913) == 0
+    assert trimestres(2, 1913) == 8
+    # Liquidation en 1980 : la loi du 3 janvier 1975 sert dès le premier enfant.
+    assert trimestres(1, 1920) == 8
+
+
+def test_la_surcote_parentale_recompense_l_annee_imposee_par_la_reforme_de_2023(
+        simulateur):
+    """L'avantage familial le plus récent, et le modèle l'ignorait.
+
+    La loi du 14 avril 2023 a reculé l'âge légal à 64 ans : qui avait sa durée
+    requise à 63 ans s'est vu imposer une année de travail de plus qui ne lui
+    rapportait rien, la surcote ordinaire ne comptant qu'au-delà de l'âge légal.
+    L'article L. 351-1-2-1 la paie 1,25 % par trimestre, quatre au plus, à qui
+    détient un trimestre de majoration de durée d'assurance pour enfants.
+    """
+    def surcote(**kw):
+        reglages = dict(annee_naissance=1968, sexe="F",
+                        affiliation="salarie_prive_non_cadre",
+                        age_debut=18, age_liquidation=64, nombre_enfants=2)
+        reglages.update(kw)
+        resultat = simulateur.scenario_actuel.calculer(
+            simulateur.carriere_simple(**reglages))
+        return next((a for a in resultat.avantages_appliques
+                     if a.code == "surcote_parentale"), None)
+
+    # Génération 1968 : âge légal 64 ans, donc quatre trimestres entre 63 et 64.
+    acquise = surcote()
+    assert acquise is not None
+    assert "4 trimestres" in acquise.detail and "5.00%" in acquise.detail
+
+    # Sans trimestre pour enfants, pas de surcote parentale : c'est ce trimestre
+    # qui ouvre le droit, et il va par défaut à la mère.
+    assert surcote(sexe="H") is None
+    assert surcote(nombre_enfants=0) is None
+
+    # Sans la durée requise à 63 ans, pas de surcote parentale non plus.
+    assert surcote(age_debut=30) is None
+
+    # Avant le 1er septembre 2023, le dispositif n'existe pas.
+    assert surcote(annee_naissance=1955) is None
+
+    # Génération 1958 : l'âge légal est de 62 ans, la fenêtre 63 → âge légal est
+    # vide, et la surcote ordinaire prend seule le relais.
+    assert surcote(annee_naissance=1958) is None
+
+
+def test_la_surcote_est_passee_a_1_25_pour_cent_au_1er_janvier_2009(simulateur):
+    """La fiche servait 0,75 % jusqu'en 2010, la loi 1,25 % depuis 2009.
+
+    Le taux de la loi Fillon a été relevé par la loi de financement de la
+    sécurité sociale pour 2009 : deux années de liquidations recevaient ici une
+    surcote deux tiers trop faible.
+    """
+    def taux(annee_liquidation):
+        carriere = simulateur.carriere_simple(
+            annee_naissance=annee_liquidation - 62, sexe="H",
+            affiliation="salarie_prive_non_cadre", age_debut=18,
+            age_liquidation=62,
+        )
+        resultat = simulateur.scenario_actuel.calculer(carriere)
+        return next(p.detail for p in resultat.pensions_par_regime
+                    if p.regime == "regime_general")
+
+    # Huit trimestres cotisés au-delà de l'âge légal et de la durée requise :
+    # 50 % × (1 + 8 × 0,75 %) en 2008, 50 % × (1 + 8 × 1,25 %) en 2009.
+    assert "taux 53.00%" in taux(2008)
+    assert "taux 55.00%" in taux(2009)
+
+
+def test_la_surcote_parentale_se_cumule_avec_la_surcote_ordinaire(simulateur):
+    """Les deux ne comptent pas les mêmes trimestres : l'une entre 63 ans et
+    l'âge légal, l'autre au-delà. Elles s'ajoutent sans se recouvrir."""
+    commun = dict(annee_naissance=1968, sexe="F",
+                  affiliation="salarie_prive_non_cadre",
+                  age_debut=18, nombre_enfants=2)
+    tardive = simulateur.scenario_actuel.calculer(
+        simulateur.carriere_simple(**commun, age_liquidation=67))
+    base = next(p for p in tardive.pensions_par_regime
+                if p.regime == "regime_general")
+    # Taux plein majoré de la surcote ordinaire (douze trimestres au-delà de
+    # 64 ans), puis surcote parentale de 5 % par-dessus.
+    assert "taux 57.50%" in base.detail
+    assert "surcote parentale 5.00%" in base.detail
+
+
 # -- régimes que le barème en points fait sortir du rendement instantané -----
 
 

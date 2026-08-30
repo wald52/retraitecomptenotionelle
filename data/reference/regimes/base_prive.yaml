@@ -205,7 +205,7 @@ regimes:
           charge par génération est portée par legislation/duree_requise.csv.
 
       - debut: 2004
-        fin: 2010
+        fin: 2008
         type_calcul: annuites
         age_ouverture: 60
         age_ouverture_par_generation: true
@@ -227,6 +227,31 @@ regimes:
         notes: >-
           Loi Fillon du 21 août 2003 : création de la surcote, décote allégée,
           dispositif « carrières longues », durée indexée sur l'espérance de vie.
+
+      - debut: 2009
+        fin: 2010
+        type_calcul: annuites
+        age_ouverture: 60
+        age_ouverture_par_generation: true
+        age_taux_plein: 65
+        duree_requise_trimestres: 164
+        duree_requise_par_generation: true
+        taux_plein: 0.50
+        age_taux_plein_par_generation: true
+        decote_par_generation: true
+        salaire_reference_par_generation: true
+        salaire_reference: 25_meilleures_annees
+        assiette: plafonnee
+        taux_cotisation_retraite: 0.1659
+        decote_par_trimestre: 0.0125
+        surcote_par_trimestre: 0.0125
+        avantages_non_contributifs:
+          [minimum_contributif, minimum_vieillesse, majoration_enfants, mda,
+           avpf, reversion, periodes_assimilees, carriere_longue]
+        notes: >-
+          Loi de financement de la sécurité sociale pour 2009 : la surcote passe
+          de 0,75 % à 1,25 % par trimestre au 1er janvier 2009. Même période,
+          même barème par ailleurs — seul le taux de surcote change.
 
       - debut: 2011
         fin: 2022
@@ -272,7 +297,8 @@ regimes:
         surcote_par_trimestre: 0.0125
         avantages_non_contributifs:
           [minimum_contributif, minimum_vieillesse, majoration_enfants, mda,
-           avpf, reversion, periodes_assimilees, carriere_longue, penibilite]
+           avpf, reversion, periodes_assimilees, carriere_longue, penibilite,
+           surcote_parentale]
         notes: >-
           Loi du 14 avril 2023 : âge d'ouverture 62 -> 64 ans (générations
           1961 T3 à 1968), accélération Touraine (172 trimestres dès la

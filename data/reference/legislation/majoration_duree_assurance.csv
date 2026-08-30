@@ -29,9 +29,15 @@
 #                 de la sécurité sociale. Régime général et régimes alignés
 #                 (artisans, commerçants, salariés agricoles).
 #                 * Loi n° 71-1132 du 31 décembre 1971, dite loi Boulin : UN AN
-#                   par enfant élevé, aux femmes assurées, pour les pensions
-#                   prenant effet à compter du 1er janvier 1972.
-#                 * Loi n° 75-3 du 3 janvier 1975 : DEUX ANS par enfant.
+#                   par enfant élevé, aux femmes assurées ayant élevé AU MOINS
+#                   DEUX ENFANTS — le seuil de trois enfants du projet a été
+#                   abaissé à deux au cours du débat parlementaire —, pour les
+#                   pensions prenant effet à compter du 1er janvier 1972. La loi
+#                   vise le régime général ET celui des salariés agricoles.
+#                 * Loi n° 75-3 du 3 janvier 1975 : DEUX ANS par enfant, DÈS LE
+#                   PREMIER, à condition que l'enfant ait été élevé pendant neuf
+#                   ans avant son seizième anniversaire — condition que le
+#                   modèle présume remplie, ne connaissant pas la garde.
 #                 * Loi n° 2009-1646 du 24 décembre 2009 : pour les enfants nés
 #                   à compter du 1er janvier 2010, les huit trimestres se
 #                   partagent en quatre au titre de la maternité, qui restent à
@@ -78,10 +84,16 @@
 # interruption d'activité que le modèle ne connaît pas, et son attribution PAR
 # DÉFAUT va à la mère dans les deux cas.
 #
+# `enfants_minimum` est le nombre d'enfants qu'il faut avoir élevés pour que la
+# ligne s'applique. Il vaut 1 partout, sauf pour la MDA de la loi Boulin, qui
+# n'a d'abord visé que les mères d'au moins deux enfants : une mère d'un seul
+# enfant liquidant en 1973 n'avait droit à rien, et le modèle lui donnait huit
+# trimestres.
+#
 # `fin` vaut 2100 pour une règle toujours en vigueur, comme partout ailleurs
 # dans data/.
-dispositif,reference,debut,fin,trimestres_par_enfant,beneficiaire,fiabilite
-mda,liquidation,1972,1974,4,mere,haute
-mda,liquidation,1975,2100,8,mere,haute
-bonifications,naissance_enfant,1900,2003,4,mere,moyenne
-bonifications,naissance_enfant,2004,2100,2,mere,moyenne
+dispositif,reference,debut,fin,trimestres_par_enfant,enfants_minimum,beneficiaire,fiabilite
+mda,liquidation,1972,1974,4,2,mere,haute
+mda,liquidation,1975,2100,8,1,mere,haute
+bonifications,naissance_enfant,1900,2003,4,1,mere,moyenne
+bonifications,naissance_enfant,2004,2100,2,1,mere,moyenne

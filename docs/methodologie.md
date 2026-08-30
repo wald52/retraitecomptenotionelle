@@ -407,10 +407,20 @@ précédent, et le modèle en prenait deux à l'envers.
    est le traitement de l'indice majoré 227 au 1er janvier 2004, revalorisé
    comme les pensions depuis. Il n'est dû qu'au taux plein depuis la loi du
    9 novembre 2010.
-5. **Majoration pour trois enfants et plus** — 10 %, davantage dans la fonction
+5. **Surcote parentale** (L. 351-1-2-1) — 1,25 % par trimestre acquis entre
+   63 ans et l'âge légal, quatre au plus, à l'assuré qui justifie de la durée
+   requise à 63 ans et détient au moins un trimestre de majoration pour enfants.
+   C'est la contrepartie du recul de l'âge légal voulu par la loi du 14 avril
+   2023 : l'année de travail qu'elle impose à qui avait déjà sa durée ne
+   rapportait rien, la surcote ordinaire ne comptant qu'au-delà de l'âge légal.
+   Les deux se cumulent donc sans se recouvrir. Sa montée en charge est celle de
+   l'âge légal : rien jusqu'à la génération 1964, un trimestre pour 1965, quatre
+   à partir de 1968. C'est le trimestre pour enfants qui ouvre le droit, et non
+   le sexe.
+6. **Majoration pour trois enfants et plus** — 10 %, davantage dans la fonction
    publique, calculée sur le montant DÉJÀ RELEVÉ par les minima, et plafonnée en
    euros à la complémentaire.
-6. **Minimum vieillesse** — allocation différentielle qui complète tout le
+7. **Minimum vieillesse** — allocation différentielle qui complète tout le
    reste, majorations comprises, jusqu'au barème d'une personne seule. Servie à
    partir de 65 ans, et toujours affichée comme une ligne séparée : ce n'est pas
    une pension mais une aide sociale, soumise à condition de ressources du

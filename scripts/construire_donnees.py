@@ -54,6 +54,7 @@ from retraite_notionnelle.scenarios.actuel import (  # noqa: E402
     DureesRequises,
     MajorationsPourEnfants,
     Rendements,
+    SurcoteParentale,
     ValeursPoint,
 )
 
@@ -310,10 +311,19 @@ def _minimum_vieillesse() -> dict:
 def _majorations_enfants() -> list:
     """Trimestres accordés au titre des enfants, dispositif par dispositif."""
     return [
-        [dispositif, reference, debut, fin, trimestres, beneficiaire,
-         int(fiabilite)]
-        for dispositif, reference, debut, fin, trimestres, beneficiaire, fiabilite
-        in MajorationsPourEnfants(DONNEES)._table
+        [dispositif, reference, debut, fin, trimestres, enfants_minimum,
+         beneficiaire, int(fiabilite)]
+        for dispositif, reference, debut, fin, trimestres, enfants_minimum,
+        beneficiaire, fiabilite in MajorationsPourEnfants(DONNEES)._table
+    ]
+
+
+def _surcote_parentale() -> list:
+    """Surcote parentale : âge d'ouverture, taux, plafond, par période."""
+    return [
+        [debut, fin, age, taux, maximum, int(fiabilite)]
+        for debut, fin, age, taux, maximum, fiabilite
+        in SurcoteParentale(DONNEES)._table
     ]
 
 
@@ -363,6 +373,7 @@ def construire() -> bytes:
         "decote_fonction_publique": _decote_fonction_publique(),
         "carriere_longue": _carriere_longue(),
         "majorations_enfants": _majorations_enfants(),
+        "surcote_parentale": _surcote_parentale(),
         "certification": journal_certification(DONNEES),
     }
     texte = json.dumps(paquet, ensure_ascii=False, sort_keys=True,

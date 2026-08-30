@@ -31,6 +31,7 @@ Ce qui suit est le recensement complet de ses paramètres et de leur état.
 | Décote de la fonction publique | article L. 14, montée en charge 2006-2020 | reprise des textes, non recontrôlée |
 | Carrière longue | trois étapes, 2004, 2012, 2023 | **certifiée** pour 2023 (L. 351-1-1, D. 351-1-1) ; 2004 et 2012 transcrites |
 | Trimestres accordés au titre des enfants | MDA à 4 puis 8 trimestres par enfant (1972, 1975) ; bonification de la fonction publique à 4 puis 2 (2004) | reprise des textes, non recontrôlée |
+| Surcote parentale | 1,25 % par trimestre entre 63 ans et l'âge légal, quatre au plus | reprise des textes (L. 351-1-2-1), non recontrôlée |
 | Durée requise par génération | table 1934-1975, 151 → 172 trimestres | **certifiée** depuis 1958 (L. 161-17-3) ; 1934-1957 transcrite |
 | Âge légal par génération | table 1900-1975, 60 → 64 ans | **certifié** (D. 161-2-1-9), recontrôlé à chaque exécution |
 | Âge d'annulation de la décote par génération | table 1930-1955, 65 → 67 ans | reprise des textes, non recontrôlée |
@@ -57,7 +58,7 @@ l'être.
 
 ### Ce qui vient d'être refermé
 
-**Sept erreurs de calcul.**
+**Dix erreurs de calcul.**
 
 - **Les trimestres pour enfants étaient servis huit par enfant, à tout le
   monde et de tout temps.** Le droit n'en a jamais servi autant. La majoration
@@ -71,6 +72,25 @@ l'être.
   et une fonctionnaire mère de trois enfants en recevait vingt-quatre au lieu de
   douze. Les règles et leurs dates sont désormais dans
   `legislation/majoration_duree_assurance.csv`.
+- **La surcote parentale n'existait pas dans le modèle.** C'est pourtant le
+  dernier avantage familial créé par le droit, et la contrepartie directe du
+  recul de l'âge légal : la loi du 14 avril 2023 a imposé une année de travail
+  de plus à qui avait déjà sa durée requise à 63 ans, année que la surcote
+  ordinaire ne récompense pas puisqu'elle ne compte qu'au-delà de l'âge légal.
+  L'article L. 351-1-2-1 la paie 1,25 % par trimestre, quatre au plus, à qui
+  détient au moins un trimestre de majoration pour enfants. Elle vaut jusqu'à
+  5 % de pension, et le modèle servait zéro. Sa montée en charge suit l'âge
+  légal de la génération : rien jusqu'à la génération 1964, un trimestre pour
+  1965, quatre à partir de 1968.
+- **La surcote était restée à 0,75 % jusqu'en 2010.** La loi de financement de
+  la sécurité sociale pour 2009 l'a portée à 1,25 % par trimestre au 1er janvier
+  2009 — deux années de liquidations recevaient donc une surcote deux tiers trop
+  faible, au régime général comme dans la fonction publique. Le RSI, lui, servait
+  1,25 % dès 2006, deux ans trop tôt.
+- **La majoration de la loi Boulin était servie aux mères d'un enfant unique.**
+  Le seuil de trois enfants du projet avait été abaissé à deux au cours du débat
+  parlementaire, pas à un : jusqu'en 1974, une mère d'un enfant n'avait droit à
+  rien.
 - **Les régimes alignés n'appliquaient pas les règles familiales du régime
   général.** L'article L. 634-2 les leur donne depuis l'alignement de 1973 :
   une artisane, une commerçante n'avaient ni majoration de durée d'assurance ni
@@ -187,8 +207,22 @@ modèle n'a pas, ou décrit un dispositif qu'il représenterait faussement.
   l'attribution par défaut, celle de la mère.
 - **Montée en charge des bonifications dans les régimes spéciaux.** Ils suivent
   ici le calendrier de la fonction publique — un an par enfant né avant 2004 —
-  faute d'un barème publié régime par régime, quand leurs propres réformes sont
-  de 2008 et 2009.
+  quand leurs propres réformes sont de 2008. La documentation de la CNRACL
+  donne, pour la RATP, une bonification d'un an jusqu'aux enfants nés le
+  30 juin 2008 puis deux trimestres, et pour la SNCF deux trimestres depuis le
+  décret du 30 juin 2008 ; pour les IEG, la bascule est en revanche datée de
+  2004 comme dans la fonction publique. Trois calendriers pour trois régimes,
+  qu'aucune source ne donne en série : le modèle retient le seul qui soit
+  documenté article par article, celui de la fonction publique.
+- **Barème de la surcote entre 2004 et 2008.** Le taux n'était pas plat :
+  0,75 % pour les quatre premiers trimestres, 1 % au-delà, 1,25 % pour les
+  trimestres accomplis après 65 ans. Le modèle applique 0,75 % à tous, ce qui
+  minore la surcote des liquidations de cette période — cinq années.
+- **Majorations pour enfants des non-salariés agricoles.** La MSA sert bien une
+  majoration de durée d'assurance à ses non-salariés, mais elle s'y convertit en
+  POINTS et non en trimestres, selon une règle qui change au 1er janvier 2026.
+  Le régime des exploitants étant déjà le plus approché du catalogue, la porter
+  ici donnerait un chiffre plus précis d'apparence et pas davantage de vérité.
 - **Un ménage, un patrimoine, des ressources.** Le minimum vieillesse est servi
   sous le barème d'une personne seule sans autre ressource — le cas le plus
   favorable — et à tous, alors que la DREES estime le non-recours à la moitié
@@ -937,7 +971,7 @@ n'est plus une limite : c'est un paramètre connu du résultat.
   remplacer : les récupérateurs sont indépendants et lents, on ne lance
   presque jamais les dix-sept d'un coup, et réécrire le journal à partir des
   seules sources présentes ce jour-là effaçait la trace de toutes les autres.
-- 201 tests couvrent le chargement, la fiabilité, la règle de certification, la
+- 205 tests couvrent le chargement, la fiabilité, la règle de certification, la
   concordance des tables de mortalité observées avec les espérances publiées, les
   propriétés du moteur et le comportement des scénarios : `python -m pytest tests`.
   Aucun test n'accède au réseau : les sources sont simulées.

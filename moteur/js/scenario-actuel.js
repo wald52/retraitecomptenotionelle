@@ -23,7 +23,7 @@ import {
   AgesAnnulationDecote, AgesOuverture, AnneesSalaireReference, CarriereLongue,
   CoefficientsMinoration, DecoteFonctionPublique, DureesRequises,
   MajorationsPourEnfants, MinimumContributif, MinimumGaranti, MinimumVieillesse,
-  Rendements, ValeursPoint,
+  Rendements, SurcoteParentale, ValeursPoint,
 } from "./regimes.js";
 import { Fiabilite } from "./serie.js";
 
@@ -52,6 +52,7 @@ export class ScenarioActuel {
     this.minimumVieillesse = new MinimumVieillesse(paquet, macro);
     this.carriereLongue = new CarriereLongue(paquet);
     this.majorationsEnfants = new MajorationsPourEnfants(paquet);
+    this.surcoteParentale = new SurcoteParentale(paquet);
   }
 
   // -- valorisation des points -----------------------------------------------
@@ -391,6 +392,7 @@ export class ScenarioActuel {
       for (const dispositif of periode.avantages_non_contributifs) {
         const accorde = this.majorationsEnfants.parEnfant(
           dispositif, carriere.sexe, carriere.annee_naissance, anneeLiquidation,
+          carriere.nombre_enfants,
         );
         if (accorde === null) {
           continue;
@@ -939,6 +941,69 @@ export class ScenarioActuel {
       }
     }
 
+    // Surcote parentale (L. 351-1-2-1) : après les minima, avant la majoration
+    // pour enfants qui se calcule sur la pension surcotée. Elle ne compte pas
+    // les mêmes trimestres que la surcote ordinaire — celle-ci au-delà de l'âge
+    // légal, celle-là entre 63 ans et l'âge légal — et les deux se cumulent.
+    const parametresParentale = (avantagesNonContributifs
+      && majorationEnfants !== null && !ignorerPenaliteAge)
+      ? this.surcoteParentale.parametres(anneeLiquidation)
+      : null;
+    if (parametresParentale !== null) {
+      const [ageParental, tauxParental, maximum, fiabiliteParentale] = parametresParentale;
+      let gainParental = 0.0;
+      let trimestresParentaux = 0;
+      for (let indice = 0; indice < pensions.length; indice += 1) {
+        const pension = pensions[indice];
+        const regime = this.catalogue.obtenir(pension.regime);
+        const periode = regime.periode(Math.min(anneeLiquidation, derniereAnnee(regime)));
+        if (periode === null
+            || !periode.avantages_non_contributifs.includes("surcote_parentale")) {
+          continue;
+        }
+        const ageLegal = this.ageOuverture(periode, carriere);
+        const requis = this.dureeRequise(periode, carriere)[0];
+        // La durée s'apprécie À 63 ANS, trimestres pour enfants compris.
+        const acquis = majorationEnfants.trimestres
+          + trimestresValidesAvant(carriere, ageParental, anneeLiquidation);
+        if (requis <= 0 || acquis < requis) {
+          continue;
+        }
+        // La fenêtre ne dure quatre trimestres que si l'âge légal est de
+        // 64 ans : la génération 1965, âge légal 63 ans et trois mois, n'en a
+        // qu'un. Le modèle ne date pas les trimestres au jour, d'où ce plafond.
+        const fenetre = Math.round((ageLegal - ageParental) * 4);
+        const trimestres = Math.min(maximum, fenetre, trimestresCotisesEntre(
+          carriere, ageParental, ageLegal, anneeLiquidation,
+        ));
+        if (trimestres <= 0) {
+          continue;
+        }
+        const supplement = pension.montant * tauxParental * trimestres;
+        pensions[indice] = {
+          ...pension,
+          montant: pension.montant + supplement,
+          detail: `${pension.detail}, surcote parentale `
+            + `${formatPourcentage(tauxParental * trimestres, 2)}`,
+        };
+        gainParental += supplement;
+        trimestresParentaux = Math.max(trimestresParentaux, trimestres);
+      }
+      if (gainParental > 0) {
+        total += gainParental;
+        fiabiliteGlobale = Math.min(fiabiliteGlobale, fiabiliteParentale);
+        avantages.push({
+          code: "surcote_parentale",
+          libelle: "Surcote parentale",
+          montant: gainParental,
+          detail: `${formatPourcentage(tauxParental * trimestresParentaux, 2)} pour `
+            + `${trimestresParentaux} trimestre`
+            + `${trimestresParentaux > 1 ? "s" : ""} entre ${ageParental} ans `
+            + "et l'âge légal",
+        });
+      }
+    }
+
     if (avantagesNonContributifs && carriere.nombre_enfants >= 3) {
       let majoration = 0.0;
       let tauxCite = 0.0;
@@ -1110,6 +1175,37 @@ function assietteDeReference(periode, ligne) {
     return ligne.revenu * (1.0 - ligne.part_primes);
   }
   return ligne.revenu;
+}
+
+/**
+ * Durée d'assurance acquise avant l'année où l'assuré atteint ``age``, périodes
+ * assimilées comprises : c'est la durée qu'oppose la condition de taux plein.
+ */
+function trimestresValidesAvant(carriere, age, anneeLiquidation) {
+  let total = 0;
+  for (const ligne of carriere.lignes) {
+    if (ligne.annee < anneeLiquidation
+        && ligne.annee - carriere.annee_naissance < age) {
+      total += ligne.trimestres_valides;
+    }
+  }
+  return total;
+}
+
+/**
+ * Trimestres cotisés entre deux âges — bas inclus, haut exclu. C'est la fenêtre
+ * qu'ouvre la surcote parentale, là où la surcote ordinaire ne compte rien.
+ */
+function trimestresCotisesEntre(carriere, ageBas, ageHaut, anneeLiquidation) {
+  let total = 0;
+  for (const ligne of carriere.lignes) {
+    const age = ligne.annee - carriere.annee_naissance;
+    if (ligne.cotise && ligne.annee < anneeLiquidation
+        && age >= ageBas && age < ageHaut) {
+      total += ligne.trimestres_valides;
+    }
+  }
+  return total;
 }
 
 /**

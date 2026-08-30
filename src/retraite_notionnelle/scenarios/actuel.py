@@ -381,7 +381,7 @@ class MajorationsPourEnfants:
     AGE_PRESUME_A_LA_NAISSANCE = 30
 
     def __init__(self, racine: Path) -> None:
-        self._table: list[tuple[str, str, int, int, int, str, Fiabilite]] = []
+        self._table: list[tuple[str, str, int, int, int, int, str, Fiabilite]] = []
         chemin = (racine / "reference" / "legislation"
                   / "majoration_duree_assurance.csv")
         if not chemin.exists():
@@ -395,20 +395,24 @@ class MajorationsPourEnfants:
                     int(ligne["debut"]),
                     int(ligne["fin"]),
                     int(ligne["trimestres_par_enfant"]),
+                    int(ligne["enfants_minimum"]),
                     ligne["beneficiaire"],
                     Fiabilite.depuis_texte(ligne["fiabilite"]),
                 ))
 
     def par_enfant(self, dispositif: str, sexe: str, annee_naissance: int,
-                   annee_liquidation: int) -> tuple[int, Fiabilite] | None:
+                   annee_liquidation: int,
+                   nombre_enfants: int) -> tuple[int, Fiabilite] | None:
         """Trimestres accordés PAR ENFANT, ou ``None`` si rien n'est dû.
 
-        ``None`` couvre les trois cas où le droit ne donne rien : le dispositif
-        n'existe pas encore à la date qui le commande, il n'a jamais existé
-        dans ce régime, ou l'assuré n'en est pas le bénéficiaire.
+        ``None`` couvre les quatre cas où le droit ne donne rien : le
+        dispositif n'existe pas encore à la date qui le commande, il n'a jamais
+        existé dans ce régime, l'assuré n'en est pas le bénéficiaire, ou il n'a
+        pas élevé le nombre d'enfants que la ligne exige — la loi Boulin
+        demandait deux enfants là où les suivantes se contentent d'un.
         """
-        for (code, reference, debut, fin, trimestres, beneficiaire,
-             fiabilite) in self._table:
+        for (code, reference, debut, fin, trimestres, enfants_minimum,
+             beneficiaire, fiabilite) in self._table:
             if code != dispositif:
                 continue
             annee = (annee_liquidation if reference == "liquidation"
@@ -417,7 +421,51 @@ class MajorationsPourEnfants:
                 continue
             if beneficiaire == "mere" and sexe != "F":
                 return None
+            if nombre_enfants < enfants_minimum:
+                return None
             return trimestres, fiabilite
+        return None
+
+
+class SurcoteParentale:
+    """Surcote parentale — article L. 351-1-2-1 du code de la sécurité sociale.
+
+    Le dernier avantage familial créé par le droit, et la contrepartie directe
+    du recul de l'âge légal : un assuré qui avait sa durée requise à 63 ans
+    s'est vu imposer par la loi du 14 avril 2023 une année de travail de plus
+    qui ne lui rapportait rien, la surcote ordinaire ne récompensant que les
+    trimestres accomplis APRÈS l'âge légal. La loi comble ce trou pour les
+    seuls parents : 1,25 % par trimestre acquis entre 63 ans et l'âge légal,
+    quatre trimestres au plus, à qui détient au moins un trimestre de
+    majoration de durée d'assurance au titre des enfants.
+
+    C'est ce trimestre-là qui ouvre le droit, et non le sexe : un père qui
+    détient des trimestres pour enfants y a droit comme la mère.
+    """
+
+    def __init__(self, racine: Path) -> None:
+        self._table: list[tuple[int, int, float, float, int, Fiabilite]] = []
+        chemin = racine / "reference" / "legislation" / "surcote_parentale.csv"
+        if not chemin.exists():
+            return
+        with chemin.open(encoding="utf-8") as flux:
+            lignes = (l for l in flux if not l.lstrip().startswith("#"))
+            for ligne in csv.DictReader(lignes):
+                self._table.append((
+                    int(ligne["debut"]),
+                    int(ligne["fin"]),
+                    float(ligne["age_ouverture"]),
+                    float(ligne["taux_par_trimestre"]),
+                    int(ligne["trimestres_maximum"]),
+                    Fiabilite.depuis_texte(ligne["fiabilite"]),
+                ))
+
+    def parametres(self, annee_liquidation: int
+                   ) -> tuple[float, float, int, Fiabilite] | None:
+        """Âge d'ouverture, taux par trimestre, plafond et fiabilité."""
+        for debut, fin, age, taux, maximum, fiabilite in self._table:
+            if debut <= annee_liquidation <= fin:
+                return age, taux, maximum, fiabilite
         return None
 
 
@@ -804,6 +852,7 @@ class ScenarioActuel:
         self.coefficients_minoration = CoefficientsMinoration(parametres.racine_donnees)
         self.annees_salaire_reference = AnneesSalaireReference(parametres.racine_donnees)
         self.majorations_enfants = MajorationsPourEnfants(parametres.racine_donnees)
+        self.surcote_parentale = SurcoteParentale(parametres.racine_donnees)
         self.decote_fonction_publique = DecoteFonctionPublique(
             parametres.racine_donnees
         )
@@ -1159,7 +1208,7 @@ class ScenarioActuel:
             for dispositif in periode.avantages_non_contributifs:
                 accorde = self.majorations_enfants.par_enfant(
                     dispositif, carriere.sexe, carriere.annee_naissance,
-                    annee_liquidation,
+                    annee_liquidation, carriere.nombre_enfants,
                 )
                 if accorde is None:
                     continue
@@ -1763,6 +1812,77 @@ class ScenarioActuel:
                     detail="barème de l'article L. 17, sur la durée de services",
                 ))
 
+        # Surcote parentale (L. 351-1-2-1) : elle vient APRÈS les minima,
+        # comme la surcote ordinaire, et AVANT la majoration pour enfants, qui
+        # se calcule sur la pension surcotée. Elle ne récompense pas les mêmes
+        # trimestres que la surcote ordinaire — celle-ci ne compte qu'au-delà
+        # de l'âge légal, celle-là entre 63 ans et l'âge légal — et les deux se
+        # cumulent donc sans se recouvrir.
+        parametres_parentale = (
+            self.surcote_parentale.parametres(annee_liquidation)
+            if (avantages_non_contributifs and majoration_enfants is not None
+                and not ignorer_penalite_age)
+            else None
+        )
+        if parametres_parentale is not None:
+            age_parental, taux_parental, maximum, fiabilite_parentale = (
+                parametres_parentale
+            )
+            gain_parental = 0.0
+            trimestres_parentaux = 0
+            for indice, pension in enumerate(pensions):
+                regime = self.catalogue[pension.regime]
+                periode = regime.periode(
+                    min(annee_liquidation, _derniere_annee(regime))
+                )
+                if (periode is None or "surcote_parentale"
+                        not in periode.avantages_non_contributifs):
+                    continue
+                age_legal = self._age_ouverture(periode, carriere)
+                requis = self._duree_requise(periode, carriere)[0]
+                # La durée s'apprécie À 63 ANS, trimestres pour enfants
+                # compris : c'est bien la durée qu'oppose la loi, et l'assuré
+                # les détient déjà à cet âge.
+                acquis = majoration_enfants.trimestres + _trimestres_valides_avant(
+                    carriere, age_parental, annee_liquidation
+                )
+                if requis <= 0 or acquis < requis:
+                    continue
+                # La fenêtre ne dure quatre trimestres que si l'âge légal est
+                # de 64 ans : la génération 1965, dont l'âge légal est de
+                # 63 ans et trois mois, n'en a qu'un à faire valoir. Le modèle
+                # ne date pas les trimestres au jour, et lui en compterait
+                # quatre — d'où ce plafond, qui est la largeur de la fenêtre.
+                fenetre = round((age_legal - age_parental) * 4)
+                # Surtout pas `trimestres` : c'est la durée d'assurance tous
+                # régimes, et l'écraser ici la faisait tomber à quatre.
+                acquis_parentaux = min(maximum, fenetre, _trimestres_cotises_entre(
+                    carriere, age_parental, age_legal, annee_liquidation
+                ))
+                if acquis_parentaux <= 0:
+                    continue
+                supplement = pension.montant * taux_parental * acquis_parentaux
+                pensions[indice] = replace(
+                    pension,
+                    montant=pension.montant + supplement,
+                    detail=(pension.detail + ", surcote parentale "
+                            f"{taux_parental * acquis_parentaux:.2%}"),
+                )
+                gain_parental += supplement
+                trimestres_parentaux = max(trimestres_parentaux, acquis_parentaux)
+            if gain_parental > 0:
+                total += gain_parental
+                fiabilite_globale = min(fiabilite_globale, fiabilite_parentale)
+                avantages.append(AvantageApplique(
+                    code="surcote_parentale",
+                    libelle="Surcote parentale",
+                    montant=gain_parental,
+                    detail=(f"{taux_parental * trimestres_parentaux:.2%} pour "
+                            f"{trimestres_parentaux} trimestre"
+                            f"{'s' if trimestres_parentaux > 1 else ''} entre "
+                            f"{age_parental:g} ans et l'âge légal"),
+                ))
+
         if avantages_non_contributifs and carriere.nombre_enfants >= 3:
             majoration = 0.0
             taux_cite = 0.0
@@ -1871,6 +1991,37 @@ def _trimestres_cotises_apres(carriere: Carriere, age: float,
         if ligne.cotise
         and ligne.annee < annee_liquidation
         and ligne.annee - carriere.annee_naissance >= age
+    )
+
+
+def _trimestres_valides_avant(carriere: Carriere, age: float,
+                              annee_liquidation: int) -> int:
+    """Durée d'assurance acquise avant l'année où l'assuré atteint ``age``.
+
+    Périodes assimilées comprises : c'est la durée d'assurance qu'oppose la
+    condition de taux plein, et non la seule durée cotisée.
+    """
+    return sum(
+        ligne.trimestres_valides
+        for ligne in carriere.lignes
+        if ligne.annee < annee_liquidation
+        and ligne.annee - carriere.annee_naissance < age
+    )
+
+
+def _trimestres_cotises_entre(carriere: Carriere, age_bas: float, age_haut: float,
+                              annee_liquidation: int) -> int:
+    """Trimestres cotisés entre deux âges — bas inclus, haut exclu.
+
+    C'est la fenêtre qu'ouvre la surcote parentale : entre 63 ans et l'âge
+    légal, là où la surcote ordinaire ne compte encore rien.
+    """
+    return sum(
+        ligne.trimestres_valides
+        for ligne in carriere.lignes
+        if ligne.cotise
+        and ligne.annee < annee_liquidation
+        and age_bas <= ligne.annee - carriere.annee_naissance < age_haut
     )
 
 

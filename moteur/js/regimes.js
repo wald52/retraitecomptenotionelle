@@ -397,9 +397,9 @@ export class MajorationsPourEnfants {
    *
    * @returns {[number, number]|null} trimestres et fiabilité.
    */
-  parEnfant(dispositif, sexe, anneeNaissance, anneeLiquidation) {
-    for (const [code, reference, debut, fin, trimestres, beneficiaire, fiabilite]
-      of this._table) {
+  parEnfant(dispositif, sexe, anneeNaissance, anneeLiquidation, nombreEnfants) {
+    for (const [code, reference, debut, fin, trimestres, enfantsMinimum,
+      beneficiaire, fiabilite] of this._table) {
       if (code !== dispositif) {
         continue;
       }
@@ -410,6 +410,9 @@ export class MajorationsPourEnfants {
         continue;
       }
       if (beneficiaire === "mere" && sexe !== "F") {
+        return null;
+      }
+      if (nombreEnfants < enfantsMinimum) {
         return null;
       }
       return [trimestres, fiabilite];
@@ -424,6 +427,34 @@ export class MajorationsPourEnfants {
  * moyen des mères à l'accouchement.
  */
 MajorationsPourEnfants.AGE_PRESUME_A_LA_NAISSANCE = 30;
+
+/**
+ * Surcote parentale — article L. 351-1-2-1 du code de la sécurité sociale.
+ *
+ * Contrepartie du recul de l'âge légal : un assuré qui avait sa durée requise à
+ * 63 ans s'est vu imposer par la loi du 14 avril 2023 une année de travail de
+ * plus qui ne lui rapportait rien, la surcote ordinaire ne comptant qu'au-delà
+ * de l'âge légal. La loi comble ce trou pour les parents : 1,25 % par trimestre
+ * acquis entre 63 ans et l'âge légal, quatre au plus.
+ */
+export class SurcoteParentale {
+  constructor(paquet) {
+    this._table = paquet.surcote_parentale ?? [];
+  }
+
+  /**
+   * @returns {[number, number, number, number]|null} âge d'ouverture, taux par
+   * trimestre, plafond de trimestres, fiabilité.
+   */
+  parametres(anneeLiquidation) {
+    for (const [debut, fin, age, taux, maximum, fiabilite] of this._table) {
+      if (anneeLiquidation >= debut && anneeLiquidation <= fin) {
+        return [age, taux, maximum, fiabilite];
+      }
+    }
+    return null;
+  }
+}
 
 /**
  * Départ anticipé pour carrière longue — article L. 351-1-1.

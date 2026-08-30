@@ -882,6 +882,11 @@ contributifs que la carrière suffit à déterminer :</p>
   <li><strong>le minimum garanti</strong> de la fonction publique, barème en
   escalier sur la durée de services — 57,5 % de la référence à quinze ans, 95 %
   à trente, la totalité à quarante ;</li>
+  <li><strong>la surcote parentale</strong>, créée par la loi du 14 avril 2023 :
+  1,25 % par trimestre acquis entre 63 ans et l'âge légal, quatre au plus, à qui
+  justifie de la durée requise à 63 ans et détient un trimestre de majoration
+  pour enfants. C'est la contrepartie du recul de l'âge légal, et elle se cumule
+  avec la surcote ordinaire, qui ne compte qu'au-delà de cet âge ;</li>
   <li><strong>la majoration pour trois enfants</strong>, calculée sur le montant
   déjà relevé par les minima, et plafonnée en euros à la complémentaire ;</li>
   <li><strong>le minimum vieillesse</strong>, allocation différentielle servie à

@@ -84,7 +84,7 @@ regimes:
           1964). Retenue pour pension 6 % puis 7,85 %. Aucune décote :
           la seule sanction d'une carrière courte est la proratisation.
       - debut: 2004
-        fin: 2010
+        fin: 2008
         type_calcul: annuites
         age_ouverture: 60
         age_ouverture_par_generation: true
@@ -106,6 +106,29 @@ regimes:
           Loi Fillon de 2003 : alignement de la durée sur le privé, création
           d'une décote et d'une surcote dans la fonction publique, création du
           RAFP sur les primes.
+      - debut: 2009
+        fin: 2010
+        type_calcul: annuites
+        age_ouverture: 60
+        age_ouverture_par_generation: true
+        age_taux_plein: 65
+        age_taux_plein_par_generation: true
+        duree_requise_trimestres: 160
+        duree_requise_par_generation: true
+        taux_plein: 0.75
+        salaire_reference: derniers_6_mois
+        assiette: hors_primes
+        taux_cotisation_retraite: 0.0785
+        perimetre_taux: agent_seul
+        bareme_decote: fonction_publique
+        decote_par_trimestre: 0.0125
+        surcote_par_trimestre: 0.0125
+        avantages_non_contributifs:
+          [bonifications, categorie_active, majoration_enfants, reversion, minimum_garanti]
+        notes: >-
+          Loi de financement de la sécurité sociale pour 2009 : la surcote passe
+          de 0,75 % à 1,25 % par trimestre au 1er janvier 2009. Même période,
+          même barème par ailleurs — seul le taux de surcote change.
       - debut: 2011
         fin: 2022
         type_calcul: annuites
@@ -147,7 +170,8 @@ regimes:
         decote_par_trimestre: 0.0125
         surcote_par_trimestre: 0.0125
         avantages_non_contributifs:
-          [bonifications, categorie_active, majoration_enfants, reversion, minimum_garanti]
+          [bonifications, categorie_active, majoration_enfants, reversion,
+           minimum_garanti, surcote_parentale]
         notes: >-
           Loi du 14 avril 2023 : catégories actives portées de 57 à 59 ans et de
           52 à 54 ans. Retenue salariale 11,10 % ; contribution employeur de
@@ -189,7 +213,7 @@ regimes:
           Catégorie active : ouverture à 55 ans (agents hospitaliers, police
           municipale, sapeurs-pompiers…).
       - debut: 2004
-        fin: 2010
+        fin: 2008
         type_calcul: annuites
         age_ouverture: 60
         age_ouverture_par_generation: true
@@ -208,6 +232,29 @@ regimes:
         avantages_non_contributifs:
           [bonifications, categorie_active, majoration_enfants, reversion, minimum_garanti]
         notes: Alignement Fillon.
+      - debut: 2009
+        fin: 2010
+        type_calcul: annuites
+        age_ouverture: 60
+        age_ouverture_par_generation: true
+        age_taux_plein: 65
+        age_taux_plein_par_generation: true
+        duree_requise_trimestres: 160
+        duree_requise_par_generation: true
+        taux_plein: 0.75
+        salaire_reference: derniers_6_mois
+        assiette: hors_primes
+        taux_cotisation_retraite: 0.0785
+        perimetre_taux: agent_seul
+        bareme_decote: fonction_publique
+        decote_par_trimestre: 0.0125
+        surcote_par_trimestre: 0.0125
+        avantages_non_contributifs:
+          [bonifications, categorie_active, majoration_enfants, reversion, minimum_garanti]
+        notes: >-
+          Loi de financement de la sécurité sociale pour 2009 : la surcote passe
+          de 0,75 % à 1,25 % par trimestre au 1er janvier 2009. Même période,
+          même barème par ailleurs — seul le taux de surcote change.
       - debut: 2011
         fin: 2022
         type_calcul: annuites
@@ -251,7 +298,8 @@ regimes:
         decote_par_trimestre: 0.0125
         surcote_par_trimestre: 0.0125
         avantages_non_contributifs:
-          [bonifications, categorie_active, majoration_enfants, reversion, minimum_garanti]
+          [bonifications, categorie_active, majoration_enfants, reversion,
+           minimum_garanti, surcote_parentale]
         notes: >-
           Réforme de 2023. Taux employeur 31,65 % puis 43,65 % en 2025 :
           taux d'équilibre, non générateur de droits supplémentaires.
