@@ -66,6 +66,12 @@ PREMIERE_ANNEE_OCDE = 1960
 #: dérivée d'elle ait un sens. Les tables de Vallin et Meslé vont à 104 ans.
 AGE_TERMINAL_MINIMAL = 100
 
+#: Dérive cumulée au-delà de laquelle la reconstitution d'avant 1950 mérite
+#: d'être reprise. Elle est fixée au double de ce que l'instrument mesure sur la
+#: période certifiée : la série des coefficients s'y écarte déjà de 2,4 % de la
+#: série mensuelle, et l'on ne saurait exiger d'elle mieux qu'elle ne vaut.
+SEUIL_DERIVE_PRIX_ANCIENS = 0.05
+
 #: Seuil d'alerte du contrôle de vraisemblance IPC / IPCH, en points de taux.
 #: Fixé à 1,5 point : au-dessous, l'écart s'explique par la différence de
 #: méthode entre indice national et indice harmonisé ; au-dessus, il y a
@@ -215,11 +221,15 @@ def source_plafond() -> dict[tuple, float]:
     }
 
 
-def _serie_json(nom_fichier: str, script: str) -> dict[str, float]:
+def _lire_json(nom_fichier: str, script: str) -> dict:
     chemin = BRUT / nom_fichier
     if not chemin.exists():
         raise SourceAbsente(f"{chemin} absent (lancer {script})")
-    return json.loads(chemin.read_text(encoding="utf-8"))["serie"]
+    return json.loads(chemin.read_text(encoding="utf-8"))
+
+
+def _serie_json(nom_fichier: str, script: str) -> dict[str, float]:
+    return _lire_json(nom_fichier, script)["serie"]
 
 
 def source_esperances() -> dict[tuple, float]:
@@ -480,6 +490,63 @@ def source_point_indice() -> dict[tuple, float]:
     serie = _serie_json("openfisca_point_indice.json",
                         "scripts/fetch/openfisca_point_indice.py")
     return {(annee,): valeur for annee, valeur in sorted(serie.items())}
+
+
+def _parametres_retraite() -> dict[str, float]:
+    return _serie_json("dila_legi_parametres_retraite.json",
+                       "scripts/fetch/dila_legi_parametres_retraite.py")
+
+
+def _table_legi(prefixe: str) -> dict[tuple, float]:
+    """Une des tables par génération lues dans la loi, mise en forme de clés."""
+    return {
+        (cle.split("|")[1],): valeur
+        for cle, valeur in sorted(_parametres_retraite().items(),
+                                  key=lambda kv: int(kv[0].split("|")[1]))
+        if cle.startswith(f"{prefixe}|")
+    }
+
+
+def source_age_ouverture() -> dict[tuple, float]:
+    """Âge d'ouverture des droits par génération — D. 161-2-1-9.
+
+    `docs/limites.md` tenait ces tables pour hors de portée : « Légifrance
+    expose une API, mais elle demande une clé et renvoie du texte juridique, non
+    des paramètres. » Les deux moitiés de la phrase étaient vraies et la
+    conclusion fausse. La base LEGI de la DILA est ouverte, et le texte
+    juridique EST la table : « Soixante-deux ans et trois mois pour les assurés
+    nés entre le 1er septembre 1961 et le 31 décembre 1961 inclus. »
+    """
+    return _table_legi("age_ouverture")
+
+
+def source_duree_requise() -> dict[tuple, float]:
+    """Durée d'assurance requise par génération — L. 161-17-3."""
+    return _table_legi("duree_requise")
+
+
+def source_coefficient_minoration() -> dict[tuple, float]:
+    """Coefficient de minoration par génération — R. 351-27 II."""
+    return _table_legi("coefficient_minoration")
+
+
+def source_carriere_longue() -> dict[tuple, float]:
+    """Âge de départ anticipé par borne d'entrée dans la vie active.
+
+    Articles L. 351-1-1 et D. 351-1-1, DERNIÈRE VERSION seulement : les portes
+    de 2004 et de 2012 sont dans des versions abrogées que le récupérateur ne
+    remonte pas, et restent des transcriptions. Ne sont donc confrontées que les
+    quatre bornes en vigueur depuis le 1er septembre 2023 — 16, 18, 20 et 21
+    ans pour 58, 60, 62 et 63 ans.
+    """
+    brut = _lire_json("dila_legi_parametres_retraite.json",
+                      "scripts/fetch/dila_legi_parametres_retraite.py")
+    portes = {}
+    for porte in brut.get("carriere_longue", []):
+        annee = int(str(porte["entree_en_vigueur"])[:4])
+        portes[(str(annee), str(int(porte["age_debut_maximum"])))] = \
+            float(porte["age_depart"])
+    return portes
 
 
 def _point_insee() -> dict[str, dict[int, float]]:
@@ -845,6 +912,50 @@ CERTIFICATIONS = (
         niveau="moyenne",
     ),
     Certification(
+        nom="age_ouverture_requis",
+        chemin=REFERENCE / "legislation" / "age_ouverture_requis.csv",
+        cles=("generation",),
+        colonne="age",
+        source=source_age_ouverture,
+        origine="DILA, base LEGI, code de la sécurité sociale D. 161-2-1-9",
+        decimales=2,
+        tolerance=0.005,
+        unite=" ans",
+    ),
+    Certification(
+        nom="duree_assurance_requise",
+        chemin=REFERENCE / "legislation" / "duree_assurance_requise.csv",
+        cles=("generation",),
+        colonne="trimestres",
+        source=source_duree_requise,
+        origine="DILA, base LEGI, code de la sécurité sociale L. 161-17-3",
+        decimales=0,
+        tolerance=0.5,
+        unite=" trimestres",
+    ),
+    Certification(
+        nom="coefficient_minoration",
+        chemin=REFERENCE / "legislation" / "coefficient_minoration.csv",
+        cles=("generation",),
+        colonne="coefficient",
+        source=source_coefficient_minoration,
+        origine="DILA, base LEGI, code de la sécurité sociale R. 351-27",
+        decimales=5,
+        tolerance=5e-6,
+    ),
+    Certification(
+        nom="carriere_longue",
+        chemin=REFERENCE / "legislation" / "carriere_longue.csv",
+        cles=("annee", "age_debut_maximum"),
+        colonne="age_depart",
+        source=source_carriere_longue,
+        origine="DILA, base LEGI, code de la sécurité sociale L. 351-1-1 "
+                "et D. 351-1-1",
+        decimales=0,
+        tolerance=0.5,
+        unite=" ans",
+    ),
+    Certification(
         nom="point_indice_fonction_publique",
         chemin=REFERENCE / "legislation" / "point_indice_fonction_publique.csv",
         cles=("annee",),
@@ -1106,7 +1217,116 @@ def controle_vraisemblance_cotisations() -> list[str]:
     messages.append(
         "        avant 1967 aucune transcription n'existe : les taux y restent saisis"
     )
+
+    # Les COMPLÉMENTAIRES pèsent, dans la pension d'un salarié du privé, plus
+    # lourd que tous les autres régimes réunis après le régime général. Leurs
+    # taux étaient au niveau `estimee` faute de série ; OpenFisca en porte une,
+    # dated depuis 1962, et par TRANCHE — ce qui permet enfin de confronter
+    # chaque période de fiche à la sienne.
+    tranches = {
+        "tranche_1": "tranche_1", "tranche_a": "tranche_1",
+        "tranche_2_arrco": "tranche_2", "tranche_2": "tranche_2",
+        "tranche_b": "tranche_2", "tranche_c": "tranche_3",
+    }
+    par_regime = json.loads(chemin.read_text(encoding="utf-8")).get(
+        "complementaires", {})
+    fiches = yaml.safe_load(
+        (REFERENCE / "regimes" / "complementaires_prive.yaml").read_text(
+            encoding="utf-8")
+    )
+    complementaires = 0
+    for regime in fiches["regimes"]:
+        annuel = par_regime.get(regime["code"])
+        if not annuel:
+            continue
+        couverture = {int(a) for a in annuel}
+        for periode in regime["periodes"]:
+            tranche = tranches.get(periode.get("assiette"))
+            if tranche is None:
+                continue
+            debut = max(int(periode["debut"]), min(couverture))
+            fin = min(int(periode["fin"] or max(couverture)), max(couverture))
+            annees = [a for a in range(debut, fin + 1)
+                      if a in couverture and annuel[str(a)].get(tranche)]
+            if not annees:
+                continue
+            complementaires += 1
+            publie = sum(annuel[str(a)][tranche] for a in annees) / len(annees)
+            saisi = float(periode["taux_cotisation_retraite"])
+            if abs(publie - saisi) > 0.005:
+                anomalies.append(
+                    f"SUSPECT cotisations {regime['code']} {periode['debut']}-"
+                    f"{periode['fin']} {periode['assiette']} : fiche {saisi:.2%}, "
+                    f"OpenFisca {publie:.2%} en moyenne sur "
+                    f"{annees[0]}-{annees[-1]}"
+                )
+    messages.append(
+        f"OK      vraisemblance cotisations : {complementaires} périodes des "
+        f"complémentaires du privé comparées à leurs taux effectifs par tranche"
+    )
     return messages + anomalies
+
+
+def controle_vraisemblance_prix_anciens() -> list[str]:
+    """Confronte l'inflation reconstituée d'avant 1950 à la seule série de
+    l'INSEE qui remonte plus haut.
+
+    `docs/limites.md` a longtemps écrit que le tableau « IPC depuis 1901 »
+    n'existait qu'en fichier tableur, et que ce n'était « plus le format qui
+    bloque, c'est l'adresse ». L'adresse est un IDBANK : `010605954`, le
+    coefficient de transformation du franc et de l'euro, que la Banque de
+    données macroéconomiques sert depuis 1901 par la même API que tout le
+    reste.
+
+    **Elle ne remplace pas la série saisie, et c'est mesurable.** Publiée à
+    deux décimales sur une base 100 en 2015, elle vaut 0,20 en 1935 : un
+    centième y pèse cinq points de taux, et les variations annuelles qu'on en
+    tirerait seraient du bruit — la série donne +3,9 % pour 1930 quand le dépôt
+    porte −2,5 %, et 0,0 % pour 1934 quand il porte −5,7 %. Le contrôle porte
+    donc sur la DÉRIVE CUMULÉE, seule grandeur que cette précision autorise.
+
+    L'étalonnage du contrôle est donné par la période où le dépôt est certifié :
+    sur 1949-2025, la série des coefficients s'écarte déjà de 2,4 % de la série
+    mensuelle certifiée. Un écart du même ordre sur 1930-1949 ne dit donc rien
+    d'autre que la précision de l'instrument.
+    """
+    chemin = BRUT / "insee_bdm.json"
+    if not chemin.exists():
+        return [f"IGNORÉ  vraisemblance prix anciens : {chemin} absent "
+                "(lancer scripts/fetch/insee_bdm.py)"]
+
+    series = json.loads(chemin.read_text(encoding="utf-8"))["series"]
+    coefficients = series.get("coefficient_prix_1901", {}).get("observations")
+    if not coefficients:
+        return ["IGNORÉ  vraisemblance prix anciens : série 010605954 absente "
+                "du téléchargement"]
+    indice = {int(a): float(v) for a, v in coefficients.items() if len(a) == 4}
+
+    saisi = {int(l["annee"]): float(l["variation"])
+             for l in charger_csv(REFERENCE / "macro" / "ipc_annuel.csv")}
+
+    messages = []
+    for debut, fin, etiquette in ((1930, 1949, "reconstituée"),
+                                  (1949, 2025, "certifiée")):
+        if debut not in indice or fin not in indice:
+            continue
+        publiee = indice[fin] / indice[debut]
+        cumulee = 1.0
+        for annee in range(debut + 1, fin + 1):
+            cumulee *= 1.0 + saisi.get(annee, 0.0)
+        ecart = cumulee / publiee - 1.0
+        messages.append(
+            f"OK      vraisemblance prix anciens {debut}-{fin} ({etiquette}) : "
+            f"dépôt ×{cumulee:.2f}, INSEE 010605954 ×{publiee:.2f}, "
+            f"écart cumulé {ecart:+.1%}"
+        )
+        if abs(ecart) > SEUIL_DERIVE_PRIX_ANCIENS:
+            messages.append(
+                f"SUSPECT prix anciens {debut}-{fin} : {ecart:+.1%} de dérive "
+                f"cumulée, au-delà du seuil de "
+                f"{SEUIL_DERIVE_PRIX_ANCIENS:.0%}"
+            )
+    return messages
 
 
 def controle_vraisemblance_rendements() -> list[str]:
@@ -1287,6 +1507,7 @@ def main(argv: list[str] | None = None) -> int:
     messages.extend(controle_coherence_interne())
     messages.append("")
     messages.extend(controle_vraisemblance_inflation())
+    messages.extend(controle_vraisemblance_prix_anciens())
     messages.extend(controle_vraisemblance_esperance_65())
     messages.extend(controle_vraisemblance_plafond())
     messages.extend(controle_vraisemblance_cotisations())

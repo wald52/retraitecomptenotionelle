@@ -1,6 +1,42 @@
 {
- "certifie_le": "2026-08-29",
+ "certifie_le": "2026-08-30",
  "series": {
+  "age_ouverture_requis": {
+   "ajoutees": 0,
+   "corrigees": 0,
+   "empreinte": "032da986368d787e",
+   "identiques": 76,
+   "niveau": "certifiee",
+   "source": "DILA, base LEGI, code de la sécurité sociale D. 161-2-1-9",
+   "valeurs": 76
+  },
+  "carriere_longue": {
+   "ajoutees": 0,
+   "corrigees": 0,
+   "empreinte": "60d9bb150a95f66c",
+   "identiques": 4,
+   "niveau": "certifiee",
+   "source": "DILA, base LEGI, code de la sécurité sociale L. 351-1-1 et D. 351-1-1",
+   "valeurs": 4
+  },
+  "coefficient_minoration": {
+   "ajoutees": 0,
+   "corrigees": 0,
+   "empreinte": "4b9bcbfdd6753594",
+   "identiques": 76,
+   "niveau": "certifiee",
+   "source": "DILA, base LEGI, code de la sécurité sociale R. 351-27",
+   "valeurs": 76
+  },
+  "duree_assurance_requise": {
+   "ajoutees": 0,
+   "corrigees": 0,
+   "empreinte": "b21a080a3f0860e5",
+   "identiques": 18,
+   "niveau": "certifiee",
+   "source": "DILA, base LEGI, code de la sécurité sociale L. 161-17-3",
+   "valeurs": 18
+  },
   "esperance_65_derivee": {
    "ajoutees": 0,
    "corrigees": 0,
@@ -83,10 +119,10 @@
    "valeurs": 6850
   },
   "quotients_mortalite_anciens": {
-   "ajoutees": 240,
+   "ajoutees": 0,
    "corrigees": 0,
    "empreinte": "ccd29a507d00e837",
-   "identiques": 18226,
+   "identiques": 18466,
    "niveau": "certifiee",
    "source": "INED, tables de Vallin et Meslé, quotients du moment par âge",
    "valeurs": 18466

@@ -202,6 +202,10 @@ def test_journal_de_certification_decrit_les_series_certifiees():
         "esperances_vie": "mortalite/esperances_vie.csv",
         "esperance_65_derivee": "mortalite/esperances_vie.csv",
         "minimum_contributif": "legislation/minimum_contributif.csv",
+        "age_ouverture_requis": "legislation/age_ouverture_requis.csv",
+        "duree_assurance_requise": "legislation/duree_assurance_requise.csv",
+        "coefficient_minoration": "legislation/coefficient_minoration.csv",
+        "carriere_longue": "legislation/carriere_longue.csv",
         "point_indice_fonction_publique":
             "legislation/point_indice_fonction_publique.csv",
         "quotients_mortalite": "mortalite/quotients_periode.csv",
@@ -235,6 +239,58 @@ def test_journal_de_certification_decrit_les_series_certifiees():
 
     for cle, nombre in attendu.items():
         assert constate[cle] == nombre, cle
+
+
+def test_les_tables_par_generation_disent_le_droit_en_vigueur():
+    """Les bornes des réformes, telles que les articles du code les écrivent.
+
+    Ces trois tables sont désormais lues dans la base LEGI et non plus saisies
+    (`scripts/fetch/dila_legi_parametres_retraite.py`). Le récupérateur n'étant
+    pas rejoué à chaque exécution des tests — il lit 9 Go en flux — c'est ici
+    qu'on fige ce qu'il a trouvé : si un jour une passe le contredit, l'écart
+    apparaîtra sur une borne connue et non au milieu d'une série.
+    """
+    import csv
+
+    def table(nom, colonne):
+        chemin = RACINE_DONNEES / "reference" / "legislation" / nom
+        with chemin.open(encoding="utf-8") as flux:
+            lignes = (l for l in flux if not l.lstrip().startswith("#"))
+            return {
+                int(ligne["generation"]): (float(ligne[colonne]), ligne["fiabilite"])
+                for ligne in csv.DictReader(lignes)
+            }
+
+    ages = table("age_ouverture_requis.csv", "age")
+    # Loi du 9 novembre 2010, puis loi du 14 avril 2023.
+    assert ages[1950][0] == 60.0
+    assert ages[1955][0] == 62.0
+    assert ages[1968][0] == 64.0
+    # La génération 1961 est coupée au 1er septembre : huit mois à 62 ans.
+    assert ages[1961][0] == 62.0
+    assert all(niveau == "certifiee" for _, niveau in ages.values())
+
+    durees = table("duree_assurance_requise.csv", "trimestres")
+    assert durees[1943][0] == 160          # fin de la montée en charge Balladur
+    assert durees[1958][0] == 167          # loi Touraine
+    assert durees[1965][0] == 172          # cible atteinte, loi de 2023
+    assert durees[1943][1] == "haute"      # décrets non codifiés
+    assert durees[1958][1] == "certifiee"  # article L. 161-17-3
+
+    coefficients = table("coefficient_minoration.csv", "coefficient")
+    assert coefficients[1943][0] == 0.025
+    assert coefficients[1952][0] == 0.01375
+    assert coefficients[1953][0] == 0.0125
+    assert all(niveau == "certifiee" for _, niveau in coefficients.values())
+
+    # La table est monotone : une génération plus jeune n'est jamais mieux
+    # traitée que sa devancière sur l'âge et la durée, jamais plus mal sur le
+    # coefficient. Une inversion signalerait une version d'article mal ordonnée.
+    for serie, croissante in ((ages, True), (durees, True), (coefficients, False)):
+        valeurs = [serie[g][0] for g in sorted(serie)]
+        for avant, apres in zip(valeurs, valeurs[1:]):
+            assert (apres >= avant) if croissante else (apres <= avant)
+
 
 
 # -- catalogue des régimes ---------------------------------------------------

@@ -1,6 +1,6 @@
 # Âge légal d'ouverture des droits, PAR GÉNÉRATION
 # -------------------------------------------------
-# source_id: legifrance_textes, cnav_circulaires
+# source_id: dila_legi_parametres_retraite
 #
 # Comme la durée requise, l'âge légal est indexé sur l'ANNÉE DE NAISSANCE et
 # non sur l'année de liquidation. Les fiches de régime portaient l'âge CIBLE de
@@ -11,26 +11,100 @@
 #   - loi du 9 novembre 2010 : générations 1951-1955, 60 -> 62 ans
 #   - loi du 14 avril 2023   : générations 1961(sept)-1968, 62 -> 64 ans
 #
+# D'OÙ VIENNENT CES VALEURS. Elles ne sont plus saisies : elles sont LUES dans
+# le texte de l'article D. 161-2-1-9 du code de la sécurité sociale, tel que la
+# DILA le publie dans la base LEGI (`scripts/fetch/dila_legi_parametres_retraite.py`,
+# puis `scripts/verifier_donnees.py --appliquer`). Les versions successives de
+# l'article sont appliquées dans l'ordre chronologique, la plus récente
+# l'emportant : c'est ainsi que la table de 2023 recouvre celle de 2011.
+# Niveau `certifiee` : la confrontation a trouvé les seize valeurs saisies à la
+# main IDENTIQUES au texte, et en a ajouté soixante que la saisie laissait
+# implicites — toutes les générations d'avant 1951, que l'article couvre par sa
+# clause générale (« nés avant le 1er juillet 1951 »), et celles d'après 1968,
+# pour lesquelles il fixe 64 ans.
+#
 # Les générations 1961 et 1951 sont coupées en cours d'année par les textes
 # (1er septembre et 1er juillet). Le modèle ne connaît que l'année de
-# naissance : il retient la valeur de la fraction la plus nombreuse.
+# naissance : il retient la valeur de la fraction la plus nombreuse — celle qui
+# couvre le plus de mois de la génération, la plus exigeante en cas d'égalité.
+# C'est la seule approximation qui subsiste, et elle vaut au plus un trimestre.
 #
 # Cet âge commande l'ouverture des droits et la surcote — laquelle ne
 # récompense que les trimestres cotisés AU-DELÀ de cet âge.
 generation,age,fiabilite
-1930,60,haute
-1950,60,haute
-1951,60.33,haute
-1952,60.75,haute
-1953,61.17,haute
-1954,61.58,haute
-1955,62,haute
-1960,62,haute
-1961,62,haute
-1962,62.5,haute
-1963,62.75,haute
-1964,63,haute
-1965,63.25,haute
-1966,63.5,haute
-1967,63.75,haute
-1968,64,haute
+1900,60.00,certifiee
+1901,60.00,certifiee
+1902,60.00,certifiee
+1903,60.00,certifiee
+1904,60.00,certifiee
+1905,60.00,certifiee
+1906,60.00,certifiee
+1907,60.00,certifiee
+1908,60.00,certifiee
+1909,60.00,certifiee
+1910,60.00,certifiee
+1911,60.00,certifiee
+1912,60.00,certifiee
+1913,60.00,certifiee
+1914,60.00,certifiee
+1915,60.00,certifiee
+1916,60.00,certifiee
+1917,60.00,certifiee
+1918,60.00,certifiee
+1919,60.00,certifiee
+1920,60.00,certifiee
+1921,60.00,certifiee
+1922,60.00,certifiee
+1923,60.00,certifiee
+1924,60.00,certifiee
+1925,60.00,certifiee
+1926,60.00,certifiee
+1927,60.00,certifiee
+1928,60.00,certifiee
+1929,60.00,certifiee
+1930,60.00,certifiee
+1931,60.00,certifiee
+1932,60.00,certifiee
+1933,60.00,certifiee
+1934,60.00,certifiee
+1935,60.00,certifiee
+1936,60.00,certifiee
+1937,60.00,certifiee
+1938,60.00,certifiee
+1939,60.00,certifiee
+1940,60.00,certifiee
+1941,60.00,certifiee
+1942,60.00,certifiee
+1943,60.00,certifiee
+1944,60.00,certifiee
+1945,60.00,certifiee
+1946,60.00,certifiee
+1947,60.00,certifiee
+1948,60.00,certifiee
+1949,60.00,certifiee
+1950,60.00,certifiee
+1951,60.33,certifiee
+1952,60.75,certifiee
+1953,61.17,certifiee
+1954,61.58,certifiee
+1955,62.00,certifiee
+1956,62.00,certifiee
+1957,62.00,certifiee
+1958,62.00,certifiee
+1959,62.00,certifiee
+1960,62.00,certifiee
+1961,62.00,certifiee
+1962,62.50,certifiee
+1963,62.75,certifiee
+1964,63.00,certifiee
+1965,63.25,certifiee
+1966,63.50,certifiee
+1967,63.75,certifiee
+1968,64.00,certifiee
+1969,64.00,certifiee
+1970,64.00,certifiee
+1971,64.00,certifiee
+1972,64.00,certifiee
+1973,64.00,certifiee
+1974,64.00,certifiee
+1975,64.00,certifiee

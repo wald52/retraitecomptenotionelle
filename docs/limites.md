@@ -2,11 +2,15 @@
 
 Ce modèle est une charpente complète et fonctionnelle. Ses séries
 macroéconomiques sont **certifiées de 1950 à 2025**, ses tables de mortalité sont
-celles réellement observées depuis 1986, et son plafond de la Sécurité sociale
-remonte à 1931 daté décret par décret — le tout recontrôlé automatiquement contre
-les sources. Ce qui précède 1950, et les paramètres propres à chaque régime,
-restent saisis à la main. Ce document dit exactement où passe la frontière, pour
-qu'aucun résultat ne soit cité sans savoir sur quoi il repose.
+celles réellement observées depuis 1899, son plafond de la Sécurité sociale
+remonte à 1931 daté décret par décret, et les tables par génération qui
+commandent la décote — âge d'ouverture, durée requise, coefficient de
+minoration — sont **lues dans le texte des articles du code** : le tout
+recontrôlé automatiquement contre les sources, à chaque exécution. Ce qui
+précède 1950 pour le salaire et la productivité, et les barèmes propres à
+certains régimes, restent saisis à la main. Ce document dit exactement où passe
+la frontière, pour qu'aucun résultat ne soit cité sans savoir sur quoi il
+repose.
 
 ---
 
@@ -25,11 +29,11 @@ Ce qui suit est le recensement complet de ses paramètres et de leur état.
 | Point d'indice de la fonction publique | série datée 1960-2027 | OpenFisca-France, **recontrôlé à chaque exécution** |
 | Minimum vieillesse (ASPA) | montants servis 2007, 2010, 2016-2026 | transcrit des publications |
 | Décote de la fonction publique | article L. 14, montée en charge 2006-2020 | reprise des textes, non recontrôlée |
-| Carrière longue | trois étapes, 2004, 2012, 2023 | textes ; l'étape de 2004 reste approchée |
-| Durée requise par génération | table 1934-1965, 151 → 172 trimestres | reprise des textes, non recontrôlée |
-| Âge légal par génération | table 1930-1968, 60 → 64 ans | reprise des textes, non recontrôlée |
+| Carrière longue | trois étapes, 2004, 2012, 2023 | **certifiée** pour 2023 (L. 351-1-1, D. 351-1-1) ; 2004 et 2012 transcrites |
+| Durée requise par génération | table 1934-1975, 151 → 172 trimestres | **certifiée** depuis 1958 (L. 161-17-3) ; 1934-1957 transcrite |
+| Âge légal par génération | table 1900-1975, 60 → 64 ans | **certifié** (D. 161-2-1-9), recontrôlé à chaque exécution |
 | Âge d'annulation de la décote par génération | table 1930-1955, 65 → 67 ans | reprise des textes, non recontrôlée |
-| Coefficient de minoration par génération | table 1900-1953, 2,5 → 1,25 % | textes, recoupé à la DREES |
+| Coefficient de minoration par génération | table 1900-1975, 2,5 → 1,25 % | **certifié** (R. 351-27 II), recoupé à la DREES |
 | Années retenues au salaire de référence | table 1934-1948, 10 → 25 années | reprise des textes, non recontrôlée |
 | Coefficients d'anticipation Agirc-Arrco | deux tables, 1 → 0,78 et 1 → 0,43 | barème publié par la caisse, saisi |
 | Plafond de la majoration familiale Agirc-Arrco | 2 367 €/an (novembre 2025) | publié par la caisse, saisi |
@@ -168,7 +172,7 @@ modèle n'a pas, ou décrit un dispositif qu'il représenterait faussement.
 | Donnée | Période | Niveau | Source |
 |---|---|---|---|
 | Inflation (IPC) | 1950-2025 | **certifiée** | INSEE BDM, idbanks 000008965 et 001764363 |
-| Inflation | 1930-1949 | estimée | tableau « IPC depuis 1901 », saisi |
+| Inflation | 1930-1949 | estimée | reconstitution, dérive cumulée recoupée à l'INSEE idbank 010605954 (1901-) |
 | Salaire moyen par tête | 1950-2025 | **certifiée** | INSEE BDM, idbanks 011785411 et 011793486 |
 | Salaire moyen par tête | 1930-1949 | estimée | reconstitution |
 | Productivité réelle | 1950-2025 | **certifiée** | INSEE BDM, idbanks 011785223 et 011793334 |
@@ -181,10 +185,17 @@ modèle n'a pas, ou décrit un dispositif qu'il représenterait faussement.
 | Quotients de mortalité par âge | 1986-1997, 95 à 104 ans | **certifiée** | INED, là où Eurostat s'arrête |
 | Quotients de mortalité par âge | après 1997, au-delà de 94 ans | absents | calibration paramétrique, dont le biais est mesuré |
 | Minimum contributif et plafond d'écrêtement | ancres de 2007 à 2014 | **certifiée** | DILA, base LEGI, code de la sécurité sociale |
+| Âge d'ouverture des droits par génération | 1900-1975 | **certifiée** | DILA, base LEGI, code de la sécurité sociale `D. 161-2-1-9` |
+| Durée d'assurance requise par génération | 1958-1975 | **certifiée** | DILA, base LEGI, code de la sécurité sociale `L. 161-17-3` |
+| Durée d'assurance requise par génération | 1934-1957 | haute | décrets de montée en charge, non codifiés |
+| Coefficient de minoration par génération | 1900-1975 | **certifiée** | DILA, base LEGI, code de la sécurité sociale `R. 351-27` |
+| Bornes de la carrière longue | 2023- | **certifiée** | DILA, base LEGI, `L. 351-1-1` et `D. 351-1-1` |
+| Bornes de la carrière longue | 2004 et 2012 | moyenne / haute | versions abrogées des mêmes articles, transcrites |
 | Point d'indice de la fonction publique | 1960-2027 | haute | OpenFisca-France, `point_indice_en_euros` |
 | Plafond Sécurité sociale | 2002-2025 | **certifiée** | INSEE BDM, idbank 000822494 |
 | Plafond Sécurité sociale | 1931-2001 | haute | OpenFisca-France, daté décret par décret |
 | Taux de cotisation, régime général | 1967-2026 | moyenne | OpenFisca-France, recoupé à chaque exécution |
+| Taux de cotisation, complémentaires du privé | Arrco 1962-2018, Agirc 1981-2018, Agirc-Arrco 2019- | moyenne | OpenFisca-France, taux effectifs par tranche, recoupés à chaque exécution |
 | Taux de cotisation, autres régimes | tous | moyenne / estimée | Comptes de la Sécurité sociale |
 | Valeurs d'achat et de service du point, Ircantec | 1971-2021 | **certifiée** | Caisse des dépôts, qui gère le régime |
 | Valeurs d'achat et de service du point, autres | Agirc 1947-2018, Arrco 1949-2018, Agirc-Arrco 2019-2025, RAFP 2005-2021, RCI 2013-2023 | haute | OpenFisca-France-Pension, recoupé à l'INSEE depuis 2001 |
@@ -210,6 +221,8 @@ python scripts/fetch/cnbf_baremes.py           # valeurs du point des avocats
 python scripts/fetch/cnavpl_recueils.py        # valeur du point des professions libérales
 python scripts/fetch/dila_legi_msa.py          # point de la complémentaire agricole (lent : 1,1 Go)
 python scripts/fetch/dila_legi_minimum_contributif.py  # minimum contributif et plafond (lent aussi)
+python scripts/fetch/dila_legi_parametres_retraite.py   # âges, durées, décotes par génération (lent aussi)
+python scripts/fetch/openfisca_point_indice.py  # point d'indice et barème du minimum garanti
 python scripts/fetch/ined_vallin_mesle.py      # quotients de mortalité d'avant 1986
 python scripts/fetch/eurostat_hicp.py          # contrôle croisé de l'inflation
 
@@ -272,19 +285,52 @@ valeur de service 2025 de l'Agirc-Arrco manquait, la transcription s'arrêtant �
 l'année précédente.
 
 **Ce qui reste hors de portée, et pourquoi.** La liste vaut recensement de ce
-qui a été cherché, pour éviter de le rechercher deux fois.
+qui a été cherché, pour éviter de le rechercher deux fois — et elle est tenue
+dans les deux sens : une limite qui se referme n'est pas effacée, elle est
+réécrite avec ce qui l'a levée et ce qu'elle a fini par coûter. Sur les dix
+entrées qui suivent, **sept ont été refermées par une source trouvée** et
+**deux par la mesure du biais** qu'elles laissent — un biais chiffré n'est plus
+une inconnue, il se retranche. Une seule reste ouverte, faute de source. Les
+phrases qui déclaraient ces limites inaccessibles sont citées telles quelles,
+parce qu'une conclusion fausse tirée de prémisses vraies est ce qui se répète le
+plus volontiers.
 
-* *Inflation, salaires et productivité d'avant 1950* — ni l'indice des prix ni
-  les comptes nationaux ne sont diffusés en série continue plus haut. Ont été
-  essayés sans succès : la BDM de l'INSEE (débute en 1949), le convertisseur
-  franc-euro de l'INSEE (calcul côté navigateur, coefficients non exposés), les
-  longues séries de prix de la BRI (débutent en 1951), Eurostat (1996), les
-  données de la Banque mondiale (1960). Le tableau « IPC depuis 1901 » n'existe
-  qu'en fichier tableur. Ce n'est plus le format qui bloque — `lecture_xls.py`
-  ouvre les classeurs Excel 97 depuis les tables de mortalité de l'INED — c'est
+* *Inflation d'avant 1950* — **l'adresse a été trouvée, et elle ne suffit
+  pas.** Cette page écrivait : « ce n'est plus le format qui bloque, c'est
   l'adresse : la page de l'INSEE qui porte ce tableau ne sert qu'un
   convertisseur, sans lien de téléchargement. Le jour où l'adresse est connue,
-  le chemin est court.
+  le chemin est court. » L'adresse n'est pas une page mais un IDBANK —
+  **`010605954`**, le coefficient de transformation du franc et de l'euro, que
+  la Banque de données macroéconomiques sert **depuis 1901** par la même API
+  que tout le reste, sans clé.
+
+  Le chemin était court, en effet. Mais la série ne remplace pas ce qu'elle
+  devait remplacer, et c'est maintenant mesuré plutôt que supposé : publiée à
+  deux décimales sur une base 100 en 2015, elle vaut **0,20 en 1935**. Un
+  centième y pèse cinq points de taux. Les variations annuelles qu'on en
+  tirerait seraient du bruit — elle donne +3,9 % pour 1930 quand le dépôt porte
+  −2,5 %, et 0,0 % pour 1934 quand il porte −5,7 %.
+
+  Ce qu'elle permet, en revanche, c'est de **valider la dérive cumulée**, et le
+  contrôle est désormais dans `verifier_donnees.py` :
+
+  | Période | Dépôt | INSEE 010605954 | Écart |
+  |---|---|---|---|
+  | 1930-1949, reconstituée | ×19,23 | ×18,41 | +4,5 % |
+  | 1949-2025, certifiée | ×23,76 | ×24,34 | −2,4 % |
+
+  La seconde ligne est l'étalon de la première : sur la période où le dépôt est
+  certifié contre la série mensuelle de l'INSEE, la série des coefficients
+  s'écarte déjà de 2,4 %. Un écart de 4,5 % sur vingt ans de reconstitution ne
+  dit donc rien d'autre que la précision de l'instrument. **La reconstitution
+  d'avant 1950 n'est pas fausse** — elle n'est simplement pas certifiable au
+  sens du dépôt, et l'on sait maintenant de combien.
+
+  Restent hors de portée le SALAIRE MOYEN et la PRODUCTIVITÉ d'avant 1949 : les
+  comptes nationaux ne remontent pas plus haut, et aucune série de coefficients
+  ne leur correspond. Ont été essayés sans succès, pour éviter de refaire le
+  trajet : la BDM (comptes nationaux depuis 1949), les longues séries de prix de
+  la BRI (1951), Eurostat (1996), la Banque mondiale (1960).
 * *Quotients de mortalité par âge d'avant 1986* — **trouvés.** Cette page
   écrivait que la Human Mortality Database était « seule à couvrir la France
   depuis 1816 » et que son inscription obligatoire la mettait hors de portée
@@ -353,14 +399,80 @@ qui a été cherché, pour éviter de le rechercher deux fois.
   faveur du système actuel dans la comparaison, puisqu'il abaisse les seules
   pensions notionnelles.
 
-* *Taux de cotisation d'avant octobre 1967 et des régimes autres que le régime
-  général* — aucune transcription machine n'existe. Ils viennent des
-  ordonnances de 1945 et de leurs modificatifs, saisis à la main. Ont été
-  essayés sans succès, pour éviter de refaire le trajet : les barèmes IPP, qui
-  sont la source amont d'OpenFisca et ne commencent pas plus tôt que lui pour
-  la CNAV (1967) ; et la Banque de données macroéconomiques de l'INSEE, dont la
-  série de taux de cotisation vieillesse (idbank 000483633) ne porte que la
-  part salariale et ne débute qu'en juillet 1993.
+* *Taux de cotisation des COMPLÉMENTAIRES du privé* — **trouvés, et deux
+  erreurs avec eux.** Cette page rangeait ces taux avec ceux d'avant 1967, au
+  motif qu'« aucune transcription machine n'existe ». C'était vrai du régime
+  général d'avant 1967 et faux des complémentaires : OpenFisca-France porte
+  leurs **taux effectifs par tranche**, datés depuis 1962 pour l'Arrco et 1981
+  pour l'Agirc, sous
+  `prelevements_sociaux/regimes_complementaires_retraite_secteur_prive`. Ce
+  sont les taux réellement prélevés, taux d'appel compris — la même grandeur
+  que celle des fiches du dépôt, donc directement comparable.
+
+  Le contrôle de vraisemblance qui en découle a trouvé deux écarts, l'un et
+  l'autre corrigés :
+
+  * l'Agirc portait **8 %** sur toute la période 1947-1988, soit le taux
+    contractuel d'origine appliqué à quarante-deux ans, quand le taux effectif
+    était de 8,24 % en 1981 et de 12 % en 1988. La période est coupée à 1981 —
+    date où commence la transcription — et les huit dernières années portent
+    désormais 11,58 % ;
+  * l'Agirc portait **20,43 %** sur 1994-2018, valeur de fin de période, là où
+    la moyenne effective est de 19,48 %.
+
+  Et le recoupement a révélé un manque plus grave qu'un taux : **la tranche 2 de
+  l'Arrco n'existait pas dans le modèle.** Tous les salariés du privé cotisent
+  à l'Arrco sur la tranche 1, mais seuls les non-cadres cotisent sur la
+  tranche 2 — la part de salaire comprise entre un et trois plafonds, à près
+  d'un cinquième. La fiche n'ayant que la tranche 1, un non-cadre payé au-dessus
+  du plafond n'acquérait aucun droit complémentaire sur ce qui dépassait, alors
+  que son régime y prélevait. La tranche est ajoutée, avec sa borne propre :
+  trois plafonds, et non huit comme dans le régime unifié d'après 2019.
+
+* *Taux de cotisation d'avant octobre 1967, et des régimes autres que ceux du
+  privé* — **la seule limite de cette liste qui reste ouverte**, et la seule
+  dont on puisse dire par où elle passe sans pouvoir la refermer. Aucune
+  transcription machine n'existe : ces taux viennent des ordonnances de 1945 et
+  de leurs modificatifs, saisis à la main. Ont été essayés sans succès, pour
+  éviter de refaire le trajet : les barèmes IPP, qui sont la source amont
+  d'OpenFisca et ne commencent pas plus tôt que lui pour la CNAV (1967) ; et la
+  Banque de données macroéconomiques de l'INSEE, dont la série de taux de
+  cotisation vieillesse (idbank 000483633) ne porte que la part salariale et ne
+  débute qu'en juillet 1993.
+
+  **Ce que cette incertitude déplace, et de combien.** Un taux de cotisation
+  n'entre nulle part dans le calcul d'une pension du système ACTUEL : les
+  annuités se calculent sur un salaire de référence, les régimes en points sur
+  un prix d'achat. Il n'alimente que le COMPTE NOTIONNEL. Une erreur de taux ne
+  fausse donc pas l'étalon, elle fausse les deux scénarios comparés — dans un
+  seul sens, et de façon mesurable. En surévaluant d'un point entier les taux
+  d'avant 1967 du régime général, soit davantage que la plus grosse erreur
+  jamais trouvée sur les taux postérieurs (0,8 point), la pension notionnelle
+  rétroactive d'un salarié du privé monte de :
+
+  | Génération | Pension actuelle | Notionnel rétroactif | Effet de +1 point avant 1967 |
+  |---|---|---|---|
+  | 1930 | inchangée | 3 409 € | **+0,75 %** |
+  | 1940 | inchangée | 6 105 € | **+0,25 %** |
+  | 1950 | inchangée | 9 210 € | **+0,03 %** |
+
+  L'effet s'éteint avec la part de carrière antérieure à 1967, et il est déjà
+  inférieur au pour cent pour la génération 1930 — la plus ancienne que le
+  modèle simule couramment. Ce n'est pas ce qui explique les écarts, qui se
+  comptent en dizaines de pour cent.
+
+  Pour les **régimes autres que le privé**, l'incertitude porte sur toute la
+  période, et non sur les seules années d'avant 1967 : elle serait donc bien
+  plus lourde. Elle est neutralisée par un choix de modélisation, non par une
+  source : le réglage par défaut aligne la cotisation portée au compte notionnel
+  d'un fonctionnaire sur le TAUX DU PRIVÉ, précisément parce qu'une comparaison
+  entre systèmes ne peut pas reposer sur une retenue dont le sens historique
+  diffère. Sous ce réglage, majorer d'un point tous les taux des fiches de la
+  fonction publique ne déplace **aucun** chiffre. Le réglage « retenue de
+  l'agent seule », lui, y est très sensible — +11 à +14 % sur la pension
+  notionnelle des générations 1940 et 1960 pour ce même point — ce qui est une
+  raison de plus de ne pas en faire le défaut, et de lire ses résultats en
+  sachant sur quoi ils reposent.
 * *Valeur du point de la MSA* — **trouvée, après huit sources infructueuses.**
   Ont été essayés sans succès : OpenFisca-France-Pension (ne modélise pas ce
   régime), les barèmes IPP (même périmètre — c'est la source amont d'OpenFisca,
@@ -504,6 +616,20 @@ qui a été cherché, pour éviter de le rechercher deux fois.
   complémentaire à 8,2 % et une base forfaitaire moins rentable. L'estimation
   n'était pas absurde, ce que rien ne permettait de dire jusqu'ici.
 
+  **Un piège de lecture, découvert en recontrôlant.** Les barèmes de 2017 à
+  2025 écrivent leurs chiffres dans une police dont la table `/ToUnicode` les
+  déclare caractères grecs : « 11,1654 € » y est encodé `ϭϭ͕ϭϲϱϰΦ`. Le document
+  est parfaitement lisible à l'écran, et illisible pour un programme — les huit
+  barèmes antérieurs à 2026 étaient ignorés en silence, la série tombant de
+  dix-huit valeurs à deux, sans qu'aucune erreur ne soit signalée. Les dix
+  chiffres étant contigus à partir de U+03EC, la table se répare. On ne la
+  devine pas pour autant : le barème 2023 ainsi décodé donne 11,1654 € et
+  0,9815 €, valeurs déjà certifiées quand la caisse servait ces PDF dans une
+  police saine, et le garde-fou du récupérateur refuse toute série qui ne serait
+  pas monotone en coût, en valeur de service et en rendement. **Une source qui
+  se tait est plus dangereuse qu'une source qui manque** : c'est le journal de
+  certification, qui compte les valeurs versées, qui a rendu la chute visible.
+
 * *Régime de base des professions libérales* — la CNAVPL ne publie sa valeur de
   point nulle part ailleurs que dans son **recueil statistique**, un annuaire
   d'une soixantaine de pages paru chaque année, sous une phrase invariable :
@@ -527,9 +653,64 @@ qui a été cherché, pour éviter de le rechercher deux fois.
   forfaitaires dont la grille n'est pas publiée : ces années restent au
   rendement instantané.
 
-* *Âges, durées requises, décotes* — ils viennent de lois, pas de séries
-  statistiques. Légifrance expose une API, mais elle demande une clé et renvoie
-  du texte juridique, non des paramètres.
+* *Âges, durées requises, décotes* — **certifiés, par la même clé que la MSA.**
+  Cette page écrivait : « ils viennent de lois, pas de séries statistiques.
+  Légifrance expose une API, mais elle demande une clé et renvoie du texte
+  juridique, non des paramètres. » Les deux moitiés de la phrase étaient vraies
+  et la conclusion fausse. La base LEGI de la DILA est ouverte, elle garde
+  chaque version datée de chaque article — et **le texte juridique EST la
+  table** :
+
+  > « Soixante-deux ans et trois mois pour les assurés nés entre le
+  > 1er septembre 1961 et le 31 décembre 1961 inclus. »
+
+  Trois articles du code de la sécurité sociale portent, en toutes lettres, les
+  trois tables par génération dont le scénario 1 dépend le plus :
+  `D. 161-2-1-9` pour l'âge d'ouverture des droits, `L. 161-17-3` pour la durée
+  d'assurance requise, `R. 351-27` pour le coefficient de minoration. Deux
+  autres, `L. 351-1-1` et `D. 351-1-1`, portent les bornes de la carrière
+  longue. `scripts/fetch/dila_legi_parametres_retraite.py` les lit dans le même
+  flux de 9 Go que la RCO agricole et le minimum contributif, et en reconstitue
+  la table année de naissance par année de naissance.
+
+  **Ce que la confrontation a donné : aucune correction.** Les trente-cinq
+  valeurs saisies à la main — seize âges, huit durées, onze coefficients — se
+  sont retrouvées identiques au texte, au centième d'année et au millionième de
+  point près. C'est le seul recontrôle du dépôt qui n'ait rien corrigé, et
+  c'était le plus attendu : ces tables commandent la décote, la surcote et
+  l'ouverture des droits, c'est-à-dire l'essentiel de l'écart entre une pension
+  à 62 ans et la même à 64. Ce qu'il apporte n'est donc pas une correction mais
+  une **preuve**, et cent trente-cinq générations que la saisie laissait
+  implicites : toutes celles d'avant 1951 et d'après 1968 pour l'âge, d'après
+  1965 pour la durée, hors de la fenêtre 1944-1953 pour le coefficient. Une
+  simulation portant sur la génération 1972 lisait jusqu'ici la dernière ligne
+  de la table ; elle lit désormais une ligne écrite pour elle.
+
+  Trois difficultés de lecture, notées pour qui reprendra le fil :
+
+  * **les versions d'un article ne sont pas simultanées.** Les fusionner donne
+    un résultat faux et vraisemblable : la version de 2011, qui fixe 62 ans « à
+    compter du 1er janvier 1955 », recouvrait la table de 2023. Les versions
+    sont donc appliquées dans l'ordre chronologique, la plus récente l'emportant
+    — comme le fait le droit lui-même ;
+  * **les nombres sont en toutes lettres**, et les bornes s'écrivent de six
+    façons (« avant le », « entre le … et le », « nés en », « à compter du »,
+    « après le 31 décembre »). Le récupérateur les convertit en MOIS COUVERTS,
+    puis attribue chaque génération à la valeur qui en couvre le plus — la plus
+    exigeante en cas d'égalité. C'est la seule approximation qui subsiste, elle
+    vaut au plus un trimestre, et elle est inhérente à un modèle qui ne connaît
+    que l'année de naissance ;
+  * **le texte peut être fautif.** Le décret du 3 juin 2023 écrit « A
+    soixante-deux pour les assurés » — le mot « ans » manque. Une expression
+    régulière trop stricte perd la borne des 20 ans de la carrière longue, et
+    l'on ne s'en aperçoit pas, puisqu'il en reste trois.
+
+  Ce que cette voie ne donne pas, et qui reste transcrit : les générations 1934
+  à 1957 de la durée requise, fixées par des décrets de montée en charge non
+  codifiés que LEGI n'expose sous aucun numéro d'article ; l'âge d'annulation de
+  la décote ; le nombre d'années retenues au salaire annuel moyen ; et les
+  portes de carrière longue de 2004 et de 2012, qui sont dans des versions
+  abrogées.
 
 **Ce que cela veut dire concrètement.** Les carrières entamées après 1950 —
 c'est-à-dire les générations nées à partir de 1930 environ, soit la quasi-totalité
@@ -579,16 +760,20 @@ l'Institut des politiques publiques (PENSIPP). Écarts connus :
   depuis peu deux régimes dont le barème n'est pas un prix d'achat mais un
   NOMBRE DE POINTS par tranche d'assiette : le régime de base des professions
   libérales (525 points au plafond, 25 sur la seconde tranche) et la
-  complémentaire agricole (100 points pour 1 820 SMIC). Restent au rendement
-  instantané la CNBF, le RCI et le RAFP — pour le RCI et le RAFP faute d'un prix
-  d'achat publié, pour la CNBF parce que sa fiche agrège un régime de base
-  forfaitaire et un complémentaire en points qu'il faudrait scinder d'abord ;
+  complémentaire agricole (100 points pour 1 820 SMIC). La complémentaire des
+  avocats les a rejoints, avec le prix d'achat publié par la CNBF et les cinq
+  tranches en euros de la classe C1, depuis 2019 seulement — les tranches
+  antérieures ne sont pas publiées. Restent au rendement instantané le RCI et le
+  RAFP, faute d'un prix d'achat publié ;
 - **montée en charge des réformes** — cinq paramètres sont lus à la génération :
   durée requise, âge d'ouverture, âge d'annulation de la décote, coefficient de
-  minoration et nombre d'années retenues au salaire de référence. La décote de
-  la fonction publique et le barème du minimum garanti, eux, sont lus à l'année
-  de liquidation, comme leurs articles l'écrivent. Restent approchés les taux de
-  cotisation et la montée en charge propre à chaque régime spécial ;
+  minoration et nombre d'années retenues au salaire de référence. Trois d'entre
+  eux sont désormais lus dans le texte même des articles du code, et
+  recontrôlés à chaque exécution. La décote de la fonction publique et le
+  barème du minimum garanti, eux, sont lus à l'année de liquidation, comme
+  leurs articles l'écrivent. Restent approchés les taux de cotisation, lus à
+  l'année de liquidation, et la montée en charge propre à chaque régime
+  spécial ;
 - **revalorisation des salaires portés au compte** — les coefficients annuels
   suivent désormais les salaires jusqu'en 1986 et les prix depuis 1987, comme
   l'ont fait les arrêtés. La règle des prix appliquée à toute la période
@@ -606,15 +791,37 @@ Un écart de quelques pour cent avec la pension réelle est attendu.
 
 ---
 
-## 4. Régimes incomplets
+## 4. Régimes incomplets, et de combien
 
-| Régime | Ce qui manque |
-|---|---|
-| Professions libérales (CNAVPL) | régimes complémentaires des dix sections (CARMF, CARPIMKO, CIPAV…) ; grille des classes de cotisation avant 2004 |
-| Marins (ENIM) | grille des salaires forfaitaires par catégorie et par année |
-| Avocats (CNBF) | cotisation forfaitaire de base par tranche d'ancienneté (363 à 1 988 €/an) ; tranches de la grille complémentaire d'avant 2019 |
-| Régimes spéciaux résiduels | paramètres saisis au niveau `estimee`, à certifier auprès de chaque caisse |
-| Non-salariés agricoles | barème de points du régime de base (23 à 113 points par tranche de revenu, non publié) ; points gratuits de la RCO |
+Un régime « incomplet » n'est pas un régime absent : les 37 fiches du catalogue
+calculent toutes une pension. Ce qui manque est, chaque fois, un ÉTAGE ou un
+BARÈME qu'aucune source publique ne donne en série. Le tableau dit lequel, ce
+qui le remplace, et **dans quel sens** l'approximation joue — car un modèle dont
+on ignore le sens de l'erreur ne se corrige pas dans la tête du lecteur.
+
+| Régime | Ce qui manque | Ce qui le remplace | Sens et ordre de grandeur |
+|---|---|---|---|
+| Professions libérales (CNAVPL) | les régimes complémentaires des dix sections (CARMF, CARPIMKO, CIPAV…), chacun avec son barème ; la grille des classes de cotisation d'avant 2004 | le seul régime de base, en points plafonnés à 550 | **sous-estime** la pension, fortement : la complémentaire d'un médecin ou d'un dentiste pèse plus lourd que sa base. Un libéral n'est comparable qu'à lui-même d'un scénario à l'autre |
+| Marins (ENIM) | la grille des salaires forfaitaires par catégorie et par année, qui est l'assiette réelle du régime | le revenu déclaré, plafonné comme au régime général | **indéterminé** : la grille est plus favorable que le salaire réel aux bas revenus, moins au-delà. L'écart porte sur l'assiette, donc sur la pension ET sur le compte notionnel, en partie compensé |
+| Avocats (CNBF) | la cotisation forfaitaire de base, de 363 à 1 988 €/an selon l'ancienneté ; les tranches de la grille complémentaire d'avant 2019 | seule la cotisation proportionnelle de 3,20 % alimente le compte ; les années d'avant 2019 restent au rendement instantané | **sous-estime le flux versé**, donc la pension notionnelle, sans toucher à la pension actuelle — qui est forfaitaire et ne dépend pas de la cotisation. L'écart joue donc contre les scénarios notionnels |
+| Non-salariés agricoles | le barème de points du régime de base (23 à 113 points par tranche de revenu), que personne ne publie ; les points gratuits de la RCO — 66 par an aux conjoints et aides familiaux avant 2011, dans la limite de 17 ans | la retraite forfaitaire et la RCO, dont le barème en points est public | **sous-estime** la pension des carrières de conjoint et d'aide familial, qui sont précisément les plus modestes du régime |
+| Régimes spéciaux résiduels | des paramètres certifiés : les taux et les âges sont saisis au niveau `estimee`, caisse par caisse | les textes fondateurs, sans recontrôle | **indéterminé**, et c'est le seul cas où le dépôt ne sait pas dire le sens. Ces régimes portent peu d'assurés ; leur poids dans les agrégats est faible |
+
+**Ce qui a été refermé depuis la version précédente de ce tableau.** Le régime
+de base des avocats était rangé ici comme « à scinder » : il l'est, et sa
+pension ne dépend plus du revenu. La complémentaire agricole y figurait sans
+valeur de point : elle en a une, certifiée de 2005 à 2024, tirée du code rural.
+Le régime de base des professions libérales y figurait sans barème : il a le
+sien, plafonné en points comme la caisse le publie.
+
+**Pourquoi ce qui reste ne se referme pas de la même façon.** Les limites
+refermées cette année l'ont toutes été par un changement de CLÉ D'ENTRÉE — un
+numéro d'article plutôt qu'un mot, un IDBANK plutôt qu'une page, un lecteur de
+format écrit à la main. Ce qui subsiste ci-dessus n'est pas d'une autre
+difficulté technique : ce sont des barèmes que personne ne publie sous aucune
+forme, ni en série, ni en texte réglementaire, ni en PDF. Les chercher encore
+supposerait de les reconstituer à partir de cas individuels, ce qui produirait
+un chiffre plus précis d'apparence et pas davantage de vérité.
 
 Le catalogue compte **37 régimes**, actuels et disparus. Il est structurellement
 extensible : ajouter un régime consiste à écrire une fiche YAML conforme à
@@ -622,26 +829,61 @@ extensible : ajouter un régime consiste à écrire une fiche YAML conforme à
 
 ---
 
-## 5. Ce que le modèle ne calcule pas
+## 5. Ce que le modèle ne calcule pas, et pourquoi
+
+Ce qui suit n'est pas une liste de manques mais un **périmètre**, et chaque
+ligne dit ce qu'elle coûte et dans quel sens. Une limite qu'on sait mesurer
+n'est plus une limite : c'est un paramètre connu du résultat.
 
 - **L'équilibre financier du système.** Le modèle calcule des droits
   individuels. Il ne vérifie pas que la somme des pensions servies égale la
-  somme des cotisations encaissées. Un système notionnel réel exige un
-  coefficient d'équilibre et un fonds de réserve ; ni l'un ni l'autre ne sont
-  modélisés.
+  somme des cotisations encaissées, et il ne le peut pas : cela demanderait une
+  pyramide des âges, un taux d'emploi et une règle de pilotage, c'est-à-dire un
+  modèle de population et non un modèle de carrière. Un système notionnel réel
+  exige en outre un **coefficient d'équilibre** et un fonds de réserve, qui
+  ajusteraient à la baisse ou à la hausse toutes les pensions du scénario 2 par
+  un même facteur. Ce facteur étant commun, il déplacerait les niveaux sans
+  toucher aux ÉCARTS ENTRE CARRIÈRES, qui sont l'objet du modèle.
+
 - **Les comportements.** Les âges de liquidation sont ceux que l'utilisateur
   déclare. Or une réforme qui pénalise fortement les départs précoces conduit à
-  les décaler : les écarts affichés sont donc des effets à comportement
-  inchangé, qui surestiment la perte réelle.
-- **Le net.** Tous les montants sont **bruts**. CSG, CRDS et CASA ne sont pas
-  appliquées.
+  les décaler. Le sens du biais est connu : les écarts affichés sont des effets
+  **à comportement inchangé**, et ils surestiment donc la perte réelle — un
+  assuré qui, dans un système notionnel, travaillerait deux ans de plus
+  récupérerait à la fois des cotisations et un diviseur plus favorable.
+
+- **Le net.** Tous les montants sont **bruts**. Une pension supporte la CSG, la
+  CRDS et la CASA, dont les taux dépendent du revenu fiscal de référence du
+  FOYER — que le modèle ne connaît pas, puisqu'il décrit une carrière et non un
+  ménage. Le passage au net retrancherait, pour un retraité au taux normal,
+  environ 9,1 % de la pension. Ce prélèvement étant proportionnel et identique
+  dans les trois scénarios, il ne déplacerait aucun des écarts affichés : c'est
+  la raison pour laquelle le brut suffit ici.
+
 - **La capitalisation.** Le compartiment RAFP est isolé et converti au même
-  coefficient actuariel, mais son rendement financier propre n'est pas modélisé.
-  Conformément à la demande, seule la répartition est traitée à ce stade.
+  coefficient actuariel que le reste, mais son **rendement financier propre**
+  n'est pas modélisé : ses points sont valorisés au barème publié par l'ERAFP,
+  non par le rendement de son portefeuille. C'est le traitement demandé — seule
+  la répartition est en cause — et il rend le RAFP comparable au reste plutôt
+  que de le faire dépendre d'hypothèses de marché.
+
 - **Les carrières réelles.** Les carrières sont reconstituées à partir d'un
   profil paramétrique. Une simulation à partir d'un relevé de carrière réel est
-  possible via `Carriere.depuis_lignes`, mais l'import automatique du relevé
-  Info-Retraite n'est pas implémenté : le RGCU n'est pas ouvert au public.
+  possible par `Carriere.depuis_lignes`, et c'est le chemin le plus exact ; mais
+  l'IMPORT AUTOMATIQUE du relevé Info-Retraite n'est pas implémenté, et ne peut
+  pas l'être : le répertoire de gestion des carrières uniques n'est pas ouvert
+  au public, et son accès passe par une authentification personnelle qu'un
+  script ne saurait porter sans détenir les identifiants de l'assuré.
+
+- **La coordination interrégimes.** Chaque régime liquide sur ses seules
+  années, et la durée acquise dans chacun est comptée séparément — c'est le
+  droit. Restent dehors la **proratisation croisée** du salaire annuel moyen
+  entre régimes alignés et la **liquidation unique** (LURA), qui, depuis 2017,
+  fait calculer par une seule caisse la retraite d'un polypensionné des trois
+  régimes alignés. L'effet est de second ordre pour une carrière
+  mono-affiliée — le cas ordinaire — et joue plutôt à la hausse pour un
+  polypensionné, dont le salaire annuel moyen unique est calculé sur les
+  meilleures années tous régimes confondus.
 
 ---
 

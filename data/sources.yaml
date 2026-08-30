@@ -580,16 +580,17 @@ institutions:
         statut_integration: saisi
         cible: data/reference/legislation/reformes.yaml
         note: >-
-          Portent aussi les quatre tables par génération de
-          `data/reference/legislation/` : durée requise, âge d'ouverture, âge
-          d'annulation de la décote (loi du 9 novembre 2010), coefficient de
-          minoration (article R. 351-27) et nombre d'années retenues au salaire
-          annuel moyen (article R. 351-29). Saisies depuis les textes, donc au
+          Portent aussi les tables par génération de
+          `data/reference/legislation/` qu'aucun numéro d'article ne rassemble :
+          l'âge d'annulation de la décote (loi du 9 novembre 2010), le nombre
+          d'années retenues au salaire annuel moyen (article R. 351-29), et les
+          générations 1934-1957 de la durée requise, fixées par des décrets de
+          montée en charge non codifiés. Saisies depuis les textes, donc au
           niveau `haute` : Légifrance refuse les requêtes automatisées et son
-          API demande une clé, si bien qu'aucun chemin de certification
-          reproductible n'existe. Les deux tables les plus récentes ont été
-          recoupées à la fiche 16 du panorama de la DREES, qui en donne les
-          bornes et le pas.
+          API demande une clé. Les trois autres tables — âge d'ouverture, durée
+          requise des générations 1958 et suivantes, coefficient de minoration —
+          ne sont plus ici : elles sont certifiées contre la base LEGI, voir
+          dila_legi_parametres_retraite.
 
       - id: dila_legi_minimum_contributif
         titre: Minimum contributif, minimum majoré et plafond d'écrêtement
@@ -610,6 +611,37 @@ institutions:
           14 avril 2023 pour les deux minima. Le modèle fait cette
           revalorisation, et elle retombe sur les montants publiés par les
           caisses à 0,03 % près.
+
+      - id: dila_legi_parametres_retraite
+        titre: Âge d'ouverture, durée requise et coefficient de minoration, par génération
+        url: https://echanges.dila.gouv.fr/OPENDATA/LEGI/
+        acces: api
+        statut_integration: certifie
+        cible: data/reference/legislation/age_ouverture_requis.csv
+        recuperation: scripts/fetch/dila_legi_parametres_retraite.py
+        note: >-
+          Articles D. 161-2-1-9 (âge d'ouverture des droits), L. 161-17-3
+          (durée d'assurance requise) et R. 351-27 (coefficient de minoration)
+          du code de la sécurité sociale, plus L. 351-1-1 et D. 351-1-1 pour
+          les bornes de la carrière longue. Troisième usage de la recherche par
+          NUMÉRO d'article dans le dump LEGI, après la RCO agricole et le
+          minimum contributif, et le premier à porter sur des tableaux : ces
+          articles énumèrent leurs valeurs génération par génération, en
+          toutes lettres et en clauses de bornes (« nés avant le 1er juillet
+          1951 », « à compter du 1er janvier 1968 »). Le récupérateur en
+          reconstitue la table année de naissance par année de naissance, en
+          appliquant les versions successives de l'article dans l'ordre
+          chronologique — sans quoi la table de 2011 recouvrirait celle de
+          2023 — et en attribuant une génération coupée en cours d'année à la
+          valeur qui en couvre le plus de mois.
+          La confrontation n'a corrigé AUCUNE des trente-cinq valeurs saisies à
+          la main : elles étaient exactes. Ce qu'elle apporte n'est pas une
+          correction mais une preuve, et cent trente-cinq générations que la
+          saisie laissait implicites. Alimente aussi
+          data/reference/legislation/duree_assurance_requise.csv et
+          coefficient_minoration.csv.
+          Même coût que les autres passes LEGI : 9 Go décompressés en flux, un
+          quart d'heure, une exécution par an.
 
       - id: dila_legi_msa
         titre: Valeur de service du point de la RCO agricole, 2005-2024

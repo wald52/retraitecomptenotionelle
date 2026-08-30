@@ -1,6 +1,6 @@
 # Coefficient de minoration (décote), PAR GÉNÉRATION
 # --------------------------------------------------
-# source_id: legifrance_textes, drees_panorama_retraites
+# source_id: dila_legi_parametres_retraite
 #
 # Le coefficient de minoration s'applique AU TAUX PLEIN, par trimestre
 # manquant : taux = taux_plein × (1 − coefficient × trimestres manquants).
@@ -16,19 +16,91 @@
 # charge, et c'est ce qui permet de la brancher sur toutes les périodes des
 # régimes alignés depuis 1983.
 #
-# Recoupement : la DREES écrit que le coefficient est « abaissé progressivement
-# de 2,5 % pour la génération 1944 à 1,375 % pour la génération 1952 », puis
-# 1,25 % à partir de 1953 (fiche 16, « La décote et la surcote »). Les deux
-# bornes et le pas d'un huitième de point concordent.
+# D'OÙ VIENNENT CES VALEURS. Du II de l'article R. 351-27 lui-même, lu dans la
+# base LEGI de la DILA (`scripts/fetch/dila_legi_parametres_retraite.py`), qui
+# donne le tableau génération par génération ainsi que la clause générale des
+# assurés nés avant 1944. Niveau `certifiee` : les onze valeurs saisies à la
+# main s'y sont retrouvées IDENTIQUES, et les soixante-cinq générations que la
+# saisie laissait implicites — avant 1944 et après 1953 — ont été explicitées.
+#
+# Recoupement indépendant, conservé : la DREES écrit que le coefficient est
+# « abaissé progressivement de 2,5 % pour la génération 1944 à 1,375 % pour la
+# génération 1952 », puis 1,25 % à partir de 1953 (fiche 16, « La décote et la
+# surcote »). Les deux bornes et le pas d'un huitième de point concordent.
 generation,coefficient,fiabilite
-1900,0.025,haute
-1944,0.02375,haute
-1945,0.0225,haute
-1946,0.02125,haute
-1947,0.02,haute
-1948,0.01875,haute
-1949,0.0175,haute
-1950,0.01625,haute
-1951,0.015,haute
-1952,0.01375,haute
-1953,0.0125,haute
+1900,0.02500,certifiee
+1901,0.02500,certifiee
+1902,0.02500,certifiee
+1903,0.02500,certifiee
+1904,0.02500,certifiee
+1905,0.02500,certifiee
+1906,0.02500,certifiee
+1907,0.02500,certifiee
+1908,0.02500,certifiee
+1909,0.02500,certifiee
+1910,0.02500,certifiee
+1911,0.02500,certifiee
+1912,0.02500,certifiee
+1913,0.02500,certifiee
+1914,0.02500,certifiee
+1915,0.02500,certifiee
+1916,0.02500,certifiee
+1917,0.02500,certifiee
+1918,0.02500,certifiee
+1919,0.02500,certifiee
+1920,0.02500,certifiee
+1921,0.02500,certifiee
+1922,0.02500,certifiee
+1923,0.02500,certifiee
+1924,0.02500,certifiee
+1925,0.02500,certifiee
+1926,0.02500,certifiee
+1927,0.02500,certifiee
+1928,0.02500,certifiee
+1929,0.02500,certifiee
+1930,0.02500,certifiee
+1931,0.02500,certifiee
+1932,0.02500,certifiee
+1933,0.02500,certifiee
+1934,0.02500,certifiee
+1935,0.02500,certifiee
+1936,0.02500,certifiee
+1937,0.02500,certifiee
+1938,0.02500,certifiee
+1939,0.02500,certifiee
+1940,0.02500,certifiee
+1941,0.02500,certifiee
+1942,0.02500,certifiee
+1943,0.02500,certifiee
+1944,0.02375,certifiee
+1945,0.02250,certifiee
+1946,0.02125,certifiee
+1947,0.02000,certifiee
+1948,0.01875,certifiee
+1949,0.01750,certifiee
+1950,0.01625,certifiee
+1951,0.01500,certifiee
+1952,0.01375,certifiee
+1953,0.01250,certifiee
+1954,0.01250,certifiee
+1955,0.01250,certifiee
+1956,0.01250,certifiee
+1957,0.01250,certifiee
+1958,0.01250,certifiee
+1959,0.01250,certifiee
+1960,0.01250,certifiee
+1961,0.01250,certifiee
+1962,0.01250,certifiee
+1963,0.01250,certifiee
+1964,0.01250,certifiee
+1965,0.01250,certifiee
+1966,0.01250,certifiee
+1967,0.01250,certifiee
+1968,0.01250,certifiee
+1969,0.01250,certifiee
+1970,0.01250,certifiee
+1971,0.01250,certifiee
+1972,0.01250,certifiee
+1973,0.01250,certifiee
+1974,0.01250,certifiee
+1975,0.01250,certifiee

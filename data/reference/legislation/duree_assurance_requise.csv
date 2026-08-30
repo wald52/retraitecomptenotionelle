@@ -1,6 +1,6 @@
 # Durée d'assurance requise pour le taux plein, PAR GÉNÉRATION
 # ------------------------------------------------------------
-# source_id: legifrance_textes, cnav_circulaires
+# source_id: dila_legi_parametres_retraite, legifrance_textes
 #
 # La durée requise est indexée sur l'ANNÉE DE NAISSANCE, jamais sur l'année de
 # liquidation : deux assurés qui liquident le même jour n'ont pas la même
@@ -14,6 +14,24 @@
 #   - loi du 9 novembre 2010 et décrets de montée en charge : 1953-1957
 #   - loi du 20 janvier 2014 (Touraine) : 1958 et suivantes, cible 172
 #   - loi du 14 avril 2023 : accélération, cible 172 atteinte dès 1965
+#
+# DEUX PROVENANCES, ET LA COLONNE `fiabilite` LES DISTINGUE.
+#
+#   * générations 1958 et suivantes — `certifiee`. Elles sont LUES dans le
+#     texte de l'article L. 161-17-3 du code de la sécurité sociale publié par
+#     la DILA dans la base LEGI, qui porte la table en toutes lettres depuis la
+#     loi de 2014, modifiée par celle de 2023
+#     (`scripts/fetch/dila_legi_parametres_retraite.py`). Les huit valeurs
+#     saisies à la main s'y sont retrouvées IDENTIQUES, et dix générations
+#     absentes de la saisie — 1966 à 1975, que l'article fixe à 172 — ont été
+#     ajoutées.
+#   * générations 1934 à 1957 — `haute`, et elles le resteront. L'article
+#     L. 161-17-3 ne les porte pas : leur durée a été fixée, génération par
+#     génération, par des décrets pris sous l'ancien article L. 351-1 (décrets
+#     du 30 décembre 2010, du 29 juillet 2011, du 26 décembre 2012 …), textes
+#     abrogés ou non codifiés que la base LEGI n'expose pas sous un numéro
+#     d'article unique. La voie automatisable s'arrête là ; ces vingt-quatre
+#     valeurs restent une transcription, recoupée sur les circulaires CNAV.
 #
 # La génération 1961 est coupée au 1er septembre par la loi de 2023 ; le modèle
 # ne connaît que l'année de naissance et retient la valeur de la fraction la
@@ -46,11 +64,21 @@ generation,trimestres,fiabilite
 1955,166,haute
 1956,166,haute
 1957,166,haute
-1958,167,haute
-1959,167,haute
-1960,167,haute
-1961,168,haute
-1962,169,haute
-1963,170,haute
-1964,171,haute
-1965,172,haute
+1958,167,certifiee
+1959,167,certifiee
+1960,167,certifiee
+1961,168,certifiee
+1962,169,certifiee
+1963,170,certifiee
+1964,171,certifiee
+1965,172,certifiee
+1966,172,certifiee
+1967,172,certifiee
+1968,172,certifiee
+1969,172,certifiee
+1970,172,certifiee
+1971,172,certifiee
+1972,172,certifiee
+1973,172,certifiee
+1974,172,certifiee
+1975,172,certifiee

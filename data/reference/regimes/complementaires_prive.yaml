@@ -15,7 +15,7 @@ regimes:
     hors_repartition: false
     periodes:
       - debut: 1947
-        fin: 1988
+        fin: 1980
         type_calcul: points
         age_ouverture: 60
         age_taux_plein: 65
@@ -36,6 +36,33 @@ regimes:
           16 % ; la garantie minimale de points (GMP) n'existe pas encore : elle
           est créée par l'accord du 9 février 1988, applicable au 1er janvier
           1989, d'où la coupure de période à cette date.
+          Le taux de 8 % est celui du taux contractuel d'origine. OpenFisca ne
+          transcrit les taux effectifs de l'Agirc qu'à partir de 1981 : ces
+          trente-quatre années restent hors de portée d'un recoupement, et la
+          période a été coupée à 1981 pour que celles qui suivent le soient.
+
+      - debut: 1981
+        fin: 1988
+        type_calcul: points
+        age_ouverture: 60
+        age_taux_plein: 65
+        duree_requise_trimestres: null
+        taux_plein: 1.0
+        abattement_points: agirc_arrco
+        plafond_majoration_enfants: 2367
+        plafond_majoration_annee: 2025
+        salaire_reference: carriere_entiere
+        assiette: tranche_b
+        taux_cotisation_retraite: 0.1158
+        decote_par_trimestre: 0.01
+        surcote_par_trimestre: null
+        avantages_non_contributifs: [majoration_enfants, reversion]
+        notes: >-
+          Taux EFFECTIF moyen de la période, 11,58 %, mesuré sur la série
+          annuelle d'OpenFisca-France — 8,24 % en 1981, 12 % en 1988. La fiche
+          portait 8 % sur toute la période 1947-1988, soit le taux contractuel
+          d'origine appliqué à quarante-deux ans : les huit dernières années y
+          étaient sous-cotisées d'un tiers.
 
       - debut: 1989
         fin: 1993
@@ -75,17 +102,21 @@ regimes:
         plafond_majoration_annee: 2025
         salaire_reference: carriere_entiere
         assiette: tranche_b
-        taux_cotisation_retraite: 0.2043
+        taux_cotisation_retraite: 0.1948
         decote_par_trimestre: 0.01
         surcote_par_trimestre: null
         points_minimum_annuels: 120
         avantages_non_contributifs: [majoration_enfants, reversion, garantie_minimale_points]
         notes: >-
           Taux contractuel 16,44 % + taux d'appel 125 % = 20,55 % de cotisation
-          effective sur T B/C, pour 16,44 % de points acquis. L'écart taux
-          d'appel / taux de calcul est une cotisation de solidarité sans
-          contrepartie de droits : elle est traitée comme une cotisation
+          effective sur T B/C EN FIN DE PÉRIODE, pour 16,44 % de points acquis.
+          L'écart taux d'appel / taux de calcul est une cotisation de solidarité
+          sans contrepartie de droits : elle est traitée comme une cotisation
           effective dans le compte notionnel (paramètre `taux_appel_ouvre_droits`).
+          La fiche portait ces 20,43 % sur toute la période 1994-2018 ; le taux
+          effectif moyen de la période, mesuré sur la série annuelle
+          d'OpenFisca-France, est de 19,48 % — 16,25 % en 1994, 20,55 % depuis
+          2015. C'est cette moyenne qui est retenue.
 
   - code: arrco
     nom: Association pour le régime de retraite complémentaire des salariés
@@ -140,6 +171,39 @@ regimes:
         avantages_non_contributifs: [majoration_enfants, reversion]
         notes: >-
           Taux contractuel 6 % sur T1 et 16 % sur T2, taux d'appel 125 %.
+          Taux effectif moyen de la période d'après OpenFisca-France : 7,42 % ;
+          la fiche porte 7,50 %, valeur de fin de période.
+
+      - debut: 1996
+        fin: 2018
+        type_calcul: points
+        age_ouverture: 60
+        age_ouverture_par_generation: true
+        age_taux_plein: 65
+        duree_requise_trimestres: 160
+        taux_plein: 1.0
+        abattement_points: agirc_arrco
+        plafond_majoration_enfants: 2367
+        plafond_majoration_annee: 2025
+        salaire_reference: carriere_entiere
+        assiette: tranche_2_arrco
+        taux_cotisation_retraite: 0.1950
+        decote_par_trimestre: 0.01
+        surcote_par_trimestre: null
+        avantages_non_contributifs: [majoration_enfants, reversion]
+        notes: >-
+          TRANCHE 2 DE L'ARRCO, que la fiche ignorait. Tous les salariés du
+          privé cotisent à l'Arrco sur la tranche 1, mais SEULS LES NON-CADRES
+          cotisent sur la tranche 2 — la part de salaire comprise entre un et
+          TROIS plafonds de la Sécurité sociale, et non huit comme dans le
+          régime unifié d'après 2019. La fiche n'ayant que la tranche 1, un
+          non-cadre payé au-dessus du plafond n'acquérait aucun droit
+          complémentaire sur ce qui dépassait, alors que son régime y prélevait
+          près d'un cinquième.
+          Taux effectifs d'OpenFisca-France : 17,50 % en 1997, 20,25 % depuis
+          2015, soit 19,50 % en moyenne sur la période où la tranche existe.
+          Avant 1997, l'Arrco ne cotisait pas au-dessus du plafond : la période
+          1961-1995 n'a donc pas de tranche 2.
 
   - code: agirc_arrco
     nom: Régime unifié Agirc-Arrco

@@ -92,6 +92,7 @@ champs_periode:
   assiette:
     description: "borne d'assiette des cotisations"
     valeurs: ["plafonnee", "deplafonnee", "tranche_1", "tranche_2", "tranche_a",
+              "tranche_2_arrco",
               "tranche_b", "tranche_c", "hors_primes", "primes_uniquement", "forfaitaire",
               "plafonnee_085_pass", "tranche_085_5_pass", "plafonnee_5_pass"]
 

@@ -223,12 +223,12 @@ un effort contributif accru, pas un avantage accordé.
 
 ## Les données
 
-Vingt-quatre institutions sont recensées dans [`data/sources.yaml`](data/sources.yaml) :
+Vingt-six institutions sont recensées dans [`data/sources.yaml`](data/sources.yaml) :
 INSEE, COR, Comité de suivi des retraites, DREES, CNAV, Service des retraites de
 l'État, Caisse des dépôts, Direction de la Sécurité sociale, Cour des comptes,
-Agirc-Arrco, Union Retraite, CCMSA, CNAVPL, CNBF, DGAFP, Direction du Budget,
-ERAFP, Ircantec, caisses des régimes spéciaux, Urssaf, Légifrance, Eurostat,
-OCDE, OpenFisca-France.
+Agirc-Arrco, Assemblée nationale, Union Retraite, CCMSA, CNAVPL, CNBF, DGAFP,
+Direction du Budget, ERAFP, Ircantec, caisses des régimes spéciaux, Urssaf,
+Légifrance, INED, Eurostat, OCDE, OpenFisca-France.
 
 **Chaque valeur porte son niveau de fiabilité** — `certifiee`, `haute`,
 `moyenne`, `estimee` — et la fiabilité d'un résultat est celle de son maillon le
@@ -252,6 +252,9 @@ sourcée et reprise automatiquement, plafonne à `haute`.
 | Valeur du point des professions libérales | 2021-2025 | CNAVPL, ses recueils statistiques |
 | Valeur du point de la complémentaire agricole | 2005-2024 | code rural D. 732-166, base LEGI de la DILA |
 | Minimum contributif et plafond d'écrêtement | ancres 2007-2014 | code de la sécurité sociale, base LEGI de la DILA |
+| Âge d'ouverture et coefficient de minoration, par génération | 1900-1975 | code de la sécurité sociale `D. 161-2-1-9` et `R. 351-27`, base LEGI |
+| Durée d'assurance requise, par génération | 1958-1975 | code de la sécurité sociale `L. 161-17-3`, base LEGI |
+| Bornes du départ pour carrière longue | depuis 2023 | code de la sécurité sociale `L. 351-1-1` et `D. 351-1-1`, base LEGI |
 
 Trois séries de plus sont reprises automatiquement d'**OpenFisca-France**, le
 modèle socio-fiscal de l'administration — le plafond de la Sécurité sociale
@@ -275,19 +278,26 @@ python scripts/fetch/cdc_ircantec.py            # barèmes Ircantec, par son ges
 python scripts/fetch/cnbf_baremes.py            # valeurs du point des avocats
 python scripts/fetch/cnavpl_recueils.py         # valeur du point des libéraux
 python scripts/fetch/dila_legi_msa.py           # point agricole (lent : 1,1 Go)
+python scripts/fetch/dila_legi_minimum_contributif.py   # minimum contributif (lent)
+python scripts/fetch/dila_legi_parametres_retraite.py   # âges, durées, décotes (lent)
+python scripts/fetch/ined_vallin_mesle.py       # quotients de mortalité d'avant 1986
 python scripts/fetch/eurostat_hicp.py           # contrôle croisé de l'inflation
 
 python scripts/verifier_donnees.py              # confronte, sans rien écrire
 python scripts/verifier_donnees.py --appliquer  # aligne sur la source et certifie
 ```
 
-> **Ce qui reste saisi à la main :** les séries d'avant 1950, les taux de
-> cotisation d'avant 1967, les valeurs du point de la CNAVPL et de la MSA, les
-> montants servis des trois minima — transcrits de leur publication, et préférés
-> à toute projection parce qu'ils disent ce qui a été payé —, et les âges,
-> durées et coefficients propres à chaque régime, qui viennent de lois et non de
-> séries statistiques. `docs/limites.md` recense aussi les sources essayées sans
-> succès, pour éviter de les rechercher deux fois.
+> **Ce qui reste saisi à la main :** le salaire moyen et la productivité
+> d'avant 1950, les taux de cotisation d'avant 1967 et ceux des régimes autres
+> que le privé, les montants servis des trois minima — transcrits de leur
+> publication, et préférés à toute projection parce qu'ils disent ce qui a été
+> payé —, l'âge d'annulation de la décote, le nombre d'années retenues au
+> salaire de référence, et les barèmes que personne ne publie en série.
+> Les autres tables par génération, elles, ne sont plus saisies : elles sont
+> lues dans le texte des articles du code, dans la base LEGI de la DILA.
+> `docs/limites.md` dit, pour chaque limite restante, dans quel sens elle joue
+> et de combien, et recense les sources essayées sans succès, pour éviter de les
+> rechercher deux fois.
 > Lire [`docs/limites.md`](docs/limites.md) avant de citer un chiffre.
 
 ---

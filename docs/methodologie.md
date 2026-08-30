@@ -527,8 +527,8 @@ sur le secteur public.
 
 ### Sources
 
-`data/sources.yaml` recense les jeux de données des dix-neuf institutions
-demandées, avec pour chacun l'URL, le mode d'accès et l'état d'intégration.
+`data/sources.yaml` recense les soixante et un jeux de données des vingt-six
+institutions, avec pour chacun l'URL, le mode d'accès et l'état d'intégration.
 
 ### Fiabilité
 

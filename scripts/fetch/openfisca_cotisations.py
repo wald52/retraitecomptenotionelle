@@ -50,6 +50,26 @@ COMPOSANTES = {
 SORTIE = Path("data/brut/openfisca_cotisations.json")
 PREMIERE_ANNEE = 1967
 
+#: Racine des barèmes des régimes COMPLÉMENTAIRES du privé.
+RACINE_COMPLEMENTAIRES = (
+    "https://raw.githubusercontent.com/openfisca/openfisca-france/master/"
+    "openfisca_france/parameters/prelevements_sociaux/"
+    "regimes_complementaires_retraite_secteur_prive"
+)
+
+#: Barèmes à tranches des complémentaires : régime -> (fichier, première année).
+#:
+#: Ce sont les TAUX EFFECTIFS, c'est-à-dire ce qui est prélevé — taux d'appel
+#: compris. Les fiches du dépôt portent la même grandeur, si bien que les deux
+#: se comparent directement. L'Arrco distingue les entreprises créées avant et
+#: après 1997, l'Agirc avant et après 1981 : on retient dans les deux cas le
+#: barème de droit commun, celui des entreprises les plus récentes.
+COMPLEMENTAIRES = {
+    "arrco": ("arrco/taux_effectifs/entreprises_apres_01_01_1997/arrco.yaml", 1962),
+    "agirc": ("agirc/taux_effectifs/entreprises_apres_01_01_1981/agirc.yaml", 1947),
+    "agirc_arrco": ("agirc_arrco/tx_total.yaml", 2019),
+}
+
 
 def _taux(texte: str) -> dict[str, float]:
     """Extrait le barème d'un fichier OpenFisca : date d'effet -> taux.
@@ -66,6 +86,26 @@ def _taux(texte: str) -> dict[str, float]:
         str(cle): float(contenu["value"] or 0.0)
         for cle, contenu in bareme.items()
     }
+
+
+def _tranches(texte: str) -> list[dict[str, float]]:
+    """Barème à plusieurs tranches : une table date -> taux par tranche.
+
+    Les complémentaires cotisent par tranche de salaire, et le taux de chacune
+    a sa propre histoire — 2,5 % en 1962 sur la première tranche de l'Arrco,
+    7,75 % en 2015 ; rien sur la seconde avant 1997, 20,25 % ensuite. Une
+    valeur nulle signifie « tranche non cotisée cette année-là ».
+    """
+    import yaml
+
+    charge = yaml.safe_load(texte)
+    tranches = []
+    for tranche in charge["brackets"]:
+        tranches.append({
+            str(cle): float((contenu or {}).get("value") or 0.0)
+            for cle, contenu in tranche["rate"].items()
+        })
+    return tranches
 
 
 def _en_vigueur(bareme: dict[str, float], annee: int) -> float:
@@ -102,16 +142,42 @@ def main() -> int:
             "total": round(sum(parts.values()), 5),
         }
 
+    complementaires: dict[str, dict[str, dict[str, float]]] = {}
+    for regime, (chemin, premiere) in COMPLEMENTAIRES.items():
+        try:
+            demande = urllib.request.Request(
+                f"{RACINE_COMPLEMENTAIRES}/{chemin}",
+                headers={"User-Agent": "retraite-notionnelle/0.1"},
+            )
+            with urllib.request.urlopen(demande, timeout=120) as reponse:
+                tranches = _tranches(reponse.read().decode("utf-8"))
+        except (urllib.error.HTTPError, urllib.error.URLError) as erreur:
+            print(f"ÉCHEC   {regime} : {erreur}", file=sys.stderr)
+            return 1
+        annuel: dict[str, dict[str, float]] = {}
+        for annee in range(premiere, derniere + 1):
+            valeurs = {f"tranche_{i + 1}": round(_en_vigueur(t, annee), 5)
+                       for i, t in enumerate(tranches)}
+            if any(valeurs.values()):
+                annuel[str(annee)] = valeurs
+        complementaires[regime] = annuel
+        print(f"OK      {regime:<24} {len(tranches)} tranches, "
+              f"{len(annuel)} années")
+
     SORTIE.parent.mkdir(parents=True, exist_ok=True)
     SORTIE.write_text(
         json.dumps({
             "source": RACINE,
+            "source_complementaires": RACINE_COMPLEMENTAIRES,
             "recupere_le": date.today().isoformat(),
             "regime": "regime_general",
             "note": "taux au 1er janvier ; total = salarié + employeur, plafonné "
-                    "et déplafonné",
+                    "et déplafonné. Les complémentaires portent leurs TAUX "
+                    "EFFECTIFS, taux d'appel compris, tranche par tranche : "
+                    "c'est la même grandeur que celle des fiches du dépôt.",
             "baremes": baremes,
             "serie": serie,
+            "complementaires": complementaires,
         }, ensure_ascii=False, indent=1),
         encoding="utf-8",
     )

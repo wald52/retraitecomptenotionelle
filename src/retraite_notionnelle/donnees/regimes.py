@@ -28,6 +28,10 @@ BORNES_ASSIETTE: dict[str, tuple[float, float | None]] = {
     "tranche_1": (0.0, 1.0),
     "tranche_a": (0.0, 1.0),
     "tranche_2": (1.0, 8.0),
+    # Tranche 2 de l'Arrco d'AVANT la fusion : elle s'arrêtait à trois plafonds,
+    # là où celle de l'Agirc-Arrco va jusqu'à huit. Les confondre donnait à un
+    # non-cadre des droits sur une assiette que son régime n'a jamais couverte.
+    "tranche_2_arrco": (1.0, 3.0),
     "tranche_b": (1.0, 4.0),
     "tranche_c": (4.0, 8.0),
     # Tranches propres au régime de base des professions libérales : la

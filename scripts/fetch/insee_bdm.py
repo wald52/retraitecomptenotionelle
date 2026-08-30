@@ -51,6 +51,17 @@ SERIES: dict[str, dict[str, str]] = {
         "role": "Indice annuel des prix, ensemble des ménages, France, base 2015, 1990-2025",
         "note": "prend le relais de la base 1980 ; chaînage sur l'année 1990",
     },
+    "coefficient_prix_1901": {
+        "idbank": "010605954",
+        "role": "Coefficient de transformation du franc et de l'euro, base 2015, 1901-",
+        "note": "SEULE série de l'INSEE qui remonte avant 1949. Elle sert de "
+                "contrôle de vraisemblance aux vingt années d'inflation "
+                "reconstituées de 1930 à 1949, et non de source : publiée à "
+                "deux décimales sur une base 100 en 2015, elle vaut 0,20 en "
+                "1935, si bien qu'un centième y pèse cinq points de taux — "
+                "assez pour valider une dérive cumulée, pas pour en tirer des "
+                "variations annuelles",
+    },
     # -- salaire moyen par tête --------------------------------------------
     "salaires_bruts": {
         "idbank": "011785411",

@@ -83,15 +83,37 @@ SERVICE = re.compile(r"multipli[ée]par(?:de)?(\d+[,.]\d+)")
 SORTIE = Path("data/brut/cnbf_baremes.json")
 
 
+#: Réparation d'une table ``/ToUnicode`` fautive.
+#:
+#: Les barèmes de 2017 à 2025 écrivent leurs CHIFFRES dans une police dont la
+#: table ToUnicode les déclare caractères grecs : « 11,1654 € » y est encodé
+#: ``ϭϭ͕ϭϲϱϰΦ``. Le glyphe affiché est bien un chiffre — la caisse publie
+#: un barème lisible — mais le texte extrait ne l'est pas, et les expressions
+#: régulières ne trouvaient plus rien : les huit barèmes antérieurs à 2026
+#: étaient silencieusement ignorés, la série tombant de dix-huit valeurs à deux.
+#:
+#: Les dix chiffres sont contigus à partir de U+03EC, ce qui est la signature
+#: d'une police dont les glyphes ont été renumérotés à l'export. On ne devine
+#: pas cette table : on la CONTRÔLE. Le barème 2023 ainsi décodé donne 11,1654 €
+#: et 0,9815 €, valeurs déjà certifiées lorsque la caisse servait ces PDF dans
+#: une police saine, et le garde-fou de `verifier` refuse toute série qui ne
+#: serait pas monotone. Deux lectures indépendantes du même document, même
+#: résultat.
+REPARATION = {chr(0x03EC + chiffre): str(chiffre) for chiffre in range(10)}
+REPARATION.update({"\u0355": ",", "\u0358": ".", "\u03a6": "€"})
+
+
 def _normaliser(lignes: list[str]) -> str:
     """Colle le texte extrait, en ôtant les artefacts de mise en page.
 
     Les barèmes anciens intercalent un ``x-none`` entre chaque cellule, les
     récents suppriment les espaces : on supprime les deux pour retrouver une
-    chaîne comparable d'une année à l'autre.
+    chaîne comparable d'une année à l'autre. Les chiffres mal encodés sont
+    remis d'aplomb au passage — voir `REPARATION`.
     """
     texte = "\n".join(lignes).replace("x-none", " ")
     texte = texte.replace(" ", " ").replace(" ", " ")
+    texte = texte.translate(str.maketrans(REPARATION))
     return re.sub(r"\s+", "", texte)
 
 

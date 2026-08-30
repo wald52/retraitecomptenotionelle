@@ -1,6 +1,6 @@
 # Départ anticipé pour carrière longue — article L. 351-1-1
 # ----------------------------------------------------------
-# source_id: legifrance_textes, cnav_circulaires
+# source_id: dila_legi_parametres_retraite, legifrance_textes
 #
 # À quoi cela sert dans ce modèle. Le scénario « système actuel » calculait une
 # pension à n'importe quel âge, sans jamais dire si le droit ouvrait ce
@@ -37,6 +37,17 @@
 #   2023  loi du 14 avril 2023, applicable au 1er septembre : quatre bornes,
 #         16, 18, 20 et 21 ans, pour 58, 60, 62 et 63 ans.
 #
+# D'OÙ VIENNENT CES VALEURS. Les quatre bornes de 2023 sont LUES dans les
+# articles L. 351-1-1 et D. 351-1-1 du code de la sécurité sociale, tels que la
+# DILA les publie dans la base LEGI (`scripts/fetch/dila_legi_parametres_retraite.py`) :
+# niveau `certifiee`, les quatre valeurs saisies s'y sont retrouvées à
+# l'identique. Les portes de 2004 et de 2012 restent des transcriptions — le
+# récupérateur ne lit que la version EN VIGUEUR de l'article, les versions
+# abrogées demandant de rejouer l'historique complet des modifications, ce que
+# la structure du dump ne donne pas sans risque d'erreur. Une porte de 2004
+# fausse ne se verrait que sur une liquidation d'avant 2012, cas que le modèle
+# rencontre peu et qui ne pèse pas sur les écarts entre scénarios.
+#
 # Ce qui n'est PAS modélisé : la distinction entre trimestres cotisés et
 # trimestres « réputés cotisés » que la loi du 20 janvier 2014 a élargie
 # (chômage, maladie, maternité, dans des limites propres à chacun). Le modèle
@@ -50,7 +61,7 @@ annee,age_debut_maximum,trimestres_debut,age_depart,trimestres_supplementaires,f
 2012,16,5,56,8,moyenne
 2012,16,5,58,4,moyenne
 2012,20,5,60,0,haute
-2023,16,5,58,0,haute
-2023,18,5,60,0,haute
-2023,20,5,62,0,haute
-2023,21,5,63,0,haute
+2023,16,5,58,0,certifiee
+2023,18,5,60,0,certifiee
+2023,20,5,62,0,certifiee
+2023,21,5,63,0,certifiee
