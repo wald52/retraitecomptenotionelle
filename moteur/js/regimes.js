@@ -767,6 +767,63 @@ export class Rendements {
  * taux d'appel (quelle part de la cotisation ouvre des droits) et la valeur de
  * service (conversion des points en rente à la liquidation).
  */
+/**
+ * Coefficients de conversion des points, lus et non devinés.
+ *
+ * Portage de ``ConversionsPoints`` de ``scenarios/actuel.py``. Deux sortes de
+ * lignes : celles qui portent un `successeur` décrivent la reprise des points à
+ * une fusion ; celles qui n'en portent pas décrivent un changement d'UNITÉ
+ * interne au régime — l'unification de l'Arrco au 1er janvier 1999, dont les
+ * valeurs d'avant sont celles de l'UNIRS.
+ */
+//: Niveau de fiabilité maximal, tel que le paquet le code. Ce module n'importe
+//: rien : toutes ses valeurs viennent du paquet de données, où les fiabilités
+//: sont déjà des entiers.
+const FIABILITE_CERTIFIEE = 3;
+
+
+export class ConversionsPoints {
+  constructor(paquet) {
+    this._fusions = new Map();
+    this._echelles = new Map();
+    for (const ligne of paquet.conversions_points ?? []) {
+      const [regime, anneeEffet, successeur, coefficient, fiabilite] = ligne;
+      const conversion = { anneeEffet, successeur, coefficient, fiabilite };
+      if (successeur) {
+        this._fusions.set(`${regime}|${successeur}`, conversion);
+      } else {
+        if (!this._echelles.has(regime)) {
+          this._echelles.set(regime, []);
+        }
+        this._echelles.get(regime).push(conversion);
+      }
+    }
+    for (const conversions of this._echelles.values()) {
+      conversions.sort((a, b) => a.anneeEffet - b.anneeEffet);
+    }
+  }
+
+  /** Coefficient de reprise des points de ``regime`` par ``successeur``. */
+  fusion(regime, successeur) {
+    return this._fusions.get(`${regime}|${successeur}`) ?? null;
+  }
+
+  /** Facteur d'unité entre l'année d'acquisition et celle de liquidation. */
+  echelle(regime, anneeAcquisition, anneeLiquidation) {
+    let facteur = 1.0;
+    let fiabilite = FIABILITE_CERTIFIEE;
+    for (const conversion of this._echelles.get(regime) ?? []) {
+      if (anneeAcquisition < conversion.anneeEffet
+          && conversion.anneeEffet <= anneeLiquidation) {
+        facteur *= conversion.coefficient;
+        fiabilite = Math.min(fiabilite, conversion.fiabilite);
+      }
+    }
+    return [facteur, fiabilite];
+  }
+}
+
+
 export class ValeursPoint {
   constructor(paquet) {
     this._table = new Map();

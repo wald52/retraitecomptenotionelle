@@ -125,14 +125,15 @@ export const PARAMETRES_DEFAUT = Object.freeze({
   //: ``null`` = aucun plancher : le triple lock inversé peut être négatif, ce
   //: qui est sa conséquence logique et non un défaut.
   plancher_indexation: null,
-  indexer_pensions_liquidees: true,
+  // Il n'y a pas de paramètre « indexer les pensions liquidées » : le moteur
+  // ne calcule qu'une pension AU MOMENT DE LA LIQUIDATION, et il n'existe
+  // aucune phase postérieure à revaloriser.
 
   // --- Cotisations ----------------------------------------------------------
   source_cotisations: SourceCotisations.TAUX_HISTORIQUES,
   taux_cotisation_uniforme: 0.2531,
-  //: Ce qui a été prélevé pour la retraite ouvre des droits, taux d'appel
-  //: compris.
-  taux_appel_ouvre_droits: true,
+  // Il n'y a pas non plus de paramètre « le taux d'appel ouvre-t-il des
+  // droits » : le compte porte ce qui a été PRÉLEVÉ, taux d'appel compris.
   //: Part de la cotisation portée au compte : celle de l'assuré seul, ou celle
   //: de l'assuré et de son employeur.
   part_cotisation: PartCotisation.SALARIALE,
@@ -157,7 +158,8 @@ export const PARAMETRES_DEFAUT = Object.freeze({
   age_conversion_droits_acquis: AgeConversionDroitsAcquis.REFERENCE,
   //: Table de génération plutôt que table du moment.
   table_generation: true,
-  age_maximal: 120,
+  // L'âge terminal des tables est une constante du module de mortalité
+  // (AGE_TERMINAL), pas un paramètre de simulation.
 
   // --- Fusion des régimes ---------------------------------------------------
   fusion_au_plus_defavorable: true,

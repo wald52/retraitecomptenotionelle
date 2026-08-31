@@ -23,7 +23,7 @@ import {
   AgesAnnulationDecote, AgesOuverture, AnneesSalaireReference, CarriereLongue,
   CoefficientsMinoration, DecoteFonctionPublique, DureesRequises,
   MajorationsPourEnfants, MinimumContributif, MinimumGaranti, MinimumVieillesse,
-  Rendements, SurcoteParentale, ValeursPoint,
+  ConversionsPoints, Rendements, SurcoteParentale, ValeursPoint,
 } from "./regimes.js";
 import { Fiabilite } from "./serie.js";
 
@@ -41,6 +41,7 @@ export class ScenarioActuel {
     this.parametres = parametres;
     this.rendements = new Rendements(paquet);
     this.valeursPoint = new ValeursPoint(paquet);
+    this.conversionsPoints = new ConversionsPoints(paquet);
     this.dureesRequises = new DureesRequises(paquet);
     this.agesOuverture = new AgesOuverture(paquet);
     this.agesAnnulationDecote = new AgesAnnulationDecote(paquet);
@@ -61,12 +62,21 @@ export class ScenarioActuel {
    * Ce que vaut, à la liquidation, un point acquis dans ``code``.
    *
    * Un régime fermé ne sert plus ses points : ils ont été convertis dans son
-   * successeur, au rapport des deux valeurs de service à la date de la reprise
-   * — c'est ce rapport, et lui seul, qui préserve le niveau des pensions le
-   * jour de la fusion. La méthode remonte donc la chaîne des successions en
-   * cumulant les conversions. Quand la chaîne s'arrête avant l'année de
-   * liquidation, la dernière valeur publiée est ramenée en euros de la
-   * liquidation par l'indice des prix — approximation signalée par la fiabilité.
+   * successeur, au coefficient que l'accord de fusion a fixé. La méthode remonte
+   * la chaîne des successions en cumulant ces coefficients, qui sont LUS dans
+   * ``regimes/conversions_points.csv`` et non plus déduits d'un rapport de
+   * valeurs de service.
+   *
+   * Les déduire coûtait cher : la valeur du successeur était lue à sa PREMIÈRE
+   * année publiée, or les séries `arrco` et `ircantec` sont rétro-remplies bien
+   * avant leur fusion. Le point UNIRS ressortait quinze fois trop cher pour
+   * toute liquidation postérieure à 1998, le point IPACTE cinquante fois trop
+   * cher au-delà de 2022. Et là où les bornes tombaient juste, la valeur était
+   * celle du 31 décembre quand la conversion s'opère au 1er janvier.
+   *
+   * Quand la chaîne s'arrête — plus de successeur, ou aucun coefficient déclaré
+   * — la dernière valeur publiée est ramenée en euros de la liquidation par
+   * l'indice des prix, approximation signalée par la fiabilité.
    */
   valeurDuPoint(code, anneeLiquidation) {
     let conversion = 1.0;
@@ -97,10 +107,10 @@ export class ScenarioActuel {
       const successeur = this.catalogue.contient(courant)
         ? this.catalogue.obtenir(courant).integre_dans
         : null;
-      const premiere = successeur
-        ? this.valeursPoint.premiereAnneeServie(successeur)
+      const reprise = successeur
+        ? this.conversionsPoints.fusion(courant, successeur)
         : null;
-      if (premiere === null) {
+      if (reprise === null) {
         const ancienne = this.valeursPoint.service(courant, derniere);
         return [
           conversion * ancienne[0]
@@ -109,10 +119,8 @@ export class ScenarioActuel {
         ];
       }
 
-      const avant = this.valeursPoint.service(courant, derniere);
-      const apres = this.valeursPoint.service(successeur, premiere);
-      conversion *= avant[0] / apres[0];
-      fiabilite = Math.min(fiabilite, avant[1], apres[1]);
+      conversion *= reprise.coefficient;
+      fiabilite = Math.min(fiabilite, reprise.fiabilite);
       courant = successeur;
     }
     return null;
@@ -283,7 +291,11 @@ export class ScenarioActuel {
    * aucune durée, si longue fût-elle, n'ouvrait le taux plein avant l'heure.
    */
   trimestresDeDecote(periode, trimestres, requis, ageLiquidation, ageAnnulation) {
-    const manquantsAge = Math.max(0.0, (ageAnnulation - ageLiquidation) * 4);
+    // Arrondi à l'entier supérieur, comme le veut l'article R. 351-27 : les
+    // âges d'annulation des générations 1951 à 1954 ne tombent pas sur un
+    // trimestre entier, et l'on opposait 13,32 trimestres là où le droit en
+    // oppose 14.
+    const manquantsAge = auTrimestreSuperieur((ageAnnulation - ageLiquidation) * 4);
     let trimestresDecote = periode.decote_annulee_par_la_duree
       ? Math.min(Math.max(0, requis - trimestres), manquantsAge)
       : manquantsAge;
@@ -532,10 +544,14 @@ export class ScenarioActuel {
             // combien de points ouvre une assiette donnée. Le nombre de points
             // ne dépend alors pas du taux de cotisation, et c'est heureux : ce
             // sont les barèmes qui sont publiés, pas les prix d'achat.
+            const [echelleBareme, fiabiliteEchelleBareme] = this.conversionsPoints
+              .echelle(code, ligne.annee, anneeLiquidation);
             pointsAcquis.set(code,
-              (pointsAcquis.get(code) ?? 0.0) + periode.points_maximum * assiette / repere);
+              (pointsAcquis.get(code) ?? 0.0)
+                + periode.points_maximum * assiette / repere * echelleBareme);
             fiabilitePoints.set(code, Math.min(
               fiabilitePoints.get(code) ?? Fiabilite.CERTIFIEE, regime.fiabilite,
+              fiabiliteEchelleBareme,
             ));
             continue;
           }
@@ -552,9 +568,17 @@ export class ScenarioActuel {
               // tranche B est nulle.
               pointsAnnee = Math.max(pointsAnnee, periode.points_minimum_annuels);
             }
-            pointsAcquis.set(code, (pointsAcquis.get(code) ?? 0.0) + pointsAnnee);
+            // Changement d'unité entre l'achat et le service : les points
+            // Arrco d'avant 1999 sont ceux de l'UNIRS, et valent 0,387464 point
+            // du régime unifié. Sans cette conversion, cent euros cotisés en
+            // 1998 produisaient 30,31 € de pension quand les mêmes cent euros
+            // de 1999 n'en produisaient que 11,15.
+            const [echelle, fiabiliteEchelle] = this.conversionsPoints
+              .echelle(code, ligne.annee, anneeLiquidation);
+            pointsAcquis.set(code, (pointsAcquis.get(code) ?? 0.0) + pointsAnnee * echelle);
             fiabilitePoints.set(code, Math.min(
               fiabilitePoints.get(code) ?? Fiabilite.CERTIFIEE, fiabiliteAchat,
+              fiabiliteEchelle,
             ));
           } else {
             cumulCotisations.set(code, (cumulCotisations.get(code) ?? 0.0)
@@ -1126,8 +1150,20 @@ const COEFFICIENT_ANTICIPATION_PLANCHER = 0.43;
  * dit rien et ``null`` est renvoyé. Les trimestres sont comptés en entiers
  * ARRONDIS AU SUPÉRIEUR : le barème est un escalier.
  */
+/**
+ * Nombre de trimestres arrondi à l'entier supérieur, jamais négatif.
+ *
+ * Règle de l'article R. 351-27 pour la décote, et celle que la caisse illustre
+ * dans son exemple pour les coefficients d'anticipation. La tolérance de 10⁻³
+ * évite qu'un flottant tout juste au-dessus d'un entier n'en fasse compter un
+ * de plus.
+ */
+export function auTrimestreSuperieur(trimestres) {
+  return Math.max(0, Math.ceil(Math.round(trimestres * 1000) / 1000));
+}
+
 function coefficientAnticipation(trimestresManquants, maximum) {
-  const manquants = Math.max(0, Math.ceil(Math.round(trimestresManquants * 1000) / 1000));
+  const manquants = auTrimestreSuperieur(trimestresManquants);
   if (manquants <= 0) {
     return 1.0;
   }

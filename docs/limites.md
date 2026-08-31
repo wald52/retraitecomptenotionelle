@@ -454,20 +454,41 @@ plus volontiers.
   âges de 95 ans et plus qu'après 2035, années où aucune observation n'existera
   jamais : la loi de Gompertz-Makeham y reprend forcément la main. Les douze
   années observées sont donc le seul endroit où l'on puisse CONFRONTER cette
-  loi à la réalité — et le verdict est net, toujours dans le même sens :
+  loi à la réalité — et le verdict était net, toujours dans le même sens :
 
-  > la loi sous-estime la mortalité au-delà de 94 ans de **22 % en moyenne**.
-  > La queue de la table pesant de 8 à 12 % du diviseur de conversion selon la
-  > génération, elle gonfle ce diviseur d'environ **1,5 %** et rabote donc les
-  > pensions notionnelles d'autant.
+  > la loi sous-estimait la mortalité au-delà de 94 ans de **22 % en moyenne**.
 
-  L'écart est figé par un test (`test_la_loi_parametrique_sous_estime_la_
-  mortalite_des_grands_ages`), pour qu'il ne dérive pas en silence et que ce
-  chiffre reste vrai. Il n'est pas corrigé : le corriger supposerait de choisir
-  une forme de queue pour des années que personne n'observera, ce qui
-  remplacerait un biais mesuré par un biais inventé. Il joue au demeurant en
-  faveur du système actuel dans la comparaison, puisqu'il abaisse les seules
-  pensions notionnelles.
+  **La cause en est trouvée, et corrigée.** La loi était calibrée sur
+  *elle-même* : on ajustait ses deux paramètres pour que l'espérance de la loi
+  PURE reproduise e60 et e65. Rien ne l'obligeait alors à rendre la queue que la
+  cible implique, et elle rendait 11,3 ans d'espérance résiduelle à 85 ans pour
+  une femme en 2010, là où la cible en implique 7,5. La table telle que le
+  modèle la LIT — quotients observés jusqu'au dernier âge publié, loi au-delà —
+  débordait en conséquence l'espérance publiée par l'INSEE de jusqu'à 2,5 ans.
+
+  La calibration se fait désormais en deux temps : la FORME de la queue vient
+  toujours de l'ajustement classique sur la loi seule, où e60 et e65 portent sur
+  toute la plage d'âges et déterminent le paramètre sans ambiguïté ; son NIVEAU
+  est ensuite recalé, à forme constante, pour que la table raccordée reproduise
+  l'espérance publiée. Là où la queue n'a pas prise sur la cible — millésimes
+  dont les quotients vont jusqu'à 104 ans, où les données décident seules —, le
+  recalage est abandonné plutôt que forcé.
+
+  Le biais résiduel aux grands âges tombe de 22 % à **moins de 3 %**, et il est
+  toujours figé par un test (`test_la_loi_parametrique_sous_estime_la_
+  mortalite_des_grands_ages`), pour qu'il ne dérive pas en silence. Un second
+  test, qui prétendait confronter les deux chaînes, ne confrontait rien : il
+  passait par `esperance_residuelle(..., generation=False)`, branche qui ne
+  consultait aucun quotient observé et comparait donc la calibration à sa propre
+  cible. Cette branche lit maintenant les quotients comme l'autre, et le test
+  passe par `survie_annuelle`, seul chemin que le moteur emprunte réellement.
+
+  Ce que cela déplace : peu de chose sur les résultats par défaut, et c'est à
+  dire. En table de GÉNÉRATION — le réglage par défaut — une liquidation à 60
+  ans en 2005 traverse les âges de 85 ans et plus en 2030 et au-delà, années
+  sans observation où la loi régnait déjà seule ; le raccord à l'intérieur d'un
+  même millésime n'y est presque jamais franchi. C'est la table du MOMENT, et la
+  cohérence de la queue avec l'espérance publiée, qui étaient fausses.
 
 * *Taux de cotisation des COMPLÉMENTAIRES du privé* — **trouvés, et deux
   erreurs avec eux.** Cette page rangeait ces taux avec ceux d'avant 1967, au
@@ -873,6 +894,66 @@ l'Institut des politiques publiques (PENSIPP). Écarts connus :
   salaire annuel moyen entre régimes alignés, et liquidation unique (LURA).
 
 Un écart de quelques pour cent avec la pension réelle est attendu.
+
+### Quatre écarts identifiés, mesurés, et laissés en l'état
+
+Ils l'ont été à dessein : chacun demande un arbitrage de modélisation qu'il vaut
+mieux poser que trancher en silence.
+
+* **Le compartiment de capitalisation rend la comparaison des cinq scénarios
+  non homogène.** Le scénario 1 INCLUT le RAFP dans son total, comme le fait le
+  droit ; les scénarios 2 à 5 l'EXCLUENT et l'affichent « servi à part ». Et
+  sous `part_cotisation = salariale`, le compartiment isolé ne reçoit que la
+  moitié salariale du RAFP quand le scénario 1 en sert la totalité. Pour une
+  fonctionnaire d'État née en 1975, cela fait 1 369 € de RAFP dans les 31 714 €
+  du scénario 1 — 4,3 % — contre 312 € affichés sous le tableau : l'écart
+  annoncé de −82,0 % vaut −81,2 % à périmètre égal. Trois traitements se
+  défendent, et le choix n'est pas technique : retrancher le RAFP du total du
+  scénario 1 et l'afficher à part des deux côtés ; l'ajouter aux totaux
+  notionnels ; ou considérer qu'un régime PROVISIONNÉ est hors d'atteinte d'une
+  réforme de la répartition et le servir à l'identique dans les cinq scénarios,
+  à sa propre règle. Le troisième est sans doute le plus juste
+  économiquement — c'est aussi celui qui change le plus de choses.
+
+* **La cotisation déplafonnée du régime général au-dessus du plafond n'alimente
+  pas le compte notionnel.** Le taux de 17,86 % porté par la fiche agrège la
+  part plafonnée et la part déplafonnée « pour un salaire au plafond » : il est
+  exact en dessous, et sous-évalué au-dessus, puisque les 0,40 % + 2,02 %
+  déplafonnés de 2025 portent en réalité sur la totalité du salaire. Mesuré :
+  **−2,6 %** sur la cotisation salariale portée au compte d'un cadre à 2,7
+  plafonds en 2024. C'est correct pour les DROITS — la déplafonnée n'en ouvre
+  aucun, et le scénario 1 a raison de l'ignorer — mais contraire au principe des
+  scénarios notionnels, qui portent au compte ce qui a été VERSÉ. La correction
+  suppose de scinder la fiche du régime général en deux périodes de mêmes dates,
+  l'une plafonnée l'autre déplafonnée, avec leurs parts salariales respectives ;
+  elle touche une série que `scripts/verifier_donnees.py` recoupe à OpenFisca, et
+  demande donc d'être faite avec la source sous les yeux.
+
+* **Une falaise sépare deux générations consécutives à l'année de bascule.** Un
+  salarié qui liquide en 2026 voit son scénario 3 égal au scénario 1, minima et
+  majorations compris ; celui qui liquide en 2027, avec la même carrière, le voit
+  à −11,1 % au salaire moyen et à −26,2 % au SMIC. Deux règles s'y heurtent : la
+  frontière `annee_liquidation <= bascule` rend la pension du scénario 1
+  ENTIÈRE, quand `_droits_acquis` fige les mêmes droits DÉBARRASSÉS des avantages
+  non contributifs. Sous `--conversion-acquis liquidation`, censée rendre la
+  conversion neutre, le saut subsiste à −4,7 % et −17,7 %. Une part de cette
+  marche est réelle — une année de cotisation passe du système actuel au compte
+  notionnel — mais l'essentiel tient au traitement asymétrique de la frontière.
+  La question de fond est celle que le README et ce document tranchent
+  différemment : les droits figés sont-ils « calculés selon les règles
+  actuelles » ou « débarrassés des avantages non contributifs » ?
+
+* **Trois valeurs de 2026 sont disponibles et non intégrées.** Le plafond de la
+  Sécurité sociale 2026 (48 060 €) est marqué `estimee` alors que l'arrêté du
+  22 décembre 2025 le fixe : la valeur est juste, la fiabilité est sous-évaluée
+  et se propage à tout résultat. Les barèmes Agirc-Arrco 2026 — salaire de
+  référence 20,1877 €, valeur de service 1,4386 €, tous deux INCHANGÉS par la
+  décision du 17 octobre 2025 — ne figurent pas dans `valeurs_point.csv`, si
+  bien que les cotisations de 2026 et au-delà retombent sur le rendement
+  instantané au lieu du calcul en points. Et la CNRACL n'a pas de ligne 2026
+  dans `contribution_employeur_public.csv` : son taux 2025 est prolongé en
+  `estimee`. Ces trois valeurs relèvent des récupérateurs, qui demandent le
+  réseau — d'où leur absence ici plutôt qu'une saisie à la main.
 
 ---
 

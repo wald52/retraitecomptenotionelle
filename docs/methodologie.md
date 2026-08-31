@@ -66,8 +66,21 @@ Les régimes antérieurs figurent au catalogue mais sont traités à part :
 taux d'indexation = min( inflation , croissance du salaire moyen , productivité réelle )
 ```
 
-Elle s'applique **à la fois** à la revalorisation des comptes en cours de
-constitution et à la revalorisation des pensions déjà liquidées, depuis 1941.
+Elle s'applique à la revalorisation des **comptes en cours de constitution**,
+depuis 1941. Elle ne s'applique pas aux pensions déjà liquidées — non par
+choix, mais parce que le modèle n'a pas de phase postérieure à la liquidation :
+il calcule une pension à la date de départ, dans les euros de cette année-là,
+et s'arrête. Les cinq scénarios sont donc lus au même instant, ce qui les rend
+comparables ; ce que la règle ferait aux pensions servies reste hors du modèle,
+et `docs/limites.md` le dit. Un paramètre `indexer_pensions_liquidees` figurait
+en tête de la configuration et laissait croire le contraire : il n'était lu
+nulle part, et il a été retiré.
+
+Une convention à connaître, parce qu'elle vaut un pour cent : une cotisation
+versée l'année *t* est revalorisée de *t*+1 **jusqu'à l'année de liquidation
+incluse**. Le compte est arrêté à la fin de l'année de départ, pas à son début.
+La docstring de `Indexation.coefficient` annonçait l'inverse alors que le code
+a toujours fait ainsi ; c'est le texte qui a été corrigé.
 
 ### Ce qu'elle produit, et pourquoi il faut le savoir
 
@@ -80,9 +93,15 @@ Mesure sur la période complète (`retraite-notionnelle indexation --de 1941 --a
 
 | Règle | Revalorisation cumulée 1941-2025 | Prix | Pouvoir d'achat conservé |
 |---|---|---|---|
-| Triple lock inversé, littéral | ×4,9 | ×318,6 | **1,5 %** |
-| Triple lock inversé, tout en nominal | ×243,7 | ×318,6 | 76,5 % |
-| Indexation sur les prix | ×318,6 | ×318,6 | 100 % |
+| Triple lock inversé, littéral | ×4,9 | ×322,2 | **1,5 %** |
+| Triple lock inversé, tout en nominal | ×223,3 | ×322,2 | 69,3 % |
+| Indexation sur les prix | ×322,2 | ×322,2 | 100 % |
+
+Ces trois chiffres sont ceux que produit la commande citée ci-dessus, et le
+tableau les a longtemps donnés périmés — ×243,7 et ×318,6, valeurs d'une
+révision antérieure des séries INSEE, quand le README, lui, portait les bonnes.
+Deux documents ne peuvent pas dire deux chiffres pour la même mesure : c'est le
+genre d'écart qu'un lecteur ne peut pas arbitrer.
 
 Autrement dit, sous la règle littérale, **une cotisation versée en 1950 ne vaut
 presque plus rien à la liquidation**. Le scénario rétroactif mesure alors
@@ -331,10 +350,38 @@ ce qui ouvre des droits : depuis 1995, cotiser 125 € n'acquiert que 100 € de
 points. L'ignorer surestimerait la retraite complémentaire d'un quart.
 
 Un régime fermé ne sert plus ses points : ils passent à son successeur, au
-rapport des deux valeurs de service à la date de la reprise — le rapport qui
-laisse, par construction, les pensions inchangées le jour de la fusion. Le
-modèle refait ce chemin (UNIRS → Arrco → Agirc-Arrco, Agirc → Agirc-Arrco,
-IPACTE et IGRANTE → Ircantec) à partir de `regimes/valeurs_point.csv`.
+coefficient que l'accord de fusion a fixé. Le modèle refait ce chemin (UNIRS →
+Arrco → Agirc-Arrco, Agirc → Agirc-Arrco, IPACTE et IGRANTE → Ircantec) à
+partir de `regimes/conversions_points.csv`, où **ces coefficients sont lus et
+non plus devinés**.
+
+Les deviner coûtait cher, et de deux façons. Le modèle prenait le rapport entre
+la dernière valeur de service du régime d'origine et la **première** du
+successeur ; or les séries `arrco` et `ircantec` sont rétro-remplies bien avant
+leur fusion — la première depuis 1957 avec les valeurs de l'UNIRS, la seconde
+depuis 1949 avec celles de l'IPACTE. On comparait donc deux valeurs distantes
+de quarante ou soixante-dix ans : le point UNIRS ressortait **quinze fois** trop
+cher pour toute liquidation postérieure à 1998, le point IPACTE **cinquante-quatre
+fois** trop cher au-delà de 2022. Jusqu'à 35 % de la pension du scénario 1 n'avait
+alors aucune existence, et la case « SMIC carrière complète, génération 1940 » de
+la grille de cas types en était atteinte. Et là même où les deux bornes tombaient
+juste, la valeur du successeur était celle du 31 décembre quand la conversion
+s'opère au 1<sup>er</sup> janvier : un pour cent de trop peu sur tous les points
+d'avant 2019.
+
+**L'unification Arrco du 1<sup>er</sup> janvier 1999 n'est pas une fusion mais un
+changement d'unité**, et c'est le défaut le plus lourd que ce fichier corrige.
+Les valeurs d'achat et de service portées ici pour les années antérieures sont
+celles de l'UNIRS, la plus grosse des quarante-cinq caisses Arrco ; celles
+d'après 1999 sont celles du régime unifié, dont la valeur de service a été fixée
+à 6,55957 F, soit exactement 1 €. Le moteur accumulait des points dans la
+première unité et les liquidait dans la seconde : cent euros cotisés en 1998
+produisaient 30,31 € de pension annuelle quand les mêmes cent euros de 1999 n'en
+produisaient que 11,15 — un facteur 2,7 en une année, pour une opération que la
+formule officielle rendait neutre par construction. Le coefficient, 0,387464,
+est la valeur du point UNIRS au 31 décembre 1998. La correction abaisse la
+pension du scénario 1 de 1,3 % pour un cadre né en 1975 à 17 % pour les
+générations nées entre 1940 et 1955.
 
 Les régimes dont le dépôt n'a pas les barèmes — CNAVPL, MSA, CNBF, RCI, RAFP —
 gardent l'ancienne approximation : `pension = cotisations revalorisées ×
@@ -698,14 +745,31 @@ Deux sources, par ordre de priorité, et le partage se fait couple par couple
    diffusée par Eurostat ;
 2. partout ailleurs — avant 1986, au-delà du dernier âge publié, et pour les
    années projetées — une table paramétrique de **Gompertz-Makeham**
-   `μ(x) = A + B·exp(k(x−60))`, dont *B* et *k* sont ajustés par bissection pour
-   reproduire **exactement** les espérances de vie publiées à 60 et 65 ans.
+   `μ(x) = A + B·exp(k(x−60))`, dont *B* et *k* sont ajustés par bissection.
 
-Le raccord entre les deux est assumé, et il est contrôlé : un test recalcule
-l'espérance de vie à 60 ans à partir des seuls quotients observés et la
-confronte à l'espérance publiée par l'INSEE, qui vient d'une tout autre chaîne
-de production. Les deux concordent à 0,4 an près. La calibration paramétrique,
-elle, est vérifiée à 0,05 an près sur ses propres cibles.
+**La cible de cet ajustement est la table RACCORDÉE, pas la loi seule**, et
+c'est ce qui a longtemps manqué. Calibrée sur elle-même, la loi n'avait aucune
+raison de rendre la queue que la cible implique : elle donnait 11,3 ans
+d'espérance résiduelle à 85 ans pour une femme en 2010, quand l'espérance
+publiée à 60 ans en implique 7,5. Comme les millésimes 1998-2013 s'arrêtent à
+84 ans, la table effectivement lue par le modèle débordait alors l'espérance de
+l'INSEE de jusqu'à 2,5 ans.
+
+L'ajustement se fait donc en deux temps. La **forme** de la queue — le
+paramètre *k* — vient de la calibration classique sur la loi seule, où e60 et
+e65 portent sur toute la plage d'âges et la déterminent sans ambiguïté. Son
+**niveau** — le paramètre *B* — est ensuite recalé, à forme constante, pour que
+la table raccordée reproduise l'espérance publiée à 60 ans. Là où la queue n'a
+pas prise sur la cible — millésimes dont les quotients vont jusqu'à 104 ans, où
+les données décident seules —, le recalage est abandonné plutôt que forcé.
+
+Le raccord est contrôlé, et le contrôle est cette fois réel : un test recalcule
+l'espérance de vie à 60 ans par le seul chemin que le moteur emprunte
+(`survie_annuelle`, quotients observés puis loi) et la confronte à l'espérance
+publiée par l'INSEE, qui vient d'une tout autre chaîne de production. Les deux
+concordent à 0,1 an près sur 1990-2024. Le test précédent passait par une
+branche qui ne consultait aucun quotient : il comparait la calibration à sa
+propre cible et ne pouvait pas échouer.
 
 Ce partage donne la bonne mortalité aux âges qui pilotent le diviseur sans
 prétendre décrire la mortalité aux âges jeunes, qui n'entrent pas dans le

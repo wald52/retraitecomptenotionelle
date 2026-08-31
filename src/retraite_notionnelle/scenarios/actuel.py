@@ -316,6 +316,18 @@ _PALIERS_ANTICIPATION: tuple[tuple[int, float], ...] = (
 _COEFFICIENT_ANTICIPATION_PLANCHER = 0.43
 
 
+def _au_trimestre_superieur(trimestres: float) -> int:
+    """Nombre de trimestres arrondi à l'entier supérieur, jamais négatif.
+
+    C'est la règle de l'article R. 351-27 pour la décote, et celle que la
+    caisse illustre dans son exemple pour les coefficients d'anticipation : un
+    assuré à qui il manque trois ans et dix mois se voit opposer seize
+    trimestres, pas quinze. La tolérance de 10⁻³ évite qu'un flottant tout juste
+    au-dessus d'un entier n'en fasse compter un de plus.
+    """
+    return max(0, -(-int(round(trimestres * 1000)) // 1000))
+
+
 def _coefficient_anticipation(trimestres_manquants: float,
                               maximum: int) -> float | None:
     """Coefficient d'anticipation Agirc-Arrco pour un nombre de trimestres.
@@ -331,7 +343,7 @@ def _coefficient_anticipation(trimestres_manquants: float,
     opposer seize trimestres, pas quinze. C'est la lecture que la caisse
     illustre elle-même dans son exemple.
     """
-    manquants = max(0, -(-int(round(trimestres_manquants * 1000)) // 1000))
+    manquants = _au_trimestre_superieur(trimestres_manquants)
     if manquants <= 0:
         return 1.0
     if manquants > maximum:
@@ -759,6 +771,92 @@ class MinimumGaranti:
         return reference[0] * taux, reference[1]
 
 
+@dataclass(frozen=True)
+class ConversionPoint:
+    """Ce que devient un point à une fusion, ou à un changement d'unité."""
+
+    annee_effet: int
+    #: Régime qui reprend les points, ou ``None`` pour un changement d'échelle
+    #: interne au régime lui-même.
+    successeur: str | None
+    #: Un point d'origine vaut ce nombre de points d'arrivée.
+    coefficient: float
+    fiabilite: Fiabilite
+
+
+class ConversionsPoints:
+    """Coefficients de conversion des points, lus et non devinés.
+
+    Un point n'est pas une grandeur universelle : c'est l'unité de compte d'un
+    régime, et elle change quand le régime change. Le moteur déduisait ces
+    coefficients du RAPPORT de deux valeurs de service prises aux bornes des
+    séries publiées, ce qui a produit deux erreurs distinctes.
+
+    La première tenait à la date : la valeur du successeur était lue à sa
+    PREMIÈRE année publiée. Or les séries ``arrco`` et ``ircantec`` sont
+    rétro-remplies bien avant leur fusion — la première depuis 1957 avec les
+    valeurs de l'UNIRS, la seconde depuis 1949 avec celles de l'IPACTE. Le
+    rapport comparait alors deux valeurs distantes de quarante ou soixante-dix
+    ans : le point UNIRS ressortait quinze fois trop cher pour toute
+    liquidation postérieure à 1998, le point IPACTE cinquante fois trop cher
+    au-delà de 2022, et jusqu'à 35 % de la pension du scénario 1 n'avait aucune
+    existence.
+
+    La seconde tenait au jour : la valeur du successeur était prise au
+    31 décembre de l'année de fusion quand la conversion s'opère au 1er
+    janvier — un pour cent d'écart sur tous les points d'avant 2019.
+
+    Une troisième erreur n'était pas une conversion mal faite mais une
+    conversion ABSENTE : l'unification de l'Arrco au 1er janvier 1999 change
+    l'unité sans changer le code du régime. C'est ce que décrivent les lignes
+    dont le ``successeur`` est vide.
+    """
+
+    def __init__(self, racine: Path) -> None:
+        self._fusions: dict[tuple[str, str], ConversionPoint] = {}
+        self._echelles: dict[str, list[ConversionPoint]] = {}
+        chemin = racine / "reference" / "regimes" / "conversions_points.csv"
+        if not chemin.exists():
+            return
+        with chemin.open(encoding="utf-8") as flux:
+            lignes = (l for l in flux if not l.lstrip().startswith("#"))
+            for ligne in csv.DictReader(lignes):
+                conversion = ConversionPoint(
+                    annee_effet=int(ligne["annee_effet"]),
+                    successeur=ligne["successeur"] or None,
+                    coefficient=float(ligne["coefficient"]),
+                    fiabilite=Fiabilite.depuis_texte(ligne["fiabilite"]),
+                )
+                if conversion.successeur is not None:
+                    self._fusions[(ligne["regime"], conversion.successeur)] = conversion
+                else:
+                    self._echelles.setdefault(ligne["regime"], []).append(conversion)
+        for conversions in self._echelles.values():
+            conversions.sort(key=lambda c: c.annee_effet)
+
+    def fusion(self, regime: str, successeur: str) -> ConversionPoint | None:
+        """Coefficient de reprise des points de ``regime`` par ``successeur``."""
+        return self._fusions.get((regime, successeur))
+
+    def echelle(self, regime: str, annee_acquisition: int,
+                annee_liquidation: int) -> tuple[float, Fiabilite]:
+        """Facteur d'unité entre l'année d'acquisition et celle de liquidation.
+
+        Un point acheté au prix de 1998 et servi à la valeur de 2029 n'est pas
+        la même unité : l'Arrco a changé d'échelle entre-temps. Le facteur
+        n'intervient que si le changement tombe APRÈS l'acquisition et AVANT ou
+        À la liquidation — une liquidation de 1995 lit une valeur de service de
+        l'ancienne échelle, et n'a rien à convertir.
+        """
+        facteur = 1.0
+        fiabilite = Fiabilite.CERTIFIEE
+        for conversion in self._echelles.get(regime, ()):
+            if annee_acquisition < conversion.annee_effet <= annee_liquidation:
+                facteur *= conversion.coefficient
+                fiabilite = min(fiabilite, conversion.fiabilite)
+        return facteur, fiabilite
+
+
 class ValeursPoint:
     """Prix d'achat et valeur de service du point, régime par régime et année.
 
@@ -846,6 +944,7 @@ class ScenarioActuel:
         self.parametres = parametres
         self.rendements = Rendements(parametres.racine_donnees)
         self.valeurs_point = ValeursPoint(parametres.racine_donnees)
+        self.conversions_points = ConversionsPoints(parametres.racine_donnees)
         self.durees_requises = DureesRequises(parametres.racine_donnees)
         self.ages_ouverture = AgesOuverture(parametres.racine_donnees)
         self.ages_annulation_decote = AgesAnnulationDecote(parametres.racine_donnees)
@@ -868,16 +967,28 @@ class ScenarioActuel:
         """Ce que vaut, à la liquidation, un point acquis dans ``code``.
 
         Un régime fermé ne sert plus ses points : ils ont été convertis dans son
-        successeur, au rapport des deux valeurs de service à la date de la
-        reprise — c'est ce rapport, et lui seul, qui préserve le niveau des
-        pensions le jour de la fusion. La méthode remonte donc la chaîne des
-        successions (UNIRS -> Arrco -> Agirc-Arrco, Agirc -> Agirc-Arrco,
-        IPACTE et IGRANTE -> Ircantec) en cumulant les conversions.
+        successeur, au coefficient que l'accord de fusion a fixé. La méthode
+        remonte la chaîne des successions (UNIRS -> Arrco -> Agirc-Arrco,
+        Agirc -> Agirc-Arrco, IPACTE et IGRANTE -> Ircantec) en cumulant ces
+        coefficients, qui sont LUS dans ``regimes/conversions_points.csv`` et
+        non plus déduits d'un rapport de valeurs de service.
 
-        Quand la chaîne s'arrête avant l'année de liquidation — le successeur
-        n'a pas de valeur du point connue — la dernière valeur publiée est
-        ramenée en euros de la liquidation par l'indice des prix. C'est une
-        approximation, signalée comme telle par la fiabilité renvoyée.
+        **Les déduire coûtait cher.** Le rapport était pris entre la dernière
+        valeur publiée du régime d'origine et la PREMIÈRE du successeur ; or les
+        séries ``arrco`` et ``ircantec`` sont rétro-remplies bien avant leur
+        fusion, si bien qu'on comparait deux valeurs distantes de quarante ou
+        soixante-dix ans. Le point UNIRS ressortait quinze fois trop cher pour
+        toute liquidation postérieure à 1998, le point IPACTE cinquante fois
+        trop cher au-delà de 2022. Et là même où les deux bornes tombaient
+        juste, la valeur du successeur était celle du 31 décembre quand la
+        conversion s'opère au 1er janvier : un pour cent de trop peu sur tous
+        les points d'avant 2019.
+
+        Quand la chaîne s'arrête — plus de successeur, ou aucun coefficient
+        déclaré — la dernière valeur publiée est ramenée en euros de la
+        liquidation par l'indice des prix. C'est une approximation, signalée
+        comme telle par la fiabilité renvoyée ; c'est surtout un aveu
+        d'ignorance, préférable à un coefficient inventé.
         """
         conversion = 1.0
         courant = code
@@ -904,9 +1015,9 @@ class ScenarioActuel:
 
             successeur = (self.catalogue[courant].integre_dans
                           if courant in self.catalogue else None)
-            premiere = (self.valeurs_point.premiere_annee_servie(successeur)
-                        if successeur else None)
-            if premiere is None:
+            reprise = (self.conversions_points.fusion(courant, successeur)
+                       if successeur else None)
+            if reprise is None:
                 ancienne = self.valeurs_point.service(courant, derniere)
                 return (
                     conversion * ancienne[0]
@@ -914,10 +1025,8 @@ class ScenarioActuel:
                     min(fiabilite, ancienne[1], Fiabilite.MOYENNE),
                 )
 
-            avant = self.valeurs_point.service(courant, derniere)
-            apres = self.valeurs_point.service(successeur, premiere)
-            conversion *= avant[0] / apres[0]
-            fiabilite = min(fiabilite, avant[1], apres[1])
+            conversion *= reprise.coefficient
+            fiabilite = min(fiabilite, reprise.fiabilite)
             courant = successeur
         return None  # pragma: no cover - chaîne de successions cyclique
 
@@ -1081,8 +1190,17 @@ class ScenarioActuel:
         tous les régimes qui appliquent une décote. Sans ce plafond, un départ
         dix ans avant l'heure retirait la moitié de la pension là où le droit
         n'en retire que le quart.
+
+        Le décompte par l'ÂGE est arrondi à l'entier supérieur, comme le veut
+        l'article R. 351-27. Les âges d'annulation des générations 1951 à 1954
+        valent 65,33, 65,75, 66,17 et 66,58 ans : sans cet arrondi, on opposait
+        13,32 trimestres à un assuré né en 1951 parti à 62 ans, quand le droit
+        lui en oppose 14. Le barème d'anticipation de l'Agirc-Arrco, lui,
+        arrondissait déjà — les deux décomptes suivent maintenant la même règle.
         """
-        manquants_age = max(0.0, (age_annulation - age_liquidation) * 4)
+        manquants_age = float(_au_trimestre_superieur(
+            (age_annulation - age_liquidation) * 4
+        ))
         if periode.decote_annulee_par_la_duree:
             trimestres_decote = min(max(0, requis - trimestres), manquants_age)
         else:
@@ -1378,12 +1496,15 @@ class ScenarioActuel:
                         # dépend alors pas du taux de cotisation, et c'est
                         # heureux : ce sont les barèmes qui sont publiés, pas
                         # les prix d'achat.
+                        echelle, fiabilite_echelle = self.conversions_points.echelle(
+                            code, ligne.annee, annee_liquidation
+                        )
                         points_acquis[code] = points_acquis.get(code, 0.0) + (
-                            periode.points_maximum * assiette / repere
+                            periode.points_maximum * assiette / repere * echelle
                         )
                         fiabilite_points[code] = min(
                             fiabilite_points.get(code, Fiabilite.CERTIFIEE),
-                            regime.fiabilite,
+                            regime.fiabilite, fiabilite_echelle,
                         )
                         continue
                     achat = (self.valeurs_point.achat(code, ligne.annee)
@@ -1403,10 +1524,22 @@ class ScenarioActuel:
                             points_annee = max(
                                 points_annee, periode.points_minimum_annuels
                             )
-                        points_acquis[code] = points_acquis.get(code, 0.0) + points_annee
+                        # Changement d'unité entre l'achat et le service : les
+                        # points Arrco d'avant 1999 sont ceux de l'UNIRS, et
+                        # valent 0,387464 point du régime unifié. Sans cette
+                        # conversion, cent euros cotisés en 1998 produisaient
+                        # 30,31 € de pension quand les mêmes cent euros de 1999
+                        # n'en produisaient que 11,15 — un facteur 2,7 en une
+                        # année, pour une unification qui était neutre.
+                        echelle, fiabilite_echelle = self.conversions_points.echelle(
+                            code, ligne.annee, annee_liquidation
+                        )
+                        points_acquis[code] = (
+                            points_acquis.get(code, 0.0) + points_annee * echelle
+                        )
                         fiabilite_points[code] = min(
                             fiabilite_points.get(code, Fiabilite.CERTIFIEE),
-                            fiabilite_achat,
+                            fiabilite_achat, fiabilite_echelle,
                         )
                     else:
                         cumul_cotisations[code] = cumul_cotisations.get(code, 0.0) + (

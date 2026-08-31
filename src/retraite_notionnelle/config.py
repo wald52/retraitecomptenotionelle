@@ -176,10 +176,20 @@ class Neutralisations:
     """Droits retirés du calcul, conformément au principe « seules les
     cotisations comptent ».
 
-    Chaque drapeau à ``True`` signifie : ce droit est SUPPRIMÉ dans les
-    scénarios notionnels. Ces drapeaux ne sont jamais lus par le scénario
-    « système actuel » : ils décrivent ce que les scénarios notionnels retirent,
-    pas ce que le droit en vigueur accorde.
+    **Ceci est une DÉCLARATION, pas une commande.** Aucun de ces drapeaux n'est
+    lu par le moteur, et il ne peut pas l'être : dans un compte notionnel, la
+    suppression de ces droits n'est pas une option qu'on active, elle est la
+    conséquence mécanique de la règle d'accumulation — une année sans
+    cotisation n'ajoute rien au compte, un trimestre gratuit n'est pas une
+    cotisation, un minimum n'est pas un capital. Remettre l'un d'eux
+    supposerait de sortir du modèle. La classe existe pour DIRE, en un seul
+    endroit et de façon vérifiable, ce que les scénarios notionnels retirent au
+    droit en vigueur ; ``retraite-notionnelle`` l'affiche, la documentation la
+    reprend, et un test vérifie que le scénario « système actuel », lui, sert
+    bien chacune des lignes qu'il est censé servir.
+
+    Le mettre à faux ne change donc aucun résultat, et le docstring ci-dessous
+    ne promet plus le contraire.
 
     **Ce que le scénario 1 sert vraiment**, et il ne l'a pas toujours fait :
     minimum contributif, minimum garanti, minimum vieillesse, majoration pour
@@ -254,8 +264,13 @@ class Parametres:
     #: conséquence logique et non un défaut.
     plancher_indexation: float | None = None
 
-    #: Applique la même règle d'indexation aux pensions déjà liquidées.
-    indexer_pensions_liquidees: bool = True
+    # NOTE : il n'y a pas de paramètre « indexer les pensions liquidées ». Le
+    # moteur ne calcule qu'une pension AU MOMENT DE LA LIQUIDATION, dans les
+    # euros de cette année-là, pour les cinq scénarios ; il n'existe aucune
+    # phase postérieure à revaloriser. Le drapeau qui figurait ici ne servait à
+    # rien et laissait croire le contraire. Ce que la règle d'indexation fait
+    # aux pensions déjà liquidées reste hors du modèle, et `docs/limites.md` le
+    # dit maintenant.
 
     # --- Cotisations --------------------------------------------------------
     source_cotisations: SourceCotisations = SourceCotisations.TAUX_HISTORIQUES
@@ -267,11 +282,11 @@ class Parametres:
     #: contrefactuel, à activer explicitement.
     taux_cotisation_uniforme: float = 0.2531
 
-    #: Les cotisations prélevées sans contrepartie de droits (taux d'appel
-    #: Agirc-Arrco, contribution d'équilibre) alimentent-elles le compte ?
-    #: ``True`` est cohérent avec « seules les cotisations comptent » : ce qui a
-    #: été prélevé pour la retraite ouvre des droits.
-    taux_appel_ouvre_droits: bool = True
+    # NOTE : il n'y a pas non plus de paramètre « le taux d'appel ouvre-t-il des
+    # droits ». Le compte notionnel porte ce qui a été PRÉLEVÉ, taux d'appel
+    # compris — c'est la lecture directe de « seules les cotisations comptent »,
+    # et c'est la seule que le moteur sache faire. Le drapeau qui figurait ici
+    # n'était lu nulle part : le mettre à faux ne changeait rien.
 
     #: Part de la cotisation portée au compte : celle de l'assuré seul, ou
     #: celle de l'assuré et de son employeur. Voir :class:`PartCotisation`.
@@ -317,8 +332,10 @@ class Parametres:
     #: surestime donc leur pension.
     table_generation: bool = True
 
-    #: Âge maximal considéré dans les tables.
-    age_maximal: int = 120
+    # NOTE : l'âge terminal des tables de mortalité n'est pas un paramètre de
+    # simulation mais une constante du module qui les construit —
+    # ``donnees.mortalite.AGE_TERMINAL``. Le champ qui figurait ici la doublait
+    # sans jamais l'atteindre.
 
     # --- Fusion des régimes -------------------------------------------------
     #: À compter de ``annee_bascule``, tous les régimes sont remplacés par un

@@ -12,10 +12,19 @@ Deux sources, dans cet ordre de priorité, arbitrées **couple par couple**
 
 Le point 2 est une approximation assumée : elle donne la bonne espérance de vie
 aux âges qui comptent pour la retraite (celle qui pilote le diviseur), mais elle
-ne prétend pas décrire la mortalité aux âges jeunes. Le raccord entre les deux
-sources est contrôlé par les tests : l'espérance de vie à 60 ans recalculée à
-partir des seuls quotients observés retombe à 0,4 an près sur celle que publie
-l'INSEE, qui vient d'une tout autre chaîne de production.
+ne prétend pas décrire la mortalité aux âges jeunes.
+
+**La calibration porte sur la table raccordée, pas sur la loi seule.** C'est ce
+qui a longtemps manqué : ajustée sur elle-même, la loi donnait une queue trop
+généreuse, et la table raccordée — quotients observés jusqu'à 84 ans pour les
+millésimes 1998-2013, loi au-delà — rendait une espérance à 60 ans jusqu'à
+2,5 ans supérieure à celle que publie l'INSEE. Le diviseur de conversion s'en
+trouvait surestimé de 5 %, et les pensions notionnelles minorées d'autant. Les
+paramètres sont désormais ajustés pour que la table telle que le modèle la LIT
+reproduise les espérances publiées ; là où la queue n'a pas prise sur la cible —
+millésimes dont les quotients vont jusqu'à 104 ans —, la table observée décide
+seule et l'écart résiduel avec l'INSEE, au plus 0,7 an, est celui des deux
+chaînes de production.
 
 Force de mortalité retenue :  μ(x) = A + B · exp(k · (x − 60))
 """
@@ -90,30 +99,91 @@ def _esperance_makeham(a: float, b: float, k: float, age: float) -> float:
     return total
 
 
-def _calibrer(e60_cible: float, e65_cible: float, annee: int, sexe: str,
-              fiabilite: Fiabilite) -> LoiMortalite:
-    """Ajuste (b, k) pour reproduire simultanément e60 et e65.
+def _survie_makeham_un_an(a: float, b: float, k: float, age: float) -> float:
+    """Probabilité de passer de ``age`` à ``age + 1`` sous la loi paramétrique."""
+    u = math.exp(k * (age - 60.0))
+    return math.exp(-(a + (b / k) * u * (math.exp(k) - 1.0)))
 
-    Deux bissections emboîtées, toutes deux sur des fonctions monotones :
-    * à k fixé, e60 décroît quand b croît ;
-    * une fois b calé sur e60, le rapport e65/e60 décroît quand k croît.
+
+def _esperance_raccordee(a: float, b: float, k: float, age: float,
+                         quotients: dict[int, float] | None) -> float:
+    """Espérance de vie du moment de la table RACCORDÉE, année par année.
+
+    C'est exactement ce que rend le modèle : les quotients observés là où ils
+    existent, la loi paramétrique partout ailleurs. Sans ``quotients``, elle se
+    réduit à l'espérance de la loi seule, au pas d'un an.
+    """
+    total = 0.0
+    survie = 1.0
+    courant = float(age)
+    while courant < AGE_TERMINAL and survie > 1e-12:
+        quotient = quotients.get(int(courant)) if quotients else None
+        facteur = ((1.0 - quotient) if quotient is not None
+                   else _survie_makeham_un_an(a, b, k, courant))
+        prochaine = survie * facteur
+        total += 0.5 * (survie + prochaine)
+        survie = prochaine
+        courant += 1.0
+    return total
+
+
+#: Tolérance sur les espérances reproduites par la calibration, en années.
+#: Au-delà, la queue paramétrique n'a pas prise sur la cible — c'est le cas des
+#: millésimes dont les quotients observés vont jusqu'à 104 ans, où la table
+#: décide seule — et la calibration retombe sur la loi pure.
+TOLERANCE_CALIBRATION = 0.05
+
+
+def _calibrer(e60_cible: float, e65_cible: float, annee: int, sexe: str,
+              fiabilite: Fiabilite,
+              quotients: dict[int, float] | None = None) -> LoiMortalite:
+    """Ajuste (b, k) pour que la table RACCORDÉE reproduise e60 et e65.
+
+    Deux temps. La FORME de la queue — le paramètre k — vient de la calibration
+    classique sur la loi seule, où e60 et e65 portent sur toute la plage d'âges
+    et le déterminent sans ambiguïté. Son NIVEAU — le paramètre b — est ensuite
+    recalé, à forme constante, pour que la table RACCORDÉE reproduise e60.
+
+    Les deux bissections portent sur des fonctions monotones : à k fixé,
+    l'espérance décroît quand b croît ; une fois b calé sur e60, le rapport
+    e65/e60 décroît quand k croît.
+
+    **La cible porte sur la table telle que le modèle la lit**, quotients
+    observés compris, et non sur la loi paramétrique seule. C'est ce qui a
+    longtemps manqué : calibrée sur elle-même, la loi produisait une queue trop
+    généreuse — 11,3 ans d'espérance résiduelle à 85 ans pour une femme en 2010,
+    là où la cible en implique 7,5 — et le raccord au-dessus du dernier âge
+    publié faisait remonter l'espérance à 60 ans de 2,5 ans au-dessus de celle
+    que l'INSEE publie. Le diviseur de conversion s'en trouvait surestimé
+    jusqu'à 5 % pour les liquidations de 1998 à 2013.
+
+    Quand la queue n'a pas prise sur la cible — millésimes dont les quotients
+    vont jusqu'à 104 ans, où l'espérance est déterminée par les données —, la
+    calibration retombe sur la loi seule : forcer l'accord reviendrait alors à
+    déformer une table observée pour la faire coïncider avec une espérance
+    produite par une tout autre chaîne.
     """
 
-    def b_pour_e60(k: float) -> float:
-        bas, haut = 1e-7, 1.0
-        for _ in range(45):
+    def b_pour(k: float, cible: float,
+               observes: dict[int, float] | None) -> float:
+        bas, haut = 1e-9, 5.0
+        for _ in range(50):
             milieu = math.sqrt(bas * haut)
-            if _esperance_makeham(MORTALITE_ACCIDENTELLE, milieu, k, 60.0) > e60_cible:
+            if _esperance_raccordee(MORTALITE_ACCIDENTELLE, milieu, k, 60.0,
+                                    observes) > cible:
                 bas = milieu
             else:
                 haut = milieu
         return math.sqrt(bas * haut)
 
+    # 1. La FORME de la queue vient de la calibration classique, sur la loi
+    #    seule : e60 et e65 y portent sur toute la plage d'âges, et déterminent
+    #    k sans ambiguïté. C'est ce que faisait le module, et c'est bien fait.
     ratio_cible = e65_cible / e60_cible
     bas_k, haut_k = 0.02, 0.30
     for _ in range(30):
         k = 0.5 * (bas_k + haut_k)
-        b = b_pour_e60(k)
+        b = b_pour(k, e60_cible, None)
         e60 = _esperance_makeham(MORTALITE_ACCIDENTELLE, b, k, 60.0)
         e65 = _esperance_makeham(MORTALITE_ACCIDENTELLE, b, k, 65.0)
         if e65 / e60 > ratio_cible:
@@ -121,7 +191,21 @@ def _calibrer(e60_cible: float, e65_cible: float, annee: int, sexe: str,
         else:
             haut_k = k
     k = 0.5 * (bas_k + haut_k)
-    return LoiMortalite(MORTALITE_ACCIDENTELLE, b_pour_e60(k), k, annee, sexe, fiabilite)
+    b = b_pour(k, e60_cible, None)
+
+    # 2. Le NIVEAU de la queue est ensuite recalé, à forme constante, pour que
+    #    la table telle que le modèle la lit — quotients observés compris —
+    #    reproduise l'espérance publiée. C'est ce qui manquait.
+    if quotients:
+        recale = b_pour(k, e60_cible, quotients)
+        atteint = _esperance_raccordee(MORTALITE_ACCIDENTELLE, recale, k, 60.0,
+                                       quotients)
+        if abs(atteint - e60_cible) <= TOLERANCE_CALIBRATION:
+            b = recale
+        # Sinon, la queue n'a pas prise sur la cible : la table observée décide
+        # seule, et l'on conserve la forme et le niveau de la loi pure.
+
+    return LoiMortalite(MORTALITE_ACCIDENTELLE, b, k, annee, sexe, fiabilite)
 
 
 class DonneesMortalite:
@@ -200,7 +284,10 @@ class DonneesMortalite:
             b, k = memorise
             return LoiMortalite(MORTALITE_ACCIDENTELLE, b, k, annee, sexe, fiabilite)
 
-        loi = _calibrer(e60.valeur, e65.valeur, annee, sexe, fiabilite)
+        loi = _calibrer(
+            e60.valeur, e65.valeur, annee, sexe, fiabilite,
+            quotients=(self._quotients_observes or {}).get((annee_bornee, sexe)),
+        )
         self._cache[cle] = [loi.b, loi.k]
         self._cache_modifie = True
         return loi
@@ -243,11 +330,16 @@ class DonneesMortalite:
         courante = 1.0
         duree = 0
         while age_debut + duree < AGE_TERMINAL and courante > 1e-10:
-            if generation:
-                facteur = self.survie_annuelle(age_debut + duree, annee_debut + duree, sexe)
-            else:
-                loi = self.loi(annee_debut, sexe)
-                facteur = loi.survie(age_debut + duree, 1.0)
+            # Table du moment : la mortalité de l'année de liquidation est
+            # appliquée à tous les âges. Table de génération : chaque année
+            # vécue reçoit celle de l'année civile correspondante. Dans les
+            # deux cas les quotients OBSERVÉS priment là où ils existent — la
+            # table du moment les ignorait, si bien qu'elle ne décrivait pas la
+            # même mortalité que celle du calcul par défaut, et qu'un test
+            # censé confronter les deux chaînes comparait la calibration à sa
+            # propre cible.
+            annee = annee_debut + duree if generation else annee_debut
+            facteur = self.survie_annuelle(age_debut + duree, annee, sexe)
             courante *= facteur
             probabilites.append(courante)
             duree += 1

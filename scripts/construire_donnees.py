@@ -229,6 +229,26 @@ def _valeurs_point() -> dict:
     }
 
 
+def _conversions_points() -> list:
+    """Coefficients de conversion des points, aux fusions et aux changements
+    d'unité. Une ligne : régime, année d'effet, successeur, coefficient,
+    fiabilité — le successeur étant vide pour un changement d'échelle interne.
+    """
+    from retraite_notionnelle.scenarios.actuel import ConversionsPoints
+
+    conversions = ConversionsPoints(DONNEES)
+    lignes = [
+        [regime, c.annee_effet, successeur, c.coefficient, int(c.fiabilite)]
+        for (regime, successeur), c in sorted(conversions._fusions.items())
+    ]
+    lignes += [
+        [regime, c.annee_effet, "", c.coefficient, int(c.fiabilite)]
+        for regime, conversions_regime in sorted(conversions._echelles.items())
+        for c in conversions_regime
+    ]
+    return sorted(lignes)
+
+
 def _rendements() -> list:
     rendements = Rendements(DONNEES)
     return [
@@ -377,6 +397,7 @@ def construire() -> bytes:
         "affiliations": _affiliations(),
         "valeurs_point": _valeurs_point(),
         "rendements_points": _rendements(),
+        "conversions_points": _conversions_points(),
         "durees_requises": _table_par_generation(DureesRequises),
         "ages_ouverture": _table_par_generation(AgesOuverture),
         "ages_annulation_decote": _table_par_generation(AgesAnnulationDecote),

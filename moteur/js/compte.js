@@ -252,15 +252,22 @@ export class ConstructeurCompte {
       };
     }
 
+    // Pendant une période indemnisée, l'assiette est le salaire d'AVANT
+    // l'interruption : c'est sur lui que l'UNEDIC ou la Sécurité sociale
+    // versent leurs cotisations. La branche d'après la bascule lisait
+    // `ligne.revenu`, nul une année non travaillée, quand celle d'avant lisait
+    // `revenu_reference` — deux règles pour la même situation.
+    const baseLigne = ligne.cotise ? ligne.revenu : ligne.revenu_reference;
+
     // Après la bascule, un seul régime : le régime fusionné.
     if (regimeFusionne !== null && annee >= regimeFusionne.annee_bascule) {
-      const assiette = this._assiette(ligne.revenu, annee, 0.0, null);
+      const assiette = this._assiette(baseLigne, annee, 0.0, null);
       const [taux, tauxEmployeur, origine, fiabiliteTaux] = this.tauxUnifie(
         ligne, annee, regimeFusionne,
       );
       const cotisation = assiette * taux;
       return {
-        annee, revenu: ligne.revenu, assiette_retenue: assiette, cotisation,
+        annee, revenu: baseLigne, assiette_retenue: assiette, cotisation,
         regimes: ["regime_unifie"], taux_effectif: taux, hors_repartition: 0.0,
         fiabilite: origine
           ? Math.min(regimeFusionne.fiabilite, fiabiliteTaux)
@@ -273,7 +280,6 @@ export class ConstructeurCompte {
 
     // Pendant une période indemnisée, seuls les régimes complémentaires
     // encaissent, et sur le salaire d'avant l'interruption.
-    const baseLigne = ligne.cotise ? ligne.revenu : ligne.revenu_reference;
     const famillesAdmises = ligne.cotise ? null : new Set(ligne.familles_cotisantes);
 
     const codes = this.affiliations.regimes(ligne.affiliation, annee);

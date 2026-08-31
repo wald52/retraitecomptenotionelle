@@ -104,9 +104,17 @@ class Indexation:
         """Coefficient de revalorisation cumulée entre deux années.
 
         Convention : une cotisation versée en ``annee_depart`` est revalorisée
-        à partir de l'année SUIVANTE. Elle n'est pas revalorisée l'année même de
-        son versement, ni l'année de la liquidation — sans quoi on offrirait une
-        année de rendement gratuite.
+        à partir de l'année SUIVANTE et **jusqu'à l'année d'arrivée incluse**.
+        Elle n'est donc pas revalorisée l'année même de son versement — sans
+        quoi on offrirait une année de rendement gratuite — mais elle l'est
+        l'année de la liquidation, qui est celle où le compte est arrêté.
+
+        Ce docstring annonçait l'inverse pour l'année de liquidation, alors que
+        la boucle ci-dessous l'a toujours comptée. L'écart n'est pas nul : il
+        vaut un an de taux d'indexation sur la totalité du capital, soit 1,0 %
+        en 2029. C'est la convention du code qui est retenue — le compte est
+        arrêté à la fin de l'année de liquidation, pas à son début —, et c'est
+        le texte qui a été corrigé.
         """
         if annee_arrivee <= annee_depart:
             return 1.0

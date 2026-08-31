@@ -89,13 +89,37 @@ export function esperanceMakeham(a, b, k, age) {
  * fixé, e60 décroît quand b croît ; une fois b calé sur e60, le rapport
  * e65/e60 décroît quand k croît.
  */
-export function calibrer(e60Cible, e65Cible, annee, sexe, fiabilite) {
-  const bPourE60 = (k) => {
-    let bas = 1e-7;
-    let haut = 1.0;
-    for (let i = 0; i < 45; i += 1) {
+export function esperanceRaccordee(a, b, k, age, quotients) {
+  let total = 0.0;
+  let survie = 1.0;
+  let courant = age;
+  while (courant < AGE_TERMINAL && survie > 1e-12) {
+    const quotient = quotients ? quotients[String(Math.trunc(courant))] : undefined;
+    let facteur;
+    if (quotient !== undefined) {
+      facteur = 1.0 - quotient;
+    } else {
+      const u = Math.exp(k * (courant - 60.0));
+      facteur = Math.exp(-(a + (b / k) * u * (Math.exp(k) - 1.0)));
+    }
+    const prochaine = survie * facteur;
+    total += 0.5 * (survie + prochaine);
+    survie = prochaine;
+    courant += 1.0;
+  }
+  return total;
+}
+
+/** Tolérance sur les espérances reproduites par la calibration, en années. */
+export const TOLERANCE_CALIBRATION = 0.05;
+
+export function calibrer(e60Cible, e65Cible, annee, sexe, fiabilite, quotients = null) {
+  const bPour = (k, cible, observes) => {
+    let bas = 1e-9;
+    let haut = 5.0;
+    for (let i = 0; i < 50; i += 1) {
       const milieu = Math.sqrt(bas * haut);
-      if (esperanceMakeham(MORTALITE_ACCIDENTELLE, milieu, k, 60.0) > e60Cible) {
+      if (esperanceRaccordee(MORTALITE_ACCIDENTELLE, milieu, k, 60.0, observes) > cible) {
         bas = milieu;
       } else {
         haut = milieu;
@@ -103,6 +127,7 @@ export function calibrer(e60Cible, e65Cible, annee, sexe, fiabilite) {
     }
     return Math.sqrt(bas * haut);
   };
+  const bPourE60 = (k) => bPour(k, e60Cible, null);
 
   const ratioCible = e65Cible / e60Cible;
   let basK = 0.02;
@@ -119,7 +144,21 @@ export function calibrer(e60Cible, e65Cible, annee, sexe, fiabilite) {
     }
   }
   const k = 0.5 * (basK + hautK);
-  return new LoiMortalite(MORTALITE_ACCIDENTELLE, bPourE60(k), k, annee, sexe, fiabilite);
+  let b = bPourE60(k);
+
+  // Le NIVEAU de la queue est recalé, à forme constante, pour que la table
+  // telle que le modèle la lit — quotients observés compris — reproduise
+  // l'espérance publiée. Sans ce second temps, la loi rendait 11,3 ans
+  // d'espérance résiduelle à 85 ans pour une femme en 2010, là où la cible en
+  // implique 7,5.
+  if (quotients) {
+    const recale = bPour(k, e60Cible, quotients);
+    const atteint = esperanceRaccordee(MORTALITE_ACCIDENTELLE, recale, k, 60.0, quotients);
+    if (Math.abs(atteint - e60Cible) <= TOLERANCE_CALIBRATION) {
+      b = recale;
+    }
+  }
+  return new LoiMortalite(MORTALITE_ACCIDENTELLE, b, k, annee, sexe, fiabilite);
 }
 
 /** Tables du moment et tables de génération pour les deux sexes. */
@@ -167,7 +206,8 @@ export class DonneesMortalite {
     const loi = parametres !== undefined
       ? new LoiMortalite(MORTALITE_ACCIDENTELLE, parametres[0], parametres[1],
         annee, sexe, fiabilite)
-      : calibrer(e60.valeur, e65.valeur, annee, sexe, fiabilite);
+      : calibrer(e60.valeur, e65.valeur, annee, sexe, fiabilite,
+        this._quotients[`${anneeBornee}|${sexe}`] ?? null);
     this._lois.set(cleMemoire, loi);
     return loi;
   }
@@ -205,13 +245,14 @@ export class DonneesMortalite {
     let courante = 1.0;
     let duree = 0;
     while (ageDebut + duree < AGE_TERMINAL && courante > 1e-10) {
-      let facteur;
-      if (generation) {
-        facteur = this.survieAnnuelle(ageDebut + duree, anneeDebut + duree, sexe);
-      } else {
-        facteur = this.loi(anneeDebut, sexe).survie(ageDebut + duree, 1.0);
-      }
-      courante *= facteur;
+      // Table du moment : la mortalité de l'année de liquidation est appliquée
+      // à tous les âges. Table de génération : chaque année vécue reçoit celle
+      // de l'année civile correspondante. Dans les deux cas les quotients
+      // OBSERVÉS priment là où ils existent — la table du moment les ignorait,
+      // si bien qu'elle ne décrivait pas la même mortalité que celle du calcul
+      // par défaut.
+      const anneeLue = generation ? anneeDebut + duree : anneeDebut;
+      courante *= this.survieAnnuelle(ageDebut + duree, anneeLue, sexe);
       probabilites.push(courante);
       duree += 1;
     }

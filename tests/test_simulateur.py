@@ -858,10 +858,16 @@ def test_les_complementaires_sont_calculees_en_points(simulateur, salarie_moyen)
 def test_les_points_d_un_regime_fusionne_sont_convertis(simulateur):
     """Un régime fermé ne sert plus ses points : son successeur les sert.
 
-    Arrco a fermé en 2018, Agirc-Arrco a repris ses points au rapport des deux
-    valeurs de service. Une pension Arrco liquidée après 2019 doit donc être
-    valorisée au-dessus de la dernière valeur du point Arrco — sans quoi la
-    conversion a été oubliée.
+    Et il les sert au coefficient que l'accord de fusion a fixé, non au rapport
+    de deux valeurs de service prises où les séries s'arrêtent. L'accord national
+    interprofessionnel du 17 novembre 2017 convertit les points Arrco UN POUR UN
+    et les points Agirc au coefficient 0,347798289 — celui qui figure sur les
+    relevés de carrière.
+
+    Ce test opposait auparavant le rapport `arrco(2018) / agirc_arrco(2019)`,
+    qui vaut 0,990 : la valeur du régime unifié y était prise au 31 décembre
+    2019, après la revalorisation de novembre, quand la conversion s'opère au
+    1er janvier. Un pour cent de moins sur tous les points d'avant 2019.
     """
     from retraite_notionnelle.scenarios.actuel import ValeursPoint
 
@@ -874,11 +880,129 @@ def test_les_points_d_un_regime_fusionne_sont_convertis(simulateur):
     apres, _ = scenario.valeur_du_point("arrco", 2022)
     assert apres > avant, "les points Arrco n'ont pas suivi la fusion de 2019"
 
-    # La conversion doit être exactement le rapport des valeurs de service au
-    # moment de la reprise : c'est elle qui laisse les pensions inchangées.
-    service_2019, _ = valeurs.service("agirc_arrco", 2019)
     service_2022, _ = valeurs.service("agirc_arrco", 2022)
-    assert apres == pytest.approx(avant / service_2019 * service_2022)
+    assert apres == pytest.approx(service_2022), "un point Arrco vaut un point Agirc-Arrco"
+
+    agirc, _ = scenario.valeur_du_point("agirc", 2022)
+    assert agirc / service_2022 == pytest.approx(0.347798289, rel=1e-6)
+
+
+def test_un_regime_ferme_ne_vaut_jamais_plus_que_son_successeur(simulateur):
+    """Une conversion aux fusions préserve les droits : elle ne les multiplie pas.
+
+    Ce test attrape d'un coup les trois défauts de la chaîne de succession, tous
+    dus à une date de reprise mal choisie : le point UNIRS valorisé quinze fois
+    trop cher pour toute liquidation postérieure à 1998, les points IPACTE et
+    IGRANTE cinquante-quatre fois trop chers au-delà de 2022, et le pour cent
+    perdu à la fusion de 2019 parce que la valeur du régime unifié était prise au
+    31 décembre et non au 1er janvier.
+    """
+    scenario = simulateur.scenario_actuel
+    chaines = (
+        ("unirs", "arrco"), ("ipacte", "ircantec"), ("igrante", "ircantec"),
+        ("agirc", "agirc_arrco"), ("arrco", "agirc_arrco"),
+    )
+    for code, successeur in chaines:
+        reprise = scenario.conversions_points.fusion(code, successeur)
+        assert reprise is not None, f"aucun coefficient déclaré : {code} -> {successeur}"
+        assert 0 < reprise.coefficient <= 1.0, (code, reprise.coefficient)
+        # La comparaison n'a de sens qu'à compter de la reprise : avant elle, le
+        # successeur n'existe pas et sa « valeur » n'est qu'un repli sur les prix.
+        for annee in range(reprise.annee_effet, 2061):
+            valeur = scenario.valeur_du_point(code, annee)
+            reference = scenario.valeur_du_point(successeur, annee)
+            if valeur is None or reference is None:
+                continue
+            assert valeur[0] <= reference[0] * 1.001, (code, annee, valeur[0], reference[0])
+
+
+def test_le_rendement_du_point_ne_saute_pas_d_une_annee_sur_l_autre(simulateur):
+    """Cent euros cotisés une année ou la suivante donnent des pensions voisines.
+
+    Une rupture signale un changement d'ÉCHELLE que le moteur n'a pas traité.
+    C'était le cas de l'Arrco en 1999 : les valeurs d'avant sont celles de
+    l'UNIRS, celles d'après celles du régime unifié, et le moteur accumulait des
+    points dans la première unité pour les liquider dans la seconde. Cent euros
+    cotisés en 1998 produisaient 30,31 € de pension annuelle, les mêmes cent
+    euros de 1999 n'en produisaient que 11,15 — un facteur 2,7 en une année,
+    pour une unification qui, par construction, ne changeait aucun droit.
+    """
+    scenario = simulateur.scenario_actuel
+    liquidation = 2029
+    # La borne est large à dessein : elle vise les changements d'UNITÉ, qui se
+    # comptent en facteurs, et non les mouvements de barème, qui peuvent être
+    # brusques sans être faux — le taux d'appel de l'Ircantec passe de 0,60 à
+    # 0,80 en 1983, et c'est le droit.
+    for code in ("arrco", "agirc", "ircantec"):
+        valeur_service = scenario.valeur_du_point(code, liquidation)
+        assert valeur_service is not None
+        precedent = None
+        for annee in range(1962, 2019):
+            achat = scenario.valeurs_point.achat(code, annee)
+            if achat is None:
+                continue
+            reference, appel, _ = achat
+            echelle, _ = scenario.conversions_points.echelle(code, annee, liquidation)
+            rendu = 100.0 / (appel * reference) * echelle * valeur_service[0]
+            if precedent is not None:
+                assert 0.5 < rendu / precedent < 2.0, (code, annee, precedent, rendu)
+            precedent = rendu
+
+
+def test_les_trimestres_de_decote_sont_des_entiers(simulateur):
+    """Article R. 351-27 : le nombre de trimestres est arrondi à l'entier supérieur.
+
+    Les âges d'annulation de la décote des générations 1951 à 1954 valent 65,33,
+    65,75, 66,17 et 66,58 ans. Sans arrondi, on opposait 13,32 trimestres à un
+    assuré né en 1951 parti à 62 ans, quand le droit lui en oppose 14 : un taux
+    de 40,01 % au lieu de 39,50 %.
+    """
+    scenario = simulateur.scenario_actuel
+    periode = simulateur.catalogue["regime_general"].periode(2015)
+    for generation in range(1945, 1976):
+        for age_depart in (60.0, 61.0, 62.0, 63.0, 64.0, 65.0):
+            carriere = simulateur.carriere_simple(
+                annee_naissance=generation, sexe="H",
+                affiliation="salarie_prive_non_cadre",
+                age_debut=30, age_liquidation=age_depart,
+            )
+            _, age_annulation, _ = scenario._decote(
+                periode, carriere, carriere.annee_liquidation
+            )
+            retenus = scenario._trimestres_de_decote(
+                periode, carriere.trimestres_actuels, 168, age_depart, age_annulation
+            )
+            assert retenus == int(retenus), (generation, age_depart, retenus)
+
+
+def test_les_neutralisations_ne_commandent_rien(simulateur):
+    """Elles DÉCLARENT ce que les scénarios notionnels retirent, sans le piloter.
+
+    La suppression n'est pas une option qu'on active : elle est la conséquence
+    mécanique de la règle d'accumulation. Ce test fige la propriété, pour qu'on
+    ne redonne pas à ces drapeaux un pouvoir qu'ils n'ont pas — et pour que la
+    documentation cesse de le laisser croire.
+    """
+    carriere = dict(
+        annee_naissance=1975, sexe="F", affiliation="salarie_prive_non_cadre",
+        age_debut=22, age_liquidation=64, niveau_salaire=0.45, nombre_enfants=3,
+    )
+    tous_actifs = Simulateur(Parametres()).simuler(
+        Simulateur(Parametres()).carriere_simple(**carriere)
+    )
+    aucun = Simulateur(
+        Parametres(neutralisations=Neutralisations(
+            minimum_contributif=False, majoration_enfants=False,
+            majoration_duree_assurance=False, minimum_vieillesse_aspa=False,
+        ))
+    )
+    resultat = aucun.simuler(aucun.carriere_simple(**carriere))
+    for cle, _, _ in SCENARIOS_NOTIONNELS:
+        assert (getattr(resultat, cle).pension_annuelle
+                == pytest.approx(getattr(tous_actifs, cle).pension_annuelle))
+    assert resultat.actuel.pension_annuelle == pytest.approx(
+        tous_actifs.actuel.pension_annuelle
+    )
 
 
 def test_rendement_instantane_reproduit_le_repere_publie(simulateur):

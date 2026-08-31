@@ -1,0 +1,74 @@
+# Conversions de points aux fusions et aux changements d'échelle
+# ---------------------------------------------------------------
+# source_id: agirc_arrco_points, legifrance_textes
+#
+# POURQUOI CE FICHIER EXISTE
+#
+# Un point n'est pas une grandeur universelle : c'est l'unité de compte d'un
+# régime, et elle change quand le régime change. Le moteur déduisait jusqu'ici
+# le coefficient de conversion du RAPPORT de deux valeurs de service, prises
+# aux bornes des séries publiées. Deux fois sur trois, ces bornes ne sont pas
+# la date de la reprise :
+#
+#   * la valeur du successeur était lue à sa PREMIÈRE année publiée. Or les
+#     séries `arrco` et `ircantec` sont rétro-remplies bien avant leur fusion —
+#     `arrco` depuis 1957 avec les valeurs de l'UNIRS, `ircantec` depuis 1949
+#     avec celles de l'IPACTE. Le rapport comparait alors deux valeurs
+#     distantes de quarante ou soixante-dix ans : le point UNIRS ressortait
+#     15,9 fois trop cher pour toute liquidation postérieure à 1998, le point
+#     IPACTE 54 fois trop cher au-delà de 2022 ;
+#   * la valeur du successeur était prise au 31 décembre de l'année de fusion,
+#     quand la conversion s'opère au 1er janvier. Le point Agirc-Arrco valait
+#     1,2588 € le 1er janvier 2019 et 1,2714 € après la revalorisation de
+#     novembre : un pour cent d'écart sur tous les points d'avant 2019.
+#
+# Les coefficients sont donc LUS ICI, dans les textes qui les fixent, et non
+# devinés. Chaque ligne dit : un point du régime d'origine vaut `coefficient`
+# point du successeur, à compter de `annee_effet`.
+#
+# CHANGEMENT D'ÉCHELLE SANS FUSION
+#
+# Quand `successeur` est vide, la ligne décrit un changement d'unité INTERNE à
+# un régime : le code reste le même, l'échelle du point change. C'est le cas de
+# l'Arrco au 1er janvier 1999, et c'est le défaut le plus lourd que ce fichier
+# corrige. Les valeurs d'achat et de service portées par ce dépôt pour les
+# années antérieures sont celles de l'UNIRS, la plus grosse des quarante-cinq
+# caisses Arrco ; celles d'après 1999 sont celles du régime unifié. Le moteur
+# accumulait des points dans la première unité et les liquidait dans la
+# seconde : cent euros cotisés en 1998 produisaient 30,31 € de pension
+# annuelle, les mêmes cent euros en 1999 n'en produisaient que 11,15 €.
+# La conversion s'applique aux points ACQUIS avant `annee_effet`, dès lors
+# qu'ils sont liquidés à partir de cette année-là.
+#
+# LES COEFFICIENTS, ET D'OÙ ILS VIENNENT
+#
+#   unirs -> arrco, arrco (échelle), 1999 — unification Arrco du 1er janvier
+#     1999. Formule officielle : points convertis = points × valeur du point de
+#     la caisse au 31/12/1998 ÷ valeur du point Arrco au 01/01/1999, cette
+#     dernière étant fixée à 6,55957 F, soit exactement 1 €. La valeur du point
+#     UNIRS au 31/12/1998 est 0,387464 € (2,5416 F) — c'est la dernière ligne
+#     de sa série dans valeurs_point.csv. Le coefficient est donc ce montant
+#     lui-même. L'opération était neutre en droits par construction.
+#
+#   arrco -> agirc_arrco, 2019 — accord national interprofessionnel du
+#     17 novembre 2017 : un point Agirc-Arrco vaut un point Arrco. La valeur de
+#     service du régime unifié a été fixée au 1er janvier 2019 à celle de
+#     l'Arrco au 31 décembre 2018, soit 1,2588 €.
+#
+#   agirc -> agirc_arrco, 2019 — même accord : coefficient 0,347798289, égal au
+#     rapport des valeurs de service de l'Agirc et de l'Arrco au 31 décembre
+#     2018 (0,4378 ÷ 1,2588). C'est le coefficient que les caisses ont appliqué
+#     et qui figure sur les relevés de carrière.
+#
+#   ipacte -> ircantec et igrante -> ircantec, 1971 — la création de l'Ircantec
+#     par le décret du 23 décembre 1970 réunit l'IPACTE et l'IGRANTE sans
+#     changer l'unité de compte : les séries que ce dépôt porte pour les trois
+#     régimes sont d'ailleurs identiques année par année. Coefficient 1.
+#
+regime,annee_effet,successeur,coefficient,fiabilite
+arrco,1999,,0.387464,haute
+unirs,1999,arrco,0.387464,haute
+arrco,2019,agirc_arrco,1.000000,haute
+agirc,2019,agirc_arrco,0.347798289,haute
+ipacte,1971,ircantec,1.000000,moyenne
+igrante,1971,ircantec,1.000000,moyenne

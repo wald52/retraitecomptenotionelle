@@ -169,17 +169,45 @@ def test_les_quotients_observes_priment_sur_la_calibration(mortalite, quotients)
     assert 0.5 < mortalite.survie_annuelle(96, 2015, "H") < 0.95
 
 
+def _esperance_de_la_table_lue(mortalite, age, annee, sexe):
+    """Espérance du moment reconstituée par le SEUL chemin que le moteur emprunte.
+
+    ``survie_annuelle`` est le point de passage obligé : quotients observés là
+    où ils existent, loi paramétrique ailleurs. Passer par lui, et non par
+    ``esperance_residuelle(..., generation=False)``, est ce qui rend le contrôle
+    ci-dessous réel — cette branche-là n'a longtemps consulté aucun quotient,
+    si bien qu'elle comparait la calibration à sa propre cible et ne pouvait pas
+    échouer.
+    """
+    probabilites, courante, courant = [1.0], 1.0, age
+    while courant < 120 and courante > 1e-10:
+        courante *= mortalite.survie_annuelle(courant, annee, sexe)
+        probabilites.append(courante)
+        courant += 1
+    return sum(0.5 * (probabilites[t] + probabilites[t + 1])
+               for t in range(len(probabilites) - 1))
+
+
 def test_les_tables_observees_reproduisent_les_esperances_publiees(mortalite, esperances):
     """Deux sources indépendantes doivent décrire la même mortalité.
 
-    Les quotients viennent d'Eurostat, les espérances de l'INSEE et de l'OCDE.
-    Si l'espérance recalculée à partir des quotients s'écartait nettement de
-    l'espérance publiée, c'est que les deux ne portent pas sur le même champ.
+    Les quotients viennent d'Eurostat et de l'INED, les espérances de l'INSEE et
+    de l'OCDE. La table que le moteur LIT — quotients observés puis queue
+    paramétrique — doit retomber sur l'espérance publiée, faute de quoi le
+    diviseur de conversion ne décrit pas la longévité que le pays mesure.
+
+    Le raccord au-dessus du dernier âge publié a longtemps fait déborder cette
+    table de 2,5 ans : les millésimes 1998-2013 s'arrêtent à 84 ans, et la loi
+    prenait le relais avec une queue calibrée sur elle-même — 11,3 ans
+    d'espérance résiduelle à 85 ans pour une femme en 2010, là où la cible en
+    implique 7,5.
     """
-    for annee in (2000, 2015, 2020):
+    for annee in (1990, 2000, 2005, 2010, 2013, 2015, 2020, 2024):
         for sexe in ("H", "F"):
-            recalculee = mortalite.esperance_residuelle(60, annee, sexe, generation=False)
-            assert recalculee == pytest.approx(esperances[(annee, sexe, "e60")], abs=0.4)
+            recalculee = _esperance_de_la_table_lue(mortalite, 60, annee, sexe)
+            assert recalculee == pytest.approx(
+                esperances[(annee, sexe, "e60")], abs=0.1
+            ), (annee, sexe)
 
 
 def test_journal_de_certification_decrit_les_series_certifiees():
@@ -371,13 +399,20 @@ def test_regime_inconnu_leve_une_erreur_explicite(catalogue):
 
 
 def test_calibration_reproduit_les_esperances_publiees(mortalite, esperances):
-    """La table paramétrique doit retomber sur ses cibles à 0,05 an près.
+    """Là où la loi EST la table, elle doit retomber sur ses cibles.
 
-    Les cibles sont relues dans le fichier de référence plutôt que recopiées
-    ici : c'est la source qui fait foi, et une recertification ne doit pas
-    demander de retoucher le test.
+    C'est le cas des années projetées, pour lesquelles aucun quotient n'est
+    observé : la loi paramétrique y décrit seule toute la plage d'âges. Les
+    cibles sont relues dans le fichier de référence plutôt que recopiées ici :
+    c'est la source qui fait foi, et une recertification ne doit pas demander de
+    retoucher le test.
+
+    Pour les années OBSERVÉES, la loi ne décrit plus que la queue de la table,
+    au-dessus du dernier âge publié : son espérance à 60 ans n'a plus de sens en
+    propre, et c'est la table raccordée qu'il faut interroger — ce que fait
+    ``test_les_tables_observees_reproduisent_les_esperances_publiees``.
     """
-    for annee, sexe in [(2024, "H"), (2024, "F"), (1980, "H"), (1960, "F")]:
+    for annee, sexe in [(2030, "H"), (2030, "F"), (2050, "H"), (2070, "F")]:
         loi = mortalite.loi(annee, sexe)
         assert loi.esperance(60) == pytest.approx(esperances[(annee, sexe, "e60")], abs=0.05)
         assert loi.esperance(65) == pytest.approx(esperances[(annee, sexe, "e65")], abs=0.05)
@@ -480,20 +515,22 @@ def test_e65_ancienne_derive_des_quotients_certifies(mortalite):
 
 
 def test_la_loi_parametrique_sous_estime_la_mortalite_des_grands_ages(mortalite):
-    """Ce que coûte le raccord au-delà du dernier âge observé, mesuré.
+    """Ce que vaut le raccord au-delà du dernier âge observé, mesuré.
 
-    Eurostat s'arrête à 94 ans ; au-delà, le modèle reprend sa loi de
-    Gompertz-Makeham, calibrée sur e60 et e65. Les tables de Vallin et Meslé
-    couvrent 1986-1997 jusqu'à 104 ans : ces douze années sont le seul endroit
-    où l'on peut confronter la loi à l'observation aux grands âges.
+    Eurostat s'arrête à 84 puis 94 ans ; au-delà, le modèle reprend sa loi de
+    Gompertz-Makeham. Les tables de Vallin et Meslé couvrent 1986-1997 jusqu'à
+    104 ans : ces douze années sont le seul endroit où l'on puisse confronter la
+    loi à l'observation aux grands âges.
 
-    Le verdict est net et il va toujours dans le même sens — la loi fait mourir
-    les très vieux trop lentement, d'environ un cinquième. La queue de la table
-    pesant de 8 à 12 % du diviseur de conversion, cela gonfle le diviseur
-    d'environ 1,5 % et rabote d'autant les pensions notionnelles.
+    Le verdict était net, et toujours dans le même sens : la loi faisait mourir
+    les très vieux trop lentement, d'environ un cinquième. Elle était calibrée
+    sur elle-même — e60 et e65 de la loi PURE — et rien ne l'obligeait à rendre
+    la queue que la cible implique. Le niveau de cette queue est désormais recalé
+    pour que la table RACCORDÉE reproduise l'espérance publiée, et le biais
+    tombe de vingt-deux pour cent à moins de trois.
 
-    Ce test ne corrige rien : il FIGE l'écart, pour qu'il ne dérive pas en
-    silence et que le chiffre cité dans `docs/limites.md` reste vrai.
+    Ce test ne corrige rien : il FIGE l'écart résiduel, pour qu'il ne dérive pas
+    en silence et que le chiffre cité dans `docs/limites.md` reste vrai.
     """
     import statistics
 
@@ -507,8 +544,8 @@ def test_la_loi_parametrique_sous_estime_la_mortalite_des_grands_ages(mortalite)
 
     assert len(ecarts) == 240
     biais = statistics.mean(ecarts)
-    # La loi sous-estime : le biais est négatif, et d'un ordre stable.
-    assert -0.30 < biais < -0.15, biais
+    # Ce qui restait un biais d'un cinquième n'est plus qu'un résidu.
+    assert -0.05 < biais < 0.05, biais
     # Et jamais dans l'autre sens sur la médiane.
     assert statistics.median(ecarts) < 0
 

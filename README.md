@@ -186,7 +186,7 @@ print(simulateur.simuler(carriere).tableau())
 | Tous les régimes, actuels **et** disparus | 37 régimes : AGIRC, ARRCO, CANCAVA, ORGANIC, RSI, mines, SEITA, chemins de fer secondaires… |
 | Départ trop tôt = pension réduite | Âge de référence **à cliquet** : l'abaissement de 1982 ne le fait pas redescendre |
 | Régimes à départ précoce traités au même étalon | SNCF à 50 ans = 15 ans d'anticipation ; Opéra à 40 ans = 25 ans |
-| Indexation par triple lock inversé, depuis l'origine | `min(inflation, salaire moyen, productivité réelle)`, appliqué aux comptes **et** aux pensions liquidées |
+| Indexation par triple lock inversé, depuis l'origine | `min(inflation, salaire moyen, productivité réelle)`, appliqué aux comptes en constitution. Le modèle s'arrête à la liquidation : il ne revalorise pas les pensions servies, et n'en calcule qu'une, dans les euros de l'année de départ |
 | Cinq résultats comparables | Système actuel / notionnel rétroactif / notionnel prospectif sur la part salariale, puis les deux mêmes comptes notionnels part patronale comprise |
 | Cas particulier **et** cas général | Simulation individuelle + grille 12 cas types × 7 générations |
 | Fusion des régimes au cas le plus défavorable | Âge 64/67, 172 trimestres, carrière entière, assiette déplafonnée, zéro avantage |
@@ -205,6 +205,7 @@ print(simulateur.simuler(carriere).tableau())
 | Suppression des avantages | Ni majorations enfants, ni MDA, ni AVPF, ni bonifications, ni réversion, ni trimestres gratuits |
 | Tout le monde peut simuler | 22 statuts d'affiliation, cinq informations suffisent |
 | Utilisable sans rien installer | Le modèle s'exécute dans le navigateur, sur une simple adresse |
+| Points convertis à leur vraie unité | Les coefficients des fusions sont LUS dans les accords — un point Arrco vaut un point Agirc-Arrco, un point Agirc en vaut 0,347798289 —, et l'unification Arrco de 1999 est traitée comme le changement d'unité qu'elle est |
 | Portage vérifié, pas cru sur parole | Le site rejoue 86 simulations témoins figées depuis le modèle Python |
 
 ---
@@ -272,8 +273,8 @@ Scénario                                                  Courants   Constants 
 1. Système actuel                                          31,714€     25,310€    2,109€     réf.
 2. Notionnel rétroactif, part salariale                     5,693€      4,544€      379€   -82.0%
 3. Notionnel dès 2026, part salariale                      19,124€     15,263€    1,272€   -39.7%
-4. Notionnel rétroactif, salariale + patronale             30,370€     24,238€    2,020€    -4.2%
-5. Notionnel dès 2026, salariale + patronale               23,194€     18,511€    1,543€   -26.9%
+4. Notionnel rétroactif, salariale + patronale             30,371€     24,239€    2,020€    -4.2%
+5. Notionnel dès 2026, salariale + patronale               23,195€     18,511€    1,543€   -26.9%
 
 Qui verse la cotisation, en euros courants cumulés :
   part salariale           130,756 €   scénarios 2 et 3
@@ -425,7 +426,7 @@ docs/
   methodologie.md               ce que le modèle calcule, et pourquoi ainsi
   limites.md                    ce qu'il ne calcule pas, et ce qui reste à certifier
 
-tests/                          231 tests Python
+tests/                          235 tests Python
   temoins/                      chiffres et pages figés depuis le modèle Python
   js/                           le portage rejoué contre ces témoins (node --test)
 ```
@@ -458,7 +459,7 @@ sous « Options de modélisation ».
 python -m pytest tests
 ```
 
-231 tests couvrant le chargement et la fiabilité des données, la règle de
+235 tests couvrant le chargement et la fiabilité des données, la règle de
 certification, la calibration des tables de mortalité et sa concordance avec les
 tables observées, les propriétés du moteur
 (monotonie du diviseur, cliquet de l'âge de référence, règles de fusion), le

@@ -335,9 +335,16 @@ class ConstructeurCompte:
                 fiabilite=Fiabilite.CERTIFIEE,
             )
 
+        # Pendant une période indemnisée, l'assiette est le salaire d'AVANT
+        # l'interruption : c'est sur lui que l'UNEDIC ou la Sécurité sociale
+        # versent leurs cotisations. La branche d'après la bascule lisait
+        # `ligne.revenu`, nul une année non travaillée, quand celle d'avant
+        # lisait `revenu_reference` — deux règles pour la même situation.
+        base_ligne = ligne.revenu if ligne.cotise else ligne.revenu_reference
+
         # Après la bascule, un seul régime : le régime fusionné.
         if regime_fusionne is not None and annee >= regime_fusionne.annee_bascule:
-            assiette = self._assiette(ligne.revenu, annee, 0.0, None)
+            assiette = self._assiette(base_ligne, annee, 0.0, None)
             taux, taux_employeur, origine, fiabilite_taux = self.taux_unifie(
                 ligne, annee, regime_fusionne
             )
@@ -345,7 +352,7 @@ class ConstructeurCompte:
             if origine:
                 fiabilite = min(fiabilite, fiabilite_taux)
             return CotisationAnnuelle(
-                annee=annee, revenu=ligne.revenu, assiette_retenue=assiette,
+                annee=annee, revenu=base_ligne, assiette_retenue=assiette,
                 cotisation=assiette * taux, regimes=("regime_unifie",),
                 taux_effectif=taux, hors_repartition=0.0,
                 fiabilite=fiabilite,
@@ -355,7 +362,6 @@ class ConstructeurCompte:
 
         # Pendant une période indemnisée, seuls les régimes complémentaires
         # encaissent, et sur le salaire d'avant l'interruption.
-        base_ligne = ligne.revenu if ligne.cotise else ligne.revenu_reference
         familles_admises = None if ligne.cotise else set(ligne.familles_cotisantes)
 
         codes = self.affiliations.regimes(ligne.affiliation, annee)
