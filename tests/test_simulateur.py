@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
 from retraite_notionnelle.carriere import AnneeCarriere, Carriere
@@ -14,6 +16,9 @@ from retraite_notionnelle.config import (
     SourceCotisations,
 )
 from retraite_notionnelle.simulateur import SCENARIOS_NOTIONNELS, Simulateur
+
+#: Témoins versionnés : ce que des sources extérieures ont réellement publié.
+RACINE_TEMOINS = Path(__file__).resolve().parent / "temoins"
 
 
 @pytest.fixture(scope="module")
@@ -1359,75 +1364,108 @@ def test_les_salaires_anciens_sont_revalorises_sur_les_salaires(simulateur):
     )
 
 
-def test_les_coefficients_de_revalorisation_viennent_des_arretes(simulateur):
-    """La table des arrêtés l'emporte sur l'approximation, et de beaucoup.
+def test_les_coefficients_de_revalorisation_reproduisent_la_circulaire(simulateur):
+    """Le contrôle qui compte : ce que la CAISSE a publié, année par année.
 
-    « Les salaires jusqu'en 1986, les prix depuis » décrit les arrêtés dans les
-    grandes lignes, mais seulement dans les grandes lignes : ils ont connu des
-    revalorisations semestrielles, des gels, des revalorisations
-    exceptionnelles, et surtout des changements du DÉLAI d'application. La
-    confrontation à une seconde implémentation a mesuré l'écart.
+    La Cnav publie chaque année la table entière des coefficients de
+    revalorisation des salaires portés au compte. Le modèle n'en garde qu'une
+    colonne — celle de 2026 — et déduit les autres par rapport d'indices. Ce
+    test lui oppose la colonne que la caisse a réellement publiée pour une
+    liquidation en 2023, figée dans `tests/temoins/`.
+
+    C'est une vérification par la SOURCE, pas par une seconde implémentation :
+    la table d'OpenFisca, que le dépôt a d'abord reprise, s'écarte de cette même
+    circulaire de −3 % à −5,5 % après 1990 (il lui manque la revalorisation
+    exceptionnelle de 4 % du 1er juillet 2022) et de −17 % à +10 % sur les
+    années 1950.
+    """
+    import json
+
+    temoin = json.loads(
+        (RACINE_TEMOINS / "cnav_revalorisation_salaires.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert temoin["annee_liquidation"] == 2023
+    macro = simulateur.macro
+    pire, coupable = 0.0, None
+    for annee, publie in temoin["coefficients"].items():
+        annee = int(annee)
+        if annee >= temoin["annee_liquidation"]:
+            continue
+        nous = macro.coefficient_revalorisation_portee_au_compte(annee, 2023)
+        ecart = abs(nous - publie) / publie
+        if ecart > pire:
+            pire, coupable = ecart, annee
+    # 0,3 % : la table publiée est arrondie à trois décimales, ce qui vaut déjà
+    # un pour mille sur les coefficients proches de 1. Mesuré : 0,13 %.
+    assert pire < 3e-3, f"{coupable} : {pire:.3%}"
+
+
+def test_le_coefficient_de_revalorisation_est_le_rapport_de_deux_indices(simulateur):
+    """Une seule colonne, parce que l'arrêté annuel est unique.
+
+    Le modèle ne stocke qu'un indice par année de perception et déduit tout
+    coefficient par rapport. Cela suppose que la revalorisation d'une année soit
+    un coefficient UNIQUE, appliqué à tous les salaires déjà portés au compte
+    quelle que soit leur année de perception. Le test précédent le vérifie
+    contre la source ; celui-ci vérifie que le modèle applique bien la règle,
+    et qu'il est réversible et neutre sur place.
     """
     macro = simulateur.macro
+    indices, reference = macro.revalorisation_portee_au_compte
+    assert reference == 2026
+    assert indices[reference] == 1.0
+
     lu = macro.coefficient_revalorisation_portee_au_compte
-    approche = macro.coefficient_revalorisation_salaires
-
-    # L'approximation SUR-revalorise les salaires anciens.
-    assert approche(1970, 2018) / lu(1970, 2018) == pytest.approx(1.121, abs=5e-3)
-    assert approche(1980, 2018) / lu(1980, 2018) == pytest.approx(1.136, abs=5e-3)
-
-    # Une valeur de la table, lue telle quelle.
-    assert lu(1949, 1950) == pytest.approx(1.32)
-
-    # Réversible et neutre sur place, comme tout coefficient de passage.
+    assert lu(1970, 2026) == pytest.approx(indices[1970])
+    assert lu(1970, 1990) == pytest.approx(indices[1970] / indices[1990])
     assert lu(2000, 2000) == 1.0
     assert lu(2018, 1970) == pytest.approx(1.0 / lu(1970, 2018))
 
 
-def test_le_coefficient_de_revalorisation_s_ancre_sur_le_dernier_arrete(simulateur):
-    """Une liquidation en 2026 lit les arrêtés, elle ne les jette pas.
+def test_les_coefficients_lus_corrigent_l_ancienne_approximation(simulateur):
+    """« Les salaires jusqu'en 1986, les prix depuis » sur-revalorisait.
 
-    Les arrêtés publiés s'arrêtent aux liquidations de 2023, et c'est en 2026
-    que le site liquide par défaut : tout approcher au-delà rendrait la table
-    inutile là où elle sert le plus. Le modèle ancre donc sur le dernier arrêté
-    publié et n'approche que le bout du chemin.
+    L'approximation décrit les arrêtés dans les grandes lignes, mais ignore
+    leurs revalorisations semestrielles, leurs gels, leurs revalorisations
+    exceptionnelles et leurs changements de délai d'application. Elle reste en
+    vigueur hors de la plage publiée : ce test mesure ce qu'elle coûte là où
+    elle ne l'est plus.
     """
     macro = simulateur.macro
-    derniere = macro.derniere_liquidation_revalorisee
-    assert derniere == 2023
-
-    attendu = (macro.coefficient_revalorisation_portee_au_compte(1970, derniere)
-               * macro.coefficient_revalorisation_salaires(derniere, 2026))
-    assert macro.coefficient_revalorisation_portee_au_compte(1970, 2026) == (
-        pytest.approx(attendu)
-    )
-    # Et l'ancrage corrige bel et bien : sans lui, tout le chemin est approché.
-    assert (macro.coefficient_revalorisation_salaires(1970, 2026)
-            > 1.15 * macro.coefficient_revalorisation_portee_au_compte(1970, 2026))
+    for depart, arrivee in ((1970, 2018), (1980, 2018), (1960, 2026)):
+        approche = macro.coefficient_revalorisation_salaires(depart, arrivee)
+        lu = macro.coefficient_revalorisation_portee_au_compte(depart, arrivee)
+        assert approche > lu, (depart, arrivee)
+        assert approche / lu < 1.30, (depart, arrivee)
 
 
-def test_l_arrete_annuel_est_le_meme_pour_toutes_les_perceptions(simulateur):
-    """L'invariant qui AUTORISE l'ancrage — il ne va pas de soi, on le vérifie.
+def test_le_coefficient_de_revalorisation_s_ancre_sur_la_derniere_circulaire(
+        simulateur):
+    """Une liquidation postérieure à la table lit quand même les arrêtés.
 
-    Ancrer sur le dernier arrêté publié et prolonger suppose que la
-    revalorisation d'une année est un coefficient UNIQUE, appliqué à tous les
-    salaires déjà portés au compte quelle que soit leur année de perception. Si
-    la table venait un jour à porter des coefficients annuels distincts par
-    perception, l'ancrage deviendrait faux en silence : ce test l'en empêche.
+    Les circulaires publiées s'arrêtent à une année de référence ; au-delà, tout
+    approcher rendrait la table inutile là où le site simule le plus. Le modèle
+    ancre donc sur elle et n'approche que le bout du chemin.
     """
-    table = simulateur.macro.revalorisation_portee_au_compte
-    liquidations = {liquidation for _, liquidation in table}
-    for liquidation in sorted(liquidations):
-        annuels = [
-            valeur / table[(perception, liquidation - 1)]
-            for (perception, annee), valeur in table.items()
-            if annee == liquidation and (perception, liquidation - 1) in table
-        ]
-        if len(annuels) < 2:
-            continue
-        # 1,6·10⁻⁵ observé : c'est l'arrondi à six chiffres de la table, pas
-        # une dispersion réelle.
-        assert (max(annuels) - min(annuels)) / min(annuels) < 1e-4, liquidation
+    macro = simulateur.macro
+    reference = macro.derniere_liquidation_revalorisee
+    indices, _ = macro.revalorisation_portee_au_compte
+
+    attendu = indices[1970] * macro.coefficient_revalorisation_salaires(
+        reference, reference + 4
+    )
+    assert macro.coefficient_revalorisation_portee_au_compte(
+        1970, reference + 4
+    ) == pytest.approx(attendu)
+
+    # En deçà de la première année publiée, il n'y a rien sur quoi ancrer :
+    # l'approximation reprend toute la main, et le modèle ne fait pas semblant.
+    avant = min(indices) - 5
+    assert macro.coefficient_revalorisation_portee_au_compte(avant, 2026) == (
+        pytest.approx(macro.coefficient_revalorisation_salaires(avant, 2026))
+    )
 
 
 def test_le_dernier_traitement_ne_recoit_pas_les_coefficients_du_regime_general(

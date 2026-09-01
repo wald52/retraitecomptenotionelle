@@ -34,7 +34,7 @@ Ce qui suit est le recensement complet de ses paramètres et de leur état.
 | Surcote parentale | 1,25 % par trimestre entre 63 ans et l'âge légal, quatre au plus | reprise des textes (L. 351-1-2-1), non recontrôlée |
 | Durée requise par génération | table 1934-1975, 151 → 172 trimestres | **certifiée** depuis 1958 (L. 161-17-3) ; 1934-1957 transcrite |
 | Durée de proratisation par génération | table 1900-1948, 150 → 160 trimestres | transcrite (R. 351-6), confirmée par une seconde implémentation |
-| Revalorisation des salaires portés au compte | 2 774 coefficients, perceptions 1949-2021 × liquidations jusqu'en 2023 | arrêtés annuels, transcrits ; hors plage, approximation prix/salaires |
+| Revalorisation des salaires portés au compte | 97 indices, perceptions 1930-2025, référence 2026 | circulaire annuelle de la Cnav ; hors plage, approximation prix/salaires |
 | Âge légal par génération | table 1900-1975, 60 → 64 ans | **certifié** (D. 161-2-1-9), recontrôlé à chaque exécution |
 | Âge d'annulation de la décote par génération | table 1930-1955, 65 → 67 ans | reprise des textes, non recontrôlée |
 | Coefficient de minoration par génération | table 1900-1975, 2,5 → 1,25 % | **certifié** (R. 351-27 II), recoupé à la DREES |
@@ -260,7 +260,7 @@ modèle n'a pas, ou décrit un dispositif qu'il représenterait faussement.
 | Point d'indice de la fonction publique | 1960-2027 | haute | OpenFisca-France, `point_indice_en_euros` |
 | Plafond Sécurité sociale | 2002-2025 | **certifiée** | INSEE BDM, idbank 000822494 |
 | Plafond Sécurité sociale | 1931-2001 | haute | OpenFisca-France, daté décret par décret |
-| Revalorisation des salaires portés au compte | perceptions 1949-2021, liquidations jusqu'en 2023 | haute | OpenFisca-France-Pension, transcription des arrêtés et des circulaires CNAV |
+| Revalorisation des salaires portés au compte | perceptions 1930-2025, référence 2026 | haute | Cnav, circulaire annuelle de revalorisation ; recoupée à celle de 2023 |
 | Taux de cotisation, régime général | 1967-2026 | moyenne | OpenFisca-France, recoupé à chaque exécution |
 | Taux de cotisation, complémentaires du privé | Arrco 1962-2018, Agirc 1981-2018, Agirc-Arrco 2019- | moyenne | OpenFisca-France, taux effectifs par tranche, recoupés à chaque exécution |
 | Taux de cotisation, autres régimes | tous | moyenne / estimée | Comptes de la Sécurité sociale |
@@ -884,14 +884,13 @@ l'Institut des politiques publiques (PENSIPP). Écarts connus :
   professions libérales, celui des avocats, et celui des exploitants
   agricoles ;
 - **revalorisation des salaires portés au compte** — le modèle ne les
-  reconstitue plus, il les LIT : `legislation/revalorisation_salaires.csv`
-  porte les 2 774 coefficients des arrêtés, par année de perception et année de
-  liquidation. Il les approchait auparavant par « les salaires jusqu'en 1986,
-  les prix depuis » ; cette approximation sur-revalorisait les salaires anciens
-  de 12,1 % sur 1970-2018. Au-delà de 2023, les arrêtés servent quand même : le
-  coefficient est ancré sur le dernier publié et l'approximation ne couvre plus
-  que les dernières années. Elle ne reprend toute la main que pour les salaires
-  perçus hors table — avant 1949, après 2021 — et joue alors À LA HAUSSE ;
+  reconstitue plus, il les LIT dans la circulaire annuelle de la Cnav
+  (`legislation/revalorisation_salaires.csv`, perceptions 1930-2025). Il les
+  approchait par « les salaires jusqu'en 1986, les prix depuis » ; cette
+  approximation sur-revalorise les salaires anciens de 12,1 % sur 1970-2018.
+  Au-delà de l'année de référence publiée, le coefficient est ancré sur elle et
+  l'approximation ne couvre plus que les dernières années ; elle ne reprend
+  toute la main qu'avant 1930, et joue alors À LA HAUSSE ;
 - **départs anticipés** — la carrière longue est modélisée, et sert à dire si le
   droit ouvre la liquidation demandée. La pénibilité, l'invalidité, l'inaptitude
   et le handicap ne le sont pas : ils demandent des informations médicales ou
@@ -926,8 +925,8 @@ Le résultat, sur dix profils :
 | Trimestres de décote | **exacts** sur les dix |
 | Taux de liquidation | **exact** sur les dix |
 | Coefficient de proratisation | **exact** sur les dix |
-| Salaire annuel moyen | **exact** sur les dix, à 4·10⁻⁶ près |
-| Pension de base | **exacte** sur les dix, à 4·10⁻⁶ près |
+| Salaire annuel moyen | 0,16 % à 2,22 %, **et c'est OpenFisca qui s'écarte de la source** |
+| Pension de base | l'écart du salaire annuel moyen, et rien d'autre |
 
 Le décompte des trimestres de décote est le contrôle le plus exigeant du lot :
 il met en jeu la durée requise par génération, l'âge d'annulation par
@@ -935,59 +934,68 @@ génération, la règle du minimum entre les deux décomptes, le plafond de ving
 trimestres et l'arrondi à l'entier supérieur. Cinq tables et trois règles
 tombent juste ensemble, dix fois.
 
-Le salaire de référence, lui, a divergé avant de concorder — et c'est le
-troisième désaccord que la confrontation a fait sortir, du côté du modèle. Il
-s'écartait de +0,30 % à +7,55 %, toujours dans le même sens, parce que le modèle
-APPROCHAIT les coefficients de revalorisation des salaires portés au compte —
-« les salaires jusqu'en 1986, les prix depuis » — là où OpenFisca porte la série
-réelle des arrêtés. Mesurée sur les arrêtés eux-mêmes, l'approximation
-sur-revalorise les salaires anciens de **12,1 % sur 1970-2018** et de **13,6 %
-sur 1980-2018**.
+Le salaire de référence, lui, a divergé — et l'enquête qu'il a déclenchée a
+trouvé une erreur de chaque côté, la nôtre d'abord.
 
-L'écart n'était pas monotone, et c'est normal : le salaire de référence retient
-les N MEILLEURES années, si bien qu'un jeu de coefficients différent ne déplace
-pas seulement le niveau de chaque année, il change lesquelles sont retenues — un
-écart de niveau de deux points peut en produire sept une fois la sélection
-faite.
+Il s'écartait de +0,30 % à +7,55 %, toujours dans le même sens, parce que le
+modèle APPROCHAIT les coefficients de revalorisation des salaires portés au
+compte : « les salaires jusqu'en 1986, les prix depuis ». Mesurée sur les
+coefficients réels, cette approximation sur-revalorise les salaires anciens de
+**12,1 % sur 1970-2018** et de **13,6 % sur 1980-2018**. L'erreur comptait
+double, parce que la grandeur compte double : le salaire de référence retient
+les N MEILLEURES années, et « meilleures » se juge sur des salaires revalorisés
+— changer les coefficients ne déplace pas seulement le niveau de chaque année,
+cela change lesquelles sont retenues.
 
-Les coefficients sont désormais dans le dépôt
-(`legislation/revalorisation_salaires.csv`, produit par
-`scripts/fetch/openfisca_revalorisation_salaires.py`), et l'écart tombe à
-**4·10⁻⁶** — ce qui reste est l'arrondi à six chiffres significatifs de la
-table. Le contrôle est donc passé d'une marge d'approximation de 8 % à une
-égalité à la précision numérique près.
+Le dépôt a d'abord repris la table cumulée d'OpenFisca, faute d'avoir cherché
+plus haut. **C'était une erreur de méthode, et elle a duré un commit.** Une
+seconde implémentation est une contre-expertise ; ce n'est pas une source. La
+source existe : la Cnav publie chaque année, dans sa circulaire de
+revalorisation, la table entière des coefficients qu'elle applique. Confrontée à
+celle du 9 janvier 2023, la table d'OpenFisca s'en écarte :
 
-Ils sont stockés en TABLE À DEUX ENTRÉES parce qu'aucune formule ne reproduit
-les arrêtés : la revalorisation a porté tantôt jusqu'à l'année n−1, tantôt
-jusqu'à n−2, avec des gels et des revalorisations exceptionnelles. Quatre
-encodages compacts ont été essayés et mesurés avant d'y renoncer — une série
-d'ancrages fuit de 20 %, la même restreinte aux liquidations récentes de 2,8 %,
-une série d'ancrages plus une série d'entrée de 16,7 %, un retard par année de
-liquidation laisse 697 couples sur 2 628 inexpliqués. Le paquet du site en porte
-22 Ko de plus.
+- de **−3 % à −5,5 %** sur toutes les perceptions postérieures à 1990, un
+  déficit à peu près uniforme — c'est la revalorisation exceptionnelle de 4 % du
+  1<sup>er</sup> juillet 2022 (loi « pouvoir d'achat ») qui lui manque ;
+- de **−17 % à +10 %**, sans régularité, sur les années 1949-1962.
 
-Ce que cela ne referme pas : les arrêtés ne couvrent que les perceptions
-1949-2021 et les liquidations jusqu'en 2023, et **c'est en 2026 que le site
-liquide par défaut**. Ils y servent quand même, parce que l'arrêté annuel
-applique un coefficient UNIQUE à tous les salaires déjà portés au compte, quelle
-que soit leur année de perception — la table le confirme, la dispersion du
-coefficient annuel d'une perception à l'autre y vaut 1,6·10⁻⁵, c'est-à-dire son
-seul arrondi. Le modèle ancre donc sur la dernière liquidation publiée et
-n'approche que le bout du chemin : une liquidation en 2026 lit les arrêtés de
-1949 à 2023 et n'approche que trois années. Sur un salaire de 1970, cela donne
-9,708 là où tout approcher donnait 11,824.
+Le modèle lit donc la circulaire, et le désaccord résiduel avec OpenFisca —
+0,16 % à 2,22 %, toujours dans le même sens — n'est plus le nôtre.
 
-L'approximation ne reprend toute la main que pour les salaires perçus hors
-table — avant 1949, après 2021 — et elle joue alors **à la hausse** : sur
-(2021 → 2023), elle donne 1,104 là où l'arrêté donne 1,019. Les régimes qui
-liquident sur le dernier traitement ou les six derniers mois ne portent aucun
-salaire à un compte : les coefficients du régime général ne leur sont pas
+**Une seule colonne suffit**, et c'est démontré, non postulé. L'arrêté annuel
+applique un coefficient unique à tous les salaires déjà portés au compte, quelle
+que soit leur année de perception ; le coefficient entre deux années quelconques
+est donc le rapport de leurs indices. Reconstruire ainsi les colonnes publiées
+pour 2023 et pour 2025 à partir de la seule circulaire de 2026 les retrouve à
+**0,13 %** — l'arrondi à trois décimales de la table publiée. Le récupérateur
+revérifie ce recoupement à chaque exécution et refuse d'écrire s'il échoue, et
+un test oppose au modèle la colonne que la caisse a publiée pour 2023, figée
+dans `tests/temoins/`.
+
+Ce document a un temps affirmé le contraire — « aucune formule ne reproduit les
+arrêtés, une série d'ancrages fuit de 20 % ». Cette mesure portait sur la table
+d'OpenFisca : ce sont ses incohérences qu'elle mesurait, pas celles du droit.
+Quatre kilo-octets ont remplacé les cinquante-et-un de la table à deux entrées.
+
+Ce que cela ne referme pas. Les circulaires s'arrêtent à une année de référence
+— 2026 aujourd'hui, et c'est l'année où le site liquide par défaut. Au-delà, le
+coefficient est ancré sur elle et l'approximation ne couvre que les dernières
+années ; avant 1930, il n'y a rien sur quoi ancrer et elle reprend toute la
+main, à la hausse. Reste enfin une convention, pas une erreur : le modèle
+raisonne à l'année et retient le coefficient en vigueur au 1<sup>er</sup>
+janvier, alors que la revalorisation s'est appliquée au 1<sup>er</sup> avril de
+2009 à 2013 puis au 1<sup>er</sup> octobre — une liquidation de cette période
+est donc lue avant sa revalorisation de l'année, ce qui vaut de 0,5 % à 0,9 %.
+Les régimes qui liquident sur le dernier traitement ou les six derniers mois ne
+portent aucun salaire à un compte : les coefficients de la Cnav ne leur sont pas
 appliqués.
 
 Trois désaccords sont sortis de la confrontation, **et pas tous du même côté**.
 Chez nous : la durée de proratisation, confondue avec la durée requise, et les
 coefficients de revalorisation, approchés au lieu d'être lus — corrigés tous
-deux, et ce sont les paragraphes précédents. Chez lui : une table de durée requise
+deux, et ce sont les paragraphes précédents. Chez lui, deux fois. Sa table de
+revalorisation, à laquelle il manque la revalorisation exceptionnelle de juillet
+2022 — c'est le paragraphe précédent. Et : une table de durée requise
 antérieure à la réforme du 14 avril 2023, qui oppose 169 trimestres à la
 génération 1965 là où l'article L. 161-17-3, lu dans la base LEGI, en donne 172.
 **Un désaccord ne désigne donc pas d'office le coupable.**

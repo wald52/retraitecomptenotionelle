@@ -32,21 +32,27 @@ from retraite_notionnelle.simulateur import Simulateur
 
 TEMOIN = Path(__file__).resolve().parent / "temoins" / "openfisca_regime_general.json"
 
-#: Tolérance sur les grandeurs comparées.
+#: Tolérance sur la durée, la décote, le taux et la proratisation : ce sont des
+#: comptages et des tables, ils doivent tomber juste à l'unité près.
+TOLERANCE_EXACTE = 1e-4
+
+#: Tolérance sur le salaire annuel moyen et sur la pension, qui en découle.
 #:
-#: Elle valait 8 % : le salaire annuel moyen était le seul poste où les deux
-#: modèles divergeaient, de 0,30 % à 7,55 %, et toujours dans le même sens.
-#: La cause en était les coefficients de revalorisation des salaires portés au
-#: compte, que le modèle approchait par « les salaires jusqu'en 1986, les prix
-#: depuis » — une approximation qui SUR-REVALORISE les salaires anciens de 12 à
-#: 14 % sur quarante ans.
+#: Elle valait 8 % : le modèle approchait les coefficients de revalorisation des
+#: salaires portés au compte par « les salaires jusqu'en 1986, les prix depuis »,
+#: une approximation qui sur-revalorise les salaires anciens de 12 à 14 % sur
+#: quarante ans.
 #:
-#: Les coefficients des arrêtés sont désormais dans le dépôt
-#: (`legislation/revalorisation_salaires.csv`), et l'écart tombe à 4·10⁻⁶ : ce
-#: qui restait est l'arrondi à six chiffres significatifs de la table. La
-#: tolérance n'est donc plus une marge d'approximation mais une marge de
-#: précision numérique, et le test devient un vrai contrôle d'égalité.
-TOLERANCE = 1e-4
+#: Le modèle lit désormais les coefficients dans la circulaire annuelle de la
+#: Cnav, et **c'est OpenFisca qui s'en écarte** : sa table cumulée est de 3 à
+#: 5,5 % en dessous de ce que la caisse publie pour toutes les perceptions
+#: postérieures à 1990 — il lui manque la revalorisation exceptionnelle de 4 %
+#: du 1er juillet 2022 — et jusqu'à 17 % à côté sur les années 1950. La
+#: confrontation vaut toujours, mais elle ne peut plus être une égalité sur ce
+#: poste : le désaccord résiduel, de 0,16 % à 2,22 %, est celui d'OpenFisca avec
+#: la source. `tests/test_simulateur.py` vérifie, lui, que le modèle reproduit
+#: la colonne que la caisse a publiée.
+TOLERANCE_SALAIRE = 0.03
 
 
 @pytest.fixture(scope="module")
@@ -141,7 +147,7 @@ def test_la_decote_concorde_trimestre_par_trimestre(oracle, simulateur):
         nous, eux = _notre_calcul(simulateur, entree["profil"]), entree["openfisca"]
         assert nous["decote_trimestres"] == eux["decote_trimestres"], code
         assert nous["taux_de_liquidation"] == pytest.approx(
-            eux["taux_de_liquidation"], abs=1e-4
+            eux["taux_de_liquidation"], abs=TOLERANCE_EXACTE
         ), code
 
 
@@ -157,23 +163,31 @@ def test_la_proratisation_concorde(oracle, simulateur):
     for code, entree in oracle["profils"].items():
         nous, eux = _notre_calcul(simulateur, entree["profil"]), entree["openfisca"]
         assert nous["coefficient_de_proratisation"] == pytest.approx(
-            eux["coefficient_de_proratisation"], abs=1e-4
+            eux["coefficient_de_proratisation"], abs=TOLERANCE_EXACTE
         ), code
 
 
-def test_le_salaire_de_reference_concorde(oracle, simulateur):
-    """Le salaire annuel moyen, dernier poste à avoir divergé.
+def test_le_salaire_de_reference_reste_proche(oracle, simulateur):
+    """Le salaire annuel moyen : le seul poste où les deux modèles diffèrent.
 
-    Il divergeait de 0,30 % à 7,55 %, toujours dans le même sens, parce que le
-    modèle approchait les coefficients de revalorisation des salaires portés au
-    compte au lieu de les lire. Ils sont maintenant dans le dépôt, et les deux
-    modèles tombent sur le même salaire de référence à l'arrondi près.
+    Il divergeait de 0,30 % à 7,55 % quand le modèle APPROCHAIT les coefficients
+    de revalorisation. Il les lit maintenant dans la circulaire de la Cnav, et
+    ce qui reste — de 0,16 % à 2,22 % — n'est plus notre écart mais celui
+    d'OpenFisca avec la source : il manque à sa table la revalorisation
+    exceptionnelle de 4 % du 1er juillet 2022.
+
+    Le test garde donc une borne large, et ce n'est pas un relâchement : le
+    contrôle serré de cette grandeur est ailleurs, dans
+    `test_les_coefficients_de_revalorisation_reproduisent_la_circulaire`, qui
+    oppose au modèle la colonne que la caisse a publiée.
     """
     for code, entree in oracle["profils"].items():
         nous, eux = _notre_calcul(simulateur, entree["profil"]), entree["openfisca"]
         assert nous["salaire_de_reference"] == pytest.approx(
-            eux["salaire_de_reference"], rel=TOLERANCE
+            eux["salaire_de_reference"], rel=TOLERANCE_SALAIRE
         ), code
+        # Et toujours en dessous : l'écart a un sens, il n'est pas du bruit.
+        assert nous["salaire_de_reference"] <= eux["salaire_de_reference"], code
 
 
 def test_la_pension_de_base_concorde(oracle, simulateur):
@@ -187,5 +201,5 @@ def test_la_pension_de_base_concorde(oracle, simulateur):
     for code, entree in oracle["profils"].items():
         nous, eux = _notre_calcul(simulateur, entree["profil"]), entree["openfisca"]
         assert nous["pension_brute"] == pytest.approx(
-            eux["pension_brute"], rel=TOLERANCE
+            eux["pension_brute"], rel=TOLERANCE_SALAIRE
         ), code

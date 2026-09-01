@@ -50,36 +50,14 @@ export class DonneesMacro {
 
     this._coefficientsPrix = new Map();
     this._coefficientsSalaires = new Map();
-    this.revalorisationPorteeAuCompte = DonneesMacro._revalorisation(
-      paquet.revalorisation_salaires,
+    const revalorisation = paquet.revalorisation_salaires || {};
+    /** Indice de revalorisation par année de perception. */
+    this.revalorisationPorteeAuCompte = new Map(
+      Object.entries(revalorisation.indices || {})
+        .map(([annee, indice]) => [Number(annee), indice]),
     );
-    /** Dernière année de liquidation que les arrêtés publiés couvrent. */
-    this.derniereLiquidationRevalorisee = null;
-    for (const cle of this.revalorisationPorteeAuCompte.keys()) {
-      const liquidation = Number(cle.split("|")[1]);
-      if (this.derniereLiquidationRevalorisee === null
-          || liquidation > this.derniereLiquidationRevalorisee) {
-        this.derniereLiquidationRevalorisee = liquidation;
-      }
-    }
-  }
-
-  /**
-   * Coefficients des arrêtés, dépliés en une table « perception|liquidation ».
-   *
-   * Le paquet les porte par année de perception — première liquidation, puis
-   * les coefficients d'affilée — parce qu'ils courent sans trou jusqu'à la
-   * dernière liquidation couverte. Les déplier ici évite de payer une
-   * arithmétique d'indice à chaque année de chaque carrière.
-   */
-  static _revalorisation(compact) {
-    const table = new Map();
-    for (const [perception, [premiere, coefficients]] of Object.entries(compact || {})) {
-      coefficients.forEach((coefficient, rang) => {
-        table.set(`${perception}|${premiere + rang}`, coefficient);
-      });
-    }
-    return table;
+    /** Année de liquidation à laquelle ces indices se rapportent. */
+    this.derniereLiquidationRevalorisee = revalorisation.reference ?? null;
   }
 
   /**
@@ -206,16 +184,16 @@ export class DonneesMacro {
    *
    * C'est la grandeur qui commande le salaire annuel moyen : la moyenne porte
    * sur les N MEILLEURES années, et « meilleures » se juge sur des salaires
-   * revalorisés. Le modèle l'approchait par « les salaires jusqu'en 1986, les
-   * prix depuis » ; la confrontation à une seconde implémentation a mesuré ce
-   * que cela coûte — 12 à 14 % de sur-revalorisation des salaires anciens sur
-   * un horizon de quarante ans, et donc un salaire de référence gonflé
-   * d'autant pour toutes les carrières qui en comportent.
+   * revalorisés — changer les coefficients ne déplace donc pas seulement le
+   * niveau de chaque année, cela change lesquelles sont retenues. Le modèle
+   * l'approchait par « les salaires jusqu'en 1986, les prix depuis », ce qui
+   * SUR-revalorisait les salaires anciens de 12 % sur quarante ans.
    *
-   * Au-delà de la dernière liquidation publiée, les arrêtés servent quand
-   * même : le coefficient est ANCRÉ sur eux et l'approximation ne couvre plus
-   * que les dernières années. Elle ne reprend toute la main que pour les
-   * perceptions hors table — avant 1949, après 2021 — et `docs/limites.md`
+   * Les indices viennent de la circulaire annuelle de la Cnav : c'est la caisse
+   * qui les applique qui les publie, et le coefficient entre deux années est le
+   * RAPPORT de leurs indices. Hors de la plage — perceptions antérieures à
+   * 1930, liquidations postérieures à l'année de référence — le modèle ancre
+   * sur la borne connue et prolonge par l'approximation, et `docs/limites.md`
    * dit dans quel sens elle joue.
    */
   coefficientRevalorisationPorteeAuCompte(depart, arrivee) {
@@ -225,27 +203,21 @@ export class DonneesMacro {
     if (arrivee < depart) {
       return 1.0 / this.coefficientRevalorisationPorteeAuCompte(arrivee, depart);
     }
-    const connu = this.revalorisationPorteeAuCompte.get(`${depart}|${arrivee}`);
-    if (connu !== undefined) {
-      return connu;
+    const indiceDepart = this.revalorisationPorteeAuCompte.get(depart);
+    if (indiceDepart === undefined) {
+      return this.coefficientRevalorisationSalaires(depart, arrivee);
     }
-    // Au-delà de la dernière liquidation publiée, on ANCRE sur elle et on
-    // n'approche que le bout du chemin. Ce n'est pas un artifice : l'arrêté
-    // annuel applique un coefficient UNIQUE à tous les salaires déjà portés au
-    // compte, quelle que soit leur année de perception — la table le confirme,
-    // la dispersion du coefficient annuel d'une perception à l'autre y vaut
-    // 1,6·10⁻⁵, c'est-à-dire son seul arrondi. Une liquidation en 2026 lit donc
-    // les arrêtés de 1949 à 2023 et n'approche que trois années.
-    if (this.derniereLiquidationRevalorisee !== null
-        && arrivee > this.derniereLiquidationRevalorisee) {
-      const ancre = this.revalorisationPorteeAuCompte.get(
-        `${depart}|${this.derniereLiquidationRevalorisee}`,
-      );
-      if (ancre !== undefined) {
-        return ancre * this.coefficientRevalorisationSalaires(
-          this.derniereLiquidationRevalorisee, arrivee,
-        );
-      }
+    const indiceArrivee = this.revalorisationPorteeAuCompte.get(arrivee);
+    if (indiceArrivee !== undefined) {
+      return indiceDepart / indiceArrivee;
+    }
+    // Au-delà de l'année de référence, on ANCRE sur elle et on n'approche que
+    // le bout du chemin. En deçà de la première année publiée, il n'y a rien
+    // sur quoi ancrer.
+    const reference = this.derniereLiquidationRevalorisee;
+    if (reference !== null && arrivee > reference) {
+      return (indiceDepart / this.revalorisationPorteeAuCompte.get(reference))
+        * this.coefficientRevalorisationSalaires(reference, arrivee);
     }
     return this.coefficientRevalorisationSalaires(depart, arrivee);
   }

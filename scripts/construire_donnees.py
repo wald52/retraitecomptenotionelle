@@ -264,27 +264,18 @@ def _rendements() -> list:
 
 
 def _revalorisation_salaires() -> dict:
-    """Coefficients des arrêtés de revalorisation des salaires portés au compte.
+    """Indices de revalorisation des salaires portés au compte, et leur référence.
 
-    Indexés par année de PERCEPTION, chacune portant sa première année de
-    liquidation puis les coefficients d'affilée : ils courent sans trou jusqu'à
-    la dernière liquidation couverte, si bien qu'un tableau suffit et que le
-    paquet n'a pas à répéter 2 774 fois une clé à deux entrées — 22 Ko au lieu
-    de 55.
+    UN indice par année de perception : le coefficient entre deux années
+    quelconques est le rapport de leurs indices. Quatre kilo-octets là où une
+    table à deux entrées en pesait cinquante.
     """
     from retraite_notionnelle.donnees.macro import DonneesMacro
 
-    table: dict[int, dict[int, float]] = {}
-    for (perception, liquidation), coefficient in (
-        DonneesMacro(DONNEES).revalorisation_portee_au_compte.items()
-    ):
-        table.setdefault(perception, {})[liquidation] = coefficient
+    indices, reference = DonneesMacro(DONNEES).revalorisation_portee_au_compte
     return {
-        str(perception): [
-            min(liquidations),
-            [liquidations[annee] for annee in sorted(liquidations)],
-        ]
-        for perception, liquidations in sorted(table.items())
+        "reference": reference,
+        "indices": {str(annee): valeur for annee, valeur in sorted(indices.items())},
     }
 
 

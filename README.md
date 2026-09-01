@@ -73,7 +73,7 @@ Scénario                                                  Courants   Constants 
 Rien à installer, rien à lancer : une adresse à ouvrir. Le modèle et ses données
 de référence s'exécutent **dans votre navigateur**. Aucune donnée saisie ne
 quitte votre machine, puisqu'il n'y a pas de serveur de calcul. Le premier
-chargement transfère 228 Ko compressés (826 Ko bruts) et prend quelques dixièmes
+chargement transfère 218 Ko compressés (806 Ko bruts) et prend quelques dixièmes
 de seconde ; les suivants sont immédiats.
 
 Quatre pages : **Simuler** (une carrière, avec le détail du calcul, la
@@ -88,7 +88,7 @@ la page.
 <details>
 <summary>Comment la page fonctionne, et comment on sait qu'elle dit vrai</summary>
 
-`index.html` charge deux choses : `moteur/donnees.json` (549 Ko — les séries, les
+`index.html` charge deux choses : `moteur/donnees.json` (528 Ko — les séries, les
 tables de mortalité observées de 1899 à 2024, les 37 fiches de régime) et
 `moteur/js/`, un portage du modèle en JavaScript sans aucune bibliothèque. Le site est servi depuis la racine
 du dépôt, telle quelle : c'est ce que GitHub Pages publie sans aucun réglage, et
@@ -205,8 +205,8 @@ print(simulateur.simuler(carriere).tableau())
 | Suppression des avantages | Ni majorations enfants, ni MDA, ni AVPF, ni bonifications, ni réversion, ni trimestres gratuits |
 | Tout le monde peut simuler | 22 statuts d'affiliation, cinq informations suffisent |
 | Utilisable sans rien installer | Le modèle s'exécute dans le navigateur, sur une simple adresse |
-| Étalon confronté à une seconde implémentation | Le régime général du scénario 1 est rejoué par **OpenFisca-France-Pension**, écrit par d'autres à partir des mêmes textes : durée d'assurance, trimestres de décote, taux, proratisation, salaire annuel moyen et pension concordent sur dix profils, à 4·10⁻⁶ près |
-| Salaires revalorisés par les arrêtés, pas par une règle | Les 2 774 coefficients qui revalorisent les salaires portés au compte sont LUS (1949-2023) : la règle « les salaires jusqu'en 1986, les prix depuis » les sur-revaluait de 12 % sur quarante ans, et le salaire de référence retient les N *meilleures* années — changer les coefficients change lesquelles |
+| Étalon confronté à une seconde implémentation | Le régime général du scénario 1 est rejoué par **OpenFisca-France-Pension**, écrit par d'autres à partir des mêmes textes : durée d'assurance, trimestres de décote, taux et proratisation concordent exactement sur dix profils, et la confrontation a fait trouver une erreur de chaque côté |
+| Salaires revalorisés par la circulaire, pas par une règle | Les coefficients qui revalorisent les salaires portés au compte sont LUS dans la circulaire annuelle de la Cnav (1930-2026) : la règle « les salaires jusqu'en 1986, les prix depuis » les sur-revaluait de 12 % sur quarante ans, et le salaire de référence retient les N *meilleures* années — changer les coefficients change lesquelles |
 | Deux durées là où le droit en a deux | La durée requise pour le taux plein (L. 161-17-3) et la durée maximale prise en compte par la proratisation (R. 351-6), que le modèle confondait |
 | Points convertis à leur vraie unité | Les coefficients des fusions sont LUS dans les accords — un point Arrco vaut un point Agirc-Arrco, un point Agirc en vaut 0,347798289 —, et l'unification Arrco de 1999 est traitée comme le changement d'unité qu'elle est |
 | Portage vérifié, pas cru sur parole | Le site rejoue 86 simulations témoins figées depuis le modèle Python |
@@ -369,7 +369,7 @@ python scripts/fetch/dila_legi_parametres_retraite.py   # âges, durées, décot
 python scripts/fetch/ined_vallin_mesle.py       # quotients de mortalité d'avant 1986
 python scripts/fetch/eurostat_hicp.py           # contrôle croisé de l'inflation
 python scripts/fetch/openfisca_regime_general.py  # contre-expertise du scénario 1
-python scripts/fetch/openfisca_revalorisation_salaires.py  # revalorisation des salaires portés au compte
+python scripts/fetch/cnav_revalorisation_salaires.py  # revalorisation des salaires portés au compte
 
 python scripts/verifier_donnees.py              # confronte, sans rien écrire
 python scripts/verifier_donnees.py --appliquer  # aligne sur la source et certifie
@@ -423,7 +423,7 @@ src/retraite_notionnelle/
 index.html                      le site : charge les données, puis le moteur JavaScript
 .nojekyll                       servir les fichiers sans transformation
 moteur/                         ce que le navigateur charge, et rien d'autre
-  donnees.json                  séries, tables et régimes (549 Ko, produit par script)
+  donnees.json                  séries, tables et régimes (528 Ko, produit par script)
   style.css                     extraite de gabarit.py (produite par script)
   js/                           portage du modèle, sans bibliothèque ni étape de build
 
@@ -466,7 +466,7 @@ sous « Options de modélisation ».
 python -m pytest tests
 ```
 
-247 tests couvrant le chargement et la fiabilité des données, la règle de
+248 tests couvrant le chargement et la fiabilité des données, la règle de
 certification, la calibration des tables de mortalité et sa concordance avec les
 tables observées, les propriétés du moteur
 (monotonie du diviseur, cliquet de l'âge de référence, règles de fusion), le

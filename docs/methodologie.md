@@ -398,36 +398,40 @@ toute la carrière, si bien qu'un agent SNCF passé au régime général liquida
 pension spéciale sur son dernier salaire de salarié — vingt pour cent de trop
 sur un cas type — pendant que le prorata de durée, lui, restait celui du régime.
 
-**Les salaires portés au compte sont revalorisés par les coefficients des
-arrêtés eux-mêmes**, lus dans `legislation/revalorisation_salaires.csv`. Cette
-grandeur commande le salaire annuel moyen deux fois plutôt qu'une : la moyenne
-porte sur les N MEILLEURES années, et « meilleures » se juge sur des salaires
-revalorisés — changer les coefficients ne déplace donc pas seulement le niveau
-de chaque année, cela change lesquelles sont retenues.
+**Les salaires portés au compte sont revalorisés par les coefficients que la
+Cnav publie**, lus dans `legislation/revalorisation_salaires.csv`. Cette grandeur
+commande le salaire annuel moyen deux fois plutôt qu'une : la moyenne porte sur
+les N MEILLEURES années, et « meilleures » se juge sur des salaires revalorisés
+— changer les coefficients ne déplace donc pas seulement le niveau de chaque
+année, cela change lesquelles sont retenues.
 
-Le modèle les approchait par « les salaires jusqu'en 1986, les prix depuis »,
-ce qu'ont fait les arrêtés dans les grandes lignes. Mais seulement dans les
-grandes lignes : ils ont connu des revalorisations semestrielles, des gels, des
-revalorisations exceptionnelles, et surtout des changements du DÉLAI
-d'application — la revalorisation portant tantôt jusqu'à l'année n−1, tantôt
-jusqu'à n−2. L'approximation **sur-revalorisait les salaires anciens de 12,1 %
-sur 1970-2018**, et gonflait d'autant le salaire de référence de toute carrière
-en comportant. C'est ce qui a fait diverger le scénario 1 d'une seconde
-implémentation, de 0,30 % à 7,55 % selon la carrière ; l'écart est retombé à
-4·10⁻⁶.
+Le modèle les approchait par « les salaires jusqu'en 1986, les prix depuis », ce
+qu'ont fait les arrêtés dans les grandes lignes. Mais seulement dans les grandes
+lignes : ils ont connu des revalorisations semestrielles, des gels, des
+revalorisations exceptionnelles, et des changements du délai d'application.
+L'approximation **sur-revalorise les salaires anciens de 12,1 % sur 1970-2018**,
+et gonflait d'autant le salaire de référence de toute carrière en comportant.
 
-La table a deux entrées — année de perception, année de liquidation — parce
-qu'aucune formule ne reproduit les arrêtés : quatre encodages compacts ont été
-essayés et mesurés, le meilleur fuit encore de 2,8 %.
+La source est la circulaire annuelle de revalorisation de la Cnav, qui publie la
+table entière : c'est la caisse qui les applique qui les publie. Le dépôt a
+d'abord repris la table d'OpenFisca-France-Pension, à qui il manque la
+revalorisation exceptionnelle de 4 % du 1<sup>er</sup> juillet 2022 — de 3 à
+5,5 % d'écart avec la circulaire sur toutes les perceptions postérieures à 1990,
+et jusqu'à 17 % sur les années 1950. Une seconde implémentation est une
+contre-expertise, pas une source.
 
-Les arrêtés s'arrêtent aux liquidations de 2023, et le site liquide par défaut
-en 2026 : au-delà, le coefficient est **ancré** sur le dernier publié et
-l'ancienne approximation ne couvre plus que les dernières années. C'est la
-structure même des arrêtés — chacun applique un coefficient unique à tous les
-salaires déjà portés au compte, la table le confirme à 1,6·10⁻⁵ près. Elle ne
-reprend toute la main que pour les salaires perçus hors table (avant 1949, après
-2021). Les régimes qui liquident sur le dernier traitement ou sur les six
-derniers mois ne portent aucun salaire à un compte : elle y reste la règle.
+**Un seul indice par année de perception suffit** : le coefficient entre deux
+années quelconques est le rapport de leurs indices, parce que l'arrêté annuel
+applique un coefficient unique à tous les salaires déjà portés au compte.
+Reconstruire ainsi les colonnes publiées pour 2023 et 2025 à partir de celle de
+2026 les retrouve à 0,13 %, l'arrondi de la table publiée ; le récupérateur
+revérifie ce recoupement à chaque exécution.
+
+Au-delà de l'année de référence — 2026, et c'est l'année où le site liquide par
+défaut — le coefficient est ancré sur elle et l'approximation ne couvre que les
+dernières années. Avant 1930, il n'y a rien sur quoi ancrer. Les régimes qui
+liquident sur le dernier traitement ou sur les six derniers mois ne portent
+aucun salaire à un compte : elle y reste la règle.
 
 #### Le taux plein, et ce qui l'ouvre
 
