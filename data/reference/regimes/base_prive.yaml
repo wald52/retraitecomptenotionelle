@@ -194,6 +194,7 @@ regimes:
         age_taux_plein_par_generation: true
         decote_par_generation: true
         salaire_reference_par_generation: true
+        duree_proratisation_par_generation: true
         salaire_reference: 25_meilleures_annees
         assiette: plafonnee
         taux_cotisation_retraite: 0.1635
@@ -222,6 +223,7 @@ regimes:
         age_taux_plein_par_generation: true
         decote_par_generation: true
         salaire_reference_par_generation: true
+        duree_proratisation_par_generation: true
         salaire_reference: 25_meilleures_annees
         assiette: plafonnee
         taux_cotisation_retraite: 0.1659
@@ -247,6 +249,7 @@ regimes:
         age_taux_plein_par_generation: true
         decote_par_generation: true
         salaire_reference_par_generation: true
+        duree_proratisation_par_generation: true
         salaire_reference: 25_meilleures_annees
         assiette: plafonnee
         taux_cotisation_retraite: 0.1659
@@ -273,6 +276,7 @@ regimes:
         age_taux_plein_par_generation: true
         decote_par_generation: true
         salaire_reference_par_generation: true
+        duree_proratisation_par_generation: true
         salaire_reference: 25_meilleures_annees
         assiette: plafonnee
         taux_cotisation_retraite: 0.1743
@@ -299,6 +303,7 @@ regimes:
         age_taux_plein_par_generation: true
         decote_par_generation: true
         salaire_reference_par_generation: true
+        duree_proratisation_par_generation: true
         salaire_reference: 25_meilleures_annees
         assiette: plafonnee
         taux_cotisation_retraite: 0.1786

@@ -1,0 +1,54 @@
+# Durée d'assurance MAXIMALE prise en compte par la proratisation, PAR GÉNÉRATION
+# --------------------------------------------------------------------------------
+# source_id: legifrance_textes, cnav_circulaires
+#
+# CE N'EST PAS LA DURÉE REQUISE POUR LE TAUX PLEIN, et le modèle les confondait.
+#
+# Le droit en a deux, et elles ne montent pas ensemble :
+#
+#   * la durée REQUISE (`duree_assurance_requise.csv`, article L. 161-17-3)
+#     commande le TAUX : en deçà, la décote s'applique ;
+#   * la durée maximale prise en compte par la PRORATISATION (article R. 351-6)
+#     est le dénominateur du rapport durée acquise / durée maximale qui réduit
+#     la pension d'une carrière incomplète.
+#
+# La loi du 22 juillet 1993 a fait monter la première de 150 à 160 trimestres
+# pour les générations 1934 à 1943. Elle n'a touché à la seconde que pour les
+# générations 1944 à 1948, et deux trimestres par génération :
+#
+#   nés avant 1944 : 150     né en 1946 : 156
+#   né en 1944     : 152     né en 1947 : 158
+#   né en 1945     : 154     né en 1948 : 160
+#
+# Un assuré né en 1945 ayant validé 156 trimestres se voit donc opposer
+# 160 trimestres pour le taux — il lui en manque quatre, il est décoté — mais
+# 154 pour la proratisation : son coefficient vaut 1, pas 156/160. Le modèle
+# divisait par 160 et lui retirait 2,5 % de pension que le droit ne retire pas.
+#
+# À COMPTER DE LA GÉNÉRATION 1949 IL N'Y A PLUS DEUX PARAMÈTRES : la durée de
+# proratisation rejoint la durée requise et ne s'en écarte plus. La lecture de
+# cette table s'arrête donc à sa dernière génération, au lieu de prolonger sa
+# dernière valeur comme le font les autres tables par génération — au-delà,
+# c'est `duree_assurance_requise.csv` qui répond.
+#
+# Avant que le paramètre ne dépende de la génération — pensions liquidées sous
+# les fiches antérieures à 1994 —, la durée maximale est celle de la période :
+# 120 trimestres sous les ordonnances de 1945, 150 depuis la loi Boulin. C'est
+# la fiche du régime qui la porte, et le drapeau `duree_requise_par_generation`
+# qui dit quand la table prend le relais.
+#
+# D'OÙ VIENNENT CES VALEURS. De l'article R. 351-6 du code de la sécurité
+# sociale, et de la fiche « Durée d'assurance maximum » de l'Assurance retraite,
+# qui donne la même échelle génération par génération. Le contrôle indépendant
+# est venu d'OpenFisca-France-Pension, dont le fichier `prorat.yaml` porte cette
+# table sous le nom explicite de « nombre de trimestres maximal pris en compte
+# pour la proratisation », séparé de `trimtp.yaml` qui porte la durée cible du
+# taux plein. Niveau `haute` : transcription d'un texte, non recontrôlée
+# automatiquement contre la base LEGI.
+generation,trimestres,fiabilite
+1900,150,haute
+1944,152,haute
+1945,154,haute
+1946,156,haute
+1947,158,haute
+1948,160,haute

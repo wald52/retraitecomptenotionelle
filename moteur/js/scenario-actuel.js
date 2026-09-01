@@ -21,7 +21,7 @@
 import { formatFixe, formatPourcentage } from "./format.js";
 import {
   AgesAnnulationDecote, AgesOuverture, AnneesSalaireReference, CarriereLongue,
-  CoefficientsMinoration, DecoteFonctionPublique, DureesRequises,
+  CoefficientsMinoration, DecoteFonctionPublique, DureesProratisation, DureesRequises,
   MajorationsPourEnfants, MinimumContributif, MinimumGaranti, MinimumVieillesse,
   ConversionsPoints, Rendements, SurcoteParentale, ValeursPoint,
 } from "./regimes.js";
@@ -43,6 +43,7 @@ export class ScenarioActuel {
     this.valeursPoint = new ValeursPoint(paquet);
     this.conversionsPoints = new ConversionsPoints(paquet);
     this.dureesRequises = new DureesRequises(paquet);
+    this.dureesProratisation = new DureesProratisation(paquet);
     this.agesOuverture = new AgesOuverture(paquet);
     this.agesAnnulationDecote = new AgesAnnulationDecote(paquet);
     this.coefficientsMinoration = new CoefficientsMinoration(paquet);
@@ -219,6 +220,34 @@ export class ScenarioActuel {
       }
     }
     return [periode.duree_requise_trimestres || 160, null];
+  }
+
+  /**
+   * Dénominateur du coefficient de proratisation, dans ce régime.
+   *
+   * Il vaut la durée requise partout, sauf pour les générations 1944 à 1948 et
+   * celles qui les précèdent, auxquelles l'article R. 351-6 oppose une durée
+   * maximale plus courte — 150 trimestres avant 1944, puis 152, 154, 156, 158
+   * et 160. La table ne répond que là ; ailleurs c'est la durée requise qui
+   * fait office, comme le droit le veut depuis 1949.
+   *
+   * @returns {[number, number|null]} durée de proratisation, et fiabilité.
+   */
+  dureeProratisation(periode, carriere, requis) {
+    // La table est celle du CODE DE LA SÉCURITÉ SOCIALE, et la fiche dit qui la
+    // suit : le régime général et les régimes alignés. La fonction publique et
+    // les régimes spéciaux ont la leur, calendaire (article L. 13 du code des
+    // pensions) ; elle n'est pas modélisée, et leur durée requise y fait office.
+    if (!periode.duree_proratisation_par_generation) {
+      return [requis, null];
+    }
+    const parGeneration = this.dureesProratisation.trimestres(carriere.annee_naissance);
+    if (parGeneration === null) {
+      return [requis, null];
+    }
+    // Elle ne dépasse jamais la durée requise : les périodes anciennes, dont la
+    // durée maximale est plus courte que 150 trimestres, gardent la leur.
+    return [Math.min(parGeneration[0], requis), parGeneration[1]];
   }
 
   /** Âge légal opposable à cet assuré dans ce régime. */
@@ -726,7 +755,18 @@ export class ScenarioActuel {
         fiabiliteGlobale = Math.min(fiabiliteGlobale, fiabiliteDuree);
       }
       trimestresRequis = Math.max(trimestresRequis, requis);
-      const trimestresRegime = Math.min(trimestresParRegime.get(code) ?? 0, requis);
+      // Le dénominateur de la PRORATISATION n'est pas la durée requise :
+      // l'article R. 351-6 en fixe une autre, plus courte pour les générations
+      // d'avant 1949. Confondre les deux retirait à un assuré né en 1945 avec
+      // 156 trimestres les 2,5 % que 156/160 lui coûte, là où 156/154 lui donne
+      // le coefficient plein.
+      const [proratisation, fiabiliteProratisation] = this.dureeProratisation(
+        periode, carriere, requis,
+      );
+      if (fiabiliteProratisation !== null) {
+        fiabiliteGlobale = Math.min(fiabiliteGlobale, fiabiliteProratisation);
+      }
+      const trimestresRegime = Math.min(trimestresParRegime.get(code) ?? 0, proratisation);
 
       let taux = periode.taux_plein || 0.5;
       // Part du taux qui vient de la surcote : le minimum contributif se
@@ -773,13 +813,15 @@ export class ScenarioActuel {
         // prorata de la durée acquise DANS CE régime — durée d'assurance pour
         // le montant de base, durée COTISÉE pour la majoration —, et seulement
         // si la pension est liquidée AU TAUX PLEIN (L. 351-10).
+        // Le minimum se proratise « dans les mêmes conditions que la pension » :
+        // c'est donc la durée de proratisation qui fait office ici aussi.
         const cotisesRegime = Math.min(
-          trimestresCotisesParRegime.get(code) ?? 0, requis,
+          trimestresCotisesParRegime.get(code) ?? 0, proratisation,
         );
         eligiblesMinimum.push({
           indice: indicePension,
-          prorataAssurance: trimestresRegime / requis,
-          prorataCotise: cotisesRegime / requis,
+          prorataAssurance: trimestresRegime / proratisation,
+          prorataCotise: cotisesRegime / proratisation,
           tauxPlein: trimestres >= requis
             || ageLiquidation >= this.ageTauxPlein(periode, carriere),
           surcote: coefficientSurcote,
@@ -800,11 +842,11 @@ export class ScenarioActuel {
       }
       pensions.push({
         regime: code,
-        montant: salaireReference * taux * (trimestresRegime / requis),
+        montant: salaireReference * taux * (trimestresRegime / proratisation),
         type_calcul: "annuites",
         detail: `${forfaitaire ? "forfait" : "SR"} `
           + `${formatFixe(salaireReference, 0, true)} € `
-          + `× taux ${formatPourcentage(taux, 2)} × ${trimestresRegime}/${requis}`,
+          + `× taux ${formatPourcentage(taux, 2)} × ${trimestresRegime}/${proratisation}`,
         fiabilite: regime.fiabilite,
       });
     }

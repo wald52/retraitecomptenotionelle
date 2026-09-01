@@ -2115,7 +2115,7 @@
        "regime": "arrco"
       },
       {
-       "detail": "SR 22,250 € × taux 50.00% × 152/152",
+       "detail": "SR 22,250 € × taux 50.00% × 150/150",
        "montant": 11125.101106028125,
        "regime": "regime_general"
       },
@@ -4805,7 +4805,7 @@
        "regime": "arrco"
       },
       {
-       "detail": "SR 21,815 € × taux 50.00% × 160/160",
+       "detail": "SR 21,815 € × taux 50.00% × 150/150",
        "montant": 10907.646887840157,
        "regime": "regime_general"
       },
@@ -4996,7 +4996,7 @@
        "regime": "arrco"
       },
       {
-       "detail": "SR 26,963 € × taux 55.62% × 157/157",
+       "detail": "SR 26,963 € × taux 55.62% × 150/150",
        "montant": 14998.419413409829,
        "regime": "regime_general"
       }

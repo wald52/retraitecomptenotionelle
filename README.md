@@ -205,6 +205,8 @@ print(simulateur.simuler(carriere).tableau())
 | Suppression des avantages | Ni majorations enfants, ni MDA, ni AVPF, ni bonifications, ni réversion, ni trimestres gratuits |
 | Tout le monde peut simuler | 22 statuts d'affiliation, cinq informations suffisent |
 | Utilisable sans rien installer | Le modèle s'exécute dans le navigateur, sur une simple adresse |
+| Étalon confronté à une seconde implémentation | Le régime général du scénario 1 est rejoué par **OpenFisca-France-Pension**, écrit par d'autres à partir des mêmes textes : durée d'assurance, trimestres de décote, taux et proratisation concordent sur dix profils |
+| Deux durées là où le droit en a deux | La durée requise pour le taux plein (L. 161-17-3) et la durée maximale prise en compte par la proratisation (R. 351-6), que le modèle confondait |
 | Points convertis à leur vraie unité | Les coefficients des fusions sont LUS dans les accords — un point Arrco vaut un point Agirc-Arrco, un point Agirc en vaut 0,347798289 —, et l'unification Arrco de 1999 est traitée comme le changement d'unité qu'elle est |
 | Portage vérifié, pas cru sur parole | Le site rejoue 86 simulations témoins figées depuis le modèle Python |
 
@@ -365,6 +367,7 @@ python scripts/fetch/dila_legi_minimum_contributif.py   # minimum contributif (l
 python scripts/fetch/dila_legi_parametres_retraite.py   # âges, durées, décotes (lent)
 python scripts/fetch/ined_vallin_mesle.py       # quotients de mortalité d'avant 1986
 python scripts/fetch/eurostat_hicp.py           # contrôle croisé de l'inflation
+python scripts/fetch/openfisca_regime_general.py  # contre-expertise du scénario 1
 
 python scripts/verifier_donnees.py              # confronte, sans rien écrire
 python scripts/verifier_donnees.py --appliquer  # aligne sur la source et certifie
@@ -426,8 +429,10 @@ docs/
   methodologie.md               ce que le modèle calcule, et pourquoi ainsi
   limites.md                    ce qu'il ne calcule pas, et ce qui reste à certifier
 
-tests/                          235 tests Python
-  temoins/                      chiffres et pages figés depuis le modèle Python
+tests/                          243 tests Python
+  temoins/                      chiffres et pages figés depuis le modèle Python,
+                                et le relevé d'OpenFisca-France-Pension qui sert
+                                de contre-expertise au scénario 1
   js/                           le portage rejoué contre ces témoins (node --test)
 ```
 
@@ -459,7 +464,7 @@ sous « Options de modélisation ».
 python -m pytest tests
 ```
 
-235 tests couvrant le chargement et la fiabilité des données, la règle de
+243 tests couvrant le chargement et la fiabilité des données, la règle de
 certification, la calibration des tables de mortalité et sa concordance avec les
 tables observées, les propriétés du moteur
 (monotonie du diviseur, cliquet de l'âge de référence, règles de fusion), le

@@ -407,6 +407,22 @@ Trois choses distinctes, que le modèle confondait :
 * **la durée requise**, qui ouvre le taux plein à l'âge d'ouverture ;
 * **l'âge d'ANNULATION de la décote**, qui l'ouvre sans condition de durée.
 
+**La durée requise et la durée de proratisation sont deux paramètres, et le
+modèle les confondait.** La première (L. 161-17-3) commande le TAUX : en deçà,
+la décote s'applique. La seconde (R. 351-6) est le DÉNOMINATEUR qui réduit la
+pension d'une carrière incomplète. La loi du 22 juillet 1993 a fait monter la
+première de 150 à 160 trimestres pour les générations 1934 à 1943 ; elle n'a
+touché à la seconde que pour les générations 1944 à 1948, et de deux trimestres
+par génération — 150 avant 1944, puis 152, 154, 156, 158, 160. Un assuré né en
+1945 ayant validé 156 trimestres se voit donc opposer 160 trimestres pour le
+taux, et il est décoté de quatre, mais 154 pour la proratisation : son
+coefficient vaut 1, et non 156/160. Le modèle lui retirait 2,5 % de pension de
+base que le droit ne retire pas. La table est dans
+`legislation/duree_proratisation.csv`, et elle est réservée aux régimes alignés
+sur le code de la sécurité sociale : la fonction publique et les régimes
+spéciaux ont la leur, calendaire (L. 13 du code des pensions), qui n'est pas
+modélisée.
+
 Le taux plein par la durée est une création de l'ordonnance du 26 mars 1982.
 Avant elle, le taux ne dépendait QUE de l'âge : 20 % à 60 ans majorés de quatre
 points par année différée jusqu'en 1971, puis — loi Boulin — 25 % à 60 ans et

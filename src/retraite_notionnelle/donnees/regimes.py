@@ -73,6 +73,12 @@ class PeriodeRegime:
     #: régimes alignés : la table de l'article R. 351-27 vaut aussi bien pour
     #: l'ancien droit (2,5 %) que pour la montée en charge de la loi Fillon.
     decote_par_generation: bool
+    #: Le dénominateur de la PRORATISATION suit-il la table de l'article
+    #: R. 351-6 plutôt que la durée requise pour le taux plein ? Ce sont deux
+    #: paramètres distincts, et le moteur les confondait. Réservé aux régimes
+    #: alignés sur le code de la sécurité sociale : la fonction publique et les
+    #: régimes spéciaux ont la leur, calendaire, non modélisée.
+    duree_proratisation_par_generation: bool
     #: Le nombre d'années retenues au salaire de référence suit-il la
     #: génération ? Vrai depuis la loi Balladur (dix à vingt-cinq années).
     salaire_reference_par_generation: bool
@@ -367,6 +373,9 @@ class CatalogueRegimes:
                     p.get("age_taux_plein_par_generation", False)
                 ),
                 decote_par_generation=bool(p.get("decote_par_generation", False)),
+                duree_proratisation_par_generation=bool(
+                    p.get("duree_proratisation_par_generation", False)
+                ),
                 salaire_reference_par_generation=bool(
                     p.get("salaire_reference_par_generation", False)
                 ),

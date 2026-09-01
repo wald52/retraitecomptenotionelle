@@ -949,6 +949,67 @@ def test_le_rendement_du_point_ne_saute_pas_d_une_annee_sur_l_autre(simulateur):
             precedent = rendu
 
 
+def test_la_duree_de_proratisation_n_est_pas_la_duree_requise(simulateur):
+    """Article R. 351-6 : deux durées, et elles ne montent pas ensemble.
+
+    La loi du 22 juillet 1993 fait passer la durée REQUISE de 150 à 160
+    trimestres pour les générations 1934-1943. Elle ne touche à la durée
+    maximale prise en compte par la PRORATISATION que pour les générations
+    1944-1948, et de deux trimestres par génération.
+
+    Le modèle n'en avait qu'une, et divisait donc par 160 la carrière d'un
+    assuré né en 1945 auquel le droit oppose 154.
+    """
+    scenario = simulateur.scenario_actuel
+    periode = simulateur.catalogue["regime_general"].periode(2010)
+    assert periode.duree_requise_par_generation
+
+    attendu = {1940: 150, 1943: 150, 1944: 152, 1945: 154,
+               1946: 156, 1947: 158, 1948: 160}
+    for generation, trimestres in attendu.items():
+        carriere = simulateur.carriere_simple(
+            annee_naissance=generation, sexe="H",
+            affiliation="salarie_prive_non_cadre", age_debut=25, age_liquidation=62,
+        )
+        requis, _ = scenario._duree_requise(periode, carriere)
+        proratisation, _ = scenario._duree_proratisation(periode, carriere, requis)
+        assert proratisation == trimestres, generation
+        assert proratisation <= requis, generation
+
+    # À compter de 1949 il n'y a plus deux paramètres : la table s'arrête, et
+    # c'est la durée requise qui répond. La prolonger en escalier rendrait
+    # l'erreur dans l'autre sens — 160 trimestres à qui en doit 172.
+    for generation in (1949, 1955, 1965, 1975):
+        carriere = simulateur.carriere_simple(
+            annee_naissance=generation, sexe="H",
+            affiliation="salarie_prive_non_cadre", age_debut=25, age_liquidation=62,
+        )
+        requis, _ = scenario._duree_requise(periode, carriere)
+        proratisation, _ = scenario._duree_proratisation(periode, carriere, requis)
+        assert proratisation == requis, generation
+
+
+def test_la_proratisation_ne_penalise_pas_une_carriere_qui_atteint_sa_duree(simulateur):
+    """Le cas qui a révélé le défaut : né en 1945, 156 trimestres, parti en 2007.
+
+    Le droit lui oppose 160 trimestres pour le taux — il est décoté de quatre —
+    mais 154 pour la proratisation : son coefficient vaut 1. Le modèle divisait
+    par 160 et lui retirait 2,5 % de pension de base en plus de la décote.
+    """
+    lignes = [
+        AnneeCarriere(annee=annee, revenu=25000.0,
+                      affiliation="salarie_prive_non_cadre", trimestres_valides=4)
+        for annee in range(1968, 2007)
+    ]
+    carriere = Carriere(annee_naissance=1945, sexe="H", lignes=lignes,
+                        age_liquidation=62.0)
+    resultat = simulateur.scenario_actuel.calculer(carriere)
+    assert resultat.trimestres_valides == 156
+    base = next(p for p in resultat.pensions_par_regime
+                if p.regime == "regime_general")
+    assert "154/154" in base.detail, base.detail
+
+
 def test_les_trimestres_de_decote_sont_des_entiers(simulateur):
     """Article R. 351-27 : le nombre de trimestres est arrondi à l'entier supérieur.
 

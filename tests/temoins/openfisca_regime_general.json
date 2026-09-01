@@ -1,0 +1,179 @@
+{
+  "avertissement": "Deuxième implémentation, pas une source officielle. Un désaccord ne désigne pas d'office le coupable : la table de durée requise d'OpenFisca ignore la réforme du 14 avril 2023.",
+  "perimetre": "Régime général seul, liquidations antérieures à 2025, carrières à salaire nominal constant sans interruption ni enfant.",
+  "profils": {
+    "bas_salaire_1947": {
+      "openfisca": {
+        "coefficient_de_proratisation": 1.0,
+        "decote_trimestres": 0.0,
+        "duree_assurance": 160.0,
+        "pension_brute": 10708.302734375,
+        "salaire_de_reference": 21416.60546875,
+        "taux_de_liquidation": 0.5
+      },
+      "profil": {
+        "code": "bas_salaire_1947",
+        "debut": 1969,
+        "liquidation": 2009,
+        "naissance": 1947,
+        "salaire": 14000.0
+      }
+    },
+    "carriere_complete_1948": {
+      "openfisca": {
+        "coefficient_de_proratisation": 1.0,
+        "decote_trimestres": 0.0,
+        "duree_assurance": 160.0,
+        "pension_brute": 14835.3203125,
+        "salaire_de_reference": 29670.640625,
+        "taux_de_liquidation": 0.5
+      },
+      "profil": {
+        "code": "carriere_complete_1948",
+        "debut": 1970,
+        "liquidation": 2010,
+        "naissance": 1948,
+        "salaire": 30000.0
+      }
+    },
+    "carriere_complete_1950": {
+      "openfisca": {
+        "coefficient_de_proratisation": 0.9876543283462524,
+        "decote_trimestres": 2.0,
+        "duree_assurance": 160.0,
+        "pension_brute": 15152.2509765625,
+        "salaire_de_reference": 31714.015625,
+        "taux_de_liquidation": 0.48374998569488525
+      },
+      "profil": {
+        "code": "carriere_complete_1950",
+        "debut": 1972,
+        "liquidation": 2012,
+        "naissance": 1950,
+        "salaire": 40000.0
+      }
+    },
+    "carriere_complete_1953": {
+      "openfisca": {
+        "coefficient_de_proratisation": 0.9696969985961914,
+        "decote_trimestres": 5.0,
+        "duree_assurance": 160.0,
+        "pension_brute": 14587.626953125,
+        "salaire_de_reference": 32092.779296875,
+        "taux_de_liquidation": 0.46875
+      },
+      "profil": {
+        "code": "carriere_complete_1953",
+        "debut": 1975,
+        "liquidation": 2015,
+        "naissance": 1953,
+        "salaire": 30000.0
+      }
+    },
+    "carriere_complete_1956": {
+      "openfisca": {
+        "coefficient_de_proratisation": 0.9638554453849792,
+        "decote_trimestres": 6.0,
+        "duree_assurance": 160.0,
+        "pension_brute": 14446.357421875,
+        "salaire_de_reference": 32406.693359375,
+        "taux_de_liquidation": 0.4625000059604645
+      },
+      "profil": {
+        "code": "carriere_complete_1956",
+        "debut": 1978,
+        "liquidation": 2018,
+        "naissance": 1956,
+        "salaire": 30000.0
+      }
+    },
+    "carriere_courte_1952": {
+      "openfisca": {
+        "coefficient_de_proratisation": 0.5853658318519592,
+        "decote_trimestres": 15.0,
+        "duree_assurance": 96.0,
+        "pension_brute": 7786.06640625,
+        "salaire_de_reference": 33514.828125,
+        "taux_de_liquidation": 0.3968749940395355
+      },
+      "profil": {
+        "code": "carriere_courte_1952",
+        "debut": 1990,
+        "liquidation": 2014,
+        "naissance": 1952,
+        "salaire": 35000.0
+      }
+    },
+    "carriere_incomplete_1945": {
+      "openfisca": {
+        "coefficient_de_proratisation": 1.0,
+        "decote_trimestres": 4.0,
+        "duree_assurance": 156.0,
+        "pension_brute": 12436.716796875,
+        "salaire_de_reference": 27333.4453125,
+        "taux_de_liquidation": 0.45499998331069946
+      },
+      "profil": {
+        "code": "carriere_incomplete_1945",
+        "debut": 1968,
+        "liquidation": 2007,
+        "naissance": 1945,
+        "salaire": 25000.0
+      }
+    },
+    "carriere_incomplete_1955": {
+      "openfisca": {
+        "coefficient_de_proratisation": 0.891566276550293,
+        "decote_trimestres": 18.0,
+        "duree_assurance": 148.0,
+        "pension_brute": 9567.1298828125,
+        "salaire_de_reference": 27692.126953125,
+        "taux_de_liquidation": 0.38749998807907104
+      },
+      "profil": {
+        "code": "carriere_incomplete_1955",
+        "debut": 1980,
+        "liquidation": 2017,
+        "naissance": 1955,
+        "salaire": 22000.0
+      }
+    },
+    "depart_tardif_1949": {
+      "openfisca": {
+        "coefficient_de_proratisation": 1.0,
+        "decote_trimestres": 0.0,
+        "duree_assurance": 180.0,
+        "pension_brute": 19299.662109375,
+        "salaire_de_reference": 31191.375,
+        "taux_de_liquidation": 0.6187499761581421
+      },
+      "profil": {
+        "code": "depart_tardif_1949",
+        "debut": 1971,
+        "liquidation": 2016,
+        "naissance": 1949,
+        "salaire": 28000.0
+      }
+    },
+    "haut_salaire_1954": {
+      "openfisca": {
+        "coefficient_de_proratisation": 0.9696969985961914,
+        "decote_trimestres": 5.0,
+        "duree_assurance": 160.0,
+        "pension_brute": 15548.927734375,
+        "salaire_de_reference": 34207.640625,
+        "taux_de_liquidation": 0.46875
+      },
+      "profil": {
+        "code": "haut_salaire_1954",
+        "debut": 1976,
+        "liquidation": 2016,
+        "naissance": 1954,
+        "salaire": 60000.0
+      }
+    }
+  },
+  "recupere_le": "2026-09-01",
+  "source": "OpenFisca-France-Pension",
+  "version": "0.1.3"
+}

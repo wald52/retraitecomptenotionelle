@@ -74,6 +74,28 @@ champs_periode:
       périodes des régimes alignés depuis 1983.
     defaut: false
 
+  duree_proratisation_par_generation:
+    description: >-
+      Si vrai, le DÉNOMINATEUR de la proratisation est lu dans
+      `legislation/duree_proratisation.csv` à l'ANNÉE DE NAISSANCE, et non dans
+      la durée requise pour le taux plein. Ce sont deux paramètres distincts :
+      la loi du 22 juillet 1993 a fait monter la durée requise de 150 à 160
+      trimestres pour les générations 1934-1943, et n'a touché à la durée
+      maximale prise en compte par la proratisation (article R. 351-6) que pour
+      les générations 1944-1948. Un assuré né en 1945 se voit donc opposer
+      160 trimestres pour le taux et 154 pour la proratisation.
+
+      Le drapeau est réservé aux régimes qui suivent la règle du CODE DE LA
+      SÉCURITÉ SOCIALE — le régime général et les régimes alignés. La fonction
+      publique et les régimes spéciaux ont leur propre durée de proratisation,
+      calendaire et non générationnelle (article L. 13 du code des pensions) ;
+      elle n'est pas modélisée, et leur durée requise continue d'y faire office.
+
+      Quoi qu'il arrive, la durée de proratisation retenue ne dépasse jamais la
+      durée requise : les périodes anciennes, dont la durée maximale est plus
+      courte que 150 trimestres, gardent la leur.
+    defaut: false
+
   salaire_reference_par_generation:
     description: >-
       Si vrai, le nombre d'années retenues au salaire annuel moyen est lu dans

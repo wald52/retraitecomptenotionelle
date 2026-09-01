@@ -895,6 +895,74 @@ l'Institut des politiques publiques (PENSIPP). Écarts connus :
 
 Un écart de quelques pour cent avec la pension réelle est attendu.
 
+### Ce que dit la confrontation à une seconde implémentation
+
+Le scénario 1 est l'étalon : tous les écarts affichés se mesurent par rapport à
+lui, et il n'avait aucune contre-expertise. Aucun simulateur officiel n'est
+automatisable — M@rel exige FranceConnect et le relevé de carrière réel, sans
+mode anonyme ni API — et relire deux fois le même code ne prouve rien : une
+réimplémentation écrite par la même main hérite des mêmes hypothèses.
+
+**OpenFisca-France-Pension** comble ce trou. Ce n'est pas une source officielle,
+c'est un autre MODÈLE — le module « retraites » de l'écosystème OpenFisca — mais
+il est écrit par d'autres à partir des mêmes textes.
+`scripts/fetch/openfisca_regime_general.py` y calcule dix profils à salaire
+nominal constant et fige le relevé dans `tests/temoins/`, que `tests/test_oracle.py`
+rejoue sans avoir à installer le paquet.
+
+Le résultat, sur dix profils :
+
+| Grandeur | Accord |
+|---|---|
+| Durée d'assurance | **exacte** sur les dix |
+| Trimestres de décote | **exacts** sur les dix |
+| Taux de liquidation | **exact** sur les dix |
+| Coefficient de proratisation | **exact** sur les dix |
+| Salaire annuel moyen | +0,30 % à +7,55 %, toujours de même signe |
+| Pension de base | l'écart du salaire annuel moyen, et rien d'autre |
+
+Le décompte des trimestres de décote est le contrôle le plus exigeant du lot :
+il met en jeu la durée requise par génération, l'âge d'annulation par
+génération, la règle du minimum entre les deux décomptes, le plafond de vingt
+trimestres et l'arrondi à l'entier supérieur. Cinq tables et trois règles
+tombent juste ensemble, dix fois.
+
+**Le seul poste qui diverge est le salaire de référence**, et sa cause est celle
+que ce document nommait déjà : les coefficients de revalorisation des salaires
+portés au compte. OpenFisca porte la série réelle des arrêtés
+(`revalorisation_salaire_cummulee`) là où le modèle l'approche par « les
+salaires jusqu'en 1986, les prix depuis ». L'écart n'est pas monotone, et c'est
+normal : le salaire de référence retient les N MEILLEURES années, si bien qu'un
+jeu de coefficients différent ne déplace pas seulement le niveau de chaque année,
+il change lesquelles sont retenues — un écart de niveau de deux points peut en
+produire sept une fois la sélection faite. **Reprendre cette série d'OpenFisca
+refermerait l'écart**, et c'est la seule amélioration que cette confrontation
+laisse ouverte du côté du modèle.
+
+Deux désaccords sont sortis de la première confrontation, **un de chaque côté**.
+Chez nous : la durée de proratisation, confondue avec la durée requise — corrigé,
+et c'est le paragraphe précédent. Chez lui : une table de durée requise
+antérieure à la réforme du 14 avril 2023, qui oppose 169 trimestres à la
+génération 1965 là où l'article L. 161-17-3, lu dans la base LEGI, en donne 172.
+**Un désaccord ne désigne donc pas d'office le coupable.**
+
+Trois bornes à connaître, et elles sont étroites :
+
+* **le régime général seul.** L'Arrco du paquet publié est inutilisable : son
+  code demande le paramètre `agirc_arrco.salaire_de_reference.salaire_reference_en_euros`,
+  que les barèmes livrés ne définissent pas — ils portent
+  `salaire_reference_prix_achat_valeur_nominale`. Toute liquidation postérieure
+  à 2019 y lève une erreur. Or c'est la complémentaire qui portait les deux plus
+  grosses erreurs de ce dépôt ;
+* **les liquidations antérieures à 2025.** Ses barèmes s'arrêtent : valeur du
+  point Agirc-Arrco en novembre 2024, revalorisations CNAV en 2023. Cinq des
+  sept générations de la grille de cas types sont hors de portée ;
+* **il rend zéro sans se plaindre.** Sans `simulation.max_spiral_loops`, la
+  durée d'assurance, le coefficient de proratisation et la pension valent tous
+  zéro, sans qu'aucune exception ne soit levée. Un oracle silencieusement nul
+  valide tout : le récupérateur refuse donc d'écrire un profil dont la durée ou
+  la pension serait nulle, et le test le revérifie.
+
 ### Quatre écarts identifiés, mesurés, et laissés en l'état
 
 Ils l'ont été à dessein : chacun demande un arbitrage de modélisation qu'il vaut

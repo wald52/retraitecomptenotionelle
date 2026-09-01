@@ -828,6 +828,35 @@ institutions:
           Recoupé à chaque exécution contre le rendement instantané que
           l'Agirc-Arrco publie pour l'année en cours : 5,61 % en 2025.
 
+      - id: openfisca_regime_general_oracle
+        titre: Moteur de calcul du régime général — contre-expertise du scénario 1
+        url: https://github.com/openfisca/openfisca-france-pension
+        acces: api
+        statut_integration: automatise
+        cible: tests/temoins/openfisca_regime_general.json
+        recuperation: scripts/fetch/openfisca_regime_general.py
+        note: >-
+          Le seul jeu de cette liste dont on emprunte non pas les DONNÉES mais
+          le MOTEUR. Le scénario « système actuel » est l'étalon du modèle et
+          n'avait aucune contre-expertise : aucun simulateur officiel n'est
+          automatisable — M@rel exige FranceConnect et le relevé de carrière
+          réel — et relire deux fois le même code ne prouve rien.
+          OpenFisca-France-Pension est une SECONDE IMPLÉMENTATION, écrite par
+          d'autres à partir des mêmes textes. Dix profils à salaire nominal
+          constant y sont calculés, et le témoin versionné qui en sort permet de
+          rejouer la confrontation sans installer le paquet.
+          Ce n'est pas une source officielle, et un désaccord ne désigne pas
+          d'office le coupable : la première confrontation en a produit deux, un
+          de chaque côté. Chez nous, la durée de proratisation confondue avec la
+          durée requise (corrigé, `legislation/duree_proratisation.csv`). Chez
+          lui, une table de durée requise antérieure à la réforme du 14 avril
+          2023 — 169 trimestres à la génération 1965, là où l'article
+          L. 161-17-3 en donne 172.
+          Périmètre : régime général seul, liquidations antérieures à 2025. Son
+          Arrco est inutilisable dans la version publiée (le code demande un
+          paramètre que les barèmes livrés ne définissent pas) et ses barèmes
+          s'arrêtent en 2024.
+
       - id: openfisca_point_indice
         titre: Point d'indice de la fonction publique et barème du minimum garanti
         url: https://github.com/openfisca/openfisca-france/blob/master/openfisca_france/parameters/marche_travail/remuneration_dans_fonction_publique/indicefp/point_indice_en_euros.yaml

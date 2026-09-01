@@ -246,6 +246,39 @@ class DureesRequises(TableParGeneration):
         return None if valeur is None else (int(valeur[0]), valeur[1])
 
 
+class DureesProratisation(TableParGeneration):
+    """Durée maximale d'assurance prise en compte par la proratisation.
+
+    **Ce n'est pas la durée requise pour le taux plein**, et le module les
+    confondait. Le droit en a deux : la durée REQUISE (L. 161-17-3) commande le
+    taux, et l'on est décoté en deçà ; la durée maximale prise en compte par la
+    PRORATISATION (R. 351-6) est le dénominateur qui réduit la pension d'une
+    carrière incomplète. La loi du 22 juillet 1993 a fait monter la première de
+    150 à 160 trimestres pour les générations 1934 à 1943, et n'a touché à la
+    seconde que pour les générations 1944 à 1948.
+
+    Un assuré né en 1945 ayant validé 156 trimestres se voit donc opposer
+    160 trimestres pour le taux — il lui en manque quatre, il est décoté — mais
+    154 pour la proratisation : son coefficient vaut 1, pas 156/160.
+
+    **La lecture s'arrête à la dernière génération du fichier**, au lieu de
+    prolonger sa dernière valeur comme le font les autres tables par génération.
+    C'est voulu : à compter de la génération 1949 il n'y a plus deux paramètres,
+    la durée de proratisation rejoint la durée requise, et prolonger 160
+    trimestres à des générations qui en doivent 172 rendrait à la proratisation
+    l'erreur qu'on vient d'en retirer, dans l'autre sens.
+    """
+
+    def __init__(self, racine: Path) -> None:
+        super().__init__(racine, "duree_proratisation.csv", "trimestres")
+
+    def trimestres(self, generation: int) -> tuple[int, Fiabilite] | None:
+        if not self._table or generation > self._generations[-1]:
+            return None
+        valeur = self.valeur(generation)
+        return None if valeur is None else (int(valeur[0]), valeur[1])
+
+
 class AgesOuverture(TableParGeneration):
     """Âge légal d'ouverture des droits, par génération.
 
@@ -946,6 +979,7 @@ class ScenarioActuel:
         self.valeurs_point = ValeursPoint(parametres.racine_donnees)
         self.conversions_points = ConversionsPoints(parametres.racine_donnees)
         self.durees_requises = DureesRequises(parametres.racine_donnees)
+        self.durees_proratisation = DureesProratisation(parametres.racine_donnees)
         self.ages_ouverture = AgesOuverture(parametres.racine_donnees)
         self.ages_annulation_decote = AgesAnnulationDecote(parametres.racine_donnees)
         self.coefficients_minoration = CoefficientsMinoration(parametres.racine_donnees)
@@ -1126,6 +1160,35 @@ class ScenarioActuel:
             if par_generation is not None:
                 return par_generation
         return requis, None
+
+    def _duree_proratisation(self, periode: PeriodeRegime, carriere: Carriere,
+                             requis: int) -> tuple[int, Fiabilite | None]:
+        """Dénominateur du coefficient de proratisation, dans ce régime.
+
+        Il vaut la durée requise partout, sauf pour les générations 1944 à 1948
+        et celles qui les précèdent, auxquelles l'article R. 351-6 oppose une
+        durée maximale plus courte — 150 trimestres avant 1944, puis 152, 154,
+        156, 158 et 160. La table ne répond que là ; ailleurs, c'est la durée
+        requise qui fait office, comme le droit le veut depuis 1949.
+
+        **La table est celle du code de la sécurité sociale**, et la fiche dit
+        qui la suit : le régime général et les régimes alignés. La fonction
+        publique et les régimes spéciaux ont la leur, calendaire et non
+        générationnelle (article L. 13 du code des pensions) ; elle n'est pas
+        modélisée, et leur durée requise continue d'y faire office. Leur
+        appliquer la table du privé remplacerait une approximation par une
+        autre, sans que rien ne l'établisse.
+
+        Et la durée de proratisation ne dépasse jamais la durée requise : les
+        périodes anciennes, dont la durée maximale est plus courte que
+        150 trimestres — 120 sous les ordonnances de 1945 —, gardent la leur.
+        """
+        if not periode.duree_proratisation_par_generation:
+            return requis, None
+        par_generation = self.durees_proratisation.trimestres(carriere.annee_naissance)
+        if par_generation is None:
+            return requis, None
+        return min(par_generation[0], requis), par_generation[1]
 
     def _age_ouverture(self, periode: PeriodeRegime, carriere: Carriere) -> float:
         """Âge légal opposable à cet assuré dans ce régime."""
@@ -1675,7 +1738,17 @@ class ScenarioActuel:
             if fiabilite_duree is not None:
                 fiabilite_globale = min(fiabilite_globale, fiabilite_duree)
             trimestres_requis = max(trimestres_requis, requis)
-            trimestres_regime = min(trimestres_par_regime.get(code, 0), requis)
+            # Le dénominateur de la PRORATISATION n'est pas la durée requise :
+            # l'article R. 351-6 en fixe une autre, plus courte pour les
+            # générations d'avant 1949. Confondre les deux retirait à un assuré
+            # né en 1945 avec 156 trimestres les 2,5 % que 156/160 lui coûte,
+            # là où 156/154 lui donne le coefficient plein.
+            proratisation, fiabilite_proratisation = self._duree_proratisation(
+                periode, carriere, requis
+            )
+            if fiabilite_proratisation is not None:
+                fiabilite_globale = min(fiabilite_globale, fiabilite_proratisation)
+            trimestres_regime = min(trimestres_par_regime.get(code, 0), proratisation)
 
             taux = periode.taux_plein or 0.5
             #: Part du taux qui vient de la surcote. Le minimum contributif se
@@ -1720,7 +1793,7 @@ class ScenarioActuel:
                         taux *= coefficient_surcote
 
             taux_retenu = max(taux_retenu, taux)
-            montant = salaire_reference * taux * (trimestres_regime / requis)
+            montant = salaire_reference * taux * (trimestres_regime / proratisation)
             if "minimum_contributif" in periode.avantages_non_contributifs:
                 # Le minimum ne relève que les régimes de base qui le portent,
                 # et au prorata de la durée acquise DANS CE régime — durée
@@ -1733,13 +1806,16 @@ class ScenarioActuel:
                 # faisait ce module, revenait à faire garantir par le système
                 # actuel un départ que le droit sanctionne — et gonflait
                 # l'étalon de 20 % sur les petites pensions parties tôt.
+                # Le minimum se proratise « dans les mêmes conditions que la
+                # pension » : c'est donc la durée de proratisation, et non la
+                # durée requise, qui fait office ici aussi.
                 cotises_regime = min(
-                    trimestres_cotises_par_regime.get(code, 0), requis
+                    trimestres_cotises_par_regime.get(code, 0), proratisation
                 )
                 eligibles_minimum.append(_EligibleMinimum(
                     indice=len(pensions),
-                    prorata_assurance=trimestres_regime / requis,
-                    prorata_cotise=cotises_regime / requis,
+                    prorata_assurance=trimestres_regime / proratisation,
+                    prorata_cotise=cotises_regime / proratisation,
                     taux_plein=(
                         trimestres >= requis
                         or age_liquidation >= self._age_taux_plein(periode, carriere)
@@ -1766,7 +1842,7 @@ class ScenarioActuel:
                 detail=(
                     f"{'forfait' if periode.pension_forfaitaire_annuelle is not None else 'SR'} "
                     f"{salaire_reference:,.0f} € × taux {taux:.2%} "
-                    f"× {trimestres_regime}/{requis}"
+                    f"× {trimestres_regime}/{proratisation}"
                 ),
                 fiabilite=regime.fiabilite,
             ))

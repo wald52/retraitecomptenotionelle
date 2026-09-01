@@ -47,6 +47,36 @@ export class DureesRequises extends TableParGeneration {
   }
 }
 
+/**
+ * Durée d'assurance MAXIMALE prise en compte par la proratisation.
+ *
+ * Ce n'est pas la durée requise pour le taux plein, et le moteur les
+ * confondait. La loi du 22 juillet 1993 a fait monter la première de 150 à
+ * 160 trimestres pour les générations 1934 à 1943, et n'a touché à la seconde
+ * que pour les générations 1944 à 1948 (article R. 351-6). Un assuré né en
+ * 1945 ayant validé 156 trimestres se voit opposer 160 trimestres pour le taux
+ * — il est décoté — mais 154 pour la proratisation : son coefficient vaut 1.
+ *
+ * La lecture s'ARRÊTE à la dernière génération du fichier, au lieu de prolonger
+ * sa dernière valeur : à compter de 1949 la durée de proratisation rejoint la
+ * durée requise, et prolonger 160 trimestres à des générations qui en doivent
+ * 172 rendrait l'erreur dans l'autre sens.
+ */
+export class DureesProratisation extends TableParGeneration {
+  constructor(paquet) {
+    super(paquet.durees_proratisation);
+  }
+
+  /** @returns {[number, number] | null} trimestres et fiabilité. */
+  trimestres(generation) {
+    if (this._generations.length === 0
+        || generation > this._generations[this._generations.length - 1]) {
+      return null;
+    }
+    return this.valeur(generation);
+  }
+}
+
 /** Âge légal d'ouverture des droits, par génération. */
 export class AgesOuverture extends TableParGeneration {
   constructor(paquet) {
