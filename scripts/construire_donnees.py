@@ -65,7 +65,7 @@ STYLE = RACINE / "moteur" / "style.css"
 
 #: Version du format. À incrémenter si la structure du paquet change, pour
 #: qu'un site en cache ne lise pas un paquet qu'il ne comprend pas.
-VERSION = 5
+VERSION = 6
 
 
 def _serie(serie: SerieAnnuelle) -> dict:
@@ -263,6 +263,31 @@ def _rendements() -> list:
 
 
 
+def _revalorisation_salaires() -> dict:
+    """Coefficients des arrêtés de revalorisation des salaires portés au compte.
+
+    Indexés par année de PERCEPTION, chacune portant sa première année de
+    liquidation puis les coefficients d'affilée : ils courent sans trou jusqu'à
+    la dernière liquidation couverte, si bien qu'un tableau suffit et que le
+    paquet n'a pas à répéter 2 774 fois une clé à deux entrées — 22 Ko au lieu
+    de 55.
+    """
+    from retraite_notionnelle.donnees.macro import DonneesMacro
+
+    table: dict[int, dict[int, float]] = {}
+    for (perception, liquidation), coefficient in (
+        DonneesMacro(DONNEES).revalorisation_portee_au_compte.items()
+    ):
+        table.setdefault(perception, {})[liquidation] = coefficient
+    return {
+        str(perception): [
+            min(liquidations),
+            [liquidations[annee] for annee in sorted(liquidations)],
+        ]
+        for perception, liquidations in sorted(table.items())
+    }
+
+
 def _contribution_employeur_public() -> dict:
     """Part employeur des régimes publics, indexée « régime|année »."""
     from retraite_notionnelle.donnees.regimes import ContributionsEmployeurPubliques
@@ -403,6 +428,7 @@ def construire() -> bytes:
         "conversions_points": _conversions_points(),
         "durees_requises": _table_par_generation(DureesRequises),
         "durees_proratisation": _table_par_generation(DureesProratisation),
+        "revalorisation_salaires": _revalorisation_salaires(),
         "ages_ouverture": _table_par_generation(AgesOuverture),
         "ages_annulation_decote": _table_par_generation(AgesAnnulationDecote),
         "coefficients_minoration": _table_par_generation(CoefficientsMinoration),

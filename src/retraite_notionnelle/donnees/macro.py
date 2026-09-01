@@ -204,6 +204,84 @@ class DonneesMacro:
         depart = self.smic_horaire(annee_depart)
         return self.smic_horaire(annee_arrivee) / depart if depart > 0 else 1.0
 
+    @cached_property
+    def revalorisation_portee_au_compte(self) -> dict[tuple[int, int], float]:
+        """Coefficients des arrêtés, par (année de perception, de liquidation).
+
+        Une table à deux entrées, et non une série annuelle : aucune formule ne
+        reproduit les arrêtés. La revalorisation a porté tantôt jusqu'à l'année
+        n−1, tantôt jusqu'à n−2, avec des gels et des revalorisations
+        exceptionnelles, si bien qu'un coefficient cumulé ne se déduit pas d'un
+        rapport d'ancrages — j'ai mesuré jusqu'à 20 % d'écart en essayant.
+        Le fichier est produit par
+        ``scripts/fetch/openfisca_revalorisation_salaires.py``.
+        """
+        import csv
+
+        chemin = (self.racine / "reference" / "legislation"
+                  / "revalorisation_salaires.csv")
+        if not chemin.exists():
+            return {}
+        table: dict[tuple[int, int], float] = {}
+        with chemin.open(encoding="utf-8") as flux:
+            lignes = (l for l in flux if not l.lstrip().startswith("#"))
+            for ligne in csv.DictReader(lignes):
+                table[(int(ligne["annee_perception"]),
+                       int(ligne["annee_liquidation"]))] = float(ligne["coefficient"])
+        return table
+
+    def coefficient_revalorisation_portee_au_compte(self, annee_depart: int,
+                                                    annee_arrivee: int) -> float:
+        """Revalorisation d'un salaire PORTÉ AU COMPTE, telle que l'arrêté la fixe.
+
+        C'est la grandeur qui commande le salaire annuel moyen : la moyenne
+        porte sur les N MEILLEURES années, et « meilleures » se juge sur des
+        salaires revalorisés. Le modèle l'approchait par « les salaires jusqu'en
+        1986, les prix depuis » ; la confrontation à une seconde implémentation
+        a mesuré ce que cela coûte — **12 à 14 % de sur-revalorisation** des
+        salaires anciens sur un horizon de quarante ans, et donc un salaire de
+        référence gonflé d'autant pour toutes les carrières qui en comportent.
+
+        Au-delà de la dernière liquidation publiée, les arrêtés servent quand
+        même : le coefficient est ANCRÉ sur eux et l'approximation ne couvre
+        plus que les dernières années. Elle ne reprend toute la main que pour
+        les perceptions hors table — avant 1949, après 2021 — et
+        ``docs/limites.md`` dit dans quel sens elle joue.
+        """
+        if annee_arrivee == annee_depart:
+            return 1.0
+        if annee_arrivee < annee_depart:
+            return 1.0 / self.coefficient_revalorisation_portee_au_compte(
+                annee_arrivee, annee_depart
+            )
+        connu = self.revalorisation_portee_au_compte.get(
+            (annee_depart, annee_arrivee)
+        )
+        if connu is not None:
+            return connu
+        # Au-delà de la dernière liquidation publiée, on ANCRE sur elle et on
+        # n'approche que le bout du chemin. Ce n'est pas un artifice : l'arrêté
+        # annuel applique un coefficient UNIQUE à tous les salaires déjà portés
+        # au compte, quelle que soit leur année de perception — la table le
+        # confirme, la dispersion du coefficient annuel d'une perception à
+        # l'autre y vaut 1,6·10⁻⁵, c'est-à-dire son seul arrondi. Une
+        # liquidation en 2026 lit donc les arrêtés de 1949 à 2023 et n'approche
+        # que trois années, au lieu de tout approcher.
+        derniere = self.derniere_liquidation_revalorisee
+        if derniere is not None and annee_arrivee > derniere:
+            ancre = self.revalorisation_portee_au_compte.get((annee_depart, derniere))
+            if ancre is not None:
+                return ancre * self.coefficient_revalorisation_salaires(
+                    derniere, annee_arrivee
+                )
+        return self.coefficient_revalorisation_salaires(annee_depart, annee_arrivee)
+
+    @cached_property
+    def derniere_liquidation_revalorisee(self) -> int | None:
+        """Dernière année de liquidation que les arrêtés publiés couvrent."""
+        table = self.revalorisation_portee_au_compte
+        return max((liquidation for _, liquidation in table), default=None)
+
     def coefficient_revalorisation_salaires(self, annee_depart: int,
                                             annee_arrivee: int) -> float:
         """Revalorisation d'un salaire porté au compte, de ``annee_depart`` à
@@ -222,6 +300,14 @@ class DonneesMacro:
         compte des salaires anciens très en dessous de ce que le droit y a
         réellement inscrit, et minorait d'autant le salaire de référence des
         carrières commencées avant 1987.
+
+        **Cette règle n'est plus qu'un REPLI.** Les coefficients des arrêtés
+        eux-mêmes sont désormais dans le dépôt, et
+        :meth:`coefficient_revalorisation_portee_au_compte` les sert là où ils
+        existent — c'est-à-dire partout où le salaire de référence est calculé
+        sur des années réellement portées au compte. Cette approximation ne vaut
+        plus que hors de leur plage, et pour les régimes qui ne portent pas de
+        salaire à un compte.
         """
         if annee_arrivee == annee_depart:
             return 1.0

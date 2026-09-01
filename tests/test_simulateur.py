@@ -1359,6 +1359,119 @@ def test_les_salaires_anciens_sont_revalorises_sur_les_salaires(simulateur):
     )
 
 
+def test_les_coefficients_de_revalorisation_viennent_des_arretes(simulateur):
+    """La table des arrêtés l'emporte sur l'approximation, et de beaucoup.
+
+    « Les salaires jusqu'en 1986, les prix depuis » décrit les arrêtés dans les
+    grandes lignes, mais seulement dans les grandes lignes : ils ont connu des
+    revalorisations semestrielles, des gels, des revalorisations
+    exceptionnelles, et surtout des changements du DÉLAI d'application. La
+    confrontation à une seconde implémentation a mesuré l'écart.
+    """
+    macro = simulateur.macro
+    lu = macro.coefficient_revalorisation_portee_au_compte
+    approche = macro.coefficient_revalorisation_salaires
+
+    # L'approximation SUR-revalorise les salaires anciens.
+    assert approche(1970, 2018) / lu(1970, 2018) == pytest.approx(1.121, abs=5e-3)
+    assert approche(1980, 2018) / lu(1980, 2018) == pytest.approx(1.136, abs=5e-3)
+
+    # Une valeur de la table, lue telle quelle.
+    assert lu(1949, 1950) == pytest.approx(1.32)
+
+    # Réversible et neutre sur place, comme tout coefficient de passage.
+    assert lu(2000, 2000) == 1.0
+    assert lu(2018, 1970) == pytest.approx(1.0 / lu(1970, 2018))
+
+
+def test_le_coefficient_de_revalorisation_s_ancre_sur_le_dernier_arrete(simulateur):
+    """Une liquidation en 2026 lit les arrêtés, elle ne les jette pas.
+
+    Les arrêtés publiés s'arrêtent aux liquidations de 2023, et c'est en 2026
+    que le site liquide par défaut : tout approcher au-delà rendrait la table
+    inutile là où elle sert le plus. Le modèle ancre donc sur le dernier arrêté
+    publié et n'approche que le bout du chemin.
+    """
+    macro = simulateur.macro
+    derniere = macro.derniere_liquidation_revalorisee
+    assert derniere == 2023
+
+    attendu = (macro.coefficient_revalorisation_portee_au_compte(1970, derniere)
+               * macro.coefficient_revalorisation_salaires(derniere, 2026))
+    assert macro.coefficient_revalorisation_portee_au_compte(1970, 2026) == (
+        pytest.approx(attendu)
+    )
+    # Et l'ancrage corrige bel et bien : sans lui, tout le chemin est approché.
+    assert (macro.coefficient_revalorisation_salaires(1970, 2026)
+            > 1.15 * macro.coefficient_revalorisation_portee_au_compte(1970, 2026))
+
+
+def test_l_arrete_annuel_est_le_meme_pour_toutes_les_perceptions(simulateur):
+    """L'invariant qui AUTORISE l'ancrage — il ne va pas de soi, on le vérifie.
+
+    Ancrer sur le dernier arrêté publié et prolonger suppose que la
+    revalorisation d'une année est un coefficient UNIQUE, appliqué à tous les
+    salaires déjà portés au compte quelle que soit leur année de perception. Si
+    la table venait un jour à porter des coefficients annuels distincts par
+    perception, l'ancrage deviendrait faux en silence : ce test l'en empêche.
+    """
+    table = simulateur.macro.revalorisation_portee_au_compte
+    liquidations = {liquidation for _, liquidation in table}
+    for liquidation in sorted(liquidations):
+        annuels = [
+            valeur / table[(perception, liquidation - 1)]
+            for (perception, annee), valeur in table.items()
+            if annee == liquidation and (perception, liquidation - 1) in table
+        ]
+        if len(annuels) < 2:
+            continue
+        # 1,6·10⁻⁵ observé : c'est l'arrondi à six chiffres de la table, pas
+        # une dispersion réelle.
+        assert (max(annuels) - min(annuels)) / min(annuels) < 1e-4, liquidation
+
+
+def test_le_dernier_traitement_ne_recoit_pas_les_coefficients_du_regime_general(
+        simulateur):
+    """Les arrêtés ne valent que pour un salaire PORTÉ AU COMPTE.
+
+    Une pension civile se liquide sur le traitement des six derniers mois de
+    service : rien n'y est porté à un compte, et rien n'y est donc revalorisé
+    par les coefficients de la CNAV. Leur appliquer serait une erreur de
+    catégorie — le contrôle porte sur le fait que le montant liquidé reste le
+    dernier traitement, sans coefficient d'aucune sorte.
+    """
+    from retraite_notionnelle.carriere import AnneeCarriere, Carriere
+
+    lignes = [
+        AnneeCarriere(annee=annee, revenu=30000.0,
+                      affiliation="fonctionnaire_etat", trimestres_valides=4)
+        for annee in range(1980, 2020)
+    ]
+    carriere = Carriere(annee_naissance=1958, sexe="H", lignes=lignes,
+                        age_liquidation=62.0, identifiant="fp")
+    scenario = simulateur.scenario_actuel
+    periode = simulateur.catalogue["fonction_publique_etat"].periode(2020)
+    assert periode.salaire_reference == "derniers_6_mois"
+    assert periode.assiette == "hors_primes"
+    reference = scenario.salaire_de_reference(
+        "fonction_publique_etat", carriere, periode, 2020, False, 1958, True,
+    )
+    # Le dernier traitement, primes exclues, ramené en euros de l'année de
+    # liquidation par l'APPROXIMATION — et non par l'arrêté de la CNAV, qui
+    # donne 1,01 là où l'approximation donne 1,0048 pour ce même passage.
+    derniere = carriere.lignes[-1]
+    traitement = derniere.revenu * (1.0 - derniere.part_primes)
+    macro = simulateur.macro
+    assert reference == pytest.approx(
+        traitement * macro.coefficient_revalorisation_salaires(derniere.annee, 2020)
+    )
+    assert reference != pytest.approx(
+        traitement * macro.coefficient_revalorisation_portee_au_compte(
+            derniere.annee, 2020,
+        )
+    )
+
+
 def test_le_nombre_d_annees_du_salaire_de_reference_suit_la_generation(simulateur):
     """Dix à vingt-cinq années, à raison d'une par génération, de 1934 à 1948.
 

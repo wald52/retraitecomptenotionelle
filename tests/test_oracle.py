@@ -32,27 +32,21 @@ from retraite_notionnelle.simulateur import Simulateur
 
 TEMOIN = Path(__file__).resolve().parent / "temoins" / "openfisca_regime_general.json"
 
-#: Tolérance sur le salaire annuel moyen, et donc sur la pension qui en découle.
+#: Tolérance sur les grandeurs comparées.
 #:
-#: C'est le seul poste où les deux modèles divergent, et l'écart est UNILATÉRAL :
-#: nous sommes au-dessus sur les dix profils, de 0,30 % à 7,55 %. La cause est
-#: unique et documentée dans `docs/limites.md` — les salaires portés au compte
-#: sont revalorisés par des coefficients fixés chaque année par arrêté, qu'
-#: OpenFisca porte en série (`revalorisation_salaire_cummulee`) là où nous les
-#: approchons par « les salaires jusqu'en 1986, les prix depuis ».
+#: Elle valait 8 % : le salaire annuel moyen était le seul poste où les deux
+#: modèles divergeaient, de 0,30 % à 7,55 %, et toujours dans le même sens.
+#: La cause en était les coefficients de revalorisation des salaires portés au
+#: compte, que le modèle approchait par « les salaires jusqu'en 1986, les prix
+#: depuis » — une approximation qui SUR-REVALORISE les salaires anciens de 12 à
+#: 14 % sur quarante ans.
 #:
-#: L'écart n'est pas monotone, et c'est normal : le salaire de référence retient
-#: les N MEILLEURES années, si bien qu'un jeu de coefficients différent ne
-#: déplace pas seulement le niveau de chaque année — il change lesquelles sont
-#: retenues. Un écart de niveau de deux points peut donc en produire sept une
-#: fois la sélection faite. Les deux modèles plafonnent bien au même plafond de
-#: la Sécurité sociale, ramené en euros de part et d'autre : ce n'est pas là
-#: qu'ils divergent.
-#:
-#: La borne est là pour que cet écart reste ce qu'il est : une approximation
-#: bornée et connue, non un glissement qui s'installe. La refermer suppose de
-#: reprendre la série d'OpenFisca, ce que ce récupérateur ne fait pas encore.
-TOLERANCE_SALAIRE_DE_REFERENCE = 0.08
+#: Les coefficients des arrêtés sont désormais dans le dépôt
+#: (`legislation/revalorisation_salaires.csv`), et l'écart tombe à 4·10⁻⁶ : ce
+#: qui restait est l'arrondi à six chiffres significatifs de la table. La
+#: tolérance n'est donc plus une marge d'approximation mais une marge de
+#: précision numérique, et le test devient un vrai contrôle d'égalité.
+TOLERANCE = 1e-4
 
 
 @pytest.fixture(scope="module")
@@ -167,31 +161,31 @@ def test_la_proratisation_concorde(oracle, simulateur):
         ), code
 
 
-def test_le_salaire_de_reference_reste_dans_sa_marge(oracle, simulateur):
-    """Le seul poste où les deux modèles divergent, et il doit rester borné.
+def test_le_salaire_de_reference_concorde(oracle, simulateur):
+    """Le salaire annuel moyen, dernier poste à avoir divergé.
 
-    L'écart est unilatéral — nous sommes au-dessus — et sa cause est connue :
-    les coefficients de revalorisation des salaires portés au compte. Le test
-    vérifie les deux : que l'écart tient dans sa marge, et qu'il garde son sens,
-    faute de quoi une erreur nouvelle pourrait le compenser sans se voir.
+    Il divergeait de 0,30 % à 7,55 %, toujours dans le même sens, parce que le
+    modèle approchait les coefficients de revalorisation des salaires portés au
+    compte au lieu de les lire. Ils sont maintenant dans le dépôt, et les deux
+    modèles tombent sur le même salaire de référence à l'arrondi près.
     """
     for code, entree in oracle["profils"].items():
         nous, eux = _notre_calcul(simulateur, entree["profil"]), entree["openfisca"]
-        ecart = nous["salaire_de_reference"] / eux["salaire_de_reference"] - 1
-        assert 0 <= ecart <= TOLERANCE_SALAIRE_DE_REFERENCE, (code, ecart)
+        assert nous["salaire_de_reference"] == pytest.approx(
+            eux["salaire_de_reference"], rel=TOLERANCE
+        ), code
 
 
-def test_la_pension_de_base_ne_diverge_que_par_le_salaire_de_reference(
-    oracle, simulateur
-):
-    """Tout le reste étant identique, l'écart de pension DOIT être celui du SAM.
+def test_la_pension_de_base_concorde(oracle, simulateur):
+    """Le bout de la chaîne : deux implémentations, une pension.
 
-    C'est l'invariant qui donne son prix à la confrontation : si la pension
-    s'écartait autrement que par le salaire de référence, c'est qu'une règle
-    aurait divergé sans que les grandeurs intermédiaires le montrent.
+    C'est le contrôle qui donne son prix à la confrontation. Salaire de
+    référence, taux, coefficient de proratisation : chacun a été vérifié
+    séparément, et leur produit doit tomber juste — un écart qui n'apparaîtrait
+    qu'ici signalerait une règle appliquée dans le mauvais ordre.
     """
     for code, entree in oracle["profils"].items():
         nous, eux = _notre_calcul(simulateur, entree["profil"]), entree["openfisca"]
-        ecart_pension = nous["pension_brute"] / eux["pension_brute"] - 1
-        ecart_salaire = nous["salaire_de_reference"] / eux["salaire_de_reference"] - 1
-        assert ecart_pension == pytest.approx(ecart_salaire, abs=2e-3), code
+        assert nous["pension_brute"] == pytest.approx(
+            eux["pension_brute"], rel=TOLERANCE
+        ), code

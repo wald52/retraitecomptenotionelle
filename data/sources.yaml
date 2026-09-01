@@ -857,6 +857,46 @@ institutions:
           paramètre que les barèmes livrés ne définissent pas) et ses barèmes
           s'arrêtent en 2024.
 
+      - id: openfisca_revalorisation_salaires
+        titre: Coefficients de revalorisation des salaires portés au compte, 1949-2023
+        url: https://github.com/openfisca/openfisca-france-pension/blob/master/openfisca_france_pension/parameters/retraites/secteur_prive/regime_general_cnav/revalorisation_salaire_cummulee.yaml
+        acces: api
+        statut_integration: automatise
+        cible: data/reference/legislation/revalorisation_salaires.csv
+        recuperation: scripts/fetch/openfisca_revalorisation_salaires.py
+        note: >-
+          Le salaire annuel moyen du régime général est la moyenne des N
+          MEILLEURES années, et « meilleures » se juge sur des salaires
+          REVALORISÉS : ces coefficients commandent donc à la fois le montant
+          retenu et le CHOIX des années. Ils sont fixés chaque année par arrêté
+          et n'ont jamais suivi une règle unique — les salaires jusqu'au milieu
+          des années 1980, les prix depuis, avec des revalorisations
+          semestrielles, des gels, des revalorisations exceptionnelles et des
+          changements du DÉLAI d'application, la revalorisation portant tantôt
+          jusqu'à l'année n−1, tantôt jusqu'à n−2.
+          Le modèle les approchait par « les salaires jusqu'en 1986, les prix
+          depuis ». La confrontation à openfisca_regime_general_oracle a mesuré
+          ce que cette approximation coûte : une SUR-revalorisation des salaires
+          anciens de 12,1 % sur 1970-2018 et 13,6 % sur 1980-2018, qui gonflait
+          le salaire de référence de 0,30 % à 7,55 % selon la carrière — et
+          donc l'étalon lui-même. Les coefficients lus, l'écart tombe à 4·10⁻⁶.
+          Une table à DEUX ENTRÉES, et non une série annuelle : aucune formule
+          ne reproduit les arrêtés. Une série d'ancrages fuit de 20 %, la même
+          restreinte aux liquidations récentes de 2,8 %, une série d'ancrages
+          plus une série d'entrée de 16,7 %, un retard par année de liquidation
+          laisse 697 couples sur 2 628 inexpliqués. C'est la doctrine du dépôt :
+          préférer ce qui a été réellement appliqué à toute reconstitution
+          élégante.
+          Transcription des arrêtés et des circulaires CNAV, chaque valeur
+          portant sa date de Journal officiel dans les métadonnées du fichier
+          amont : niveau `haute`, jamais `certifiee`. Au-delà de la dernière
+          liquidation publiée, les arrêtés servent quand même — le coefficient
+          est ancré sur eux et l'approximation ne couvre plus que les dernières
+          années, ce qu'autorise leur structure : chaque arrêté applique un
+          coefficient unique à tous les salaires déjà portés au compte, la table
+          le confirme à 1,6·10⁻⁵ près. Elle ne reprend toute la main que pour
+          les salaires perçus hors table.
+
       - id: openfisca_point_indice
         titre: Point d'indice de la fonction publique et barème du minimum garanti
         url: https://github.com/openfisca/openfisca-france/blob/master/openfisca_france/parameters/marche_travail/remuneration_dans_fonction_publique/indicefp/point_indice_en_euros.yaml

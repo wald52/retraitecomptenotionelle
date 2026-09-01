@@ -398,6 +398,37 @@ toute la carrière, si bien qu'un agent SNCF passé au régime général liquida
 pension spéciale sur son dernier salaire de salarié — vingt pour cent de trop
 sur un cas type — pendant que le prorata de durée, lui, restait celui du régime.
 
+**Les salaires portés au compte sont revalorisés par les coefficients des
+arrêtés eux-mêmes**, lus dans `legislation/revalorisation_salaires.csv`. Cette
+grandeur commande le salaire annuel moyen deux fois plutôt qu'une : la moyenne
+porte sur les N MEILLEURES années, et « meilleures » se juge sur des salaires
+revalorisés — changer les coefficients ne déplace donc pas seulement le niveau
+de chaque année, cela change lesquelles sont retenues.
+
+Le modèle les approchait par « les salaires jusqu'en 1986, les prix depuis »,
+ce qu'ont fait les arrêtés dans les grandes lignes. Mais seulement dans les
+grandes lignes : ils ont connu des revalorisations semestrielles, des gels, des
+revalorisations exceptionnelles, et surtout des changements du DÉLAI
+d'application — la revalorisation portant tantôt jusqu'à l'année n−1, tantôt
+jusqu'à n−2. L'approximation **sur-revalorisait les salaires anciens de 12,1 %
+sur 1970-2018**, et gonflait d'autant le salaire de référence de toute carrière
+en comportant. C'est ce qui a fait diverger le scénario 1 d'une seconde
+implémentation, de 0,30 % à 7,55 % selon la carrière ; l'écart est retombé à
+4·10⁻⁶.
+
+La table a deux entrées — année de perception, année de liquidation — parce
+qu'aucune formule ne reproduit les arrêtés : quatre encodages compacts ont été
+essayés et mesurés, le meilleur fuit encore de 2,8 %.
+
+Les arrêtés s'arrêtent aux liquidations de 2023, et le site liquide par défaut
+en 2026 : au-delà, le coefficient est **ancré** sur le dernier publié et
+l'ancienne approximation ne couvre plus que les dernières années. C'est la
+structure même des arrêtés — chacun applique un coefficient unique à tous les
+salaires déjà portés au compte, la table le confirme à 1,6·10⁻⁵ près. Elle ne
+reprend toute la main que pour les salaires perçus hors table (avant 1949, après
+2021). Les régimes qui liquident sur le dernier traitement ou sur les six
+derniers mois ne portent aucun salaire à un compte : elle y reste la règle.
+
 #### Le taux plein, et ce qui l'ouvre
 
 Trois choses distinctes, que le modèle confondait :

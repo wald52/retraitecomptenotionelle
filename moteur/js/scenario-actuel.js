@@ -133,11 +133,13 @@ export class ScenarioActuel {
    * Salaire de référence, exprimé en euros de l'année de liquidation.
    *
    * Deux règles de droit commandent ce calcul. La REVALORISATION des salaires
-   * portés au compte, d'abord : les arrêtés annuels ont suivi les salaires
-   * jusqu'en 1986 et suivent les prix depuis 1987. Le NOMBRE D'ANNÉES retenues
-   * ensuite, que la loi du 22 juillet 1993 fait passer de dix à vingt-cinq à
-   * raison d'une par génération — lu à l'année de naissance, donc, et non à
-   * celle de la liquidation.
+   * portés au compte, d'abord, que le modèle lit dans les arrêtés eux-mêmes
+   * plutôt que de la reconstituer — elle commande le résultat deux fois plutôt
+   * qu'une, puisque la moyenne porte sur les N meilleures années et que
+   * « meilleures » se juge sur des salaires revalorisés. Le NOMBRE D'ANNÉES
+   * retenues ensuite, que la loi du 22 juillet 1993 fait passer de dix à
+   * vingt-cinq à raison d'une par génération — lu à l'année de naissance,
+   * donc, et non à celle de la liquidation.
    *
    * Le salaire retenu est celui de l'assiette du régime, et pas la
    * rémunération entière : la pension civile porte sur le seul traitement
@@ -147,6 +149,16 @@ export class ScenarioActuel {
     generation = null, avpf = true) {
     const avpfOuvert = avpf
       && periode.avantages_non_contributifs.includes("avpf");
+    // Les coefficients des arrêtés ne valent que pour un salaire PORTÉ AU
+    // COMPTE. Un régime qui liquide sur le dernier traitement ne porte rien à
+    // un compte : lui appliquer les coefficients du régime général serait une
+    // erreur de catégorie, et c'est l'approximation qui y reste en vigueur —
+    // avec la réserve que `docs/limites.md` lui attache.
+    const porteAuCompte = periode.salaire_reference !== "derniers_6_mois"
+      && periode.salaire_reference !== "dernier_salaire";
+    const revaloriser = porteAuCompte
+      ? (depart, arrivee) => this.macro.coefficientRevalorisationPorteeAuCompte(depart, arrivee)
+      : (depart, arrivee) => this.macro.coefficientRevalorisationSalaires(depart, arrivee);
     const revenus = [];
     for (const ligne of carriere.lignes) {
       if (ligne.annee >= anneeLiquidation) {
@@ -171,9 +183,7 @@ export class ScenarioActuel {
       if (plafonner) {
         revenu = Math.min(revenu, this.macro.plafond_securite_sociale.valeur(ligne.annee));
       }
-      revenus.push(revenu * this.macro.coefficientRevalorisationSalaires(
-        ligne.annee, anneeLiquidation,
-      ));
+      revenus.push(revenu * revaloriser(ligne.annee, anneeLiquidation));
     }
 
     if (revenus.length === 0) {

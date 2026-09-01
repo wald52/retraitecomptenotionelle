@@ -1089,10 +1089,15 @@ class ScenarioActuel:
 
         La première est la **revalorisation des salaires portés au compte** :
         les salaires anciens sont réévalués par les coefficients annuels que
-        fixe l'arrêté, lesquels ont suivi les salaires jusqu'en 1986 et suivent
-        les prix depuis 1987. Appliquer la règle des prix à toute la période,
-        comme le faisait ce module, ramenait au compte les salaires des Trente
-        Glorieuses très en dessous de ce que le droit y a inscrit.
+        fixe l'arrêté, et le modèle les LIT au lieu de les reconstituer. Il les
+        approchait par « les salaires jusqu'en 1986, les prix depuis », ce qui
+        décrit les arrêtés dans les grandes lignes mais ignore leurs
+        revalorisations semestrielles, leurs gels, leurs revalorisations
+        exceptionnelles et leurs changements de DÉLAI d'application : cette
+        approximation sur-revalorisait les salaires anciens de 12 % sur
+        quarante ans. La grandeur commande le salaire de référence deux fois
+        plutôt qu'une, puisque la moyenne porte sur les N MEILLEURES années et
+        que « meilleures » se juge sur des salaires revalorisés.
 
         La seconde est le **nombre d'années retenues**, que la loi du 22 juillet
         1993 fait passer de dix à vingt-cinq à raison d'une par génération. Le
@@ -1108,6 +1113,19 @@ class ScenarioActuel:
         """
         avpf_ouvert = (
             avpf and "avpf" in periode.avantages_non_contributifs
+        )
+        # Les coefficients des arrêtés ne valent que pour un salaire PORTÉ AU
+        # COMPTE. Un régime qui liquide sur le dernier traitement ne porte rien
+        # à un compte : lui appliquer les coefficients du régime général serait
+        # une erreur de catégorie, et c'est l'approximation qui y reste en
+        # vigueur — avec la réserve que `docs/limites.md` lui attache.
+        porte_au_compte = periode.salaire_reference not in (
+            "derniers_6_mois", "dernier_salaire"
+        )
+        revaloriser = (
+            self.macro.coefficient_revalorisation_portee_au_compte
+            if porte_au_compte
+            else self.macro.coefficient_revalorisation_salaires
         )
         revenus: list[float] = []
         for ligne in carriere.lignes:
@@ -1129,8 +1147,7 @@ class ScenarioActuel:
                 revenu = _assiette_de_reference(periode, ligne)
             if plafonner:
                 revenu = min(revenu, self.macro.plafond_securite_sociale(ligne.annee))
-            revenus.append(revenu * self.macro.coefficient_revalorisation_salaires(
-                ligne.annee, annee_liquidation))
+            revenus.append(revenu * revaloriser(ligne.annee, annee_liquidation))
 
         if not revenus:
             return 0.0

@@ -50,6 +50,36 @@ export class DonneesMacro {
 
     this._coefficientsPrix = new Map();
     this._coefficientsSalaires = new Map();
+    this.revalorisationPorteeAuCompte = DonneesMacro._revalorisation(
+      paquet.revalorisation_salaires,
+    );
+    /** Dernière année de liquidation que les arrêtés publiés couvrent. */
+    this.derniereLiquidationRevalorisee = null;
+    for (const cle of this.revalorisationPorteeAuCompte.keys()) {
+      const liquidation = Number(cle.split("|")[1]);
+      if (this.derniereLiquidationRevalorisee === null
+          || liquidation > this.derniereLiquidationRevalorisee) {
+        this.derniereLiquidationRevalorisee = liquidation;
+      }
+    }
+  }
+
+  /**
+   * Coefficients des arrêtés, dépliés en une table « perception|liquidation ».
+   *
+   * Le paquet les porte par année de perception — première liquidation, puis
+   * les coefficients d'affilée — parce qu'ils courent sans trou jusqu'à la
+   * dernière liquidation couverte. Les déplier ici évite de payer une
+   * arithmétique d'indice à chaque année de chaque carrière.
+   */
+  static _revalorisation(compact) {
+    const table = new Map();
+    for (const [perception, [premiere, coefficients]] of Object.entries(compact || {})) {
+      coefficients.forEach((coefficient, rang) => {
+        table.set(`${perception}|${premiere + rang}`, coefficient);
+      });
+    }
+    return table;
   }
 
   /**
@@ -172,6 +202,55 @@ export class DonneesMacro {
   }
 
   /**
+   * Revalorisation d'un salaire PORTÉ AU COMPTE, telle que l'arrêté la fixe.
+   *
+   * C'est la grandeur qui commande le salaire annuel moyen : la moyenne porte
+   * sur les N MEILLEURES années, et « meilleures » se juge sur des salaires
+   * revalorisés. Le modèle l'approchait par « les salaires jusqu'en 1986, les
+   * prix depuis » ; la confrontation à une seconde implémentation a mesuré ce
+   * que cela coûte — 12 à 14 % de sur-revalorisation des salaires anciens sur
+   * un horizon de quarante ans, et donc un salaire de référence gonflé
+   * d'autant pour toutes les carrières qui en comportent.
+   *
+   * Au-delà de la dernière liquidation publiée, les arrêtés servent quand
+   * même : le coefficient est ANCRÉ sur eux et l'approximation ne couvre plus
+   * que les dernières années. Elle ne reprend toute la main que pour les
+   * perceptions hors table — avant 1949, après 2021 — et `docs/limites.md`
+   * dit dans quel sens elle joue.
+   */
+  coefficientRevalorisationPorteeAuCompte(depart, arrivee) {
+    if (arrivee === depart) {
+      return 1.0;
+    }
+    if (arrivee < depart) {
+      return 1.0 / this.coefficientRevalorisationPorteeAuCompte(arrivee, depart);
+    }
+    const connu = this.revalorisationPorteeAuCompte.get(`${depart}|${arrivee}`);
+    if (connu !== undefined) {
+      return connu;
+    }
+    // Au-delà de la dernière liquidation publiée, on ANCRE sur elle et on
+    // n'approche que le bout du chemin. Ce n'est pas un artifice : l'arrêté
+    // annuel applique un coefficient UNIQUE à tous les salaires déjà portés au
+    // compte, quelle que soit leur année de perception — la table le confirme,
+    // la dispersion du coefficient annuel d'une perception à l'autre y vaut
+    // 1,6·10⁻⁵, c'est-à-dire son seul arrondi. Une liquidation en 2026 lit donc
+    // les arrêtés de 1949 à 2023 et n'approche que trois années.
+    if (this.derniereLiquidationRevalorisee !== null
+        && arrivee > this.derniereLiquidationRevalorisee) {
+      const ancre = this.revalorisationPorteeAuCompte.get(
+        `${depart}|${this.derniereLiquidationRevalorisee}`,
+      );
+      if (ancre !== undefined) {
+        return ancre * this.coefficientRevalorisationSalaires(
+          this.derniereLiquidationRevalorisee, arrivee,
+        );
+      }
+    }
+    return this.coefficientRevalorisationSalaires(depart, arrivee);
+  }
+
+  /**
    * Revalorisation d'un salaire porté au compte, de ``depart`` à ``arrivee``.
    *
    * Ce n'est pas l'indice des prix. Les salaires inscrits au compte sont
@@ -180,6 +259,12 @@ export class DonneesMacro {
    * Trente Glorieuses l'écart est massif : appliquer la règle des prix à ces
    * années-là ramenait au compte des salaires très en dessous de ce que le
    * droit y a réellement inscrit.
+   *
+   * **Cette règle n'est plus qu'un REPLI.** Les coefficients des arrêtés
+   * eux-mêmes sont dans le paquet, et
+   * `coefficientRevalorisationPorteeAuCompte` les sert là où ils existent.
+   * Cette approximation ne vaut plus que hors de leur plage, et pour les
+   * régimes qui ne portent aucun salaire à un compte.
    */
   coefficientRevalorisationSalaires(depart, arrivee) {
     if (arrivee === depart) {
