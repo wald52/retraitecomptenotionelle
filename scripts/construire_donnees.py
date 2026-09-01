@@ -263,20 +263,22 @@ def _rendements() -> list:
 
 
 
-def _revalorisation_salaires() -> dict:
-    """Indices de revalorisation des salaires portés au compte, et leur référence.
+def _revalorisation_salaires() -> list:
+    """Colonnes de revalorisation publiées par la Cnav, par date d'effet.
 
-    UN indice par année de perception : le coefficient entre deux années
-    quelconques est le rapport de leurs indices. Quatre kilo-octets là où une
-    table à deux entrées en pesait cinquante.
+    Une colonne : année de la date d'effet, drapeau « au 1er janvier », première
+    année de perception, puis les coefficients d'affilée — ils courent sans trou,
+    si bien qu'un tableau suffit et que le paquet n'a pas à répéter 876 fois une
+    clé.
     """
     from retraite_notionnelle.donnees.macro import DonneesMacro
 
-    indices, reference = DonneesMacro(DONNEES).revalorisation_portee_au_compte
-    return {
-        "reference": reference,
-        "indices": {str(annee): valeur for annee, valeur in sorted(indices.items())},
-    }
+    return [
+        [annee, au_1er_janvier, min(table),
+         [table[a] for a in range(min(table), max(table) + 1)]]
+        for annee, au_1er_janvier, table
+        in DonneesMacro(DONNEES).revalorisation_portee_au_compte
+    ]
 
 
 def _contribution_employeur_public() -> dict:

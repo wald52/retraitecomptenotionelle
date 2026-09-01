@@ -34,7 +34,7 @@ Ce qui suit est le recensement complet de ses paramètres et de leur état.
 | Surcote parentale | 1,25 % par trimestre entre 63 ans et l'âge légal, quatre au plus | reprise des textes (L. 351-1-2-1), non recontrôlée |
 | Durée requise par génération | table 1934-1975, 151 → 172 trimestres | **certifiée** depuis 1958 (L. 161-17-3) ; 1934-1957 transcrite |
 | Durée de proratisation par génération | table 1900-1948, 150 → 160 trimestres | transcrite (R. 351-6), confirmée par une seconde implémentation |
-| Revalorisation des salaires portés au compte | 97 indices, perceptions 1930-2025, référence 2026 | circulaire annuelle de la Cnav ; hors plage, approximation prix/salaires |
+| Revalorisation des salaires portés au compte | 10 colonnes publiées, effets d'octobre 2017 à janvier 2026 | circulaires de la Cnav ; ailleurs, ancrage sur la plus proche |
 | Âge légal par génération | table 1900-1975, 60 → 64 ans | **certifié** (D. 161-2-1-9), recontrôlé à chaque exécution |
 | Âge d'annulation de la décote par génération | table 1930-1955, 65 → 67 ans | reprise des textes, non recontrôlée |
 | Coefficient de minoration par génération | table 1900-1975, 2,5 → 1,25 % | **certifié** (R. 351-27 II), recoupé à la DREES |
@@ -260,7 +260,7 @@ modèle n'a pas, ou décrit un dispositif qu'il représenterait faussement.
 | Point d'indice de la fonction publique | 1960-2027 | haute | OpenFisca-France, `point_indice_en_euros` |
 | Plafond Sécurité sociale | 2002-2025 | **certifiée** | INSEE BDM, idbank 000822494 |
 | Plafond Sécurité sociale | 1931-2001 | haute | OpenFisca-France, daté décret par décret |
-| Revalorisation des salaires portés au compte | perceptions 1930-2025, référence 2026 | haute | Cnav, circulaire annuelle de revalorisation ; recoupée à celle de 2023 |
+| Revalorisation des salaires portés au compte | 10 colonnes, effets 2017-2026, perceptions depuis 1930 | haute | Cnav, circulaires de revalorisation, recoupées deux à deux |
 | Taux de cotisation, régime général | 1967-2026 | moyenne | OpenFisca-France, recoupé à chaque exécution |
 | Taux de cotisation, complémentaires du privé | Arrco 1962-2018, Agirc 1981-2018, Agirc-Arrco 2019- | moyenne | OpenFisca-France, taux effectifs par tranche, recoupés à chaque exécution |
 | Taux de cotisation, autres régimes | tous | moyenne / estimée | Comptes de la Sécurité sociale |
@@ -888,9 +888,9 @@ l'Institut des politiques publiques (PENSIPP). Écarts connus :
   (`legislation/revalorisation_salaires.csv`, perceptions 1930-2025). Il les
   approchait par « les salaires jusqu'en 1986, les prix depuis » ; cette
   approximation sur-revalorise les salaires anciens de 12,1 % sur 1970-2018.
-  Au-delà de l'année de référence publiée, le coefficient est ancré sur elle et
-  l'approximation ne couvre plus que les dernières années ; elle ne reprend
-  toute la main qu'avant 1930, et joue alors À LA HAUSSE ;
+  Dix colonnes publiées sont dans le dépôt ; hors d'elles, le coefficient est
+  ancré sur la plus proche, et l'approximation ne reprend toute la main
+  qu'avant 1930, où elle joue À LA HAUSSE ;
 - **départs anticipés** — la carrière longue est modélisée, et sert à dire si le
   droit ouvre la liquidation demandée. La pénibilité, l'invalidité, l'inaptitude
   et le handicap ne le sont pas : ils demandent des informations médicales ou
@@ -925,7 +925,7 @@ Le résultat, sur dix profils :
 | Trimestres de décote | **exacts** sur les dix |
 | Taux de liquidation | **exact** sur les dix |
 | Coefficient de proratisation | **exact** sur les dix |
-| Salaire annuel moyen | 0,16 % à 2,22 %, **et c'est OpenFisca qui s'écarte de la source** |
+| Salaire annuel moyen | jusqu'à 2,35 %, **et c'est OpenFisca qui s'écarte de la source** |
 | Pension de base | l'écart du salaire annuel moyen, et rien d'autre |
 
 Le décompte des trimestres de décote est le contrôle le plus exigeant du lot :
@@ -960,32 +960,56 @@ celle du 9 janvier 2023, la table d'OpenFisca s'en écarte :
 - de **−17 % à +10 %**, sans régularité, sur les années 1949-1962.
 
 Le modèle lit donc la circulaire, et le désaccord résiduel avec OpenFisca —
-0,16 % à 2,22 %, toujours dans le même sens — n'est plus le nôtre.
+jusqu'à 2,35 %, toujours dans le même sens — n'est plus le nôtre.
 
-**Une seule colonne suffit**, et c'est démontré, non postulé. L'arrêté annuel
-applique un coefficient unique à tous les salaires déjà portés au compte, quelle
-que soit leur année de perception ; le coefficient entre deux années quelconques
-est donc le rapport de leurs indices. Reconstruire ainsi les colonnes publiées
-pour 2023 et pour 2025 à partir de la seule circulaire de 2026 les retrouve à
-**0,13 %** — l'arrondi à trois décimales de la table publiée. Le récupérateur
-revérifie ce recoupement à chaque exécution et refuse d'écrire s'il échoue, et
-un test oppose au modèle la colonne que la caisse a publiée pour 2023, figée
-dans `tests/temoins/`.
+**Le coefficient se lit dans une colonne, par rapport de deux de ses valeurs.**
+L'arrêté annuel applique un coefficient unique à tous les salaires déjà portés
+au compte, quelle que soit leur année de perception : une colonne suffit donc,
+en théorie, à en reconstruire toutes les autres.
 
-Ce document a un temps affirmé le contraire — « aucune formule ne reproduit les
-arrêtés, une série d'ancrages fuit de 20 % ». Cette mesure portait sur la table
+En pratique, non — et c'est mesuré. La caisse arrondit sa table publiée à trois
+décimales et repart chaque année de la précédente : les arrondis s'accumulent, et
+reconstruire une colonne depuis une autre dérive avec la distance.
+
+| Colonne reconstruite | depuis 2026 | depuis la colonne voisine |
+|---|---|---|
+| 2024 (2 ans) | 0,02 % | 0,02 % |
+| 2023 (3 ans) | 0,07 % | 0,01 % |
+| 2022 (4 ans) | 0,10 % | 0,03 % |
+| 2021 (5 ans) | 0,13 % | 0,01 % |
+| 2020 (6 ans) | 0,14 % | 0,01 % |
+| 2019 (7 ans) | 0,16 % | 0,01 % |
+
+Le dépôt n'a d'abord gardé que la colonne la plus récente, en annonçant 0,13 %
+sur la foi d'un seul recoupement. **Dix colonnes sont maintenant dans le dépôt**,
+de 2017 à 2026 : le modèle sert la colonne publiée quand elle existe — l'écart
+est alors nul, pas petit — et ancre sinon sur la plus proche, ce qui divise la
+dérive par dix. Le récupérateur recoupe chaque colonne contre chacune des autres
+à chaque exécution et refuse d'écrire si l'une s'écarte, et deux tests rejouent
+les colonnes figées dans `tests/temoins/`.
+
+Ce document a un temps affirmé qu'« aucune formule ne reproduit les arrêtés,
+une série d'ancrages fuit de 20 % ». Cette mesure portait sur la table
 d'OpenFisca : ce sont ses incohérences qu'elle mesurait, pas celles du droit.
-Quatre kilo-octets ont remplacé les cinquante-et-un de la table à deux entrées.
 
-Ce que cela ne referme pas. Les circulaires s'arrêtent à une année de référence
-— 2026 aujourd'hui, et c'est l'année où le site liquide par défaut. Au-delà, le
-coefficient est ancré sur elle et l'approximation ne couvre que les dernières
-années ; avant 1930, il n'y a rien sur quoi ancrer et elle reprend toute la
-main, à la hausse. Reste enfin une convention, pas une erreur : le modèle
-raisonne à l'année et retient le coefficient en vigueur au 1<sup>er</sup>
-janvier, alors que la revalorisation s'est appliquée au 1<sup>er</sup> avril de
-2009 à 2013 puis au 1<sup>er</sup> octobre — une liquidation de cette période
-est donc lue avant sa revalorisation de l'année, ce qui vaut de 0,5 % à 0,9 %.
+Ce que cela ne referme pas, et les trois bornes sont différentes.
+
+- **Avant 2017**, aucune circulaire n'est accessible en ligne : les liquidations
+  antérieures sont reconstruites depuis la colonne d'octobre 2017, la plus
+  proche, et la dérive y est **invérifiable**. Extrapolée depuis le profil
+  mesuré ci-dessus, elle croît d'environ trois centièmes de pour cent par année
+  d'écart.
+- **Après 2026**, le coefficient est ancré sur la dernière colonne et
+  l'approximation ne couvre que les dernières années ; avant 1930, il n'y a rien
+  sur quoi ancrer et elle reprend toute la main, à la hausse.
+- **Le mois n'existe pas dans le modèle**, qui retient l'état au
+  1<sup>er</sup> janvier. La revalorisation s'est appliquée au 1<sup>er</sup>
+  avril de 2009 à 2013, puis au 1<sup>er</sup> octobre jusqu'en 2017 : une
+  liquidation de cette période est donc lue avant la revalorisation de son
+  année. Mesuré contre la colonne d'octobre 2017 : **0,52 % en médiane, 0,93 %
+  au maximum**. C'est une convention assumée, pas une erreur — mais elle joue
+  toujours dans le même sens, à la baisse.
+
 Les régimes qui liquident sur le dernier traitement ou les six derniers mois ne
 portent aucun salaire à un compte : les coefficients de la Cnav ne leur sont pas
 appliqués.

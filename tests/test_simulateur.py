@@ -1364,20 +1364,24 @@ def test_les_salaires_anciens_sont_revalorises_sur_les_salaires(simulateur):
     )
 
 
-def test_les_coefficients_de_revalorisation_reproduisent_la_circulaire(simulateur):
-    """Le contrôle qui compte : ce que la CAISSE a publié, année par année.
+def test_les_coefficients_de_revalorisation_reproduisent_les_circulaires(simulateur):
+    """Le contrôle qui compte : ce que la CAISSE a publié, colonne par colonne.
 
-    La Cnav publie chaque année la table entière des coefficients de
-    revalorisation des salaires portés au compte. Le modèle n'en garde qu'une
-    colonne — celle de 2026 — et déduit les autres par rapport d'indices. Ce
-    test lui oppose la colonne que la caisse a réellement publiée pour une
-    liquidation en 2023, figée dans `tests/temoins/`.
+    La Cnav publie, à chaque revalorisation, la table entière des coefficients
+    des salaires portés au compte. Le témoin en fige dix, de 2017 à 2026 ; ce
+    test oppose au modèle chacune d'elles, année de perception par année de
+    perception.
 
     C'est une vérification par la SOURCE, pas par une seconde implémentation :
-    la table d'OpenFisca, que le dépôt a d'abord reprise, s'écarte de cette même
-    circulaire de −3 % à −5,5 % après 1990 (il lui manque la revalorisation
-    exceptionnelle de 4 % du 1er juillet 2022) et de −17 % à +10 % sur les
-    années 1950.
+    la table d'OpenFisca, que le dépôt a d'abord reprise, s'écarte de la
+    circulaire de 2023 de −3 % à −5,5 % après 1990 (il lui manque la
+    revalorisation exceptionnelle de 4 % du 1er juillet 2022) et de −17 % à
+    +10 % sur les années 1950.
+
+    Les colonnes dont la date d'effet n'est pas le 1er janvier sont comparées
+    hors de leur propre année : le modèle raisonne à l'année et retient l'état
+    au 1er janvier, quand ces colonnes portent déjà la revalorisation de leur
+    millésime.
     """
     import json
 
@@ -1386,40 +1390,108 @@ def test_les_coefficients_de_revalorisation_reproduisent_la_circulaire(simulateu
             encoding="utf-8"
         )
     )
-    assert temoin["annee_liquidation"] == 2023
+    colonnes = temoin["colonnes"]
+    assert len(colonnes) >= 8
     macro = simulateur.macro
-    pire, coupable = 0.0, None
-    for annee, publie in temoin["coefficients"].items():
-        annee = int(annee)
-        if annee >= temoin["annee_liquidation"]:
+    pire = (0.0, None, None)
+    for effet, publiee in colonnes.items():
+        annee = int(effet[:4])
+        if not effet.endswith("-01-01"):
             continue
-        nous = macro.coefficient_revalorisation_portee_au_compte(annee, 2023)
-        ecart = abs(nous - publie) / publie
-        if ecart > pire:
-            pire, coupable = ecart, annee
-    # 0,3 % : la table publiée est arrondie à trois décimales, ce qui vaut déjà
-    # un pour mille sur les coefficients proches de 1. Mesuré : 0,13 %.
-    assert pire < 3e-3, f"{coupable} : {pire:.3%}"
+        for perception, publie in publiee.items():
+            perception = int(perception)
+            if perception >= annee:
+                continue
+            nous = macro.coefficient_revalorisation_portee_au_compte(perception, annee)
+            ecart = abs(nous - publie) / publie
+            if ecart > pire[0]:
+                pire = (ecart, effet, perception)
+    # Le modèle sert la colonne publiée quand elle existe : sur ces années-là
+    # l'écart est nul. Il ne reste que les colonnes que le témoin porte sans que
+    # le CSV les serve — aucune aujourd'hui, d'où une borne très serrée.
+    assert pire[0] < 1e-9, f"{pire[1]}, perception {pire[2]} : {pire[0]:.3%}"
 
 
-def test_le_coefficient_de_revalorisation_est_le_rapport_de_deux_indices(simulateur):
-    """Une seule colonne, parce que l'arrêté annuel est unique.
+def test_la_reconstruction_entre_colonnes_reste_dans_sa_derive(simulateur):
+    """Ce que coûte une année de liquidation SANS colonne publiée.
 
-    Le modèle ne stocke qu'un indice par année de perception et déduit tout
-    coefficient par rapport. Cela suppose que la revalorisation d'une année soit
-    un coefficient UNIQUE, appliqué à tous les salaires déjà portés au compte
-    quelle que soit leur année de perception. Le test précédent le vérifie
-    contre la source ; celui-ci vérifie que le modèle applique bien la règle,
-    et qu'il est réversible et neutre sur place.
+    Toutes les liquidations n'ont pas leur circulaire : le modèle reconstruit
+    alors depuis la colonne la plus proche, par rapport de deux de ses valeurs.
+    Ce test mesure ce que cette reconstruction coûte, en la faisant sur des
+    années dont on a justement la colonne — le seul endroit où l'erreur est
+    observable.
+
+    La dérive vient de la caisse elle-même : elle arrondit sa table à trois
+    décimales et repart chaque année de la précédente, si bien que les arrondis
+    s'accumulent. Mesuré : 0,01 % depuis la colonne voisine, contre 0,16 %
+    depuis celle de 2026. C'est ce rapport de dix qui justifie d'ancrer sur la
+    plus proche plutôt que sur la plus récente, et c'est lui que ce test
+    protège.
+    """
+    import json
+
+    colonnes = json.loads(
+        (RACINE_TEMOINS / "cnav_revalorisation_salaires.json").read_text(
+            encoding="utf-8"
+        )
+    )["colonnes"]
+    tables = {
+        int(effet[:4]): {int(a): v for a, v in table.items()}
+        for effet, table in colonnes.items() if effet.endswith("-01-01")
+    }
+    pire_voisine, pire_lointaine = 0.0, 0.0
+    for annee, publiee in tables.items():
+        voisines = sorted(
+            (abs(a - annee), a) for a in tables
+            if a != annee and annee in tables[a]
+        )
+        if not voisines:
+            continue
+        for ancre, garder in ((voisines[0][1], "voisine"), (max(tables), "lointaine")):
+            if ancre == annee or annee not in tables[ancre]:
+                continue
+            diviseur = tables[ancre][annee]
+            for perception, publie in publiee.items():
+                if perception >= annee or perception not in tables[ancre]:
+                    continue
+                ecart = abs(tables[ancre][perception] / diviseur - publie) / publie
+                if garder == "voisine":
+                    pire_voisine = max(pire_voisine, ecart)
+                else:
+                    pire_lointaine = max(pire_lointaine, ecart)
+    assert pire_voisine < 2e-3, f"reconstruction depuis la voisine : {pire_voisine:.3%}"
+    # Et la plus proche doit rester nettement meilleure que la plus récente,
+    # sans quoi la règle d'ancrage ne vaudrait plus la complexité qu'elle coûte.
+    assert pire_voisine < pire_lointaine
+
+
+def test_le_coefficient_de_revalorisation_est_le_rapport_de_deux_valeurs(simulateur):
+    """Une colonne, deux valeurs, un rapport — et la neutralité sur place.
+
+    Le modèle ne stocke pas un coefficient par couple d'années mais une colonne
+    par circulaire. Cela suppose que la revalorisation d'une année soit un
+    coefficient UNIQUE, appliqué à tous les salaires déjà portés au compte
+    quelle que soit leur année de perception ; les deux tests précédents le
+    vérifient contre la source, celui-ci vérifie que le modèle applique bien la
+    règle, et qu'il reste réversible et neutre sur place.
     """
     macro = simulateur.macro
-    indices, reference = macro.revalorisation_portee_au_compte
-    assert reference == 2026
-    assert indices[reference] == 1.0
+    colonnes = macro.revalorisation_portee_au_compte
+    assert [annee for annee, _, _ in colonnes] == sorted(
+        annee for annee, _, _ in colonnes
+    )
+    assert macro.derniere_liquidation_revalorisee == colonnes[-1][0]
 
     lu = macro.coefficient_revalorisation_portee_au_compte
-    assert lu(1970, 2026) == pytest.approx(indices[1970])
-    assert lu(1970, 1990) == pytest.approx(indices[1970] / indices[1990])
+    derniere, _, recente = colonnes[-1]
+    assert lu(1970, derniere) == pytest.approx(recente[1970])
+
+    # Une année de liquidation sans colonne publiée passe par la PLUS PROCHE,
+    # et non par la plus récente : c'est ce qui divise la dérive par dix.
+    proche = min(colonnes, key=lambda c: abs(c[0] - 1990))[2]
+    assert lu(1970, 1990) == pytest.approx(proche[1970] / proche[1990])
+    assert lu(1970, 1990) != pytest.approx(recente[1970] / recente[1990])
+
     assert lu(2000, 2000) == 1.0
     assert lu(2018, 1970) == pytest.approx(1.0 / lu(1970, 2018))
 
@@ -1443,28 +1515,28 @@ def test_les_coefficients_lus_corrigent_l_ancienne_approximation(simulateur):
 
 def test_le_coefficient_de_revalorisation_s_ancre_sur_la_derniere_circulaire(
         simulateur):
-    """Une liquidation postérieure à la table lit quand même les arrêtés.
+    """Une liquidation postérieure aux circulaires lit quand même les arrêtés.
 
-    Les circulaires publiées s'arrêtent à une année de référence ; au-delà, tout
-    approcher rendrait la table inutile là où le site simule le plus. Le modèle
-    ancre donc sur elle et n'approche que le bout du chemin.
+    Les circulaires publiées s'arrêtent à une année ; au-delà, tout approcher
+    rendrait la table inutile là où le site simule le plus. Le modèle ancre donc
+    sur la dernière colonne et n'approche que le bout du chemin.
     """
     macro = simulateur.macro
-    reference = macro.derniere_liquidation_revalorisee
-    indices, _ = macro.revalorisation_portee_au_compte
+    colonnes = macro.revalorisation_portee_au_compte
+    derniere, _, table = colonnes[-1]
 
-    attendu = indices[1970] * macro.coefficient_revalorisation_salaires(
-        reference, reference + 4
+    attendu = table[1970] * macro.coefficient_revalorisation_salaires(
+        derniere, derniere + 4
     )
     assert macro.coefficient_revalorisation_portee_au_compte(
-        1970, reference + 4
+        1970, derniere + 4
     ) == pytest.approx(attendu)
 
     # En deçà de la première année publiée, il n'y a rien sur quoi ancrer :
     # l'approximation reprend toute la main, et le modèle ne fait pas semblant.
-    avant = min(indices) - 5
-    assert macro.coefficient_revalorisation_portee_au_compte(avant, 2026) == (
-        pytest.approx(macro.coefficient_revalorisation_salaires(avant, 2026))
+    avant = min(min(t) for _, _, t in colonnes) - 5
+    assert macro.coefficient_revalorisation_portee_au_compte(avant, derniere) == (
+        pytest.approx(macro.coefficient_revalorisation_salaires(avant, derniere))
     )
 
 

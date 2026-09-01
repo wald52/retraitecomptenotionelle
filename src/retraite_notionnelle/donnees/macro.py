@@ -205,33 +205,36 @@ class DonneesMacro:
         return self.smic_horaire(annee_arrivee) / depart if depart > 0 else 1.0
 
     @cached_property
-    def revalorisation_portee_au_compte(self) -> tuple[dict[int, float], int | None]:
-        """Indices de revalorisation publiés par la Cnav, et leur année de référence.
+    def revalorisation_portee_au_compte(self) -> list[tuple[int, bool, dict[int, float]]]:
+        """Colonnes de revalorisation publiées par la Cnav, par date d'effet.
 
-        UN indice par année de perception, et non une table à deux entrées : le
-        coefficient entre deux années quelconques est le RAPPORT de leurs
-        indices, parce que l'arrêté annuel applique un coefficient unique à tous
-        les salaires déjà portés au compte quelle que soit leur année de
-        perception. Reconstruire ainsi les colonnes publiées pour d'autres
-        années de liquidation les retrouve à 0,13 % — l'arrondi à trois
-        décimales de la table —, et
-        ``scripts/fetch/cnav_revalorisation_salaires.py`` le revérifie à chaque
-        exécution contre une circulaire plus ancienne.
+        Une colonne par circulaire : année de la date d'effet, un drapeau disant
+        si cette date est le 1er janvier, et le coefficient par année de
+        perception. Triées par année.
+
+        Le coefficient entre deux années se lit dans UNE colonne, par rapport de
+        deux de ses valeurs. Une seule colonne suffirait donc en théorie ; en
+        pratique la caisse arrondit sa table à trois décimales et repart chaque
+        année de la précédente, si bien que reconstruire une colonne depuis une
+        autre dérive avec la distance — 0,02 % à deux ans, 0,16 % à sept.
         """
         import csv
 
         chemin = (self.racine / "reference" / "legislation"
                   / "revalorisation_salaires.csv")
         if not chemin.exists():
-            return {}, None
-        indices: dict[int, float] = {}
-        reference: int | None = None
+            return []
+        colonnes: dict[str, dict[int, float]] = {}
         with chemin.open(encoding="utf-8") as flux:
             lignes = (l for l in flux if not l.lstrip().startswith("#"))
             for ligne in csv.DictReader(lignes):
-                indices[int(ligne["annee_perception"])] = float(ligne["coefficient"])
-                reference = int(ligne["annee_reference"])
-        return indices, reference
+                colonnes.setdefault(ligne["date_effet"], {})[
+                    int(ligne["annee_perception"])
+                ] = float(ligne["coefficient"])
+        return sorted(
+            (int(effet[:4]), effet.endswith("-01-01"), table)
+            for effet, table in colonnes.items()
+        )
 
     def coefficient_revalorisation_portee_au_compte(self, annee_depart: int,
                                                     annee_arrivee: int) -> float:
@@ -245,11 +248,18 @@ class DonneesMacro:
         prix depuis », ce qui SUR-revalorisait les salaires anciens de 12 % sur
         quarante ans.
 
-        Les indices viennent de la circulaire annuelle de la Cnav : c'est la
-        caisse qui les applique qui les publie. Hors de la plage — perceptions
-        antérieures à 1930, liquidations postérieures à l'année de référence —
-        le modèle ancre sur la borne connue et prolonge par l'approximation, et
-        ``docs/limites.md`` dit dans quel sens elle joue.
+        Trois chemins, du plus sûr au moins sûr :
+
+        1. la colonne PUBLIÉE pour cette année de liquidation, quand la Cnav
+           l'a publiée au 1er janvier — le coefficient est alors celui que la
+           caisse oppose, sans calcul ;
+        2. sinon la colonne publiée la PLUS PROCHE, par rapport de deux de ses
+           valeurs. Ancrer sur la plus proche plutôt que sur la plus récente
+           divise la dérive par dix : 0,01 % au lieu de 0,16 % ;
+        3. hors de toute colonne, l'ancienne approximation, ancrée sur la borne
+           connue quand il y en a une.
+
+        ``docs/limites.md`` dit ce que chacun coûte.
         """
         if annee_arrivee == annee_depart:
             return 1.0
@@ -257,28 +267,45 @@ class DonneesMacro:
             return 1.0 / self.coefficient_revalorisation_portee_au_compte(
                 annee_arrivee, annee_depart
             )
-        indices, reference = self.revalorisation_portee_au_compte
-        depart = indices.get(annee_depart)
-        if depart is None:
+        colonnes = self.revalorisation_portee_au_compte
+        if not colonnes:
             return self.coefficient_revalorisation_salaires(annee_depart, annee_arrivee)
-        arrivee = indices.get(annee_arrivee)
-        if arrivee is not None:
-            return depart / arrivee
-        # Au-delà de l'année de référence, on ANCRE sur elle et on n'approche
-        # que le bout du chemin : une liquidation en 2030 lit les arrêtés
+
+        for annee, au_1er_janvier, table in colonnes:
+            if annee == annee_arrivee and au_1er_janvier and annee_depart in table:
+                return table[annee_depart]
+
+        # La colonne la plus proche qui porte les deux années. Une colonne dont
+        # la date d'effet tombe en cours d'année ne peut pas servir pour SA
+        # propre année — son millésime porte déjà la revalorisation de l'année,
+        # que le 1er janvier ne porte pas encore.
+        candidates = [
+            (abs(annee - annee_arrivee), table)
+            for annee, au_1er_janvier, table in colonnes
+            if annee_depart in table and annee_arrivee in table
+            and (au_1er_janvier or annee != annee_arrivee)
+        ]
+        if candidates:
+            _, table = min(candidates, key=lambda c: c[0])
+            return table[annee_depart] / table[annee_arrivee]
+
+        # Au-delà de la dernière colonne, on ANCRE sur elle et on n'approche que
+        # le bout du chemin : une liquidation en 2030 lit les circulaires
         # jusqu'en 2026 et n'approche que quatre années, au lieu de tout
         # approcher. En deçà de la première année publiée, il n'y a rien sur
         # quoi ancrer.
-        if reference is not None and annee_arrivee > reference:
-            return (depart / indices[reference]) * self.coefficient_revalorisation_salaires(
-                reference, annee_arrivee
+        derniere, _, table = colonnes[-1]
+        if annee_arrivee > derniere and annee_depart in table:
+            return table[annee_depart] * self.coefficient_revalorisation_salaires(
+                derniere, annee_arrivee
             )
         return self.coefficient_revalorisation_salaires(annee_depart, annee_arrivee)
 
     @cached_property
     def derniere_liquidation_revalorisee(self) -> int | None:
         """Dernière année de liquidation que les circulaires publiées couvrent."""
-        return self.revalorisation_portee_au_compte[1]
+        colonnes = self.revalorisation_portee_au_compte
+        return colonnes[-1][0] if colonnes else None
 
     def coefficient_revalorisation_salaires(self, annee_depart: int,
                                             annee_arrivee: int) -> float:

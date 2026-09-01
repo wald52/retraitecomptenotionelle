@@ -420,18 +420,24 @@ revalorisation exceptionnelle de 4 % du 1<sup>er</sup> juillet 2022 — de 3 à
 et jusqu'à 17 % sur les années 1950. Une seconde implémentation est une
 contre-expertise, pas une source.
 
-**Un seul indice par année de perception suffit** : le coefficient entre deux
-années quelconques est le rapport de leurs indices, parce que l'arrêté annuel
-applique un coefficient unique à tous les salaires déjà portés au compte.
-Reconstruire ainsi les colonnes publiées pour 2023 et 2025 à partir de celle de
-2026 les retrouve à 0,13 %, l'arrondi de la table publiée ; le récupérateur
-revérifie ce recoupement à chaque exécution.
+**Le coefficient se lit dans une colonne**, par rapport de deux de ses valeurs :
+l'arrêté annuel applique un coefficient unique à tous les salaires déjà portés au
+compte, quelle que soit leur année de perception. Une colonne suffirait donc en
+théorie à reconstruire toutes les autres — en pratique la caisse arrondit sa
+table à trois décimales et repart chaque année de la précédente, si bien que la
+reconstruction dérive avec la distance : 0,02 % à deux ans, 0,16 % à sept. Le
+dépôt garde donc les **dix colonnes publiées** d'octobre 2017 à janvier 2026. Le
+modèle sert la colonne de l'année quand elle existe — l'écart est alors nul — et
+ancre sinon sur la plus proche, ce qui divise la dérive par dix.
 
-Au-delà de l'année de référence — 2026, et c'est l'année où le site liquide par
-défaut — le coefficient est ancré sur elle et l'approximation ne couvre que les
-dernières années. Avant 1930, il n'y a rien sur quoi ancrer. Les régimes qui
-liquident sur le dernier traitement ou sur les six derniers mois ne portent
-aucun salaire à un compte : elle y reste la règle.
+Trois bornes demeurent : avant 2017 aucune circulaire n'est accessible et la
+dérive y est invérifiable ; après 2026 le coefficient est ancré sur la dernière
+colonne et prolongé par l'approximation ; et le modèle raisonne à l'année,
+retenant l'état au 1<sup>er</sup> janvier, quand la revalorisation s'appliquait
+au 1<sup>er</sup> avril de 2009 à 2013 puis au 1<sup>er</sup> octobre jusqu'en
+2017 — ce que `docs/limites.md` chiffre. Les régimes qui liquident sur le
+dernier traitement ou sur les six derniers mois ne portent aucun salaire à un
+compte : l'approximation y reste la règle.
 
 #### Le taux plein, et ce qui l'ouvre
 

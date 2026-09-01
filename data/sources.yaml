@@ -223,7 +223,7 @@ institutions:
           code le porte déjà, au centime près.
 
       - id: cnav_revalorisation_salaires
-        titre: Coefficients de revalorisation des salaires portés au compte, 1930-2025
+        titre: Coefficients de revalorisation des salaires portés au compte, dix colonnes 2017-2026
         url: https://legislation.lassuranceretraite.fr/Pdf/circulaire_cnav_2025_29_22122025.pdf
         acces: document
         statut_integration: automatise
@@ -246,22 +246,33 @@ institutions:
           exceptionnelle de 4 % du 1er juillet 2022 — et de −17 % à +10 %, sans
           régularité, sur les années 1949-1962. Une seconde implémentation est
           une contre-expertise, pas une source.
-          UNE SEULE COLONNE est conservée : le coefficient entre deux années
-          quelconques est le rapport de leurs indices, parce que l'arrêté annuel
-          applique un coefficient unique à tous les salaires déjà portés au
-          compte. Reconstruire ainsi les colonnes publiées pour 2023 et 2025 à
-          partir de celle de 2026 les retrouve à 0,13 %, l'arrondi à trois
-          décimales de la table. Le récupérateur revérifie ce recoupement à
-          chaque exécution contre la circulaire du 9 janvier 2023 et refuse
-          d'écrire s'il échoue ; la colonne publiée cette année-là est figée
-          dans tests/temoins/cnav_revalorisation_salaires.json, et un test
-          l'oppose au modèle.
+          DIX COLONNES sont conservées, d'octobre 2017 à janvier 2026. Le
+          coefficient entre deux années se lit dans une colonne, par rapport de
+          deux de ses valeurs, parce que l'arrêté annuel applique un coefficient
+          unique à tous les salaires déjà portés au compte. Une colonne
+          suffirait donc en théorie ; en pratique la caisse arrondit sa table à
+          trois décimales et repart chaque année de la précédente, si bien que
+          la reconstruction dérive avec la distance — 0,02 % à deux ans, 0,16 %
+          à sept. Le modèle sert donc la colonne de l'année quand elle existe et
+          ancre sinon sur la plus proche, ce qui divise la dérive par dix.
+          Les colonnes dont la date d'effet n'est pas le 1er janvier — octobre
+          2017, juillet 2022 — ne sont jamais servies telles quelles : le modèle
+          raisonne à l'année. Elles restent des ancres, leur date s'annulant
+          dans le rapport.
+          Le récupérateur recoupe chaque colonne contre chacune des autres à
+          chaque exécution et refuse d'écrire si l'une s'écarte de plus de 1 % ;
+          il refuse aussi une circulaire qui se déclare annulée et remplacée —
+          la 2020-5 l'est par la 2020-9. Les colonnes sont figées dans
+          tests/temoins/cnav_revalorisation_salaires.json, et deux tests les
+          opposent au modèle.
           Fiabilité `haute`, jamais `certifiee` : la circulaire est la
           publication de la caisse, non le Journal officiel — elle transcrit
           l'arrêté et l'instruction interministérielle qu'elle cite.
           Hors de la plage — perceptions antérieures à 1930, liquidations
-          postérieures à l'année de référence — le modèle ancre sur la borne
-          connue et prolonge par son approximation.
+          postérieures à la dernière colonne — le modèle ancre sur la borne
+          connue et prolonge par son approximation. Avant 2017, aucune
+          circulaire n'est accessible en ligne : la dérive de la reconstruction
+          y est invérifiable.
 
       - id: cnav_baremes
         titre: Barèmes et paramètres du régime général (circulaires)

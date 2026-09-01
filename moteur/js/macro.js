@@ -50,14 +50,23 @@ export class DonneesMacro {
 
     this._coefficientsPrix = new Map();
     this._coefficientsSalaires = new Map();
-    const revalorisation = paquet.revalorisation_salaires || {};
-    /** Indice de revalorisation par année de perception. */
-    this.revalorisationPorteeAuCompte = new Map(
-      Object.entries(revalorisation.indices || {})
-        .map(([annee, indice]) => [Number(annee), indice]),
+    /**
+     * Colonnes de revalorisation publiées par la Cnav, triées par année de date
+     * d'effet : `{ annee, auPremierJanvier, coefficients }`, où `coefficients`
+     * associe une année de perception à son coefficient.
+     */
+    this.revalorisationPorteeAuCompte = (paquet.revalorisation_salaires || []).map(
+      ([annee, auPremierJanvier, premiere, valeurs]) => ({
+        annee,
+        auPremierJanvier,
+        coefficients: new Map(valeurs.map((v, rang) => [premiere + rang, v])),
+      }),
     );
-    /** Année de liquidation à laquelle ces indices se rapportent. */
-    this.derniereLiquidationRevalorisee = revalorisation.reference ?? null;
+    /** Dernière année de liquidation que les circulaires publiées couvrent. */
+    this.derniereLiquidationRevalorisee = this.revalorisationPorteeAuCompte.length
+      ? this.revalorisationPorteeAuCompte[
+        this.revalorisationPorteeAuCompte.length - 1].annee
+      : null;
   }
 
   /**
@@ -189,12 +198,12 @@ export class DonneesMacro {
    * l'approchait par « les salaires jusqu'en 1986, les prix depuis », ce qui
    * SUR-revalorisait les salaires anciens de 12 % sur quarante ans.
    *
-   * Les indices viennent de la circulaire annuelle de la Cnav : c'est la caisse
-   * qui les applique qui les publie, et le coefficient entre deux années est le
-   * RAPPORT de leurs indices. Hors de la plage — perceptions antérieures à
-   * 1930, liquidations postérieures à l'année de référence — le modèle ancre
-   * sur la borne connue et prolonge par l'approximation, et `docs/limites.md`
-   * dit dans quel sens elle joue.
+   * Trois chemins, du plus sûr au moins sûr : la colonne PUBLIÉE pour cette
+   * année de liquidation quand la Cnav l'a publiée au 1er janvier ; sinon la
+   * colonne publiée la PLUS PROCHE, par rapport de deux de ses valeurs — ce qui
+   * divise la dérive par dix ; hors de toute colonne, l'ancienne approximation,
+   * ancrée sur la borne connue quand il y en a une. `docs/limites.md` dit ce que
+   * chacun coûte.
    */
   coefficientRevalorisationPorteeAuCompte(depart, arrivee) {
     if (arrivee === depart) {
@@ -203,21 +212,47 @@ export class DonneesMacro {
     if (arrivee < depart) {
       return 1.0 / this.coefficientRevalorisationPorteeAuCompte(arrivee, depart);
     }
-    const indiceDepart = this.revalorisationPorteeAuCompte.get(depart);
-    if (indiceDepart === undefined) {
+    const colonnes = this.revalorisationPorteeAuCompte;
+    if (colonnes.length === 0) {
       return this.coefficientRevalorisationSalaires(depart, arrivee);
     }
-    const indiceArrivee = this.revalorisationPorteeAuCompte.get(arrivee);
-    if (indiceArrivee !== undefined) {
-      return indiceDepart / indiceArrivee;
+
+    for (const colonne of colonnes) {
+      if (colonne.annee === arrivee && colonne.auPremierJanvier
+          && colonne.coefficients.has(depart)) {
+        return colonne.coefficients.get(depart);
+      }
     }
-    // Au-delà de l'année de référence, on ANCRE sur elle et on n'approche que
-    // le bout du chemin. En deçà de la première année publiée, il n'y a rien
-    // sur quoi ancrer.
-    const reference = this.derniereLiquidationRevalorisee;
-    if (reference !== null && arrivee > reference) {
-      return (indiceDepart / this.revalorisationPorteeAuCompte.get(reference))
-        * this.coefficientRevalorisationSalaires(reference, arrivee);
+
+    // La colonne la plus proche qui porte les deux années. Une colonne dont la
+    // date d'effet tombe en cours d'année ne peut pas servir pour SA propre
+    // année — son millésime porte déjà la revalorisation de l'année, que le
+    // 1er janvier ne porte pas encore.
+    let meilleure = null;
+    for (const colonne of colonnes) {
+      if (!colonne.coefficients.has(depart) || !colonne.coefficients.has(arrivee)) {
+        continue;
+      }
+      if (!colonne.auPremierJanvier && colonne.annee === arrivee) {
+        continue;
+      }
+      const distance = Math.abs(colonne.annee - arrivee);
+      if (meilleure === null || distance < meilleure.distance) {
+        meilleure = { distance, colonne };
+      }
+    }
+    if (meilleure !== null) {
+      return meilleure.colonne.coefficients.get(depart)
+        / meilleure.colonne.coefficients.get(arrivee);
+    }
+
+    // Au-delà de la dernière colonne, on ANCRE sur elle et on n'approche que le
+    // bout du chemin. En deçà de la première année publiée, il n'y a rien sur
+    // quoi ancrer.
+    const derniere = colonnes[colonnes.length - 1];
+    if (arrivee > derniere.annee && derniere.coefficients.has(depart)) {
+      return derniere.coefficients.get(depart)
+        * this.coefficientRevalorisationSalaires(derniere.annee, arrivee);
     }
     return this.coefficientRevalorisationSalaires(depart, arrivee);
   }
