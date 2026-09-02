@@ -30,27 +30,72 @@ se déduit d'une colonne par simple rapport,
 
 parce que l'arrêté annuel applique UN coefficient à tous les salaires déjà
 portés au compte, quelle que soit leur année de perception. Le dépôt n'a
-d'abord gardé que la colonne la plus récente. Confrontée aux sept autres
-colonnes publiées, cette reconstruction dérive avec la distance :
+d'abord gardé que la colonne la plus récente. Confrontée aux autres colonnes
+publiées, cette reconstruction dérive avec la distance — écart médian, puis
+maximal, sur toutes les perceptions de la colonne :
 
-    liquidation 2024 (2 ans)  0,02 % médian    liquidation 2021 (5 ans)  0,13 %
-    liquidation 2023 (3 ans)  0,07 %           liquidation 2020 (6 ans)  0,14 %
-    liquidation 2022 (4 ans)  0,10 %           liquidation 2019 (7 ans)  0,16 %
+    liquidation      depuis 2026          depuis la colonne voisine
+    2025 (1 an)      0,012 % / 0,080 %    (c'est elle, la voisine)
+    2024 (2 ans)     0,019 % / 0,111 %    0,005 % / 0,074 %
+    2023 (3 ans)     0,059 % / 0,126 %    0,010 % / 0,082 %
+    2022 (4 ans)     0,096 % / 0,207 %    0,028 % / 0,123 %
+    2021 (5 ans)     0,127 % / 0,215 %    0,005 % / 0,078 %
+    2020 (6 ans)     0,136 % / 0,211 %    0,007 % / 0,075 %
+    2019 (7 ans)     0,135 % / 0,257 %    0,007 % / 0,089 %
 
-parce que la caisse arrondit sa table publiée à trois décimales et repart
-chaque année de la précédente : les arrondis s'accumulent. Garder toutes les
-colonnes publiées et ancrer sur la PLUS PROCHE ramène l'écart à 0,01 % — un
-ordre de grandeur.
+La cause n'est pas le droit mais l'impression : la caisse arrondit sa table
+publiée à trois décimales et repart chaque année de la précédente, si bien que
+les arrondis s'accumulent. Garder toutes les colonnes publiées et ancrer sur la
+PLUS PROCHE divise la dérive par dix. `tests/test_simulateur.py` rejoue cette
+mesure sur les colonnes figées dans `tests/temoins/`.
 
 Les colonnes dont la date d'effet n'est pas le 1er janvier — octobre 2017,
 juillet 2022 — ne sont jamais servies telles quelles : le modèle raisonne à
 l'année et retient l'état au 1er janvier. Elles restent d'excellents ANCRES,
-parce que leur propre date s'annule dans le rapport.
+parce que leur propre date s'annule dans le rapport. Elles ne sont pas non plus
+des CIBLES de recoupement : reconstruire celle de juillet 2022 depuis celle de
+2026 manque exactement les 4 % de la loi « pouvoir d'achat », ce qui ne prouve
+rien sur la table et tout sur la date.
 
-UN PIÈGE, ET IL EST SILENCIEUX. La circulaire 2020-5 a été « annulée et
-remplacée » par la 2020-9. Une circulaire retirée porte des chiffres qui n'ont
-jamais été opposés à personne : le script refuse celles qui se déclarent
-annulées.
+QUATRE PIÈGES, TOUS SILENCIEUX. Aucun ne lève d'erreur ; chacun a été trouvé en
+relisant les PDF, et chacun a maintenant son garde-fou.
+
+1. **Une circulaire retirée.** La 2020-5 est « annulée et remplacée » par la
+   2020-9 : ses chiffres n'ont été opposés à personne. Mais la 2023-34 n'a que
+   son POINT 2 annulé, et son point 2 est le minimum contributif — ses
+   coefficients, qui sont au point 1, restent en vigueur. Refuser toute
+   circulaire portant la mention aurait perdu une colonne pour rien ; ne rien
+   refuser aurait retenu des valeurs mortes. Le script distingue les deux, et
+   refuse aussi l'annulation du seul point 1.
+2. **L'espace comme séparateur des milliers.** Les circulaires de 2019 à 2022
+   écrivent « 2 221,283 ». Le lecteur les ignorait, ce qui coupait leurs années
+   1930-1940 — sans que la table cesse d'être contiguë, donc sans que le
+   contrôle s'en plaigne.
+3. **Le coefficient entier.** Celle de juillet 2022 écrit « 1942 608 ». Accepter
+   les entiers impose en retour de refuser ceux qui ressemblent à une année :
+   ce serait un appariement raté, deux années de suite parce qu'une valeur
+   manque.
+4. **Le tableau devant son en-tête.** Celle de décembre 2023 place la fin de sa
+   table AVANT son propre intitulé, à cause de la mise en page : 2010 et 2011 y
+   disparaissaient. Le script regarde donc aussi la queue du morceau précédent,
+   et n'y retient que les années postérieures à 1946 — le tableau
+   « Cotisations » ne va pas plus loin, rien ne peut s'y confondre.
+
+Le recoupement de chaque colonne contre chacune des autres rattrape ce que ces
+garde-fous laisseraient passer : le script refuse d'écrire si l'une s'écarte de
+plus de 1 %.
+
+PRÉCISION D'ÉCRITURE. Les coefficients sont écrits à dix chiffres significatifs.
+Six les tronquaient : ceux des années 1930 en comptent huit — « 64 227,700 » —
+et le modèle ne rendait alors plus EXACTEMENT la valeur publiée.
+
+DÉPENDANCE. Ce récupérateur importe ``pypdf``, alors que le dépôt n'a que
+PyYAML et s'est doté de ``scripts/fetch/lecture_pdf.py`` pour lire un PDF sans
+rien ajouter. Ce lecteur, écrit pour les barèmes de la CNBF, ne sait pas lire
+ces circulaires : il en sort quatre-vingts lignes entrelacées, sans l'en-tête du
+tableau. ``pypdf`` n'est pas pour autant une dépendance du dépôt — il ne sert
+qu'ici, et les colonnes produites sont versionnées, dans `data/reference/` comme
+dans `tests/temoins/` : le modèle et ses tests s'en passent.
 
 Statut de fiabilité : `haute`, jamais `certifiee`. La circulaire est la
 publication de la caisse, non le *Journal officiel* : elle transcrit l'arrêté et
