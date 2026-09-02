@@ -284,11 +284,18 @@ class ScenarioNotionnel:
         on mesure des droits déjà ouverts, pas une liquidation anticipée.
 
         Reste l'âge auquel prendre le diviseur, et c'est le paramètre
-        :attr:`Parametres.age_conversion_droits_acquis` qui tranche :
-        l'âge de référence fait payer l'anticipation une seconde fois, sur des
-        droits pourtant déjà ouverts ; l'âge effectif de liquidation rend la
-        conversion neutre. Dans les deux cas, l'écart de longévité entre la
-        bascule et la liquidation subsiste.
+        :attr:`Parametres.age_conversion_droits_acquis` qui tranche. Le défaut,
+        l'ÂGE DE RÉFÉRENCE, est le seul endroit où l'âge de départ pèse sur les
+        droits d'avant la bascule — la pension figée ci-dessus est calculée sans
+        décote, il n'y a donc pas de première pénalité que celle-ci
+        redoublerait. Prendre au contraire l'âge effectif de liquidation fait
+        s'annuler les deux diviseurs et rend la part figée TOTALEMENT insensible
+        à la date de départ : mesuré, travailler de 64 à 67 ans rapporte +16,3 %
+        à la génération 1963 sous ``REFERENCE`` et seulement +4,3 % sous
+        ``LIQUIDATION``. Pour les générations de transition, dont la pension est
+        presque entièrement figée, le second réglage revient à ne plus faire
+        payer le départ anticipé. Dans les deux cas, l'écart de longévité entre
+        la bascule et la liquidation subsiste.
         """
         lignes_avant = [l for l in carriere.lignes if l.annee < bascule]
         if not lignes_avant:

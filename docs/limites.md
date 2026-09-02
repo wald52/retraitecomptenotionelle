@@ -1041,7 +1041,7 @@ Trois bornes à connaître, et elles sont étroites :
   valide tout : le récupérateur refuse donc d'écrire un profil dont la durée ou
   la pension serait nulle, et le test le revérifie.
 
-### Trois écarts identifiés, mesurés, et laissés en l'état
+### Deux écarts identifiés, mesurés, et laissés en l'état
 
 Ils l'ont été à dessein : chacun demande un arbitrage de modélisation qu'il vaut
 mieux poser que trancher en silence.
@@ -1098,20 +1098,6 @@ ici auparavant étaient antérieures, et l'étalon a bougé sous elles.
   elle touche une série que `scripts/verifier_donnees.py` recoupe à OpenFisca, et
   demande donc d'être faite avec la source sous les yeux.
 
-* **Une falaise sépare deux générations consécutives à l'année de bascule.** Un
-  salarié qui liquide en 2026 voit son scénario 3 égal au scénario 1, minima et
-  majorations compris ; celui qui liquide en 2027, avec la même carrière, le voit
-  à **−15,0 % au salaire moyen et à −16,9 % au SMIC**. Deux règles s'y heurtent :
-  la frontière `annee_liquidation <= bascule` rend la pension du scénario 1
-  ENTIÈRE, quand `_droits_acquis` fige les mêmes droits DÉBARRASSÉS des avantages
-  non contributifs. Sous `--conversion-acquis liquidation`, censée rendre la
-  conversion neutre, le saut se réduit à −5,2 % et −7,3 % sans se refermer. Une part de cette
-  marche est réelle — une année de cotisation passe du système actuel au compte
-  notionnel — mais l'essentiel tient au traitement asymétrique de la frontière.
-  La question de fond est celle que le README et ce document tranchent
-  différemment : les droits figés sont-ils « calculés selon les règles
-  actuelles » ou « débarrassés des avantages non contributifs » ?
-
 Un quatrième l'a été un temps — **trois valeurs de 2026 disponibles et non
 intégrées** — au motif que « ces trois valeurs relèvent des récupérateurs, qui
 demandent le réseau ». L'excuse ne tenait plus, et les trois sont refermées :
@@ -1158,6 +1144,55 @@ la Caisse des dépôts, la transcription d'OpenFisca reprenait les lignes de
 l'Ircantec et proposait de réécrire le taux d'appel de 1991, de 1,173 à 1,200.
 Rien ne l'empêche encore : il faut lancer les récupérateurs des producteurs
 avant d'appliquer.
+
+### La marche à l'année de bascule est voulue, et voici ce qu'elle vaut
+
+Ce document a longtemps rangé cette marche parmi les écarts à arbitrer. C'était
+une erreur de lecture : **c'est la frontière de la réforme simulée**, et c'est
+elle qui sépare le scénario 3 du scénario 2.
+
+Un salarié qui liquide en 2026 voit son scénario 3 égal au scénario 1 ; celui
+qui liquide en 2027, à carrière identique, le voit à **−15,0 % au salaire moyen
+et à −16,9 % au SMIC**. Deux mécanismes s'additionnent, et il vaut la peine de
+les distinguer parce qu'on les confond facilement.
+
+**L'exemption, d'abord**, et c'est l'essentiel. Qui liquide à la bascule ou
+avant garde le système actuel intégralement : `prospectif` bascule alors sur
+`_deja_liquide`, qui ne convertit rien. Déplacer la bascule d'un an suffit à le
+montrer — la génération 1962 passe de +0,0 % à **−13,7 %**, c'est-à-dire au
+niveau de sa voisine. Les quatorze points ne sont donc pas une pénalité infligée
+à 1963 : c'est une exemption accordée à 1962.
+
+Cette exemption n'est pas un défaut à corriger. **C'est exactement ce qui
+distingue le scénario 3 du scénario 2** : le prospectif respecte les droits
+liquidés et accepte donc les « passagers clandestins » ; le rétroactif ne
+respecte rien et n'en laisse aucun — un retraité de 2010 y passe de 20 211 € à
+3 048 €. Supprimer l'exemption ferait fondre le troisième scénario dans le
+second, et le dépôt perdrait un de ses cinq résultats.
+
+**La conversion des droits figés, ensuite.** Ils sont valorisés au diviseur de
+l'ÂGE DE RÉFÉRENCE, pas de l'âge réel de départ. Pour un départ à 64 ans en
+2027 : pension figée 26 910,58 €, convertie au diviseur de 67 ans (22,03), soit
+592 802 € de capital, puis servie au diviseur de 64 ans (24,68) — 24 490,90 €.
+
+C'est délibéré, et le contraire de ce que ce document a écrit. La pension figée
+est calculée SANS décote (`ignorer_penalite_age=True`) : cette conversion est
+donc le SEUL endroit où l'âge de départ pèse sur les droits d'avant la bascule.
+Basculer sur `--conversion-acquis liquidation` ne « rend pas la conversion
+neutre » au sens innocent du terme — cela supprime toute pénalité de départ
+anticipé sur la part figée, qui est l'essentiel de la pension des générations de
+transition. Mesuré : travailler de 64 à 67 ans rapporte **+16,3 %** à la
+génération 1963 sous `reference`, et seulement **+4,3 %** sous `liquidation`.
+Le défaut `REFERENCE` est donc celui qui empêche qu'on gagne à partir tôt.
+
+**Ce que ce n'est pas.** Le retrait des avantages non contributifs des droits
+figés, longtemps donné ici comme la cause, ne pèse presque rien : mesuré sur les
+droits figés à 2026, **0,0 % au salaire moyen** et 2,2 % au SMIC. Les cas types
+qui montrent la marche n'ont d'ailleurs aucun enfant.
+
+**Ce qui n'est pas modélisé**, et c'est un choix : aucune montée en charge. Une
+réforme réelle lisserait la frontière sur plusieurs générations. Le modèle
+tranche net, et la grille de cas types le montre tel quel.
 
 ---
 
