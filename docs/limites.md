@@ -1041,40 +1041,16 @@ Trois bornes à connaître, et elles sont étroites :
   valide tout : le récupérateur refuse donc d'écrire un profil dont la durée ou
   la pension serait nulle, et le test le revérifie.
 
-### Deux écarts identifiés, mesurés, et laissés en l'état
+### Un écart identifié, mesuré, et laissé en l'état
 
-Ils l'ont été à dessein : chacun demande un arbitrage de modélisation qu'il vaut
-mieux poser que trancher en silence.
+Il l'est à dessein : il demande un arbitrage de modélisation qu'il vaut mieux
+poser que trancher en silence.
 
 Les mesures ci-dessous portent sur les **cas types du dépôt**
 (`src/retraite_notionnelle/castypes.py`), et non sur des carrières improvisées :
 elles se refont à l'identique. Elles ont été reprises après les corrections des
 coefficients de revalorisation et des barèmes de 2026 — celles qui figuraient
 ici auparavant étaient antérieures, et l'étalon a bougé sous elles.
-
-* **Le compartiment de capitalisation rend la comparaison des cinq scénarios
-  non homogène.** Le scénario 1 INCLUT le RAFP dans son total, comme le fait le
-  droit ; les scénarios 2 à 5 l'EXCLUENT et l'affichent « servi à part ».
-  L'écart affiché compare donc deux périmètres.
-
-  Sur le cas type `fonctionnaire_sedentaire` de la génération 1975, en euros
-  constants de 2026 : le scénario 1 sert 43 086,63 €, dont **1 213,57 € de
-  RAFP** — 2,8 %. Le compartiment isolé, lui, n'affiche que 246,93 € sous
-  `part_cotisation = salariale`, et 493,86 € en part totale. L'écart annoncé de
-  −51,4 % vaut **−50,0 % à périmètre égal** (−40,6 % contre −38,9 % en part
-  totale).
-
-  La part salariale n'explique qu'un facteur deux entre 246,93 € et 493,86 € :
-  le reste de l'écart au RAFP du scénario 1 tient à la règle de conversion
-  propre du compartiment, qui n'a pas été disséquée ici et n'est donc pas
-  affirmée.
-
-  Trois traitements se défendent, et le choix n'est pas technique : retrancher
-  le RAFP du total du scénario 1 et l'afficher à part des deux côtés ; l'ajouter
-  aux totaux notionnels ; ou considérer qu'un régime PROVISIONNÉ est hors
-  d'atteinte d'une réforme de la répartition et le servir à l'identique dans les
-  cinq scénarios, à sa propre règle. Le troisième est sans doute le plus juste
-  économiquement — c'est aussi celui qui change le plus de choses.
 
 * **La cotisation déplafonnée du régime général au-dessus du plafond n'alimente
   pas le compte notionnel.** Le taux de 17,86 % porté par la fiche agrège la
@@ -1144,6 +1120,38 @@ la Caisse des dépôts, la transcription d'OpenFisca reprenait les lignes de
 l'Ircantec et proposait de réécrire le taux d'appel de 1991, de 1,173 à 1,200.
 Rien ne l'empêche encore : il faut lancer les récupérateurs des producteurs
 avant d'appliquer.
+
+### Ce qui n'est pas de la répartition est sorti de la comparaison
+
+Le scénario 1 incluait le RAFP dans son total ; les scénarios 2 à 5 l'excluaient
+et l'affichaient « servi à part ». L'écart annoncé comparait donc un total qui
+le contient à quatre totaux qui ne le contiennent pas.
+
+**Ce n'est plus le cas.** Un régime PROVISIONNÉ — le RAFP, les anciennes
+assurances sociales de 1930 — sert une rente issue d'un placement, non de la
+cotisation des actifs. Remplacer la répartition par des comptes notionnels ne
+l'atteint pas. Les cinq scénarios le servent donc à l'identique, à son propre
+barème, et il est retiré des cinq totaux.
+
+Le CALCUL du scénario 1 n'est pas touché pour autant : l'écrêtement du minimum
+contributif et l'ASPA continuent de regarder toutes les pensions, comme le fait
+le droit. Seul le total RENDU est celui de la répartition, et la part écartée
+est affichée juste à côté — sur la page comme dans le tableau — pour que
+personne ne cherche où elle est passée.
+
+Deux cas types sont concernés : le fonctionnaire sédentaire, dont 1 214 € de
+RAFP sortent d'un total de 43 087 € (2,8 %), et le fonctionnaire de catégorie
+active, 1 060 € sur 23 491 € (4,5 %). Aucun salarié du privé n'est touché.
+
+**Une double comptabilisation disparaît au passage.** Les droits figés à la
+bascule du scénario 3 étaient calculés sur la pension du scénario 1, RAFP
+compris, puis convertis en capital notionnel — pendant que le compartiment de
+capitalisation servait ces mêmes droits une seconde fois. Ils ne le sont plus.
+
+Reste une grandeur qui n'est plus servie nulle part : ce que vaudrait le
+compartiment s'il était converti au coefficient notionnel. Elle demeure calculée,
+et le code dit désormais qu'elle est là **pour mémoire** — c'est la règle propre
+du régime qui est affichée, pas celle-là.
 
 ### La marche à l'année de bascule est voulue, et voici ce qu'elle vaut
 

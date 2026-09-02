@@ -144,8 +144,14 @@ class ResultatActuel:
     pensions_par_regime: list[PensionRegime] = field(default_factory=list)
     #: Avantages non contributifs effectivement appliqués, et leur effet.
     avantages_appliques: list[AvantageApplique] = field(default_factory=list)
-    #: Total des pensions de régime avant tout avantage non contributif.
+    #: Total des pensions de régime avant tout avantage non contributif,
+    #: capitalisation déduite comme dans :attr:`pension_annuelle`.
     total_contributif: float = 0.0
+    #: Rente des régimes PROVISIONNÉS — RAFP, anciennes assurances sociales —
+    #: retirée de :attr:`pension_annuelle` et servie à part. Ils ne relèvent pas
+    #: de la répartition : la réforme simulée ne les atteint pas, et les cinq
+    #: scénarios les servent donc à l'identique, hors comparaison.
+    pension_hors_repartition: float = 0.0
     trimestres_valides: int = 0
     trimestres_requis: int = 0
     taux_liquidation: float = 0.0
@@ -1865,7 +1871,25 @@ class ScenarioActuel:
             ))
 
         total = sum(p.montant for p in pensions)
-        total_contributif = total
+
+        # CE QUI N'EST PAS DE LA RÉPARTITION EST SERVI À PART. Le RAFP et les
+        # anciennes assurances sociales sont des régimes PROVISIONNÉS : leur
+        # rente sort d'un placement, pas de la cotisation des actifs. Une
+        # réforme qui remplace la répartition par des comptes notionnels ne les
+        # atteint pas, et les scénarios notionnels les isolent déjà. Les laisser
+        # dans le total du scénario 1 revenait donc à comparer un total qui les
+        # contient à quatre totaux qui ne les contiennent pas.
+        #
+        # Le calcul lui-même n'est pas touché : l'écrêtement du minimum
+        # contributif et l'ASPA continuent de regarder TOUTES les pensions,
+        # comme le fait le droit. Seul le total rendu est celui de la
+        # répartition, et la part écartée est rendue à côté.
+        hors_repartition = (
+            sum(p.montant for p in pensions
+                if self.catalogue[p.regime].hors_repartition)
+            if self.parametres.isoler_capitalisation else 0.0
+        )
+        total_contributif = total - hors_repartition
         avantages: list[AvantageApplique] = []
 
         # Avantages non contributifs du droit positif, DANS L'ORDRE OÙ LE DROIT
@@ -1892,7 +1916,9 @@ class ScenarioActuel:
                 carriere, ignorer_penalite_age, avantages_non_contributifs=False,
                 avpf=avpf,
             )
-            effet = total - sans_mda.total_contributif
+            # Les deux termes doivent porter sur le même périmètre : celui
+            # d'en face est déjà net de la capitalisation.
+            effet = (total - hors_repartition) - sans_mda.total_contributif
             # Ces trimestres sont déjà incorporés aux pensions de régime : la
             # base contributive de la cascade est celle d'AVANT, sans quoi leur
             # effet serait compté deux fois.
@@ -2174,7 +2200,8 @@ class ScenarioActuel:
                 ))
 
         return ResultatActuel(
-            pension_annuelle=total,
+            pension_annuelle=max(0.0, total - hors_repartition),
+            pension_hors_repartition=hors_repartition,
             pensions_par_regime=pensions,
             avantages_appliques=avantages,
             total_contributif=total_contributif,

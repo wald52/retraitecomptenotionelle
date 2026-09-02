@@ -210,10 +210,15 @@ function resultat(champs) {
     ...champs,
     pension_mensuelle: champs.pension_annuelle / 12.0,
     /**
-     * Rente issue du compartiment de capitalisation, servie à part. Le RAFP et
-     * les droits des anciennes assurances sociales ne sont pas convertis en
-     * capital notionnel : ils restent dans un compartiment distinct, converti
-     * au même coefficient actuariel.
+     * Ce que vaudrait le compartiment de capitalisation, POUR MÉMOIRE. Le RAFP
+     * et les droits des anciennes assurances sociales ne sont pas convertis en
+     * capital notionnel : ils restent dans un compartiment distinct, et cette
+     * valeur dit ce qu'il donnerait s'il l'était.
+     *
+     * Ce n'est PAS ce qui est servi. Un régime provisionné n'est pas atteint
+     * par une réforme de la répartition : les cinq scénarios servent sa rente à
+     * son propre barème, celui du scénario 1 (`pension_hors_repartition`), et
+     * c'est cette valeur-là qui est affichée.
      */
     rente_capitalisation_annuelle: champs.conversion.diviseur <= 0
       ? 0.0

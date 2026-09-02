@@ -529,11 +529,16 @@ function resultats(contexte, saisie) {
   ].join("");
 
   let capitalisation = "";
-  if (retro.rente_capitalisation_annuelle > 0) {
-    const montant = comparaison.enEurosConstants(retro.rente_capitalisation_annuelle);
-    capitalisation = '<p class="discret">Compartiment de capitalisation servi à part '
-      + `(RAFP) : ${g.euros(montant / 12)} par mois. Il n'est jamais converti `
-      + "en capital notionnel.</p>";
+  if (comparaison.actuel.pension_hors_repartition > 0) {
+    const montant = comparaison.enEurosConstants(
+      comparaison.actuel.pension_hors_repartition,
+    );
+    capitalisation = '<p class="discret">Hors répartition, servi à part : '
+      + `${g.euros(montant / 12)} par mois de RAFP. Ce régime est PROVISIONNÉ `
+      + "— sa rente sort d'un placement, non de la cotisation des actifs —, si "
+      + "bien qu'une réforme de la répartition ne l'atteint pas. Il est donc "
+      + "retiré des cinq totaux et servi à l'identique dans les cinq "
+      + "scénarios : c'est la seule façon de comparer ce qui est comparable.</p>";
   }
 
   let minimum = "";

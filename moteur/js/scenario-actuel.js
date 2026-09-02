@@ -863,7 +863,24 @@ export class ScenarioActuel {
 
     let total = pensions.reduce((somme, p) => somme + p.montant, 0.0);
 
-    let totalContributif = total;
+    // CE QUI N'EST PAS DE LA RÉPARTITION EST SERVI À PART. Le RAFP et les
+    // anciennes assurances sociales sont des régimes PROVISIONNÉS : leur rente
+    // sort d'un placement, pas de la cotisation des actifs. Une réforme qui
+    // remplace la répartition par des comptes notionnels ne les atteint pas, et
+    // les scénarios notionnels les isolent déjà. Les laisser dans le total du
+    // scénario 1 revenait à comparer un total qui les contient à quatre totaux
+    // qui ne les contiennent pas.
+    //
+    // Le calcul lui-même n'est pas touché : l'écrêtement du minimum contributif
+    // et l'ASPA continuent de regarder TOUTES les pensions, comme le fait le
+    // droit. Seul le total rendu est celui de la répartition.
+    const horsRepartition = this.parametres.isoler_capitalisation
+      ? pensions.reduce(
+        (somme, p) => somme + (this.catalogue.obtenir(p.regime).hors_repartition
+          ? p.montant : 0.0), 0.0)
+      : 0.0;
+
+    let totalContributif = total - horsRepartition;
     const avantages = [];
 
     // Avantages non contributifs du droit positif, DANS L'ORDRE OÙ LE DROIT
@@ -879,7 +896,9 @@ export class ScenarioActuel {
       // Effet des trimestres accordés au titre des enfants : la même carrière
       // sans eux, tout le reste égal.
       const sansMda = this.calculer(carriere, ignorerPenaliteAge, false, avpf);
-      const effet = total - sansMda.total_contributif;
+      // Les deux termes doivent porter sur le même périmètre : celui d'en
+      // face est déjà net de la capitalisation.
+      const effet = (total - horsRepartition) - sansMda.total_contributif;
       // Ces trimestres sont déjà incorporés aux pensions de régime : la base
       // contributive de la cascade est celle d'AVANT.
       totalContributif = sansMda.total_contributif;
@@ -1150,7 +1169,8 @@ export class ScenarioActuel {
     }
 
     return {
-      pension_annuelle: total,
+      pension_annuelle: Math.max(0.0, total - horsRepartition),
+      pension_hors_repartition: horsRepartition,
       pensions_par_regime: pensions,
       trimestres_valides: trimestres,
       trimestres_requis: trimestresRequis,
@@ -1162,7 +1182,8 @@ export class ScenarioActuel {
       avantages_appliques: avantages,
       total_contributif: totalContributif,
       fiabilite: fiabiliteGlobale,
-      pension_mensuelle: total / 12.0,
+      // Comme la pension annuelle : hors capitalisation.
+      pension_mensuelle: Math.max(0.0, total - horsRepartition) / 12.0,
     };
   }
 }

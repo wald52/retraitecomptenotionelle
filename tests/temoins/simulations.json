@@ -114,6 +114,7 @@
      ],
      "pension_annuelle": 38521.74167892387,
      "pension_annuelle_euros_constants": 30743.866239928575,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 3210.1451399103225,
      "taux_remplacement": 0.5115864101742273,
      "total_contributif": 38521.74167892387
@@ -319,6 +320,7 @@
      ],
      "pension_annuelle": 38521.74167892387,
      "pension_annuelle_euros_constants": 30743.866239928575,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 3210.1451399103225,
      "taux_remplacement": 0.5115864101742273,
      "total_contributif": 38521.74167892387
@@ -527,6 +529,7 @@
      ],
      "pension_annuelle": 56920.34747404011,
      "pension_annuelle_euros_constants": 35019.0081628904,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 4743.362289503342,
      "taux_remplacement": 0.5032145259503722,
      "total_contributif": 56920.34747404011
@@ -720,6 +723,7 @@
      ],
      "pension_annuelle": 56920.34747404011,
      "pension_annuelle_euros_constants": 35019.0081628904,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 4743.362289503342,
      "taux_remplacement": 0.5032145259503722,
      "total_contributif": 56920.34747404011
@@ -911,6 +915,7 @@
      ],
      "pension_annuelle": 56920.34747404011,
      "pension_annuelle_euros_constants": 35019.0081628904,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 4743.362289503342,
      "taux_remplacement": 0.5032145259503722,
      "total_contributif": 56920.34747404011
@@ -1116,6 +1121,7 @@
      ],
      "pension_annuelle": 56920.34747404011,
      "pension_annuelle_euros_constants": 35019.0081628904,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 4743.362289503342,
      "taux_remplacement": 0.5032145259503722,
      "total_contributif": 56920.34747404011
@@ -1321,6 +1327,7 @@
      ],
      "pension_annuelle": 56920.34747404011,
      "pension_annuelle_euros_constants": 35019.0081628904,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 4743.362289503342,
      "taux_remplacement": 0.5032145259503722,
      "total_contributif": 56920.34747404011
@@ -1512,6 +1519,7 @@
      ],
      "pension_annuelle": 38521.74167892387,
      "pension_annuelle_euros_constants": 30743.866239928575,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 3210.1451399103225,
      "taux_remplacement": 0.5115864101742273,
      "total_contributif": 38521.74167892387
@@ -1717,6 +1725,7 @@
      ],
      "pension_annuelle": 38521.74167892387,
      "pension_annuelle_euros_constants": 30743.866239928575,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 3210.1451399103225,
      "taux_remplacement": 0.5115864101742273,
      "total_contributif": 38521.74167892387
@@ -1922,6 +1931,7 @@
      ],
      "pension_annuelle": 57197.2402692609,
      "pension_annuelle_euros_constants": 41135.91243387978,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 4766.436689105075,
      "taux_remplacement": 0.6455013818248755,
      "total_contributif": 57197.2402692609
@@ -2127,6 +2137,7 @@
      ],
      "pension_annuelle": 13581.898154595927,
      "pension_annuelle_euros_constants": 22197.874252319976,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 1131.8248462163272,
      "taux_remplacement": 0.5224300385083072,
      "total_contributif": 13581.898154595927
@@ -2331,6 +2342,7 @@
      ],
      "pension_annuelle": 43942.30817975995,
      "pension_annuelle_euros_constants": 35069.9731131679,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 3661.859014979996,
      "taux_remplacement": 0.5835740212325982,
      "total_contributif": 38521.74167892387
@@ -2548,6 +2560,7 @@
      ],
      "pension_annuelle": 716.6005260413082,
      "pension_annuelle_euros_constants": 6049.199273869398,
+     "pension_hors_repartition": 0.0,
      "pension_mensuelle": 59.71671050344235,
      "taux_remplacement": 0.2284237402106046,
      "total_contributif": 654.8413416847994
@@ -2752,6 +2765,7 @@
      ],
      "pension_annuelle": 31695.56394485688,
      "pension_annuelle_euros_constants": 25295.953294160725,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 2641.29699540474,
      "taux_remplacement": 0.42093163679223294,
      "total_contributif": 25578.264596275898
@@ -2969,6 +2983,7 @@
      ],
      "pension_annuelle": 32115.410649486977,
      "pension_annuelle_euros_constants": 32985.5785039201,
+     "pension_hors_repartition": 0.0,
      "pension_mensuelle": 2676.2842207905815,
      "taux_remplacement": 0.6339026218562874,
      "total_contributif": 26828.598576967008
@@ -3174,6 +3189,7 @@
      ],
      "pension_annuelle": 58179.82497371103,
      "pension_annuelle_euros_constants": 39037.392272219935,
+     "pension_hors_repartition": 0.0,
      "pension_mensuelle": 4848.318747809252,
      "taux_remplacement": 0.5890703851744186,
      "total_contributif": 50655.929554575545
@@ -3399,6 +3415,7 @@
      ],
      "pension_annuelle": 1113.6737498712891,
      "pension_annuelle_euros_constants": 7827.695651828467,
+     "pension_hors_repartition": 0.0,
      "pension_mensuelle": 92.80614582260743,
      "taux_remplacement": 0.2606454356453912,
      "total_contributif": 931.8297713749133
@@ -3595,6 +3612,7 @@
      ],
      "pension_annuelle": 931.8297713749133,
      "pension_annuelle_euros_constants": 6549.566109894144,
+     "pension_hors_repartition": 0.0,
      "pension_mensuelle": 77.65248094790944,
      "taux_remplacement": 0.2180864698799174,
      "total_contributif": 931.8297713749133
@@ -3793,6 +3811,7 @@
      ],
      "pension_annuelle": 28136.09105590349,
      "pension_annuelle_euros_constants": 22455.169009412046,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 2344.6742546586242,
      "taux_remplacement": 0.3736602031029185,
      "total_contributif": 25578.264596275898
@@ -4011,6 +4030,7 @@
      ],
      "pension_annuelle": 14296.55458695074,
      "pension_annuelle_euros_constants": 17601.372956135834,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 1191.3795489125616,
      "taux_remplacement": 0.3462085572064427,
      "total_contributif": 10625.274499412764
@@ -4202,6 +4222,7 @@
      ],
      "pension_annuelle": 38521.74167892387,
      "pension_annuelle_euros_constants": 9150.703326436282,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 3210.1451399103225,
      "taux_remplacement": 0.5115864101742273,
      "total_contributif": 38521.74167892387
@@ -4407,6 +4428,7 @@
      ],
      "pension_annuelle": 38521.74167892387,
      "pension_annuelle_euros_constants": 19960.17222752665,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 3210.1451399103225,
      "taux_remplacement": 0.5115864101742273,
      "total_contributif": 38521.74167892387
@@ -4612,6 +4634,7 @@
      ],
      "pension_annuelle": 38521.74167892387,
      "pension_annuelle_euros_constants": 46621.31418533096,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 3210.1451399103225,
      "taux_remplacement": 0.5115864101742273,
      "total_contributif": 38521.74167892387
@@ -4817,6 +4840,7 @@
      ],
      "pension_annuelle": 13441.148999247267,
      "pension_annuelle_euros_constants": 22383.908619101454,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 1120.0957499372723,
      "taux_remplacement": 0.5225947018425467,
      "total_contributif": 13441.148999247267
@@ -5003,6 +5027,7 @@
      ],
      "pension_annuelle": 19074.024667024794,
      "pension_annuelle_euros_constants": 27200.438468136515,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 1589.5020555853996,
      "taux_remplacement": 0.5908383656661935,
      "total_contributif": 19074.024667024794
@@ -5189,6 +5214,7 @@
      ],
      "pension_annuelle": 22959.596969349892,
      "pension_annuelle_euros_constants": 28266.980461778992,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 1913.2997474458243,
      "taux_remplacement": 0.5559947253344075,
      "total_contributif": 22959.596969349892
@@ -5380,6 +5406,7 @@
      ],
      "pension_annuelle": 27821.422377947874,
      "pension_annuelle_euros_constants": 28575.244512813937,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 2318.4518648289895,
      "taux_remplacement": 0.5491467252788831,
      "total_contributif": 27821.422377947874
@@ -5571,6 +5598,7 @@
      ],
      "pension_annuelle": 33828.99496503289,
      "pension_annuelle_euros_constants": 29445.148723652972,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 2819.082913752741,
      "taux_remplacement": 0.5145307478309027,
      "total_contributif": 33828.99496503289
@@ -5776,6 +5804,7 @@
      ],
      "pension_annuelle": 43739.26170292568,
      "pension_annuelle_euros_constants": 32007.51265977304,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 3644.938475243807,
      "taux_remplacement": 0.5071954864268717,
      "total_contributif": 43739.26170292568
@@ -5981,6 +6010,7 @@
      ],
      "pension_annuelle": 56920.34747404011,
      "pension_annuelle_euros_constants": 35019.0081628904,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 4743.362289503342,
      "taux_remplacement": 0.5032145259503722,
      "total_contributif": 56920.34747404011
@@ -6181,6 +6211,7 @@
      ],
      "pension_annuelle": 74580.73734355811,
      "pension_annuelle_euros_constants": 38576.14208184808,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 6215.061445296509,
      "taux_remplacement": 0.5026827632388957,
      "total_contributif": 74580.73734355811
@@ -6381,6 +6412,7 @@
      ],
      "pension_annuelle": 85433.519134286,
      "pension_annuelle_euros_constants": 40518.03044105285,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 7119.459927857167,
      "taux_remplacement": 0.5027898064768478,
      "total_contributif": 85433.519134286
@@ -6572,6 +6604,7 @@
      ],
      "pension_annuelle": 38521.74167892387,
      "pension_annuelle_euros_constants": 30743.866239928575,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 3210.1451399103225,
      "taux_remplacement": 0.5115864101742273,
      "total_contributif": 38521.74167892387
@@ -6777,6 +6810,7 @@
      ],
      "pension_annuelle": 38521.74167892387,
      "pension_annuelle_euros_constants": 30743.866239928575,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 3210.1451399103225,
      "taux_remplacement": 0.5115864101742273,
      "total_contributif": 38521.74167892387
@@ -6982,6 +7016,7 @@
      ],
      "pension_annuelle": 38521.74167892387,
      "pension_annuelle_euros_constants": 30743.866239928575,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 3210.1451399103225,
      "taux_remplacement": 0.5115864101742273,
      "total_contributif": 38521.74167892387
@@ -7187,6 +7222,7 @@
      ],
      "pension_annuelle": 33784.394691384216,
      "pension_annuelle_euros_constants": 29406.32812930607,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 2815.366224282018,
      "taux_remplacement": 0.5138523885660875,
      "total_contributif": 33784.394691384216
@@ -7392,6 +7428,7 @@
      ],
      "pension_annuelle": 37754.13850410212,
      "pension_annuelle_euros_constants": 30131.24883730018,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 3146.178208675177,
      "taux_remplacement": 0.5013922876987046,
      "total_contributif": 37754.13850410212
@@ -7597,6 +7634,7 @@
      ],
      "pension_annuelle": 13068.392727844366,
      "pension_annuelle_euros_constants": 12843.629216554658,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 1089.0327273203638,
      "taux_remplacement": 0.24033511447499725,
      "total_contributif": 13068.392727844366
@@ -7802,6 +7840,7 @@
      ],
      "pension_annuelle": 18164.468812811556,
      "pension_annuelle_euros_constants": 16368.775594516754,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 1513.705734400963,
      "taux_remplacement": 0.2916813093037525,
      "total_contributif": 18164.468812811556
@@ -8007,6 +8046,7 @@
      ],
      "pension_annuelle": 25307.250108918503,
      "pension_annuelle_euros_constants": 21648.86818471687,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 2108.937509076542,
      "taux_remplacement": 0.37461517345482653,
      "total_contributif": 25307.250108918503
@@ -8212,6 +8252,7 @@
      ],
      "pension_annuelle": 31476.77602883589,
      "pension_annuelle_euros_constants": 26008.280895901382,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 2623.0646690696576,
      "taux_remplacement": 0.441333596842374,
      "total_contributif": 31476.77602883589
@@ -8417,6 +8458,7 @@
      ],
      "pension_annuelle": 38521.74167892387,
      "pension_annuelle_euros_constants": 30743.866239928575,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 3210.1451399103225,
      "taux_remplacement": 0.5115864101742273,
      "total_contributif": 38521.74167892387
@@ -8622,6 +8664,7 @@
      ],
      "pension_annuelle": 47260.17897740258,
      "pension_annuelle_euros_constants": 35805.08224485677,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 3938.3482481168817,
      "taux_remplacement": 0.5785793844225656,
      "total_contributif": 47260.17897740258
@@ -8827,6 +8870,7 @@
      ],
      "pension_annuelle": 57197.2402692609,
      "pension_annuelle_euros_constants": 41135.91243387978,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 4766.436689105075,
      "taux_remplacement": 0.6455013818248755,
      "total_contributif": 57197.2402692609
@@ -9032,6 +9076,7 @@
      ],
      "pension_annuelle": 28370.72724431949,
      "pension_annuelle_euros_constants": 28370.72724431949,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 2364.2272703599574,
      "taux_remplacement": 0.53610190482913,
      "total_contributif": 28370.72724431949
@@ -9223,6 +9268,7 @@
      ],
      "pension_annuelle": 41309.63086047773,
      "pension_annuelle_euros_constants": 32401.824367269615,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 3442.469238373144,
      "taux_remplacement": 0.5339278424218049,
      "total_contributif": 41309.63086047773
@@ -9424,57 +9470,58 @@
        "regime": "rafp"
       }
      ],
-     "pension_annuelle": 46379.02251590837,
-     "pension_annuelle_euros_constants": 37014.69358400919,
-     "pension_mensuelle": 3864.918542992364,
-     "taux_remplacement": 0.6159347060178421,
-     "total_contributif": 46379.02251590837
+     "pension_annuelle": 44820.55182974756,
+     "pension_annuelle_euros_constants": 35770.89171457315,
+     "pension_hors_repartition": 1558.4706861608115,
+     "pension_mensuelle": 3735.0459858122963,
+     "taux_remplacement": 0.5952375000000001,
+     "total_contributif": 44820.55182974756
     },
     "notionnel_prospectif": {
      "annees_part_employeur": {},
-     "capital_droits_acquis": 475442.88449444604,
-     "capital_notionnel": 561915.3858145457,
+     "capital_droits_acquis": 459144.17273673567,
+     "capital_notionnel": 545616.6740568354,
      "cotisations_employeur": 0.0,
      "cotisations_versees": 81058.7410720488,
      "droits_acquis": {
       "age_conversion": 67.0,
-      "capital": 475442.88449444604,
-      "capital_a_la_bascule": 417753.88069547137,
+      "capital": 459144.17273673567,
+      "capital_a_la_bascule": 403432.81225764944,
       "coefficient_revalorisation": 1.1380932804332895,
       "diviseur": 22.028567812418725,
-      "pension_figee": 18964.18706167363
+      "pension_figee": 18314.073601744185
      },
      "fiabilite": "estimee",
-     "pension_annuelle": 21768.474052321315,
-     "pension_annuelle_euros_constants": 17373.22938537026,
-     "pension_mensuelle": 1814.0395043601095,
+     "pension_annuelle": 21137.06567137857,
+     "pension_annuelle_euros_constants": 16869.307860526682,
+     "pension_mensuelle": 1761.4221392815473,
      "rendement_cumule": 1.066788111639174,
      "rente_capitalisation": 0.0,
-     "taux_remplacement": 0.2890953266915989,
-     "variation_vs_actuel": -0.5306396540622529
+     "taux_remplacement": 0.28070993358936663,
+     "variation_vs_actuel": -0.5284068399767041
     },
     "notionnel_prospectif_employeur": {
      "annees_part_employeur": {},
-     "capital_droits_acquis": 475442.88449444604,
-     "capital_notionnel": 688408.9135882577,
+     "capital_droits_acquis": 459144.17273673567,
+     "capital_notionnel": 672110.2018305474,
      "cotisations_employeur": 118574.18206446673,
      "cotisations_versees": 199632.9231365155,
      "droits_acquis": {
       "age_conversion": 67.0,
-      "capital": 475442.88449444604,
-      "capital_a_la_bascule": 417753.88069547137,
+      "capital": 459144.17273673567,
+      "capital_a_la_bascule": 403432.81225764944,
       "coefficient_revalorisation": 1.1380932804332895,
       "diviseur": 22.028567812418725,
-      "pension_figee": 18964.18706167363
+      "pension_figee": 18314.073601744185
      },
      "fiabilite": "estimee",
-     "pension_annuelle": 26668.804505343338,
-     "pension_annuelle_euros_constants": 21284.140403746787,
-     "pension_mensuelle": 2222.4003754452783,
+     "pension_annuelle": 26037.39612440059,
+     "pension_annuelle_euros_constants": 20780.21887890321,
+     "pension_mensuelle": 2169.783010366716,
      "rendement_cumule": 1.066788111639174,
      "rente_capitalisation": 0.0,
-     "taux_remplacement": 0.35417396425747477,
-     "variation_vs_actuel": -0.42498131571885267
+     "taux_remplacement": 0.34578857115524253,
+     "variation_vs_actuel": -0.4190746195338122
     },
     "notionnel_retroactif": {
      "annees_part_employeur": {},
@@ -9490,7 +9537,7 @@
      "rendement_cumule": 1.114112321837408,
      "rente_capitalisation": 318.2452933034096,
      "taux_remplacement": 0.07928187656913391,
-     "variation_vs_actuel": -0.8712820112350719
+     "variation_vs_actuel": -0.8668063141701692
     },
     "notionnel_retroactif_employeur": {
      "annees_part_employeur": {
@@ -9509,7 +9556,7 @@
      "rendement_cumule": 1.1465778733732506,
      "rente_capitalisation": 636.4905866068192,
      "taux_remplacement": 0.3902018864460761,
-     "variation_vs_actuel": -0.3664882289734571
+     "variation_vs_actuel": -0.34446017523076744
     }
    },
    "unite": {
@@ -9634,6 +9681,7 @@
      ],
      "pension_annuelle": 46646.70669605098,
      "pension_annuelle_euros_constants": 37228.32999477801,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 3887.225558004248,
      "taux_remplacement": 0.42386135643636214,
      "total_contributif": 46646.70669605098
@@ -9839,6 +9887,7 @@
      ],
      "pension_annuelle": 36612.97130817277,
      "pension_annuelle_euros_constants": 29220.49324578336,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 3051.080942347731,
      "taux_remplacement": 0.6321081826341852,
      "total_contributif": 36612.97130817277
@@ -10044,6 +10093,7 @@
      ],
      "pension_annuelle": 38106.445701897246,
      "pension_annuelle_euros_constants": 30412.42214079864,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 3175.5371418247705,
      "taux_remplacement": 0.525678008668946,
      "total_contributif": 38106.445701897246
@@ -10249,6 +10299,7 @@
      ],
      "pension_annuelle": 38945.038354459946,
      "pension_annuelle_euros_constants": 31081.695626796816,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 3245.419862871662,
      "taux_remplacement": 0.4979721654859229,
      "total_contributif": 38945.038354459946
@@ -10454,6 +10505,7 @@
      ],
      "pension_annuelle": 37566.346906140396,
      "pension_annuelle_euros_constants": 29981.373999946278,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 3130.528908845033,
      "taux_remplacement": 0.5452638790510842,
      "total_contributif": 37566.346906140396
@@ -10659,6 +10711,7 @@
      ],
      "pension_annuelle": 5714.907368623264,
      "pension_annuelle_euros_constants": 4561.017754050939,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 476.24228071860534,
      "taux_remplacement": 0.37948296439460083,
      "total_contributif": 5714.907368623264
@@ -10864,6 +10917,7 @@
      ],
      "pension_annuelle": 21475.63643471717,
      "pension_annuelle_euros_constants": 17139.51823542589,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 1789.636369559764,
      "taux_remplacement": 0.5185569249517106,
      "total_contributif": 21475.63643471717
@@ -11069,6 +11123,7 @@
      ],
      "pension_annuelle": 50670.657231132434,
      "pension_annuelle_euros_constants": 40439.809840049886,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 4222.554769261036,
      "taux_remplacement": 0.44861972320471943,
      "total_contributif": 50670.657231132434
@@ -11274,6 +11329,7 @@
      ],
      "pension_annuelle": 88955.85308754863,
      "pension_annuelle_euros_constants": 70994.890921005,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 7412.987757295719,
      "taux_remplacement": 0.3937915192962642,
      "total_contributif": 88955.85308754863
@@ -11479,6 +11535,7 @@
      ],
      "pension_annuelle": 177030.76332286888,
      "pension_annuelle_euros_constants": 141286.70903082535,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 14752.563610239073,
      "taux_remplacement": 0.29388122379569354,
      "total_contributif": 177030.76332286888
@@ -11676,6 +11733,7 @@
      ],
      "pension_annuelle": 57462.24593557378,
      "pension_annuelle_euros_constants": 45860.11758278608,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 4788.520494631149,
      "taux_remplacement": 0.7631249999999999,
      "total_contributif": 57462.24593557378
@@ -11885,6 +11943,7 @@
      ],
      "pension_annuelle": 41525.0370165874,
      "pension_annuelle_euros_constants": 33140.770069192506,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 3460.4197513822833,
      "taux_remplacement": 0.5514715507084857,
      "total_contributif": 41525.0370165874
@@ -12094,6 +12153,7 @@
      ],
      "pension_annuelle": 41525.0370165874,
      "pension_annuelle_euros_constants": 33140.770069192506,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 3460.4197513822833,
      "taux_remplacement": 0.5514715507084857,
      "total_contributif": 41525.0370165874
@@ -12304,6 +12364,7 @@
      ],
      "pension_annuelle": 40253.328062695924,
      "pension_annuelle_euros_constants": 32125.83023857862,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 3354.4440052246605,
      "taux_remplacement": 0.5345826721128507,
      "total_contributif": 40253.328062695924
@@ -12517,6 +12578,7 @@
      ],
      "pension_annuelle": 30613.67038794721,
      "pension_annuelle_euros_constants": 24432.50347725721,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 2551.139198995601,
      "taux_remplacement": 0.406563593789835,
      "total_contributif": 30613.67038794721
@@ -12717,6 +12779,7 @@
      ],
      "pension_annuelle": 37969.15648811382,
      "pension_annuelle_euros_constants": 30302.852816028157,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 3164.096374009485,
      "taux_remplacement": 0.5042478252151619,
      "total_contributif": 37969.15648811382
@@ -12914,6 +12977,7 @@
      ],
      "pension_annuelle": 57462.24593557378,
      "pension_annuelle_euros_constants": 45860.11758278608,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 4788.520494631149,
      "taux_remplacement": 0.7631249999999999,
      "total_contributif": 57462.24593557378
@@ -13126,6 +13190,7 @@
      ],
      "pension_annuelle": 30613.67038794721,
      "pension_annuelle_euros_constants": 24432.50347725721,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 2551.139198995601,
      "taux_remplacement": 0.406563593789835,
      "total_contributif": 30613.67038794721
@@ -13326,6 +13391,7 @@
      ],
      "pension_annuelle": 40791.86619394364,
      "pension_annuelle_euros_constants": 32555.632826690555,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 3399.322182828637,
      "taux_remplacement": 0.5417347056736203,
      "total_contributif": 40791.86619394364
@@ -13526,6 +13592,7 @@
      ],
      "pension_annuelle": 23693.781086559855,
      "pension_annuelle_euros_constants": 18909.800146494705,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 1974.4817572133213,
      "taux_remplacement": 0.31466428778216604,
      "total_contributif": 23693.781086559855
@@ -13729,6 +13796,7 @@
      ],
      "pension_annuelle": 57462.24593557378,
      "pension_annuelle_euros_constants": 45860.11758278608,
+     "pension_hors_repartition": 0.0,
      "pension_mensuelle": 4788.520494631149,
      "taux_remplacement": 0.7631249999999999,
      "total_contributif": 57462.24593557378
@@ -13934,6 +14002,7 @@
      ],
      "pension_annuelle": 57462.24593557378,
      "pension_annuelle_euros_constants": 45860.11758278608,
+     "pension_hors_repartition": 0.0,
      "pension_mensuelle": 4788.520494631149,
      "taux_remplacement": 0.7631249999999999,
      "total_contributif": 57462.24593557378
@@ -14133,6 +14202,7 @@
      ],
      "pension_annuelle": 36046.21765255346,
      "pension_annuelle_euros_constants": 28768.172093625184,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 3003.851471046122,
      "taux_remplacement": 0.47871031488999494,
      "total_contributif": 36046.21765255346
@@ -14342,6 +14412,7 @@
      ],
      "pension_annuelle": 39839.271348268565,
      "pension_annuelle_euros_constants": 31795.375184126504,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 3319.9392790223806,
      "taux_remplacement": 0.5290838089018365,
      "total_contributif": 39839.271348268565
@@ -14546,6 +14617,7 @@
      ],
      "pension_annuelle": 57462.24593557378,
      "pension_annuelle_euros_constants": 45860.11758278608,
+     "pension_hors_repartition": 0.0,
      "pension_mensuelle": 4788.520494631149,
      "taux_remplacement": 0.7631249999999999,
      "total_contributif": 57462.24593557378
@@ -14755,6 +14827,7 @@
      ],
      "pension_annuelle": 56307.48096630616,
      "pension_annuelle_euros_constants": 44938.50972689978,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 4692.290080525513,
      "taux_remplacement": 0.747789191195026,
      "total_contributif": 56307.48096630616
@@ -14964,6 +15037,7 @@
      ],
      "pension_annuelle": 56307.48096630616,
      "pension_annuelle_euros_constants": 44938.50972689978,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 4692.290080525513,
      "taux_remplacement": 0.747789191195026,
      "total_contributif": 56307.48096630616
@@ -15161,6 +15235,7 @@
      ],
      "pension_annuelle": 14535.287509408681,
      "pension_annuelle_euros_constants": 11600.48625715847,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 1211.2739591173902,
      "taux_remplacement": 0.19303528951955748,
      "total_contributif": 14535.287509408681
@@ -15366,6 +15441,7 @@
      ],
      "pension_annuelle": 38521.74167892387,
      "pension_annuelle_euros_constants": 30743.866239928575,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 3210.1451399103225,
      "taux_remplacement": 0.5115864101742273,
      "total_contributif": 38521.74167892387
@@ -15576,6 +15652,7 @@
      ],
      "pension_annuelle": 40252.05205397508,
      "pension_annuelle_euros_constants": 32124.81186714148,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 3354.33767116459,
      "taux_remplacement": 0.5345657261313764,
      "total_contributif": 40252.05205397508
@@ -15781,6 +15858,7 @@
      ],
      "pension_annuelle": 38521.74167892387,
      "pension_annuelle_euros_constants": 30743.866239928575,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 3210.1451399103225,
      "taux_remplacement": 0.5115864101742273,
      "total_contributif": 38521.74167892387
@@ -15968,8 +16046,9 @@
      "minimum_applique": false,
      "motif_ouverture": "age_legal",
      "par_regime": [],
-     "pension_annuelle": 0,
+     "pension_annuelle": 0.0,
      "pension_annuelle_euros_constants": 0.0,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 0.0,
      "taux_remplacement": 0.0,
      "total_contributif": 0
@@ -15986,7 +16065,7 @@
       "capital_a_la_bascule": 0.0,
       "coefficient_revalorisation": 1.1380932804332895,
       "diviseur": 22.028567812418725,
-      "pension_figee": 0
+      "pension_figee": 0.0
      },
      "fiabilite": "estimee",
      "pension_annuelle": 8250.255457295118,
@@ -16009,7 +16088,7 @@
       "capital_a_la_bascule": 0.0,
       "coefficient_revalorisation": 1.1380932804332895,
       "diviseur": 22.028567812418725,
-      "pension_figee": 0
+      "pension_figee": 0.0
      },
      "fiabilite": "estimee",
      "pension_annuelle": 8250.255457295118,
@@ -16182,6 +16261,7 @@
      ],
      "pension_annuelle": 33993.14816175798,
      "pension_annuelle_euros_constants": 30632.671934701655,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 2832.7623468131646,
      "taux_remplacement": 0.5458549911564032,
      "total_contributif": 32786.85711475971
@@ -16394,6 +16474,7 @@
      ],
      "pension_annuelle": 41556.27577485737,
      "pension_annuelle_euros_constants": 35548.95662806868,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 3463.0229812381144,
      "taux_remplacement": 0.6151443317837458,
      "total_contributif": 40046.64699587942
@@ -16606,6 +16687,7 @@
      ],
      "pension_annuelle": 23442.975144611533,
      "pension_annuelle_euros_constants": 21125.46220670819,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 1953.5812620509612,
      "taux_remplacement": 0.3764424798006097,
      "total_contributif": 21633.147800377486
@@ -16817,6 +16899,7 @@
      ],
      "pension_annuelle": 49899.83180841547,
      "pension_annuelle_euros_constants": 44966.86126598904,
+     "pension_hors_repartition": 0.0,
      "pension_mensuelle": 4158.319317367956,
      "taux_remplacement": 0.8012812500000001,
      "total_contributif": 47523.649341348064
@@ -17026,6 +17109,7 @@
      ],
      "pension_annuelle": 32786.85711475971,
      "pension_annuelle_euros_constants": 29545.631754585702,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 2732.2380928966427,
      "taux_remplacement": 0.5264846172899412,
      "total_contributif": 32786.85711475971
@@ -17231,6 +17315,7 @@
      ],
      "pension_annuelle": 38521.74167892387,
      "pension_annuelle_euros_constants": 30743.866239928575,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 3210.1451399103225,
      "taux_remplacement": 0.5115864101742273,
      "total_contributif": 38521.74167892387
@@ -17436,6 +17521,7 @@
      ],
      "pension_annuelle": 38521.74167892387,
      "pension_annuelle_euros_constants": 30743.866239928575,
+     "pension_hors_repartition": 0,
      "pension_mensuelle": 3210.1451399103225,
      "taux_remplacement": 0.5115864101742273,
      "total_contributif": 38521.74167892387

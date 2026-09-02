@@ -125,11 +125,19 @@ class ResultatNotionnel:
 
     @property
     def rente_capitalisation_annuelle(self) -> float:
-        """Rente issue du compartiment de capitalisation, servie à part.
+        """Ce que vaudrait le compartiment de capitalisation, POUR MÉMOIRE.
 
         Le RAFP et les droits des anciennes assurances sociales ne sont pas
         convertis en capital notionnel : ils restent dans un compartiment
-        distinct, converti au même coefficient actuariel.
+        distinct. Cette propriété dit ce qu'il donnerait s'il l'était, au même
+        coefficient actuariel.
+
+        **Ce n'est pas ce qui est servi.** Un régime provisionné n'est pas
+        atteint par une réforme de la répartition : les cinq scénarios servent
+        sa rente à son propre barème, celui du scénario 1
+        (:attr:`ResultatActuel.pension_hors_repartition`), et c'est cette
+        valeur-là qui est affichée. Celle-ci ne sert plus qu'à mesurer l'écart
+        entre les deux règles.
         """
         if self.conversion.diviseur <= 0:
             return 0.0

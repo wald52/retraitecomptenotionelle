@@ -499,12 +499,18 @@ def _resultats(contexte: Contexte, saisie: Saisie) -> str:
     ])
 
     capitalisation = ""
-    if retro.rente_capitalisation_annuelle > 0:
-        montant = comparaison.en_euros_constants(retro.rente_capitalisation_annuelle)
+    if comparaison.actuel.pension_hors_repartition > 0:
+        montant = comparaison.en_euros_constants(
+            comparaison.actuel.pension_hors_repartition
+        )
         capitalisation = (
-            f'<p class="discret">Compartiment de capitalisation servi à part '
-            f"(RAFP) : {g.euros(montant / 12)} par mois. Il n'est jamais converti "
-            "en capital notionnel.</p>"
+            f'<p class="discret">Hors répartition, servi à part : '
+            f"{g.euros(montant / 12)} par mois de RAFP. Ce régime est "
+            "PROVISIONNÉ — sa rente sort d'un placement, non de la cotisation "
+            "des actifs —, si bien qu'une réforme de la répartition ne "
+            "l'atteint pas. Il est donc retiré des cinq totaux et servi à "
+            "l'identique dans les cinq scénarios : c'est la seule façon de "
+            "comparer ce qui est comparable.</p>"
         )
 
     minimum = ""

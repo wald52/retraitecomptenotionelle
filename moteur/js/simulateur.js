@@ -169,6 +169,7 @@ export class Comparaison {
           motif_ouverture: this.actuel.motif_ouverture,
           age_ouverture_opposable: this.actuel.age_ouverture_opposable,
           total_contributif: this.actuel.total_contributif,
+          pension_hors_repartition: this.actuel.pension_hors_repartition,
           avantages_appliques: this.actuel.avantages_appliques.map((a) => ({
             code: a.code, libelle: a.libelle, montant: a.montant, detail: a.detail,
           })),

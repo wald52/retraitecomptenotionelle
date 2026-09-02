@@ -225,11 +225,17 @@ class Comparaison:
                 self.variation(cle),
             ))
 
-        rente_capi = self.notionnel_retroactif.rente_capitalisation_annuelle
-        if rente_capi > 0:
+        # Ce qui n'est pas de la répartition est servi À L'IDENTIQUE dans les
+        # cinq scénarios : un régime provisionné n'est pas atteint par une
+        # réforme de la répartition. Il est donc sorti des cinq totaux, et
+        # affiché une seule fois — à son propre barème, celui du scénario 1, et
+        # non converti en rente notionnelle.
+        hors_repartition = self.actuel.pension_hors_repartition
+        if hors_repartition > 0:
             lignes += [
                 "-" * 96,
-                ligne("   compartiment capitalisation (servi à part)", rente_capi, None),
+                ligne("   hors répartition (RAFP), servi à part, identique aux 5",
+                      hors_repartition, None),
             ]
 
         lignes += [
@@ -322,6 +328,9 @@ class Comparaison:
                     "motif_ouverture": self.actuel.motif_ouverture,
                     "age_ouverture_opposable": self.actuel.age_ouverture_opposable,
                     "total_contributif": self.actuel.total_contributif,
+                    "pension_hors_repartition": (
+                        self.actuel.pension_hors_repartition
+                    ),
                     "avantages_appliques": [
                         {"code": a.code, "libelle": a.libelle,
                          "montant": a.montant, "detail": a.detail}
