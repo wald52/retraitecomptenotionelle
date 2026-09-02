@@ -66,12 +66,18 @@ class EcartAge:
         return self.ecart > 0
 
     def __str__(self) -> str:  # pragma: no cover - affichage
+        from ..calendrier import formater_age
+
         if abs(self.ecart) < 1e-9:
-            return f"liquidation à l'âge de référence ({self.age_reference:.2f} ans)"
+            return (
+                "liquidation à l'âge de référence "
+                f"({formater_age(self.age_reference)})"
+            )
         sens = "anticipation" if self.anticipe else "report"
         return (
-            f"{sens} de {abs(self.ecart):.2f} an(s) "
-            f"(liquidation à {self.age_liquidation:.2f}, référence {self.age_reference:.2f})"
+            f"{sens} de {formater_age(abs(self.ecart))} "
+            f"(liquidation à {formater_age(self.age_liquidation)}, "
+            f"référence {formater_age(self.age_reference)})"
         )
 
 

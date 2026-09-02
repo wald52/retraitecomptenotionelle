@@ -12,13 +12,15 @@
 # 65 -> 67 ans. La loi du 14 avril 2023 n'y a pas touché : elle a relevé l'âge
 # d'ouverture, pas celui-ci.
 #
-# La génération 1951 est coupée au 1er juillet par le texte ; le modèle ne
-# connaît que l'année de naissance et retient la valeur de la fraction la plus
-# nombreuse, comme dans age_ouverture_requis.csv.
+# La génération 1951 est coupée au 1er juillet par le texte, ET LA TABLE LA
+# COUPE AUSSI : la ligne `1951.5` désigne les assurés nés à compter du
+# 1er juillet 1951, comme dans age_ouverture_requis.csv. Ceux nés avant gardent
+# les 65 ans du droit antérieur, que le modèle leur refusait.
 generation,age,fiabilite
 1930,65,haute
 1950,65,haute
-1951,65.33,haute
+1951,65,haute
+1951.5,65.33,haute
 1952,65.75,haute
 1953,66.17,haute
 1954,66.58,haute

@@ -214,23 +214,33 @@ class TableParGeneration:
     bouge plus. En deçà de la première, le paramètre ne dépendait pas encore de
     la génération : on renvoie ``None`` pour que la fiche du régime reprenne la
     main.
+
+    **La génération peut porter des décimales, et le doit.** Deux textes ne
+    coupent pas au 1er janvier : la loi du 9 novembre 2010 s'applique aux
+    assurés nés À COMPTER DU 1er JUILLET 1951, celle du 14 avril 2023 à ceux
+    nés à compter du 1er septembre 1961. Une génération s'écrit donc
+    ``1951.5`` ou ``1961.667`` — l'année plus la part écoulée avant le premier
+    du mois visé —, et la clé de lecture est construite de la même façon à
+    partir du mois de naissance. Le modèle retenait jusqu'ici, pour ces deux
+    années, la valeur couvrant le plus de mois : l'approximation valait un
+    trimestre, et elle disparaît.
     """
 
     def __init__(self, racine: Path, fichier: str, colonne: str) -> None:
-        self._table: dict[int, tuple[float, Fiabilite]] = {}
+        self._table: dict[float, tuple[float, Fiabilite]] = {}
         chemin = racine / "reference" / "legislation" / fichier
         if not chemin.exists():
             return
         with chemin.open(encoding="utf-8") as flux:
             lignes = (l for l in flux if not l.lstrip().startswith("#"))
             for ligne in csv.DictReader(lignes):
-                self._table[int(ligne["generation"])] = (
+                self._table[float(ligne["generation"])] = (
                     float(ligne[colonne]),
                     Fiabilite.depuis_texte(ligne["fiabilite"]),
                 )
         self._generations = sorted(self._table)
 
-    def valeur(self, generation: int) -> tuple[float, Fiabilite] | None:
+    def valeur(self, generation: float) -> tuple[float, Fiabilite] | None:
         if not self._table or generation < self._generations[0]:
             return None
         applicable = self._generations[0]
@@ -247,7 +257,7 @@ class DureesRequises(TableParGeneration):
     def __init__(self, racine: Path) -> None:
         super().__init__(racine, "duree_assurance_requise.csv", "trimestres")
 
-    def trimestres(self, generation: int) -> tuple[int, Fiabilite] | None:
+    def trimestres(self, generation: float) -> tuple[int, Fiabilite] | None:
         valeur = self.valeur(generation)
         return None if valeur is None else (int(valeur[0]), valeur[1])
 
@@ -278,7 +288,7 @@ class DureesProratisation(TableParGeneration):
     def __init__(self, racine: Path) -> None:
         super().__init__(racine, "duree_proratisation.csv", "trimestres")
 
-    def trimestres(self, generation: int) -> tuple[int, Fiabilite] | None:
+    def trimestres(self, generation: float) -> tuple[int, Fiabilite] | None:
         if not self._table or generation > self._generations[-1]:
             return None
         valeur = self.valeur(generation)
@@ -295,7 +305,7 @@ class AgesOuverture(TableParGeneration):
     def __init__(self, racine: Path) -> None:
         super().__init__(racine, "age_ouverture_requis.csv", "age")
 
-    def age(self, generation: int) -> tuple[float, Fiabilite] | None:
+    def age(self, generation: float) -> tuple[float, Fiabilite] | None:
         return self.valeur(generation)
 
 
@@ -311,7 +321,7 @@ class AgesAnnulationDecote(TableParGeneration):
     def __init__(self, racine: Path) -> None:
         super().__init__(racine, "age_annulation_decote.csv", "age")
 
-    def age(self, generation: int) -> tuple[float, Fiabilite] | None:
+    def age(self, generation: float) -> tuple[float, Fiabilite] | None:
         return self.valeur(generation)
 
 
@@ -321,7 +331,7 @@ class CoefficientsMinoration(TableParGeneration):
     def __init__(self, racine: Path) -> None:
         super().__init__(racine, "coefficient_minoration.csv", "coefficient")
 
-    def coefficient(self, generation: int) -> tuple[float, Fiabilite] | None:
+    def coefficient(self, generation: float) -> tuple[float, Fiabilite] | None:
         return self.valeur(generation)
 
 
@@ -1128,11 +1138,26 @@ class ScenarioActuel:
         porte_au_compte = periode.salaire_reference not in (
             "derniers_6_mois", "dernier_salaire"
         )
-        revaloriser = (
-            self.macro.coefficient_revalorisation_portee_au_compte
-            if porte_au_compte
-            else self.macro.coefficient_revalorisation_salaires
+        # Le MOIS de la liquidation désigne la circulaire applicable : les
+        # arrêtés ne prennent pas tous effet au 1er janvier, et deux d'entre
+        # eux portent l'année 2022. Le mois ne vaut que si l'année passée est
+        # bien celle de la liquidation — certains appels bornent l'année à la
+        # dernière que porte la fiche du régime.
+        mois_liquidation = (
+            carriere.mois_liquidation
+            if (carriere.age_liquidation is not None
+                and annee_liquidation == carriere.annee_liquidation)
+            else 1
         )
+
+        def revaloriser(perception: int, arrivee: int) -> float:
+            if not porte_au_compte:
+                return self.macro.coefficient_revalorisation_salaires(
+                    perception, arrivee
+                )
+            return self.macro.coefficient_revalorisation_portee_au_compte(
+                perception, arrivee, mois_liquidation
+            )
         revenus: list[float] = []
         for ligne in carriere.lignes:
             if ligne.annee >= annee_liquidation:
@@ -1152,7 +1177,15 @@ class ScenarioActuel:
             else:
                 revenu = _assiette_de_reference(periode, ligne)
             if plafonner:
-                revenu = min(revenu, self.macro.plafond_securite_sociale(ligne.annee))
+                # Le plafond se proratise sur les mois travaillés : l'année
+                # d'entrée dans la vie active n'est pas pleine, et un plafond
+                # de douze mois y laisserait passer un salaire qu'il aurait
+                # écrêté.
+                revenu = min(
+                    revenu,
+                    self.macro.plafond_securite_sociale(ligne.annee)
+                    * ligne.fraction_annee,
+                )
             revenus.append(revenu * revaloriser(ligne.annee, annee_liquidation))
 
         if not revenus:
@@ -1167,6 +1200,23 @@ class ScenarioActuel:
                     annees = par_generation[0]
             retenus = sorted(revenus, reverse=True)[:annees]
         elif reference in ("derniers_6_mois", "dernier_salaire"):
+            # Le traitement des six derniers mois est celui EN VIGUEUR au
+            # départ. L'année de la liquidation est incomplète — l'assuré n'y a
+            # travaillé que quelques mois —, mais c'est bien son traitement que
+            # liquide le régime : on l'annualise plutôt que de reculer d'un an.
+            derniere = carriere.ligne(annee_liquidation)
+            if (derniere is not None and derniere.cotise
+                    and derniere.fraction_annee > 0
+                    and code in self.affiliations.regimes(
+                        derniere.affiliation, annee_liquidation)):
+                traitement = (_assiette_de_reference(periode, derniere)
+                              / derniere.fraction_annee)
+                if plafonner:
+                    traitement = min(
+                        traitement,
+                        self.macro.plafond_securite_sociale(annee_liquidation),
+                    )
+                return traitement
             return revenus[-1]
         elif reference == "carriere_entiere":
             retenus = revenus
@@ -1179,7 +1229,7 @@ class ScenarioActuel:
         """Durée requise opposable à cet assuré dans ce régime."""
         requis = periode.duree_requise_trimestres or 160
         if periode.duree_requise_par_generation:
-            par_generation = self.durees_requises.trimestres(carriere.annee_naissance)
+            par_generation = self.durees_requises.trimestres(carriere.generation)
             if par_generation is not None:
                 return par_generation
         return requis, None
@@ -1208,7 +1258,7 @@ class ScenarioActuel:
         """
         if not periode.duree_proratisation_par_generation:
             return requis, None
-        par_generation = self.durees_proratisation.trimestres(carriere.annee_naissance)
+        par_generation = self.durees_proratisation.trimestres(carriere.generation)
         if par_generation is None:
             return requis, None
         return min(par_generation[0], requis), par_generation[1]
@@ -1216,7 +1266,7 @@ class ScenarioActuel:
     def _age_ouverture(self, periode: PeriodeRegime, carriere: Carriere) -> float:
         """Âge légal opposable à cet assuré dans ce régime."""
         if periode.age_ouverture_par_generation:
-            par_generation = self.ages_ouverture.age(carriere.annee_naissance)
+            par_generation = self.ages_ouverture.age(carriere.generation)
             if par_generation is not None:
                 return par_generation[0]
         return periode.age_ouverture
@@ -1224,7 +1274,7 @@ class ScenarioActuel:
     def _age_taux_plein(self, periode: PeriodeRegime, carriere: Carriere) -> float:
         """Âge d'annulation de la décote opposable à cet assuré."""
         if periode.age_taux_plein_par_generation:
-            par_generation = self.ages_annulation_decote.age(carriere.annee_naissance)
+            par_generation = self.ages_annulation_decote.age(carriere.generation)
             if par_generation is not None:
                 return par_generation[0]
         return periode.age_taux_plein
@@ -1259,7 +1309,7 @@ class ScenarioActuel:
             return None, age_annulation, None
         if periode.decote_par_generation:
             par_generation = self.coefficients_minoration.coefficient(
-                carriere.annee_naissance
+                carriere.generation
             )
             if par_generation is not None:
                 return par_generation[0], age_annulation, par_generation[1]
@@ -1494,18 +1544,18 @@ class ScenarioActuel:
         trimestres_cotises_par_regime: dict[str, int] = {}
 
         for ligne in carriere.lignes:
-            if ligne.annee >= annee_liquidation:
+            retenus_ligne = carriere.trimestres_retenus(ligne)
+            if retenus_ligne <= 0:
                 continue
             for code in self.affiliations.regimes(ligne.affiliation, ligne.annee):
                 if code not in self.catalogue:
                     continue
                 trimestres_par_regime[code] = (
-                    trimestres_par_regime.get(code, 0) + ligne.trimestres_valides
+                    trimestres_par_regime.get(code, 0) + retenus_ligne
                 )
                 if ligne.cotise:
                     trimestres_cotises_par_regime[code] = (
-                        trimestres_cotises_par_regime.get(code, 0)
-                        + ligne.trimestres_valides
+                        trimestres_cotises_par_regime.get(code, 0) + retenus_ligne
                     )
 
         # Les trimestres accordés au titre des enfants ne flottent pas au-dessus
@@ -1530,18 +1580,20 @@ class ScenarioActuel:
             fiabilite_globale = min(fiabilite_globale, majoration_enfants.fiabilite)
 
         for ligne in carriere.lignes:
-            if ligne.annee >= annee_liquidation:
-                # Une ligne postérieure à la liquidation décrit une activité
-                # exercée APRÈS le départ : elle n'ouvre pas de droits dans la
-                # pension qu'on liquide. La durée d'assurance et le salaire de
-                # référence l'écartaient déjà ; l'acquisition de points et de
-                # cotisations, elle, l'encaissait encore.
+            # Une ligne postérieure à la liquidation décrit une activité
+            # exercée APRÈS le départ : elle n'ouvre pas de droits dans la
+            # pension qu'on liquide. L'année du départ, elle, ouvre ceux de ses
+            # mois qui l'ont précédé — ni zéro ni douze, mais le compte juste.
+            part = carriere.part_retenue(ligne.annee)
+            if part <= 0:
                 continue
             if not ligne.cotise and not ligne.familles_cotisantes:
                 continue
             # Pendant une période indemnisée, seuls les régimes complémentaires
             # encaissent, et sur le salaire d'avant l'interruption.
             base_ligne = ligne.revenu if ligne.cotise else ligne.revenu_reference
+            if part < ligne.fraction_annee:
+                base_ligne *= part / ligne.fraction_annee
             familles_admises = (
                 None if ligne.cotise else set(ligne.familles_cotisantes)
             )
@@ -1553,10 +1605,19 @@ class ScenarioActuel:
                         and regime.famille not in familles_admises):
                     continue
                 for periode in regime.periodes_actives(ligne.annee):
-                    pass_annuel = self.macro.plafond_securite_sociale(ligne.annee)
-                    borne_basse, borne_haute = periode.bornes_assiette_en_euros(
-                        pass_annuel
+                    # Les bornes d'assiette et le repère en points sont
+                    # ANNUELS : une année incomplète ne les atteint qu'à
+                    # proportion de ses mois, comme le plafond lui-même.
+                    pass_annuel = (
+                        self.macro.plafond_securite_sociale(ligne.annee) * part
                     )
+                    borne_basse, borne_haute = periode.bornes_assiette_en_euros(
+                        self.macro.plafond_securite_sociale(ligne.annee)
+                    )
+                    if part < 1.0:
+                        borne_basse *= part
+                        borne_haute = (None if borne_haute is None
+                                       else borne_haute * part)
                     base = base_ligne
                     if periode.assiette == "primes_uniquement":
                         base = base_ligne * ligne.part_primes
@@ -1566,7 +1627,7 @@ class ScenarioActuel:
                     assiette = max(0.0, min(base, plafond) - borne_basse)
                     repere = periode.repere_assiette(
                         pass_annuel, self.macro.smic_horaire(ligne.annee)
-                    )
+                    ) * (part if periode.assiette_repere_smic is not None else 1.0)
                     if periode.assiette_plancher and assiette < repere:
                         # Assiette minimale : la complémentaire agricole cotise
                         # sur 1 820 SMIC même quand le revenu est en dessous,
@@ -1662,8 +1723,8 @@ class ScenarioActuel:
         # Trimestres réellement COTISÉS, tous régimes : ils commandent la
         # carrière longue et la majoration du minimum contributif.
         trimestres_cotises = sum(
-            ligne.trimestres_valides for ligne in carriere.lignes
-            if ligne.cotise and ligne.annee < annee_liquidation
+            carriere.trimestres_retenus(ligne) for ligne in carriere.lignes
+            if ligne.cotise and ligne.annee <= annee_liquidation
         )
 
         # Le droit ouvre-t-il cette liquidation à cet âge ? La question n'était
@@ -2239,10 +2300,10 @@ def _trimestres_cotises_apres(carriere: Carriere, age: float,
     prolongé, pas de l'entrée précoce dans la vie active.
     """
     return sum(
-        ligne.trimestres_valides
+        carriere.trimestres_retenus(ligne)
         for ligne in carriere.lignes
         if ligne.cotise
-        and ligne.annee < annee_liquidation
+        and ligne.annee <= annee_liquidation
         and ligne.annee - carriere.annee_naissance >= age
     )
 
@@ -2255,9 +2316,9 @@ def _trimestres_valides_avant(carriere: Carriere, age: float,
     condition de taux plein, et non la seule durée cotisée.
     """
     return sum(
-        ligne.trimestres_valides
+        carriere.trimestres_retenus(ligne)
         for ligne in carriere.lignes
-        if ligne.annee < annee_liquidation
+        if ligne.annee <= annee_liquidation
         and ligne.annee - carriere.annee_naissance < age
     )
 
@@ -2270,10 +2331,10 @@ def _trimestres_cotises_entre(carriere: Carriere, age_bas: float, age_haut: floa
     légal, là où la surcote ordinaire ne compte encore rien.
     """
     return sum(
-        ligne.trimestres_valides
+        carriere.trimestres_retenus(ligne)
         for ligne in carriere.lignes
         if ligne.cotise
-        and ligne.annee < annee_liquidation
+        and ligne.annee <= annee_liquidation
         and age_bas <= ligne.annee - carriere.annee_naissance < age_haut
     )
 

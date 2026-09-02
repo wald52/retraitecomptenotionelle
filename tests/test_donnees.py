@@ -308,7 +308,8 @@ def test_les_tables_par_generation_disent_le_droit_en_vigueur():
         with chemin.open(encoding="utf-8") as flux:
             lignes = (l for l in flux if not l.lstrip().startswith("#"))
             return {
-                int(ligne["generation"]): (float(ligne[colonne]), ligne["fiabilite"])
+                float(ligne["generation"]): (float(ligne[colonne]),
+                                             ligne["fiabilite"])
                 for ligne in csv.DictReader(lignes)
             }
 
@@ -317,9 +318,19 @@ def test_les_tables_par_generation_disent_le_droit_en_vigueur():
     assert ages[1950][0] == 60.0
     assert ages[1955][0] == 62.0
     assert ages[1968][0] == 64.0
-    # La génération 1961 est coupée au 1er septembre : huit mois à 62 ans.
-    assert ages[1961][0] == 62.0
-    assert all(niveau == "certifiee" for _, niveau in ages.values())
+    # LES DEUX GÉNÉRATIONS QUE LES TEXTES COUPENT EN COURS D'ANNÉE. Elles
+    # portent deux lignes chacune, et la clé décimale dit le mois : `1951.5`
+    # pour le 1er juillet 1951, `1961.667` pour le 1er septembre 1961.
+    assert ages[1951][0] == 60.0 and ages[1951.5][0] == 60.33
+    assert ages[1961][0] == 62.0 and ages[1961.667][0] == 62.25
+    # La valeur majoritaire reste celle que le récupérateur a lue ; sa jumelle
+    # minoritaire est transcrite du même article, et le dit.
+    assert ages[1951.5][1] == "certifiee" and ages[1951][1] == "haute"
+    assert ages[1961][1] == "certifiee" and ages[1961.667][1] == "haute"
+
+    annulation = table("age_annulation_decote.csv", "age")
+    assert annulation[1950][0] == 65.0
+    assert annulation[1951][0] == 65.0 and annulation[1951.5][0] == 65.33
 
     durees = table("duree_assurance_requise.csv", "trimestres")
     assert durees[1943][0] == 160          # fin de la montée en charge Balladur
@@ -327,12 +338,17 @@ def test_les_tables_par_generation_disent_le_droit_en_vigueur():
     assert durees[1965][0] == 172          # cible atteinte, loi de 2023
     assert durees[1943][1] == "haute"      # décrets non codifiés
     assert durees[1958][1] == "certifiee"  # article L. 161-17-3
+    # Même coupure au 1er septembre 1961 : 168 trimestres avant, 169 après.
+    assert durees[1961][0] == 168 and durees[1961.667][0] == 169
 
     coefficients = table("coefficient_minoration.csv", "coefficient")
     assert coefficients[1943][0] == 0.025
     assert coefficients[1952][0] == 0.01375
     assert coefficients[1953][0] == 0.0125
     assert all(niveau == "certifiee" for _, niveau in coefficients.values())
+    # Aucun texte ne coupe une génération sur ce paramètre : la table reste
+    # entièrement annuelle, et on le vérifie plutôt que de le supposer.
+    assert all(float(g).is_integer() for g in coefficients)
 
     # La table est monotone : une génération plus jeune n'est jamais mieux
     # traitée que sa devancière sur l'âge et la durée, jamais plus mal sur le

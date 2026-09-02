@@ -153,6 +153,62 @@ scénarios sur la même carrière — mais le résultat porte désormais un drap
 `liquidation_ouverte`, et la restitution dit que ce montant ne décrit aucune
 pension servie.
 
+### Le mois, là où le droit le date
+
+Le modèle travaillait à l'année, et arrondissait l'âge de liquidation à l'année
+civile la plus proche. Ce n'était pas une imprécision de détail.
+
+**Ce que l'arrondi coûtait.** Cadre du privé né en 1962, entré à 22 ans, payé
+1,5 fois le salaire moyen : entre un départ à 64 ans et 5 mois et un départ à
+64 ans et 7 mois, la pension du scénario 1 sautait de 39 265 € à 41 826 €
+(**+6,5 %**) et celle du scénario 3 tombait de 39 265 € à 36 479 €
+(**−7,1 %**). Deux mois d'écart, sept points de pension, dans les deux sens
+selon le scénario — et davantage que la plupart des effets que ce document
+mesure au centième. À l'intérieur de chaque demi-année, à l'inverse, le
+scénario 1 ne bougeait pas d'un centime : il ignorait le mois quand le
+scénario 2 y répondait par son diviseur, si bien que les comparer à 64 ans et
+3 mois confrontait une pension calculée *comme si* 64 ans à une pension calculée
+à 64,25. L'arrondi de Python étant AU PAIR, il dépendait de surcroît de la
+parité du millésime : deux assurés déclarant « soixante-quatre ans et six mois »
+étaient traités différemment selon leur génération.
+
+**Où le mois entre désormais.** Là, et seulement là, où le réel porte une date.
+
+| | Ce que le mois change |
+|---|---|
+| Date de liquidation | `naissance + âge` se compte en mois : né en mars 1962, parti à 64 ans et 6 mois, on liquide en septembre 2026 |
+| Année du départ | Elle est portée au compte **au prorata de ses mois**, plafond de la Sécurité sociale proratisé comme le veut R. 242-2. Elle valait zéro ou douze mois selon l'arrondi |
+| Trimestres de cette année-là | Plafonnés aux trimestres **civils écoulés** avant le point de départ (R. 351-9) : trois mois de travail n'en valident qu'un |
+| Année d'entrée dans la vie active | Incomplète elle aussi, et traitée de même |
+| Diviseur actuariel | Lu à l'âge exact, force de mortalité supposée constante entre deux âges entiers. Il ne lisait que l'âge entier là où les quotients sont observés : **1,7 % de pension d'un coup à chaque anniversaire**, et rien entre deux |
+| Revalorisation des salaires portés au compte | La circulaire applicable est celle en vigueur **à la date** de liquidation — 3,9 % d'écart au second semestre 2022 |
+| Générations coupées par un texte | 1<sup>er</sup> juillet 1951, 1<sup>er</sup> septembre 1961 : les tables portent deux lignes, lues au mois de naissance |
+| Traitement des six derniers mois | Celui **en vigueur au départ**, annualisé, et non celui de la dernière année pleine |
+
+**Ce qui reste annuel, et doit le rester.** Le pas du moteur n'a pas changé,
+parce que les données ne l'ont pas. Un salaire est déclaré à l'année, le salaire
+moyen par tête est une moyenne annuelle, l'indice des prix retenu est annuel, le
+plafond est fixé pour l'année, un quotient de mortalité est publié par âge
+entier et par millésime. Découper ces grandeurs en douze demanderait de
+supposer une répartition — uniforme, faute de mieux —, et cette supposition
+**redonne exactement le total annuel** : le résultat serait identique au
+centime, sauf aux bords, c'est-à-dire là où le mois entre déjà. Le seul effet
+d'un pas mensuel généralisé serait donc d'afficher des décimales que la source
+ne porte pas, et de faire descendre au niveau `estimee` des séries aujourd'hui
+certifiées. C'est la règle du dépôt : **interpoler ce que le réel a de continu,
+laisser en escalier ce qu'il a de daté.** L'âge au décès est continu — on
+l'interpole. Une circulaire prend effet à une date — on la lit à sa date. Un
+salaire annuel est un total — on ne le découpe pas.
+
+**Une marche demeure, et elle est dans la loi.** L'article R. 351-29 écarte du
+salaire annuel moyen les salaires de l'année du point de départ. Qui part en
+décembre perd donc onze mois de salaire de son SAM, quand celui qui part au
+1<sup>er</sup> janvier suivant les y fait entrer en entier : sur le cas ci-dessus,
+**+2,9 % en un mois**. Ce n'est pas un artefact du modèle — c'est le droit, et c'est
+la raison pour laquelle les caisses conseillent de liquider au 1<sup>er</sup>
+janvier. Les trimestres de cette même année, eux, comptent bien : ce sont deux
+règles distinctes, et le modèle les applique séparément.
+
 ### Ce qui reste hors du modèle, et pourquoi
 
 Ces lignes ne sont pas des oublis : chacune demande une information que le
@@ -794,11 +850,13 @@ plus volontiers.
     — comme le fait le droit lui-même ;
   * **les nombres sont en toutes lettres**, et les bornes s'écrivent de six
     façons (« avant le », « entre le … et le », « nés en », « à compter du »,
-    « après le 31 décembre »). Le récupérateur les convertit en MOIS COUVERTS,
-    puis attribue chaque génération à la valeur qui en couvre le plus — la plus
-    exigeante en cas d'égalité. C'est la seule approximation qui subsiste, elle
-    vaut au plus un trimestre, et elle est inhérente à un modèle qui ne connaît
-    que l'année de naissance ;
+    « après le 31 décembre »). Le récupérateur les convertit en MOIS COUVERTS.
+    Il attribuait ensuite chaque génération à la valeur qui en couvrait le
+    plus — la plus exigeante en cas d'égalité —, ce qui valait un trimestre
+    d'âge légal à qui naissait du mauvais côté d'une coupure. **Il rend
+    désormais un segment par valeur** : la clé porte le mois, `1951.5` pour le
+    1er juillet 1951, `1961.667` pour le 1er septembre 1961, et le modèle lit
+    ces tables au mois de naissance. L'approximation est levée ;
   * **le texte peut être fautif.** Le décret du 3 juin 2023 écrit « A
     soixante-deux pour les assurés » — le mot « ans » manque. Une expression
     régulière trop stricte perd la borne des 20 ans de la carrière longue, et
@@ -1002,13 +1060,20 @@ Ce que cela ne referme pas, et les trois bornes sont différentes.
 - **Après 2026**, le coefficient est ancré sur la dernière colonne et
   l'approximation ne couvre que les dernières années ; avant 1930, il n'y a rien
   sur quoi ancrer et elle reprend toute la main, à la hausse.
-- **Le mois n'existe pas dans le modèle**, qui retient l'état au
-  1<sup>er</sup> janvier. La revalorisation s'est appliquée au 1<sup>er</sup>
-  avril de 2009 à 2013, puis au 1<sup>er</sup> octobre jusqu'en 2017 : une
-  liquidation de cette période est donc lue avant la revalorisation de son
-  année. Mesuré contre la colonne d'octobre 2017 : **0,52 % en médiane, 0,93 %
-  au maximum**. C'est une convention assumée, pas une erreur — mais elle joue
-  toujours dans le même sens, à la baisse.
+- **Le mois existe désormais, et il désigne la colonne applicable.** Le modèle
+  retenait l'état au 1<sup>er</sup> janvier : la revalorisation s'étant
+  appliquée au 1<sup>er</sup> avril de 2009 à 2013, puis au 1<sup>er</sup>
+  octobre jusqu'en 2017, une liquidation de cette période était lue avant la
+  revalorisation de son année — **0,52 % en médiane, 0,93 % au maximum**,
+  toujours à la baisse. Le cas le plus lourd n'était pas celui-là : la
+  **revalorisation exceptionnelle du 1<sup>er</sup> juillet 2022** dépasse celle
+  du 1<sup>er</sup> janvier de **3,9 %**, et toutes les liquidations du second
+  semestre 2022 lisaient la colonne de janvier. La colonne retenue est
+  maintenant la plus récente dont la date d'effet n'est pas postérieure à la
+  liquidation, ce que le mois suffit à trancher. Ce qui reste : les années
+  qu'aucune circulaire ne couvre, où le modèle passe par la colonne la plus
+  proche et son rapport de deux valeurs — le mois n'y change rien, faute de
+  colonne à désigner.
 
 Les régimes qui liquident sur le dernier traitement ou les six derniers mois ne
 portent aucun salaire à un compte : les coefficients de la Cnav ne leur sont pas

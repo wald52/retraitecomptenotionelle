@@ -205,12 +205,19 @@ class DonneesMacro:
         return self.smic_horaire(annee_arrivee) / depart if depart > 0 else 1.0
 
     @cached_property
-    def revalorisation_portee_au_compte(self) -> list[tuple[int, bool, dict[int, float]]]:
+    def revalorisation_portee_au_compte(self) -> list[tuple[int, int, dict[int, float]]]:
         """Colonnes de revalorisation publiées par la Cnav, par date d'effet.
 
-        Une colonne par circulaire : année de la date d'effet, un drapeau disant
-        si cette date est le 1er janvier, et le coefficient par année de
-        perception. Triées par année.
+        Une colonne par circulaire : année de la date d'effet, MOIS de cette
+        date, et le coefficient par année de perception. Triées par date.
+
+        Le mois n'était pas conservé — seul un drapeau disait si la date était
+        le 1er janvier. Or les circulaires ne prennent pas toutes effet au
+        1er janvier, et deux d'entre elles portent la même année : la
+        revalorisation exceptionnelle du 1er juillet 2022 dépasse celle du
+        1er janvier de 3,9 %. Sans le mois, toutes les liquidations de 2022
+        lisaient la colonne de janvier, y compris celles du second semestre,
+        auxquelles la caisse oppose celle de juillet.
 
         Le coefficient entre deux années se lit dans UNE colonne, par rapport de
         deux de ses valeurs. Une seule colonne suffirait donc en théorie ; en
@@ -232,12 +239,13 @@ class DonneesMacro:
                     int(ligne["annee_perception"])
                 ] = float(ligne["coefficient"])
         return sorted(
-            (int(effet[:4]), effet.endswith("-01-01"), table)
+            (int(effet[:4]), int(effet[5:7]), table)
             for effet, table in colonnes.items()
         )
 
     def coefficient_revalorisation_portee_au_compte(self, annee_depart: int,
-                                                    annee_arrivee: int) -> float:
+                                                    annee_arrivee: int,
+                                                    mois_arrivee: int = 1) -> float:
         """Revalorisation d'un salaire PORTÉ AU COMPTE, telle que l'arrêté la fixe.
 
         C'est la grandeur qui commande le salaire annuel moyen : la moyenne
@@ -250,9 +258,13 @@ class DonneesMacro:
 
         Trois chemins, du plus sûr au moins sûr :
 
-        1. la colonne PUBLIÉE pour cette année de liquidation, quand la Cnav
-           l'a publiée au 1er janvier — le coefficient est alors celui que la
-           caisse oppose, sans calcul ;
+        1. la colonne PUBLIÉE en vigueur À LA DATE DE LIQUIDATION — la plus
+           récente dont la date d'effet ne lui est pas postérieure, dans son
+           année. Le coefficient est alors celui que la caisse oppose, sans
+           calcul. C'est le mois qui désigne la colonne : un départ du
+           1er août 2022 relève de la circulaire du 1er juillet, un départ du
+           1er mars 2022 de celle du 1er janvier, et les deux diffèrent de
+           3,9 % ;
         2. sinon la colonne publiée la PLUS PROCHE, par rapport de deux de ses
            valeurs. Ancrer sur la plus proche plutôt que sur la plus récente
            divise la dérive par dix : 0,01 % au lieu de 0,16 % ;
@@ -271,19 +283,23 @@ class DonneesMacro:
         if not colonnes:
             return self.coefficient_revalorisation_salaires(annee_depart, annee_arrivee)
 
-        for annee, au_1er_janvier, table in colonnes:
-            if annee == annee_arrivee and au_1er_janvier and annee_depart in table:
-                return table[annee_depart]
+        en_vigueur = [
+            table for annee, mois, table in colonnes
+            if annee == annee_arrivee and mois <= mois_arrivee
+            and annee_depart in table
+        ]
+        if en_vigueur:
+            return en_vigueur[-1][annee_depart]
 
         # La colonne la plus proche qui porte les deux années. Une colonne dont
-        # la date d'effet tombe en cours d'année ne peut pas servir pour SA
-        # propre année — son millésime porte déjà la revalorisation de l'année,
-        # que le 1er janvier ne porte pas encore.
+        # la date d'effet est POSTÉRIEURE à la liquidation ne peut pas servir
+        # pour l'année de celle-ci : son millésime porte déjà une revalorisation
+        # que l'assuré n'a pas connue.
         candidates = [
             (abs(annee - annee_arrivee), table)
-            for annee, au_1er_janvier, table in colonnes
+            for annee, mois, table in colonnes
             if annee_depart in table and annee_arrivee in table
-            and (au_1er_janvier or annee != annee_arrivee)
+            and (annee != annee_arrivee or mois <= mois_arrivee)
         ]
         if candidates:
             _, table = min(candidates, key=lambda c: c[0])

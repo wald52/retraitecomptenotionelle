@@ -276,9 +276,9 @@ def _revalorisation_salaires() -> list:
     from retraite_notionnelle.donnees.macro import DonneesMacro
 
     return [
-        [annee, au_1er_janvier, min(table),
+        [annee, mois, min(table),
          [table[a] for a in range(min(table), max(table) + 1)]]
-        for annee, au_1er_janvier, table
+        for annee, mois, table
         in DonneesMacro(DONNEES).revalorisation_portee_au_compte
     ]
 
@@ -311,7 +311,12 @@ def _periodes_non_travaillees() -> dict:
 
 def _table_par_generation(classe) -> dict:
     """Paramètre législatif indexé sur l'année de naissance."""
-    return {str(generation): [valeur, int(fiabilite)]
+    # La clé s'écrit comme JavaScript l'écrirait : « 1951 » et non « 1951.0 »,
+    # « 1951.5 » pour une génération que le texte coupe au 1er juillet. Le
+    # portage relit ces clés par ``String(Number(cle))``, et une décimale de
+    # trop les ferait manquer.
+    return {(str(int(generation)) if float(generation).is_integer()
+             else str(generation)): [valeur, int(fiabilite)]
             for generation, (valeur, fiabilite) in sorted(classe(DONNEES)._table.items())}
 
 

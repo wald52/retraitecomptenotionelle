@@ -302,15 +302,46 @@ class DonneesMortalite:
         )
         self._cache_modifie = False
 
-    def survie_annuelle(self, age: float, annee: int, sexe: str) -> float:
-        """Probabilité de passer de ``age`` à ``age+1`` pendant l'année ``annee``."""
+    def _survie_cellule(self, age: int, annee: int, sexe: str) -> float:
+        """Survie d'un âge ENTIER au suivant, quotient observé s'il existe."""
         if self._quotients_observes is not None:
             cle = (annee, sexe)
             if cle in self._quotients_observes:
-                qx = self._quotients_observes[cle].get(int(age))
+                qx = self._quotients_observes[cle].get(age)
                 if qx is not None:
                     return 1.0 - qx
-        return self.loi(annee, sexe).survie(age, 1.0)
+        return self.loi(annee, sexe).survie(float(age), 1.0)
+
+    def survie_annuelle(self, age: float, annee: int, sexe: str) -> float:
+        """Probabilité de passer de ``age`` à ``age+1`` pendant l'année ``annee``.
+
+        **L'âge est fractionnaire, et il compte.** La méthode lisait
+        ``quotients[int(age)]`` : la part OBSERVÉE de la table — 1986-2024 —
+        était donc aveugle aux mois, et le diviseur d'un départ à 60 ans et onze
+        mois était celui d'un départ à 60 ans tout rond. La sanction du départ
+        anticipé, qui est la moitié du modèle, s'appliquait par marches d'un an :
+        1,7 % de pension d'un coup à chaque anniversaire, et rien entre deux.
+
+        Entre deux âges entiers, la force de mortalité est supposée CONSTANTE —
+        l'hypothèse actuarielle usuelle, et la seule qui rende la survie
+        continue en l'âge :
+
+        .. math:: p_{x+f} = p_x^{\,1-f} \; p_{x+1}^{\,f}
+
+        L'année civile, elle, n'est pas interpolée : une table de mortalité est
+        publiée par millésime, et lisser entre deux millésimes inventerait une
+        tendance infra-annuelle que la source ne porte pas. C'est la règle du
+        dépôt — interpoler ce que le réel a de continu, laisser en escalier ce
+        qu'il a de daté.
+        """
+        plancher = math.floor(age)
+        fraction = age - plancher
+        entier = int(plancher)
+        basse = self._survie_cellule(entier, annee, sexe)
+        if fraction <= 1e-9:
+            return basse
+        haute = self._survie_cellule(entier + 1, annee, sexe)
+        return basse ** (1.0 - fraction) * haute ** fraction
 
     # -- tables de génération ------------------------------------------------
 

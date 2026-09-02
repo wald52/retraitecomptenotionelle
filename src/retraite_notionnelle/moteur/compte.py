@@ -275,13 +275,18 @@ class ConstructeurCompte:
     # -- assiette ------------------------------------------------------------
 
     def _assiette(self, revenu: float, annee: int, plancher: float,
-                  plafond_periode: float | None) -> float:
+                  plafond_periode: float | None, fraction: float = 1.0) -> float:
         """Part du revenu comprise entre deux bornes, exprimées EN EUROS.
 
         Le plafond global du modèle, lui, reste en plafonds de la Sécurité
         sociale : c'est un paramètre de simulation, pas une règle de régime.
+
+        ``fraction`` proratise le plafond sur les mois réellement travaillés :
+        l'article R. 242-2 le calcule par mois, et une demi-année de travail
+        n'ouvre qu'un demi-plafond. Sans ce prorata, l'année d'entrée et celle
+        de la liquidation cotiseraient sous un plafond de douze mois.
         """
-        pass_annuel = self.macro.plafond_securite_sociale(annee)
+        pass_annuel = self.macro.plafond_securite_sociale(annee) * fraction
         plafond_global = self.parametres.plafond_assiette_en_pass
         if plafond_periode is None:
             plafond = revenu if plafond_global is None else plafond_global * pass_annuel
@@ -290,6 +295,22 @@ class ConstructeurCompte:
             if plafond_global is not None:
                 plafond = min(plafond, plafond_global * pass_annuel)
         return max(0.0, min(revenu, plafond) - plancher)
+
+    def _bornes_proratisees(self, periode, annee: int, fraction: float
+                            ) -> tuple[float, float | None]:
+        """Bornes d'assiette d'une période, ramenées aux mois travaillés.
+
+        Les deux formes de bornes s'y plient : celles exprimées en plafonds de
+        la Sécurité sociale, et celles que la fiche fixe en euros — les unes
+        comme les autres sont des bornes ANNUELLES, et une année incomplète ne
+        les atteint qu'à proportion.
+        """
+        basse, haute = periode.bornes_assiette_en_euros(
+            self.macro.plafond_securite_sociale(annee)
+        )
+        if fraction >= 1.0:
+            return basse, haute
+        return basse * fraction, None if haute is None else haute * fraction
 
     @staticmethod
     def _fusionner(bornes: list[tuple[float, float | None]]
@@ -341,16 +362,32 @@ class ConstructeurCompte:
                 fiabilite=Fiabilite.CERTIFIEE,
             )
 
+        # Aux deux bords de la carrière, l'année n'est pas pleine : le revenu
+        # ne porte que les mois travaillés, et les plafonds se proratisent sur
+        # les mêmes mois. L'année du départ est en outre tronquée au point de
+        # départ, y compris quand la ligne, elle, déclare douze mois.
+        part = carriere.part_retenue(annee)
+        if part <= 0:
+            return CotisationAnnuelle(
+                annee=annee, revenu=0.0, assiette_retenue=0.0, cotisation=0.0,
+                regimes=(), taux_effectif=0.0, hors_repartition=0.0,
+                fiabilite=Fiabilite.CERTIFIEE,
+            )
+
         # Pendant une période indemnisée, l'assiette est le salaire d'AVANT
         # l'interruption : c'est sur lui que l'UNEDIC ou la Sécurité sociale
         # versent leurs cotisations. La branche d'après la bascule lisait
         # `ligne.revenu`, nul une année non travaillée, quand celle d'avant
         # lisait `revenu_reference` — deux règles pour la même situation.
         base_ligne = ligne.revenu if ligne.cotise else ligne.revenu_reference
+        if part < ligne.fraction_annee:
+            # La ligne déclare plus de mois que le départ n'en laisse : on ne
+            # porte au compte que ceux qui l'ont précédé.
+            base_ligne *= part / ligne.fraction_annee
 
         # Après la bascule, un seul régime : le régime fusionné.
         if regime_fusionne is not None and annee >= regime_fusionne.annee_bascule:
-            assiette = self._assiette(base_ligne, annee, 0.0, None)
+            assiette = self._assiette(base_ligne, annee, 0.0, None, part)
             taux, taux_employeur, origine, fiabilite_taux = self.taux_unifie(
                 ligne, annee, regime_fusionne
             )
@@ -401,8 +438,8 @@ class ConstructeurCompte:
                 regime.hors_repartition and self.parametres.isoler_capitalisation
             )
             for periode in regime.periodes_actives(annee):
-                borne_basse, borne_haute = periode.bornes_assiette_en_euros(
-                    self.macro.plafond_securite_sociale(annee)
+                borne_basse, borne_haute = self._bornes_proratisees(
+                    periode, annee, part
                 )
 
                 base = self._base_selon_assiette(
@@ -417,7 +454,7 @@ class ConstructeurCompte:
                     # Les planchers d'assiette propres à un régime — les 1 820
                     # SMIC de la complémentaire agricole — ne survivent pas non
                     # plus : un taux unique porte sur la rémunération réelle.
-                    if self._assiette(base, annee, borne_basse, borne_haute) > 0:
+                    if self._assiette(base, annee, borne_basse, borne_haute, part) > 0:
                         groupe = (
                             periode.assiette
                             if periode.assiette in ("primes_uniquement", "hors_primes")
@@ -429,11 +466,11 @@ class ConstructeurCompte:
                         retenus.append(code)
                     continue
 
-                assiette = self._assiette(base, annee, borne_basse, borne_haute)
+                assiette = self._assiette(base, annee, borne_basse, borne_haute, part)
                 repere = periode.repere_assiette(
                     self.macro.plafond_securite_sociale(annee),
                     self.macro.smic_horaire(annee),
-                )
+                ) * part
                 if periode.assiette_plancher and assiette < repere:
                     # Assiette minimale : la complémentaire agricole prélève sur
                     # 1 820 SMIC même quand le revenu est en dessous. Ce qui a
@@ -498,7 +535,9 @@ class ConstructeurCompte:
             for groupe, bornes in intervalles.items():
                 base = self._base_selon_assiette(groupe, base_ligne, ligne.part_primes)
                 for borne_basse, borne_haute in self._fusionner(bornes):
-                    assiette = self._assiette(base, annee, borne_basse, borne_haute)
+                    assiette = self._assiette(
+                        base, annee, borne_basse, borne_haute, part
+                    )
                     if assiette <= 0:
                         continue
                     assiette_totale += assiette
@@ -543,7 +582,13 @@ class ConstructeurCompte:
             annee_debut if annee_debut is not None else carriere.premiere_annee,
             self.parametres.annee_debut_repartition,
         )
-        fin = min(annee_liquidation - 1, carriere.derniere_annee)
+        # L'année de la liquidation est INCLUSE. Elle ne l'était pas, et les
+        # mois cotisés avant le point de départ n'allaient nulle part : partir
+        # en décembre revenait à travailler onze mois pour rien. La ligne de
+        # cette année-là ne porte que ces mois-là — voir
+        # ``Carriere.depuis_profil`` —, et la revalorisation de l'année lui est
+        # acquise puisque le compte est crédité au 1er janvier.
+        fin = min(annee_liquidation, carriere.derniere_annee)
 
         capital = 0.0
         capital_hors = 0.0

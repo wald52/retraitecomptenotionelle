@@ -6,7 +6,13 @@
  * profil — statut, âges de début et de fin, niveau de rémunération.
  */
 
-import { arrondi } from "./format.js";
+import {
+  DateMois,
+  enMois,
+  fractionAnnee,
+  moisTravailles,
+  trimestresCivils,
+} from "./calendrier.js";
 
 /**
  * Périodes non cotisées reconnues par le système actuel. Elles ouvrent des
@@ -49,16 +55,33 @@ export class AnneeCarriere {
     //: cotise pour lui sur cette assiette, et le salaire entre dans le salaire
     //: annuel moyen. Une période assimilée, elle, n'y entre jamais.
     revenu_avpf = 0.0,
+    //: Part de l'année civile réellement couverte par la carrière. Vaut un
+    //: partout, sauf aux deux bords : l'année d'entrée dans la vie active et
+    //: celle de la liquidation sont incomplètes, et ``revenu`` ne porte alors
+    //: que ce qui a été perçu pendant ces mois-là.
+    fraction_annee = 1.0,
   }) {
     Object.assign(this, {
       annee, revenu, affiliation, type_periode, quotite,
       trimestres_valides, cotisations_versees, part_primes,
-      revenu_reference, familles_cotisantes, revenu_avpf,
+      revenu_reference, familles_cotisantes, revenu_avpf, fraction_annee,
     });
   }
 
   get cotise() {
     return this.cotisations_versees && this.revenu > 0;
+  }
+
+  get anneeComplete() {
+    return this.fraction_annee >= 1.0;
+  }
+
+  /**
+   * Revenu ramené à l'année pleine — le traitement EN VIGUEUR, celui que
+   * liquident les régimes servant sur les six derniers mois de service.
+   */
+  get revenuAnnualise() {
+    return this.fraction_annee <= 0 ? 0.0 : this.revenu / this.fraction_annee;
   }
 }
 
@@ -68,6 +91,10 @@ export class Carriere {
     annee_naissance,
     sexe,
     lignes = [],
+    //: Mois de naissance, 1 à 12. Le droit coupe deux générations en cours
+    //: d'année — au 1er juillet 1951 et au 1er septembre 1961 — et l'âge à la
+    //: liquidation ne se lit qu'à partir de lui.
+    mois_naissance = 1,
     //: Âge de liquidation effectif (réel pour un retraité, souhaité sinon).
     age_liquidation = null,
     //: Sans effet notionnel : utilisé par le seul scénario « système actuel ».
@@ -77,6 +104,12 @@ export class Carriere {
     if (sexe !== "H" && sexe !== "F") {
       throw new Error(`sexe attendu 'H' ou 'F', reçu ${sexe}`);
     }
+    if (!(mois_naissance >= 1 && mois_naissance <= 12)) {
+      throw new Error(
+        `mois de naissance attendu entre 1 et 12, reçu ${mois_naissance}`,
+      );
+    }
+    this.mois_naissance = mois_naissance;
     this.annee_naissance = annee_naissance;
     this.sexe = sexe;
     this.lignes = [...lignes].sort((a, b) => a.annee - b.annee);
@@ -96,11 +129,47 @@ export class Carriere {
     return Math.max(...this.lignes.map((ligne) => ligne.annee));
   }
 
-  get anneeLiquidation() {
+  get dateNaissance() {
+    return new DateMois(this.annee_naissance, this.mois_naissance);
+  }
+
+  /**
+   * Génération, mois compris — la clé des tables par génération. Deux textes
+   * ne coupent pas au 1er janvier : la loi du 9 novembre 2010 vise les assurés
+   * nés à compter du 1er juillet 1951, celle du 14 avril 2023 ceux nés à
+   * compter du 1er septembre 1961.
+   */
+  get generation() {
+    return this.annee_naissance + (this.mois_naissance - 1) / 12;
+  }
+
+  /**
+   * Mois où la pension prend effet.
+   *
+   * L'âge de liquidation est compté en mois depuis la date de naissance : né
+   * en mars 1962, parti à soixante-quatre ans et six mois, l'assuré liquide en
+   * septembre 2026. Le modèle arrondissait auparavant à l'année la plus
+   * proche, et l'arrondi au pair déplaçait la liquidation selon la parité du
+   * millésime.
+   */
+  get dateLiquidation() {
     if (this.age_liquidation === null) {
       throw new Error(`${this.identifiant} : âge de liquidation non renseigné`);
     }
-    return arrondi(this.annee_naissance + this.age_liquidation);
+    return this.dateNaissance.plusMois(enMois(this.age_liquidation));
+  }
+
+  get anneeLiquidation() {
+    return this.dateLiquidation.annee;
+  }
+
+  get moisLiquidation() {
+    return this.dateLiquidation.mois;
+  }
+
+  /** Part de l'année de liquidation qui précède le point de départ. */
+  get fractionAnneeLiquidation() {
+    return (this.moisLiquidation - 1) / 12;
   }
 
   ageEn(annee) {
@@ -121,15 +190,48 @@ export class Carriere {
    * d'assurance qui commande la décote.
    */
   get trimestresActuels() {
-    const borne = this.age_liquidation === null || this.age_liquidation === undefined
-      ? null
-      : this.anneeLiquidation;
     return this.lignes.reduce(
-      (total, ligne) => (borne === null || ligne.annee < borne
-        ? total + ligne.trimestres_valides
-        : total),
+      (total, ligne) => total + this.trimestresRetenus(ligne),
       0,
     );
+  }
+
+  /**
+   * Part de l'année civile qui compte, une fois le départ pris en compte.
+   *
+   * Une ligne de carrière dit ce qui a été perçu dans l'année ; la date de
+   * liquidation dit jusqu'où l'année compte. Les deux se rencontrent l'année
+   * du départ, et c'est la plus courte qui l'emporte.
+   */
+  partRetenue(annee) {
+    const ligne = this.ligne(annee);
+    if (ligne === null) {
+      return 0.0;
+    }
+    if (this.age_liquidation === null || this.age_liquidation === undefined) {
+      return ligne.fraction_annee;
+    }
+    const liquidation = this.anneeLiquidation;
+    if (annee > liquidation) {
+      return 0.0;
+    }
+    if (annee < liquidation) {
+      return ligne.fraction_annee;
+    }
+    return Math.min(ligne.fraction_annee, this.fractionAnneeLiquidation);
+  }
+
+  /**
+   * Trimestres qu'une ligne fait entrer dans la durée d'assurance, plafonnés
+   * par les trimestres CIVILS écoulés avant le point de départ.
+   */
+  trimestresRetenus(ligne) {
+    const part = this.partRetenue(ligne.annee);
+    if (part <= 0) {
+      return 0;
+    }
+    return Math.min(ligne.trimestres_valides,
+                    trimestresCivils(Math.round(part * 12)));
   }
 
   ligne(annee) {
@@ -159,6 +261,7 @@ export class Carriere {
     age_debut,
     age_liquidation,
     macro,
+    mois_naissance = 1,
     niveau_salaire = 1.0,
     profil_carriere = "plat",
     interruptions = null,
@@ -166,21 +269,40 @@ export class Carriere {
     part_primes = 0.0,
     identifiant = "assuré",
   }) {
-    const anneeDebut = arrondi(annee_naissance + age_debut);
-    const anneeFin = arrondi(annee_naissance + age_liquidation) - 1;
-    if (anneeFin < anneeDebut) {
+    const dateNaissance = new DateMois(annee_naissance, mois_naissance);
+    const debut = dateNaissance.plusMois(enMois(age_debut));
+    // La pension prend effet ce mois-là : il n'est plus travaillé, la borne
+    // est donc EXCLUE.
+    const fin = dateNaissance.plusMois(enMois(age_liquidation));
+    if (fin.rang <= debut.rang) {
       throw new Error("âge de liquidation antérieur à l'âge de début d'activité");
     }
 
+    const anneeDebut = debut.annee;
+    const annees = [];
+    for (let annee = debut.annee; annee <= fin.annee; annee += 1) {
+      if (moisTravailles(annee, debut, fin) > 0) {
+        annees.push(annee);
+      }
+    }
+    const anneeFin = annees[annees.length - 1];
+
     const plages = interruptions || new Map();
-    const duree = Math.max(anneeFin - anneeDebut, 1);
+    // Le profil de rémunération se déforme le long de la carrière, et sa
+    // longueur se mesure EN MOIS : la mesurer en années civiles la faisait
+    // dépendre de l'existence d'une dernière année incomplète, si bien qu'un
+    // départ décalé d'un mois déformait tout le profil.
+    const dureeMois = Math.max(fin.rang - 12 - debut.rang, 12);
     const salaireMoyen = indiceSalaireMoyen(macro, anneeDebut, anneeFin);
 
     const lignes = [];
-    for (let annee = anneeDebut; annee <= anneeFin; annee += 1) {
-      const avancement = (annee - anneeDebut) / duree;
+    for (const annee of annees) {
+      const part = fractionAnnee(annee, debut, fin);
+      const trimestresMaximum = trimestresCivils(moisTravailles(annee, debut, fin));
+      const avancement = (Math.max(new DateMois(annee, 1).rang, debut.rang)
+        - debut.rang) / dureeMois;
       const revenu = niveau_salaire * deformation(profil_carriere, avancement)
-        * salaireMoyen.get(annee);
+        * salaireMoyen.get(annee) * part;
 
       const typePeriode = plages.get(annee) ?? "emploi";
       const cotise = typePeriode === "emploi";
@@ -196,27 +318,35 @@ export class Carriere {
         // Un trimestre s'acquiert par un montant cotisé — 150 fois le SMIC
         // horaire depuis 2014, 200 avant. Les périodes assimilées en valident
         // quatre sans condition de montant : c'est tout leur objet.
-        trimestres_valides: cotise
-          ? macro.trimestresValides(revenu, annee)
-          : (regle !== null ? regle[0] : 4),
+        // Le montant commande le nombre de trimestres, les mois en commandent
+        // le plafond : on ne valide pas quatre trimestres en sept mois, si
+        // gros que soit le salaire.
+        trimestres_valides: Math.min(
+          trimestresMaximum,
+          cotise
+            ? macro.trimestresValides(revenu, annee)
+            : (regle !== null ? regle[0] : 4),
+        ),
         // Pendant une période indemnisée, l'UNEDIC ou la Sécurité sociale
         // versent de vraies cotisations aux régimes complémentaires, assises
         // sur le salaire d'avant.
         revenu_reference: ouvreComplementaires ? revenu : 0.0,
         familles_cotisantes: ouvreComplementaires ? ["complementaire_prive"] : [],
         cotisations_versees: cotise,
+        fraction_annee: part,
         part_primes,
         // Assurance vieillesse des parents au foyer : la CNAF cotise au régime
         // général sur une assiette forfaitaire égale au SMIC — 1 820 heures,
         // soit le SMIC mensuel multiplié par douze.
         revenu_avpf: (!cotise && ouvreAvpf)
-          ? 1820.0 * macro.smic_horaire.valeur(annee)
+          ? 1820.0 * macro.smic_horaire.valeur(annee) * part
           : 0.0,
       }));
     }
 
     return new Carriere({
-      annee_naissance, sexe, lignes, age_liquidation, nombre_enfants, identifiant,
+      annee_naissance, sexe, lignes, mois_naissance, age_liquidation,
+      nombre_enfants, identifiant,
     });
   }
 }

@@ -9,10 +9,12 @@ rendus sont comparés caractère par caractère par ``tests/js/moteur.test.js``.
 from __future__ import annotations
 
 import json
+import math
 from dataclasses import dataclass, field
 from html import escape
 from urllib.parse import urlencode
 
+from ..calendrier import en_mois, formater_age
 from ..castypes import CAS_TYPES, GENERATIONS, calculer_cas_types
 from ..config import (
     AgeConversionDroitsAcquis,
@@ -66,6 +68,19 @@ PROJECTIONS = [
 ]
 
 
+#: Mois de naissance. Le droit coupe deux générations en cours d'année — au
+#: 1er juillet 1951, au 1er septembre 1961 — et l'âge à la liquidation ne se
+#: lit qu'à partir de lui.
+MOIS_NAISSANCE = [
+    ("1", "janvier"), ("2", "février"), ("3", "mars"), ("4", "avril"),
+    ("5", "mai"), ("6", "juin"), ("7", "juillet"), ("8", "août"),
+    ("9", "septembre"), ("10", "octobre"), ("11", "novembre"), ("12", "décembre"),
+]
+
+#: Mois qui s'ajoutent aux années entières d'un âge.
+MOIS_AGE = [(str(m), "0 mois" if m == 0 else f"{m} mois") for m in range(12)]
+
+
 class ErreurSaisie(ValueError):
     """Saisie inexploitable, à afficher telle quelle à l'utilisateur."""
 
@@ -75,6 +90,7 @@ class Saisie:
     """Paramètres d'une simulation, tels que l'utilisateur les a saisis."""
 
     naissance: int = 1975
+    naissance_mois: int = 1
     sexe: str = "H"
     statut: str = "salarie_prive_non_cadre"
     debut: float = 21
@@ -100,10 +116,13 @@ class Saisie:
         defauts = cls()
         saisie = cls(
             naissance=_entier(parametres, "naissance", defauts.naissance),
+            naissance_mois=_entier(
+                parametres, "naissance_mois", defauts.naissance_mois
+            ),
             sexe="F" if parametres.get("sexe") == "F" else "H",
             statut=parametres.get("statut") or defauts.statut,
-            debut=_reel(parametres, "debut", defauts.debut),
-            liquidation=_reel(parametres, "liquidation", defauts.liquidation),
+            debut=_age_saisi(parametres, "debut", defauts.debut),
+            liquidation=_age_saisi(parametres, "liquidation", defauts.liquidation),
             salaire=_reel(parametres, "salaire", defauts.salaire),
             profil=_parmi(parametres, "profil", PROFILS, defauts.profil),
             primes=_reel(parametres, "primes", defauts.primes),
@@ -131,6 +150,8 @@ class Saisie:
         return saisie
 
     def verifier(self) -> None:
+        if not 1 <= self.naissance_mois <= 12:
+            raise ErreurSaisie("Mois de naissance attendu entre 1 et 12.")
         if not 1900 <= self.naissance <= 2020:
             raise ErreurSaisie(
                 f"Année de naissance hors du champ du modèle : {self.naissance}. "
@@ -150,6 +171,15 @@ class Saisie:
             )
         if not 0 <= self.primes <= 0.6:
             raise ErreurSaisie("Part de primes attendue entre 0 et 0,6.")
+
+    @property
+    def liquidation_mois(self) -> int:
+        """Mois qui s'ajoutent aux années entières de l'âge de départ."""
+        return en_mois(self.liquidation) % 12
+
+    @property
+    def debut_mois(self) -> int:
+        return en_mois(self.debut) % 12
 
     def parametres(self, base: Parametres) -> Parametres:
         return base.avec(
@@ -188,8 +218,14 @@ class Saisie:
 
     def requete(self, **remplacements) -> str:
         champs = {
-            "naissance": self.naissance, "sexe": self.sexe, "statut": self.statut,
-            "debut": _nombre(self.debut), "liquidation": _nombre(self.liquidation),
+            "naissance": self.naissance, "naissance_mois": self.naissance_mois,
+            "sexe": self.sexe, "statut": self.statut,
+            # L'âge s'écrit en années ENTIÈRES et en mois : « 64 ans et sept
+            # mois » plutôt que « 64,583333 ». L'adresse reste lisible, et une
+            # ancienne adresse portant un âge décimal reste comprise.
+            "debut": en_mois(self.debut) // 12, "debut_mois": self.debut_mois,
+            "liquidation": en_mois(self.liquidation) // 12,
+            "liquidation_mois": self.liquidation_mois,
             "salaire": _nombre(self.salaire), "profil": self.profil,
             "primes": _nombre(self.primes), "enfants": self.enfants,
             "interruptions": self.interruptions, "indexation": self.indexation,
@@ -222,6 +258,25 @@ def _reel(parametres: dict[str, str], nom: str, defaut: float) -> float:
         raise ErreurSaisie(f"« {nom} » doit être un nombre (reçu : {valeur}).") from None
 
 
+def _age_saisi(parametres: dict[str, str], nom: str, defaut: float) -> float:
+    """Âge lu en années entières plus un nombre de mois.
+
+    Le formulaire envoie deux champs — ``liquidation`` et ``liquidation_mois``
+    —, et l'adresse les porte tous deux : « 64 ans et sept mois » s'y lit tel
+    quel. Une adresse ancienne ne portant qu'un âge décimal — ``liquidation=64.5``
+    — reste valide et vaut ce qu'elle a toujours valu : le champ des mois est
+    alors absent, et la partie décimale fait foi.
+    """
+    annees = _reel(parametres, nom, defaut)
+    cle = f"{nom}_mois"
+    if parametres.get(cle) in (None, ""):
+        return annees
+    mois = _entier(parametres, cle, 0)
+    if not 0 <= mois <= 11:
+        raise ErreurSaisie(f"« {cle} » doit être compris entre 0 et 11 mois.")
+    return math.floor(annees) + mois / 12
+
+
 def _parmi(parametres: dict[str, str], nom: str,
            options: list[tuple[str, str]], defaut: str) -> str:
     valeur = parametres.get(nom)
@@ -235,8 +290,12 @@ def _nombre(valeur: float) -> str:
 
 
 def _age(valeur: float) -> str:
-    """Âge à la française : « 64 », « 65,75 »."""
-    return g.nombre(valeur, 2).rstrip("0").rstrip(",")
+    """Âge à la française, en ans et en mois : « 64 ans », « 64 ans et 9 mois ».
+
+    Le modèle date la liquidation au mois : l'écrire « 64,75 » demanderait au
+    lecteur de multiplier par douze pour retrouver ce qu'il a saisi.
+    """
+    return formater_age(valeur)
 
 
 # -- fabrique ----------------------------------------------------------------
@@ -269,6 +328,7 @@ class Contexte:
             sexe=saisie.sexe,
             affiliation=saisie.statut,
             age_debut=saisie.debut,
+            mois_naissance=saisie.naissance_mois,
             age_liquidation=saisie.liquidation,
             niveau_salaire=saisie.salaire,
             profil_carriere=saisie.profil,
@@ -360,14 +420,23 @@ def _formulaire(saisie: Saisie, contexte: Contexte) -> str:
     principal = "".join([
         g.champ("naissance", "Année de naissance", saisie.naissance,
                 type_="number", min="1900", max="2020", step="1"),
+        g.liste("naissance_mois", "Mois de naissance", MOIS_NAISSANCE,
+                str(saisie.naissance_mois),
+                "deux générations sont coupées en cours d'année par les textes"),
         g.liste("sexe", "Sexe", [("H", "Homme"), ("F", "Femme")], saisie.sexe,
                 "table de mortalité unisexe par défaut"),
         g.liste("statut", "Statut d'affiliation", statuts, saisie.statut),
-        g.champ("debut", "Âge de début d'activité", _nombre(saisie.debut),
-                type_="number", min="14", max="40", step="0.5"),
-        g.champ("liquidation", "Âge de départ à la retraite", _nombre(saisie.liquidation),
+        g.champ("debut", "Âge de début d'activité", en_mois(saisie.debut) // 12,
+                type_="number", min="14", max="40", step="1"),
+        g.liste("debut_mois", "…et mois", MOIS_AGE, str(saisie.debut_mois),
+                "l'année d'entrée n'est complète que si l'on entre en janvier"),
+        g.champ("liquidation", "Âge de départ à la retraite",
+                en_mois(saisie.liquidation) // 12,
                 "effectif si retraité, souhaité si actif",
-                type_="number", min="40", max="75", step="0.5"),
+                type_="number", min="40", max="75", step="1"),
+        g.liste("liquidation_mois", "…et mois", MOIS_AGE,
+                str(saisie.liquidation_mois),
+                "la pension prend effet le premier du mois"),
         g.champ("salaire", "Niveau de revenu", _nombre(saisie.salaire),
                 "en multiples du salaire moyen : 0,55 ≈ SMIC, 1 = salaire moyen",
                 type_="number", min="0.1", max="10", step="0.05"),

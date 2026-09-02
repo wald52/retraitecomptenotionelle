@@ -24,10 +24,25 @@
 # pour lesquelles il fixe 64 ans.
 #
 # Les générations 1961 et 1951 sont coupées en cours d'année par les textes
-# (1er septembre et 1er juillet). Le modèle ne connaît que l'année de
-# naissance : il retient la valeur de la fraction la plus nombreuse — celle qui
-# couvre le plus de mois de la génération, la plus exigeante en cas d'égalité.
-# C'est la seule approximation qui subsiste, et elle vaut au plus un trimestre.
+# (1er septembre et 1er juillet), et LA TABLE LES COUPE AUSSI. La colonne
+# `generation` porte des décimales : `1951.5` désigne le 1er juillet 1951,
+# `1961.667` le 1er septembre 1961 — l'année plus la part écoulée avant le
+# premier du mois visé. La lecture reste en escalier, si bien qu'un assuré né
+# en mars 1951 lit la ligne `1951` et un assuré né en octobre la ligne
+# `1951.5`.
+#
+# NIVEAU DE FIABILITÉ DES LIGNES COUPÉES. La valeur qui l'emportait à la
+# majorité reste `certifiee` — c'est elle que le récupérateur a lue dans le
+# texte, et elle n'a pas bougé, seule sa clé s'est précisée. Sa jumelle, la
+# fraction minoritaire de la génération, est `haute` : elle est transcrite du
+# même article, mais le récupérateur ne l'a pas encore rendue lui-même — il
+# faut pour cela qu'il émette des segments plutôt qu'une valeur majoritaire,
+# ce qu'il fait désormais, à sa prochaine passe sur les 9 Go de la base LEGI.
+#
+# Le modèle ne connaissait que l'année de naissance et retenait la valeur de la
+# fraction la plus nombreuse — la plus exigeante en cas d'égalité. C'était la
+# seule approximation qui subsistait sur ces tables, et elle valait un
+# trimestre d'âge légal : elle est levée.
 #
 # Cet âge commande l'ouverture des droits et la surcote — laquelle ne
 # récompense que les trimestres cotisés AU-DELÀ de cet âge.
@@ -83,7 +98,8 @@ generation,age,fiabilite
 1948,60.00,certifiee
 1949,60.00,certifiee
 1950,60.00,certifiee
-1951,60.33,certifiee
+1951,60.00,haute
+1951.5,60.33,certifiee
 1952,60.75,certifiee
 1953,61.17,certifiee
 1954,61.58,certifiee
@@ -94,6 +110,7 @@ generation,age,fiabilite
 1959,62.00,certifiee
 1960,62.00,certifiee
 1961,62.00,certifiee
+1961.667,62.25,haute
 1962,62.50,certifiee
 1963,62.75,certifiee
 1964,63.00,certifiee

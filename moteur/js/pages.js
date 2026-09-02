@@ -6,6 +6,7 @@
  * vérifient les témoins de ``tests/temoins/pages.json``.
  */
 
+import { enMois, formaterAge } from "./calendrier.js";
 import { CAS_TYPES, GENERATIONS, calculerCasTypes } from "./castypes.js";
 import {
   AgeConversionDroitsAcquis, ModeAgeReference, ModeIndexation, PARAMETRES_DEFAUT, PartCotisation,
@@ -55,11 +56,28 @@ export const PROJECTIONS = [
   ["stagnation", "Stagnation"],
 ];
 
+/**
+ * Mois de naissance. Le droit coupe deux générations en cours d'année — au
+ * 1er juillet 1951, au 1er septembre 1961 — et l'âge à la liquidation ne se lit
+ * qu'à partir de lui.
+ */
+export const MOIS_NAISSANCE = [
+  ["1", "janvier"], ["2", "février"], ["3", "mars"], ["4", "avril"],
+  ["5", "mai"], ["6", "juin"], ["7", "juillet"], ["8", "août"],
+  ["9", "septembre"], ["10", "octobre"], ["11", "novembre"], ["12", "décembre"],
+];
+
+/** Mois qui s'ajoutent aux années entières d'un âge. */
+export const MOIS_AGE = Array.from({ length: 12 }, (unused, m) => [
+  String(m), m === 0 ? "0 mois" : `${m} mois`,
+]);
+
 /** Saisie inexploitable, à afficher telle quelle à l'utilisateur. */
 export class ErreurSaisie extends Error {}
 
 const DEFAUTS = Object.freeze({
   naissance: 1975,
+  naissance_mois: 1,
   sexe: "H",
   statut: "salarie_prive_non_cadre",
   debut: 21,
@@ -90,10 +108,11 @@ export class Saisie {
   static depuisRequete(parametres) {
     const saisie = new Saisie({
       naissance: entier(parametres, "naissance", DEFAUTS.naissance),
+      naissance_mois: entier(parametres, "naissance_mois", DEFAUTS.naissance_mois),
       sexe: parametres.sexe === "F" ? "F" : "H",
       statut: parametres.statut || DEFAUTS.statut,
-      debut: reel(parametres, "debut", DEFAUTS.debut),
-      liquidation: reel(parametres, "liquidation", DEFAUTS.liquidation),
+      debut: ageSaisi(parametres, "debut", DEFAUTS.debut),
+      liquidation: ageSaisi(parametres, "liquidation", DEFAUTS.liquidation),
       salaire: reel(parametres, "salaire", DEFAUTS.salaire),
       profil: parmi(parametres, "profil", PROFILS, DEFAUTS.profil),
       primes: reel(parametres, "primes", DEFAUTS.primes),
@@ -119,6 +138,9 @@ export class Saisie {
   }
 
   verifier() {
+    if (!(this.naissance_mois >= 1 && this.naissance_mois <= 12)) {
+      throw new ErreurSaisie("Mois de naissance attendu entre 1 et 12.");
+    }
     if (!(this.naissance >= 1900 && this.naissance <= 2020)) {
       throw new ErreurSaisie(
         `Année de naissance hors du champ du modèle : ${this.naissance}. `
@@ -185,10 +207,25 @@ export class Saisie {
     return plages;
   }
 
+  /** Mois qui s'ajoutent aux années entières de l'âge de départ. */
+  get liquidation_mois() {
+    return enMois(this.liquidation) % 12;
+  }
+
+  get debut_mois() {
+    return enMois(this.debut) % 12;
+  }
+
   requete(remplacements = {}) {
     const champs = {
-      naissance: this.naissance, sexe: this.sexe, statut: this.statut,
-      debut: nombreBrut(this.debut), liquidation: nombreBrut(this.liquidation),
+      naissance: this.naissance, naissance_mois: this.naissance_mois,
+      sexe: this.sexe, statut: this.statut,
+      // L'âge s'écrit en années ENTIÈRES et en mois : « 64 ans et sept mois »
+      // plutôt que « 64,583333 ». L'adresse reste lisible, et une ancienne
+      // adresse portant un âge décimal reste comprise.
+      debut: Math.floor(enMois(this.debut) / 12), debut_mois: this.debut_mois,
+      liquidation: Math.floor(enMois(this.liquidation) / 12),
+      liquidation_mois: this.liquidation_mois,
       salaire: nombreBrut(this.salaire), profil: this.profil,
       primes: nombreBrut(this.primes), enfants: this.enfants,
       interruptions: this.interruptions, indexation: this.indexation,
@@ -261,9 +298,35 @@ function nombreBrut(valeur) {
   return formatG(valeur);
 }
 
-/** Âge à la française : « 64 », « 65,75 ». */
+/**
+ * Âge lu en années entières plus un nombre de mois.
+ *
+ * Le formulaire envoie deux champs — `liquidation` et `liquidation_mois` —, et
+ * l'adresse les porte tous deux. Une adresse ancienne ne portant qu'un âge
+ * décimal reste valide et vaut ce qu'elle a toujours valu.
+ */
+function ageSaisi(parametres, nom, defaut) {
+  const annees = reel(parametres, nom, defaut);
+  const cle = `${nom}_mois`;
+  const brut = parametres[cle];
+  if (brut === undefined || brut === null || brut === "") {
+    return annees;
+  }
+  const mois = entier(parametres, cle, 0);
+  if (!(mois >= 0 && mois <= 11)) {
+    throw new ErreurSaisie(`« ${cle} » doit être compris entre 0 et 11 mois.`);
+  }
+  return Math.floor(annees) + mois / 12;
+}
+
+/**
+ * Âge à la française, en ans et en mois : « 64 ans », « 64 ans et 9 mois ».
+ *
+ * Le modèle date la liquidation au mois : l'écrire « 64,75 » demanderait au
+ * lecteur de multiplier par douze pour retrouver ce qu'il a saisi.
+ */
 function age(valeur) {
-  return g.nombre(valeur, 2).replace(/0+$/, "").replace(/,$/, "");
+  return formaterAge(valeur);
 }
 
 // -- fabrique ----------------------------------------------------------------
@@ -295,6 +358,7 @@ export class Contexte {
     }
     const carriere = simulateur.carriereSimple({
       annee_naissance: saisie.naissance,
+      mois_naissance: saisie.naissance_mois,
       sexe: saisie.sexe,
       affiliation: saisie.statut,
       age_debut: saisie.debut,
@@ -397,14 +461,24 @@ function formulaire(saisie, contexte) {
   const principal = [
     g.champ("naissance", "Année de naissance", saisie.naissance, "", "number",
       { min: "1900", max: "2020", step: "1" }),
+    g.liste("naissance_mois", "Mois de naissance", MOIS_NAISSANCE,
+      String(saisie.naissance_mois),
+      "deux générations sont coupées en cours d'année par les textes"),
     g.liste("sexe", "Sexe", [["H", "Homme"], ["F", "Femme"]], saisie.sexe,
       "table de mortalité unisexe par défaut"),
     g.liste("statut", "Statut d'affiliation", listeStatuts, saisie.statut),
-    g.champ("debut", "Âge de début d'activité", nombreBrut(saisie.debut), "", "number",
-      { min: "14", max: "40", step: "0.5" }),
-    g.champ("liquidation", "Âge de départ à la retraite", nombreBrut(saisie.liquidation),
+    g.champ("debut", "Âge de début d'activité",
+      Math.floor(enMois(saisie.debut) / 12), "", "number",
+      { min: "14", max: "40", step: "1" }),
+    g.liste("debut_mois", "…et mois", MOIS_AGE, String(saisie.debut_mois),
+      "l'année d'entrée n'est complète que si l'on entre en janvier"),
+    g.champ("liquidation", "Âge de départ à la retraite",
+      Math.floor(enMois(saisie.liquidation) / 12),
       "effectif si retraité, souhaité si actif", "number",
-      { min: "40", max: "75", step: "0.5" }),
+      { min: "40", max: "75", step: "1" }),
+    g.liste("liquidation_mois", "…et mois", MOIS_AGE,
+      String(saisie.liquidation_mois),
+      "la pension prend effet le premier du mois"),
     g.champ("salaire", "Niveau de revenu", nombreBrut(saisie.salaire),
       "en multiples du salaire moyen : 0,55 ≈ SMIC, 1 = salaire moyen", "number",
       { min: "0.1", max: "10", step: "0.05" }),

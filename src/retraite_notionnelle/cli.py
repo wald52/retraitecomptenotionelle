@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -29,6 +30,37 @@ from .config import (
 )
 from .donnees.chargement import DonneeInsuffisante, journal_certification
 from .simulateur import Simulateur
+
+
+def age_en_annees_et_mois(texte: str) -> float:
+    """Âge de la ligne de commande, en années décimales.
+
+    Trois écritures sont acceptées, et la troisième est celle qu'on écrit
+    spontanément quand on parle de retraite :
+
+    * ``64`` — soixante-quatre ans tout ronds ;
+    * ``64.5`` — la notation décimale, que les anciennes commandes emploient ;
+    * ``64a7m`` ou ``64a7`` — soixante-quatre ans et sept mois.
+
+    Le mois compte : c'est lui qui date la liquidation, donc les mois cotisés
+    de l'année du départ, les trimestres civils qu'ils valident et le diviseur
+    actuariel.
+    """
+    brut = texte.strip().lower().replace(",", ".")
+    trouve = re.fullmatch(r"(\d+)\s*(?:a|ans?)\s*(\d{1,2})\s*(?:m|mois)?", brut)
+    if trouve:
+        annees, mois = int(trouve.group(1)), int(trouve.group(2))
+        if not 0 <= mois <= 11:
+            raise argparse.ArgumentTypeError(
+                f"mois attendu entre 0 et 11 dans « {texte} »"
+            )
+        return annees + mois / 12
+    try:
+        return float(brut)
+    except ValueError:
+        raise argparse.ArgumentTypeError(
+            f"âge illisible : « {texte} ». Attendu « 64 », « 64.5 » ou « 64a7m »."
+        ) from None
 
 
 def _parametres(arguments: argparse.Namespace) -> Parametres:
@@ -83,6 +115,7 @@ def commande_simuler(arguments: argparse.Namespace) -> int:
 
     carriere = simulateur.carriere_simple(
         annee_naissance=arguments.naissance,
+        mois_naissance=arguments.naissance_mois,
         sexe=arguments.sexe,
         affiliation=arguments.statut,
         age_debut=arguments.debut,
@@ -326,12 +359,22 @@ def construire_analyseur() -> argparse.ArgumentParser:
 
     simuler = sous.add_parser("simuler", help="simuler une carrière individuelle")
     simuler.add_argument("--naissance", type=int, required=True, help="année de naissance")
+    simuler.add_argument(
+        "--naissance-mois", type=int, default=1, choices=range(1, 13),
+        metavar="{1..12}",
+        help="mois de naissance (défaut : janvier). Deux générations sont "
+             "coupées en cours d'année par les textes",
+    )
     simuler.add_argument("--sexe", choices=["H", "F"], default="H")
     simuler.add_argument("--statut", required=True, help="statut d'affiliation (voir `regimes`)")
-    simuler.add_argument("--debut", type=float, required=True, help="âge de début d'activité")
     simuler.add_argument(
-        "--liquidation", type=float, required=True,
-        help="âge de liquidation, effectif pour un retraité, souhaité pour un actif",
+        "--debut", type=age_en_annees_et_mois, required=True,
+        help="âge de début d'activité — « 21 », « 21.5 » ou « 21a6m »",
+    )
+    simuler.add_argument(
+        "--liquidation", type=age_en_annees_et_mois, required=True,
+        help="âge de liquidation, effectif pour un retraité, souhaité pour un "
+             "actif — « 64 », « 64.5 » ou « 64a7m »",
     )
     simuler.add_argument(
         "--salaire", type=float, default=1.0,

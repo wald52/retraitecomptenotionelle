@@ -2527,3 +2527,64 @@ def test_les_tranches_des_avocats_sont_en_euros_non_en_plafonds(simulateur):
     tranche_2 = next(p for p in simulateur.catalogue["agirc_arrco"]
                      .periodes_actives(2026) if p.assiette == "tranche_2")
     assert tranche_2.bornes_assiette_en_euros(48_060) == (48_060.0, 8 * 48_060.0)
+
+
+def test_la_pension_ne_fait_plus_de_marche_au_milieu_de_l_annee(simulateur):
+    """Deux mois d'écart déplaçaient la pension de six à sept pour cent.
+
+    L'âge de liquidation était arrondi à l'année civile la plus proche : tout
+    basculait entre 64 ans et 5 mois et 64 ans et 7 mois — une année entière de
+    carrière gagnée ou perdue d'un coup, dans un sens pour le scénario 1, dans
+    l'autre pour le scénario 3. La date étant désormais lue au mois, la pension
+    progresse mois par mois.
+    """
+    from retraite_notionnelle.carriere import Carriere
+
+    pensions = []
+    for mois in range(12):
+        carriere = Carriere.depuis_profil(
+            1962, "H", "salarie_prive_cadre", 22, 64 + mois / 12,
+            simulateur.macro, niveau_salaire=1.5, profil_carriere="plat",
+        )
+        pensions.append(
+            simulateur.scenario_notionnel.retroactif(carriere).pension_annuelle
+        )
+
+    assert pensions == sorted(pensions)
+    ecarts = [apres / avant - 1 for avant, apres in zip(pensions, pensions[1:])]
+    # Aucun mois ne pèse plus de 1,5 % : la marche en valait plus de quatre à
+    # lui seul, et elle tombait toujours au même endroit de l'année.
+    assert max(ecarts) < 0.015
+    # Douze mois de plus valent tout de même un gain net : les mois cotisés de
+    # l'année du départ vont au compte, et le diviseur baisse.
+    assert pensions[-1] / pensions[0] > 1.05
+
+
+def test_les_generations_coupees_en_cours_d_annee_sont_lues_au_mois(simulateur):
+    """La loi vise « les assurés nés à compter du 1er septembre 1961 ».
+
+    Le modèle ne connaissait que l'année de naissance et opposait à toute la
+    génération la valeur couvrant le plus de mois. L'approximation valait un
+    trimestre d'âge légal et un trimestre de durée requise ; le mois de
+    naissance la lève.
+    """
+    from retraite_notionnelle.carriere import Carriere
+
+    def opposables(naissance, mois):
+        carriere = Carriere.depuis_profil(
+            naissance, "H", "salarie_prive_non_cadre", 20, 62.0,
+            simulateur.macro, mois_naissance=mois,
+        )
+        resultat = simulateur.scenario_actuel.calculer(carriere)
+        return resultat.age_ouverture_opposable, resultat.trimestres_requis
+
+    # Loi du 9 novembre 2010 : 60 ans avant le 1er juillet 1951, 60 ans et
+    # quatre mois à compter.
+    assert opposables(1951, 6)[0] == pytest.approx(60.0)
+    assert opposables(1951, 8)[0] == pytest.approx(60.33)
+    # Loi du 14 avril 2023 : 62 ans et 168 trimestres avant le 1er septembre
+    # 1961, 62 ans et trois mois et 169 trimestres à compter.
+    assert opposables(1961, 8) == (pytest.approx(62.0), 168)
+    assert opposables(1961, 10) == (pytest.approx(62.25), 169)
+    # Une génération que nul texte ne coupe ne bouge pas avec le mois.
+    assert opposables(1960, 2) == opposables(1960, 11)

@@ -19,6 +19,13 @@ from pathlib import Path
 
 from .donnees.chargement import charger_periodes_non_travaillees, charger_yaml
 from .donnees.macro import DonneesMacro
+from .calendrier import (
+    DateMois,
+    en_mois,
+    fraction_annee,
+    mois_travailles,
+    trimestres_civils,
+)
 
 #: Périodes non cotisées reconnues par le système actuel. Elles ouvrent des
 #: droits gratuits aujourd'hui ; elles n'en ouvrent aucun dans les scénarios
@@ -64,6 +71,13 @@ class AnneeCarriere:
     familles_cotisantes: tuple[str, ...] = ()
     #: Part de primes dans le revenu (fonction publique) : assiette du RAFP.
     part_primes: float = 0.0
+    #: Part de l'année civile réellement couverte par la carrière. Vaut un
+    #: partout, sauf aux deux bords : l'année d'entrée dans la vie active et
+    #: celle de la liquidation sont incomplètes, et ``revenu`` ne porte alors
+    #: que ce qui a été perçu pendant ces mois-là. Le plafond de la Sécurité
+    #: sociale se proratise sur cette même fraction, comme le veut l'article
+    #: R. 242-2 : une demi-année de travail n'ouvre qu'un demi-plafond.
+    fraction_annee: float = 1.0
     #: Salaire forfaitaire porté au compte du régime de base au titre de
     #: l'assurance vieillesse des parents au foyer. Ce n'est pas un revenu
     #: d'activité — l'année n'est pas cotisée par l'assuré — mais la CNAF
@@ -75,6 +89,22 @@ class AnneeCarriere:
     def cotise(self) -> bool:
         return self.cotisations_versees and self.revenu > 0
 
+    @property
+    def annee_complete(self) -> bool:
+        return self.fraction_annee >= 1.0
+
+    @property
+    def revenu_annualise(self) -> float:
+        """Revenu ramené à l'année pleine.
+
+        C'est le traitement en vigueur, celui que liquident les régimes servant
+        sur le dernier traitement ou les six derniers mois de service — et non
+        la somme réellement perçue pendant une année tronquée.
+        """
+        if self.fraction_annee <= 0:
+            return 0.0
+        return self.revenu / self.fraction_annee
+
 
 @dataclass
 class Carriere:
@@ -83,6 +113,12 @@ class Carriere:
     annee_naissance: int
     sexe: str  # "H" ou "F"
     lignes: list[AnneeCarriere] = field(default_factory=list)
+    #: Mois de naissance, 1 à 12. Le droit coupe deux générations en cours
+    #: d'année — au 1er juillet 1951 et au 1er septembre 1961 — et l'âge à la
+    #: liquidation ne se lit qu'à partir de lui. Janvier par défaut : c'est la
+    #: convention qui laisse l'âge entier tomber sur le 1er janvier, et donc
+    #: l'année civile coïncider avec l'année de carrière.
+    mois_naissance: int = 1
     #: Âge de liquidation effectif (réel pour un retraité, souhaité pour un actif).
     age_liquidation: float | None = None
     #: Nombre d'enfants — sans effet dans les scénarios notionnels, utilisé par
@@ -93,6 +129,10 @@ class Carriere:
     def __post_init__(self) -> None:
         if self.sexe not in ("H", "F"):
             raise ValueError(f"sexe attendu 'H' ou 'F', reçu {self.sexe!r}")
+        if not 1 <= self.mois_naissance <= 12:
+            raise ValueError(
+                f"mois de naissance attendu entre 1 et 12, reçu {self.mois_naissance}"
+            )
         self.lignes.sort(key=lambda ligne: ligne.annee)
 
     # -- dates ---------------------------------------------------------------
@@ -106,12 +146,51 @@ class Carriere:
         return max(ligne.annee for ligne in self.lignes)
 
     @property
-    def annee_liquidation(self) -> int:
+    def date_naissance(self) -> DateMois:
+        return DateMois(self.annee_naissance, self.mois_naissance)
+
+    @property
+    def generation(self) -> float:
+        """Génération, mois compris — la clé des tables par génération.
+
+        Deux textes ne coupent pas au 1er janvier : la loi du 9 novembre 2010
+        vise les assurés nés à compter du 1er juillet 1951, celle du 14 avril
+        2023 ceux nés à compter du 1er septembre 1961. Une génération s'écrit
+        donc en années décimales, et le mois de naissance décide de quel côté
+        de la coupure l'assuré tombe.
+        """
+        return self.annee_naissance + (self.mois_naissance - 1) / 12
+
+    @property
+    def date_liquidation(self) -> DateMois:
+        """Mois où la pension prend effet.
+
+        L'âge de liquidation est compté en mois depuis la date de naissance :
+        né en mars 1962, parti à soixante-quatre ans et six mois, l'assuré
+        liquide en septembre 2026. Le modèle arrondissait auparavant
+        ``naissance + âge`` à l'année la plus proche, ce qui déplaçait la
+        liquidation d'un semestre et, l'arrondi étant au pair, la déplaçait
+        différemment selon la parité du millésime.
+        """
         if self.age_liquidation is None:
             raise ValueError(
                 f"{self.identifiant} : âge de liquidation non renseigné"
             )
-        return int(round(self.annee_naissance + self.age_liquidation))
+        return self.date_naissance.plus_mois(en_mois(self.age_liquidation))
+
+    @property
+    def annee_liquidation(self) -> int:
+        """Année civile où la pension prend effet."""
+        return self.date_liquidation.annee
+
+    @property
+    def mois_liquidation(self) -> int:
+        return self.date_liquidation.mois
+
+    @property
+    def fraction_annee_liquidation(self) -> float:
+        """Part de l'année de liquidation qui précède le point de départ."""
+        return (self.mois_liquidation - 1) / 12
 
     def age_en(self, annee: int) -> float:
         return annee - self.annee_naissance
@@ -135,15 +214,55 @@ class Carriere:
     def trimestres_actuels(self) -> int:
         """Trimestres validés au sens du droit en vigueur, tous régimes.
 
-        Bornés à l'année de liquidation : une ligne postérieure décrit une
-        activité exercée APRÈS le départ en retraite, et le droit ne la fait
-        pas entrer dans la durée d'assurance qui commande la décote. Compter
-        ces années annulait la décote d'un assuré qui, précisément, part tôt.
+        Bornés à l'année de liquidation INCLUSE : une ligne postérieure décrit
+        une activité exercée APRÈS le départ en retraite, et le droit ne la fait
+        pas entrer dans la durée d'assurance qui commande la décote. Compter ces
+        années annulait la décote d'un assuré qui, précisément, part tôt.
+
+        L'année de la liquidation, elle, en fait partie : les mois travaillés
+        avant le point de départ valident les trimestres qu'ils ont cotisés,
+        dans la limite des trimestres civils écoulés. Les exclure retirait
+        jusqu'à quatre trimestres à qui part en fin d'année, et c'est la décote
+        qu'ils commandent.
         """
-        return sum(
-            ligne.trimestres_valides for ligne in self.lignes
-            if self.age_liquidation is None or ligne.annee < self.annee_liquidation
-        )
+        return sum(self.trimestres_retenus(ligne) for ligne in self.lignes)
+
+    def part_retenue(self, annee: int) -> float:
+        """Part de l'année civile qui compte, une fois le départ pris en compte.
+
+        Une ligne de carrière dit ce qui a été perçu dans l'année ; la date de
+        liquidation dit jusqu'où l'année compte. Les deux se rencontrent
+        l'année du départ, et c'est la plus courte qui l'emporte : un relevé de
+        carrière déclare douze mois de 2022, mais qui liquide au 1er juillet
+        n'en a travaillé que six avant son point de départ.
+
+        Vaut zéro après l'année de liquidation — on ne cotise pas après être
+        parti —, et zéro aussi l'année du départ quand celui-ci tombe au
+        1er janvier.
+        """
+        ligne = self.ligne(annee)
+        if ligne is None:
+            return 0.0
+        if self.age_liquidation is None:
+            return ligne.fraction_annee
+        if annee > self.annee_liquidation:
+            return 0.0
+        if annee < self.annee_liquidation:
+            return ligne.fraction_annee
+        return min(ligne.fraction_annee, self.fraction_annee_liquidation)
+
+    def trimestres_retenus(self, ligne: AnneeCarriere) -> int:
+        """Trimestres qu'une ligne fait entrer dans la durée d'assurance.
+
+        Plafonnés par les trimestres CIVILS écoulés avant le point de départ :
+        l'année de la liquidation en vaut quatre pour qui part en janvier de
+        l'année suivante, un seul pour qui part en avril, aucun pour qui part
+        en février.
+        """
+        part = self.part_retenue(ligne.annee)
+        if part <= 0:
+            return 0
+        return min(ligne.trimestres_valides, trimestres_civils(round(part * 12)))
 
     def ligne(self, annee: int) -> AnneeCarriere | None:
         for l in self.lignes:
@@ -170,6 +289,7 @@ class Carriere:
         age_debut: float,
         age_liquidation: float,
         macro: DonneesMacro,
+        mois_naissance: int = 1,
         niveau_salaire: float = 1.0,
         profil_carriere: str = "plat",
         interruptions: dict[int, str] | None = None,
@@ -193,22 +313,50 @@ class Carriere:
         * ``fortement_ascendant`` — de 50 % à 190 % (profil cadre).
 
         ``interruptions`` associe une année à un type de période non cotisée.
+
+        Les deux bords sont des années INCOMPLÈTES et sont construites comme
+        telles : celui qui entre en septembre ne travaille que quatre mois de
+        son année d'entrée, celui qui part en août n'en travaille que sept de
+        son année de départ. Le modèle comptait ces deux années pour zéro ou
+        pour une, selon un arrondi — d'où une marche de plusieurs pour cent au
+        milieu de l'année.
         """
-        annee_debut = int(round(annee_naissance + age_debut))
-        annee_fin = int(round(annee_naissance + age_liquidation)) - 1
-        if annee_fin < annee_debut:
+        date_naissance = DateMois(annee_naissance, mois_naissance)
+        debut = date_naissance.plus_mois(en_mois(age_debut))
+        # La pension prend effet ce mois-là : il n'est plus travaillé, la borne
+        # est donc EXCLUE.
+        fin = date_naissance.plus_mois(en_mois(age_liquidation))
+        if fin.rang <= debut.rang:
             raise ValueError("âge de liquidation antérieur à l'âge de début d'activité")
+
+        annee_debut = debut.annee
+        annees = [
+            annee for annee in range(debut.annee, fin.annee + 1)
+            if mois_travailles(annee, debut, fin) > 0
+        ]
+        annee_fin = annees[-1]
 
         interruptions = interruptions or {}
         motifs = charger_periodes_non_travaillees(macro.racine)
-        duree = max(annee_fin - annee_debut, 1)
+        # Le profil de rémunération se déforme le long de la carrière, et sa
+        # longueur se mesure EN MOIS : la mesurer en années civiles la faisait
+        # dépendre de l'existence d'une dernière année incomplète, si bien
+        # qu'un départ décalé d'un mois déformait tout le profil et faisait
+        # BAISSER la pension d'un travail plus long. Le dénominateur est la
+        # dernière année pleine, comme avant : une carrière commençant et
+        # finissant au 1er janvier retrouve exactement ses anciennes valeurs.
+        duree_mois = max(fin.rang - 12 - debut.rang, 12)
         salaire_moyen_reference = _indice_salaire_moyen(macro, annee_debut, annee_fin)
 
         lignes: list[AnneeCarriere] = []
-        for annee in range(annee_debut, annee_fin + 1):
-            avancement = (annee - annee_debut) / duree
+        for annee in annees:
+            part = fraction_annee(annee, debut, fin)
+            trimestres_maximum = trimestres_civils(mois_travailles(annee, debut, fin))
+            avancement = (max(DateMois(annee, 1).rang, debut.rang)
+                          - debut.rang) / duree_mois
             deformation = _deformation(profil_carriere, avancement)
-            revenu = niveau_salaire * deformation * salaire_moyen_reference[annee]
+            revenu = (niveau_salaire * deformation
+                      * salaire_moyen_reference[annee] * part)
 
             type_periode = interruptions.get(annee, "emploi")
             cotise = type_periode == "emploi"
@@ -226,9 +374,13 @@ class Carriere:
                     # très partiel en valide donc moins de quatre. Les périodes
                     # assimilées, elles, en valident quatre sans condition de
                     # montant : c'est tout leur objet.
-                    trimestres_valides=(
+                    # Le montant commande le nombre de trimestres, les mois en
+                    # commandent le plafond : on ne valide pas quatre trimestres
+                    # en sept mois, si gros que soit le salaire.
+                    trimestres_valides=min(
+                        trimestres_maximum,
                         macro.trimestres_valides(revenu, annee) if cotise
-                        else (regle.trimestres_assimiles if regle else 4)
+                        else (regle.trimestres_assimiles if regle else 4),
                     ),
                     cotisations_versees=cotise,
                     # Pendant une période indemnisée, l'UNEDIC ou la Sécurité
@@ -243,6 +395,7 @@ class Carriere:
                         or not regle.ouvre_droits_complementaires
                         else ("complementaire_prive",)
                     ),
+                    fraction_annee=part,
                     part_primes=part_primes,
                     # Assurance vieillesse des parents au foyer : la CNAF
                     # cotise au régime général sur une assiette forfaitaire
@@ -250,7 +403,7 @@ class Carriere:
                     # multiplié par douze.
                     revenu_avpf=(
                         0.0 if cotise or regle is None or not regle.avpf
-                        else 1820.0 * macro.smic_horaire(annee)
+                        else 1820.0 * macro.smic_horaire(annee) * part
                     ),
                 )
             )
@@ -259,6 +412,7 @@ class Carriere:
             annee_naissance=annee_naissance,
             sexe=sexe,
             lignes=lignes,
+            mois_naissance=mois_naissance,
             age_liquidation=age_liquidation,
             nombre_enfants=nombre_enfants,
             identifiant=identifiant,

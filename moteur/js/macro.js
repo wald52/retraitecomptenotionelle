@@ -52,13 +52,13 @@ export class DonneesMacro {
     this._coefficientsSalaires = new Map();
     /**
      * Colonnes de revalorisation publiées par la Cnav, triées par année de date
-     * d'effet : `{ annee, auPremierJanvier, coefficients }`, où `coefficients`
+     * d'effet : `{ annee, mois, coefficients }`, où `coefficients`
      * associe une année de perception à son coefficient.
      */
     this.revalorisationPorteeAuCompte = (paquet.revalorisation_salaires || []).map(
-      ([annee, auPremierJanvier, premiere, valeurs]) => ({
+      ([annee, mois, premiere, valeurs]) => ({
         annee,
-        auPremierJanvier,
+        mois,
         coefficients: new Map(valeurs.map((v, rang) => [premiere + rang, v])),
       }),
     );
@@ -205,7 +205,7 @@ export class DonneesMacro {
    * ancrée sur la borne connue quand il y en a une. `docs/limites.md` dit ce que
    * chacun coûte.
    */
-  coefficientRevalorisationPorteeAuCompte(depart, arrivee) {
+  coefficientRevalorisationPorteeAuCompte(depart, arrivee, moisArrivee = 1) {
     if (arrivee === depart) {
       return 1.0;
     }
@@ -217,23 +217,32 @@ export class DonneesMacro {
       return this.coefficientRevalorisationSalaires(depart, arrivee);
     }
 
+    // La colonne EN VIGUEUR à la date de liquidation : la plus récente dont la
+    // date d'effet ne lui est pas postérieure, dans son année. C'est le mois
+    // qui la désigne — un départ du 1er août 2022 relève de la circulaire du
+    // 1er juillet, un départ du 1er mars de celle du 1er janvier, et les deux
+    // diffèrent de 3,9 %.
+    let enVigueur = null;
     for (const colonne of colonnes) {
-      if (colonne.annee === arrivee && colonne.auPremierJanvier
+      if (colonne.annee === arrivee && colonne.mois <= moisArrivee
           && colonne.coefficients.has(depart)) {
-        return colonne.coefficients.get(depart);
+        enVigueur = colonne;
       }
+    }
+    if (enVigueur !== null) {
+      return enVigueur.coefficients.get(depart);
     }
 
     // La colonne la plus proche qui porte les deux années. Une colonne dont la
-    // date d'effet tombe en cours d'année ne peut pas servir pour SA propre
-    // année — son millésime porte déjà la revalorisation de l'année, que le
-    // 1er janvier ne porte pas encore.
+    // date d'effet est POSTÉRIEURE à la liquidation ne peut pas servir pour
+    // l'année de celle-ci : son millésime porte déjà une revalorisation que
+    // l'assuré n'a pas connue.
     let meilleure = null;
     for (const colonne of colonnes) {
       if (!colonne.coefficients.has(depart) || !colonne.coefficients.has(arrivee)) {
         continue;
       }
-      if (!colonne.auPremierJanvier && colonne.annee === arrivee) {
+      if (colonne.annee === arrivee && colonne.mois > moisArrivee) {
         continue;
       }
       const distance = Math.abs(colonne.annee - arrivee);

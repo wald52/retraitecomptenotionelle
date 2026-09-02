@@ -180,8 +180,11 @@ export class ConstructeurCompte {
    * Le plafond global du modèle, lui, reste en plafonds de la Sécurité sociale :
    * c'est un paramètre de simulation, pas une règle de régime.
    */
-  _assiette(revenu, annee, plancher, plafondPeriode) {
-    const pass = this.macro.plafond_securite_sociale.valeur(annee);
+  _assiette(revenu, annee, plancher, plafondPeriode, fraction = 1.0) {
+    // ``fraction`` proratise le plafond sur les mois réellement travaillés :
+    // l'article R. 242-2 le calcule par mois, et une demi-année de travail
+    // n'ouvre qu'un demi-plafond.
+    const pass = this.macro.plafond_securite_sociale.valeur(annee) * fraction;
     const plafondGlobal = this.parametres.plafond_assiette_en_pass;
     let plafond;
     if (plafondPeriode === null) {
@@ -193,6 +196,24 @@ export class ConstructeurCompte {
       }
     }
     return Math.max(0.0, Math.min(revenu, plafond) - plancher);
+  }
+
+  /**
+   * Bornes d'assiette d'une période, ramenées aux mois travaillés.
+   *
+   * Les deux formes s'y plient : celles exprimées en plafonds de la Sécurité
+   * sociale, et celles que la fiche fixe en euros — les unes comme les autres
+   * sont des bornes ANNUELLES, et une année incomplète ne les atteint qu'à
+   * proportion.
+   */
+  _bornesProratisees(periode, annee, fraction) {
+    const [basse, haute] = periode.bornesAssietteEnEuros(
+      this.macro.plafond_securite_sociale.valeur(annee),
+    );
+    if (fraction >= 1.0) {
+      return [basse, haute];
+    }
+    return [basse * fraction, haute === null ? null : haute * fraction];
   }
 
   /**
@@ -253,16 +274,35 @@ export class ConstructeurCompte {
       };
     }
 
+    // Aux deux bords de la carrière, l'année n'est pas pleine : le revenu ne
+    // porte que les mois travaillés, et les plafonds se proratisent sur les
+    // mêmes mois. L'année du départ est en outre tronquée au point de départ,
+    // y compris quand la ligne, elle, déclare douze mois.
+    const part = carriere.partRetenue(annee);
+    if (part <= 0) {
+      return {
+        annee, revenu: 0.0, assiette_retenue: 0.0, cotisation: 0.0,
+        regimes: [], taux_effectif: 0.0, hors_repartition: 0.0,
+        fiabilite: Fiabilite.CERTIFIEE, nulle: true, origine_part_employeur: "",
+        part_employeur: 0.0,
+      };
+    }
+
     // Pendant une période indemnisée, l'assiette est le salaire d'AVANT
     // l'interruption : c'est sur lui que l'UNEDIC ou la Sécurité sociale
     // versent leurs cotisations. La branche d'après la bascule lisait
     // `ligne.revenu`, nul une année non travaillée, quand celle d'avant lisait
     // `revenu_reference` — deux règles pour la même situation.
-    const baseLigne = ligne.cotise ? ligne.revenu : ligne.revenu_reference;
+    let baseLigne = ligne.cotise ? ligne.revenu : ligne.revenu_reference;
+    if (part < ligne.fraction_annee) {
+      // La ligne déclare plus de mois que le départ n'en laisse : on ne porte
+      // au compte que ceux qui l'ont précédé.
+      baseLigne *= part / ligne.fraction_annee;
+    }
 
     // Après la bascule, un seul régime : le régime fusionné.
     if (regimeFusionne !== null && annee >= regimeFusionne.annee_bascule) {
-      const assiette = this._assiette(baseLigne, annee, 0.0, null);
+      const assiette = this._assiette(baseLigne, annee, 0.0, null, part);
       const [taux, tauxEmployeur, origine, fiabiliteTaux] = this.tauxUnifie(
         ligne, annee, regimeFusionne,
       );
@@ -315,8 +355,8 @@ export class ConstructeurCompte {
         regime.hors_repartition && this.parametres.isoler_capitalisation
       );
       for (const periode of regime.periodesActives(annee)) {
-        const [borneBasse, borneHaute] = periode.bornesAssietteEnEuros(
-          this.macro.plafond_securite_sociale.valeur(annee),
+        const [borneBasse, borneHaute] = this._bornesProratisees(
+          periode, annee, part,
         );
 
         const base = this._baseSelonAssiette(
@@ -328,7 +368,7 @@ export class ConstructeurCompte {
           // même rémunération qu'on découpe. Les planchers d'assiette propres à
           // un régime ne survivent pas non plus : un taux unique porte sur la
           // rémunération réelle.
-          if (this._assiette(base, annee, borneBasse, borneHaute) > 0) {
+          if (this._assiette(base, annee, borneBasse, borneHaute, part) > 0) {
             const groupe = (periode.assiette === "primes_uniquement"
               || periode.assiette === "hors_primes") ? periode.assiette : "total";
             if (!intervalles.has(groupe)) {
@@ -340,11 +380,11 @@ export class ConstructeurCompte {
           continue;
         }
 
-        let assiette = this._assiette(base, annee, borneBasse, borneHaute);
+        let assiette = this._assiette(base, annee, borneBasse, borneHaute, part);
         const repere = periode.repereAssiette(
           this.macro.plafond_securite_sociale.valeur(annee),
           this.macro.smic_horaire.valeur(annee),
-        );
+        ) * part;
         if (periode.assiette_plancher && assiette < repere) {
           // Assiette minimale : la complémentaire agricole prélève sur
           // 1 820 SMIC même quand le revenu est en dessous. Ce qui a été
@@ -407,7 +447,7 @@ export class ConstructeurCompte {
       for (const [groupe, bornes] of intervalles) {
         const base = this._baseSelonAssiette(groupe, baseLigne, ligne.part_primes);
         for (const [borneBasse, borneHaute] of ConstructeurCompte.fusionner(bornes)) {
-          const assiette = this._assiette(base, annee, borneBasse, borneHaute);
+          const assiette = this._assiette(base, annee, borneBasse, borneHaute, part);
           if (assiette <= 0) {
             continue;
           }
@@ -450,7 +490,12 @@ export class ConstructeurCompte {
       anneeDebut !== null ? anneeDebut : carriere.premiereAnnee,
       this.parametres.annee_debut_repartition,
     );
-    const fin = Math.min(anneeLiquidation - 1, carriere.derniereAnnee);
+    // L'année de la liquidation est INCLUSE : les mois cotisés avant le point
+    // de départ n'allaient nulle part, et partir en décembre revenait à
+    // travailler onze mois pour rien. La ligne de cette année-là ne porte que
+    // ces mois-là, et la revalorisation de l'année lui est acquise puisque le
+    // compte est crédité au 1er janvier.
+    const fin = Math.min(anneeLiquidation, carriere.derniereAnnee);
 
     let capital = 0.0;
     let capitalHors = 0.0;

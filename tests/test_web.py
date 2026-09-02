@@ -421,14 +421,21 @@ def test_le_portage_javascript_concorde_sur_des_carrieres_tirees_au_hasard():
     statuts = list(contexte.simulateur().affiliations.codes)
     cas = []
     for numero in range(60):
-        debut = round(alea.uniform(14, 30) * 2) / 2
-        liquidation = round(alea.uniform(max(41, debut + 1), 75) * 2) / 2
+        # Les âges sont tirés EN MOIS, et le mois de naissance avec : c'est là
+        # que le portage a le plus de chances de diverger, puisque le mois
+        # commande la date de liquidation, les mois cotisés de l'année du
+        # départ, les trimestres civils qu'ils valident et le diviseur.
+        debut = alea.randint(14 * 12, 30 * 12)
+        liquidation = alea.randint(max(41 * 12, debut + 12), 75 * 12)
         requete = {
             "naissance": str(alea.randint(1900, 2005)),
+            "naissance_mois": str(alea.randint(1, 12)),
             "sexe": alea.choice(["H", "F"]),
             "statut": alea.choice(statuts),
-            "debut": f"{debut:g}",
-            "liquidation": f"{liquidation:g}",
+            "debut": str(debut // 12),
+            "debut_mois": str(debut % 12),
+            "liquidation": str(liquidation // 12),
+            "liquidation_mois": str(liquidation % 12),
             "salaire": f"{alea.uniform(0.1, 9):.3f}",
             "profil": alea.choice([code for code, _ in PROFILS]),
             "primes": f"{alea.uniform(0, 0.6):.3f}",

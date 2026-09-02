@@ -258,3 +258,151 @@ def test_fusion_variante_taux_le_plus_eleve(catalogue):
         for periode in regime.periodes_actives(2026)
     )
     assert fusionne.taux_cotisation_retraite == pytest.approx(maxima)
+
+
+# -- le mois -----------------------------------------------------------------
+
+
+def test_la_liquidation_est_datee_au_mois_et_non_arrondie_a_l_annee():
+    """« Soixante-quatre ans et six mois » n'est pas « soixante-cinq ans ».
+
+    Le modèle arrondissait ``naissance + âge`` à l'année civile la plus proche,
+    et Python arrondit les demis AU PAIR : deux assurés déclarant le même âge
+    étaient traités différemment selon la parité de leur millésime. La date se
+    lit désormais en mois depuis la date de naissance.
+    """
+    from retraite_notionnelle.carriere import Carriere
+
+    def date(naissance, mois, age):
+        carriere = Carriere(annee_naissance=naissance, sexe="H",
+                            mois_naissance=mois, age_liquidation=age,
+                            lignes=[])
+        return (carriere.date_liquidation.annee, carriere.date_liquidation.mois)
+
+    # Né en mars 1962, parti à 64 ans et 6 mois : septembre 2026, et rien d'autre.
+    assert date(1962, 3, 64.5) == (2026, 9)
+    assert date(1962, 1, 64.5) == (2026, 7)
+    # La parité du millésime ne décide plus de rien : deux générations
+    # consécutives, même âge, même mois de départ dans l'année.
+    assert date(1961, 1, 64.5)[1] == date(1962, 1, 64.5)[1] == 7
+    # Un âge entier et une naissance en janvier tombent au 1er janvier, comme
+    # avant : c'est la convention qui laisse les cas types inchangés.
+    assert date(1975, 1, 64) == (2039, 1)
+
+
+def test_l_annee_de_liquidation_est_portee_au_compte_au_prorata(macro):
+    """Partir en décembre, ce n'est pas travailler onze mois pour rien.
+
+    L'accumulation s'arrêtait à l'année PRÉCÉDANT la liquidation : les mois
+    cotisés de l'année du départ n'allaient nulle part. Ils y vont, à
+    proportion, et le compte croît donc de mois en mois.
+    """
+    from retraite_notionnelle.carriere import Carriere
+
+    capitaux = []
+    for mois in range(12):
+        carriere = Carriere.depuis_profil(
+            1962, "H", "salarie_prive_non_cadre", 22, 64 + mois / 12, macro,
+        )
+        ligne = carriere.ligne(carriere.annee_liquidation)
+        if mois == 0:
+            # Départ au 1er janvier : aucun mois de l'année n'est travaillé.
+            assert ligne is None or carriere.part_retenue(2026) == 0
+        else:
+            assert ligne.fraction_annee == pytest.approx(mois / 12)
+            assert ligne.revenu > 0
+        capitaux.append(sum(l.revenu for l in carriere.lignes))
+    assert capitaux == sorted(capitaux)
+    assert capitaux[-1] > capitaux[0]
+
+
+def test_les_trimestres_de_l_annee_du_depart_sont_bornes_aux_trimestres_civils(macro):
+    """On ne valide pas quatre trimestres en sept mois.
+
+    Le montant cotisé commande le nombre de trimestres, les mois en commandent
+    le plafond : c'est la règle de l'article R. 351-9 pour l'année du point de
+    départ, et elle vaut aussi pour l'année d'entrée dans la vie active.
+    """
+    from retraite_notionnelle.carriere import Carriere
+
+    attendus = [0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3]
+    for mois, attendu in enumerate(attendus):
+        carriere = Carriere.depuis_profil(
+            1962, "H", "salarie_prive_non_cadre", 22, 64 + mois / 12, macro,
+            niveau_salaire=3.0,
+        )
+        ligne = carriere.ligne(carriere.annee_liquidation)
+        obtenu = 0 if ligne is None else carriere.trimestres_retenus(ligne)
+        assert obtenu == attendu, mois
+
+
+def test_un_releve_declarant_douze_mois_est_tronque_au_point_de_depart(macro):
+    """Une ligne de carrière dit l'année ; la liquidation dit jusqu'où.
+
+    Un relevé de carrière déclare des années pleines. Qui liquide au 1er juillet
+    n'a pourtant travaillé que six mois de son année de départ, et c'est la plus
+    courte des deux durées qui compte — sans quoi l'année du départ vaudrait
+    douze mois de cotisations à qui n'en a fait aucun.
+    """
+    from retraite_notionnelle.carriere import AnneeCarriere, Carriere
+
+    lignes = [AnneeCarriere(annee=a, revenu=40_000.0,
+                            affiliation="salarie_prive_non_cadre")
+              for a in range(1985, 2027)]
+    carriere = Carriere(annee_naissance=1962, sexe="H", lignes=lignes,
+                        age_liquidation=64.5)
+    assert carriere.annee_liquidation == 2026
+    assert carriere.part_retenue(2026) == pytest.approx(0.5)
+    assert carriere.trimestres_retenus(carriere.ligne(2026)) == 2
+    # Une année postérieure au départ ne compte pas, pleine ou non.
+    assert carriere.part_retenue(2027) == 0.0
+
+    # Départ au 1er janvier : l'année du départ ne compte pour rien.
+    janvier = Carriere(annee_naissance=1962, sexe="H", lignes=list(lignes),
+                       age_liquidation=64.0)
+    assert janvier.part_retenue(2026) == 0.0
+
+
+def test_le_diviseur_ne_fait_plus_de_marche_a_l_anniversaire(mortalite):
+    """Le mois de départ déplace le diviseur, et régulièrement.
+
+    ``survie_annuelle`` lisait ``quotients[int(age)]`` : la part OBSERVÉE de la
+    table était aveugle aux mois, et le diviseur d'un départ à 60 ans et onze
+    mois était celui d'un départ à 60 ans tout rond — puis tombait d'un coup à
+    l'anniversaire. La force de mortalité étant supposée constante entre deux
+    âges entiers, la décroissance est désormais lisse.
+    """
+    parametres = Parametres(racine_donnees=RACINE_DONNEES)
+    convertisseur = Convertisseur(mortalite, parametres)
+    # 2005 : les quotients observés couvrent la première moitié de la courbe,
+    # et c'est là que la marche se produisait.
+    diviseurs = [convertisseur.coefficient(60 + m / 12, 2005, "H").diviseur
+                 for m in range(13)]
+    ecarts = [avant - apres for avant, apres in zip(diviseurs, diviseurs[1:])]
+
+    assert diviseurs == sorted(diviseurs, reverse=True)
+    # Aucun pas ne pèse plus du double du plus petit : la marche d'un an valait
+    # près de la moitié de la baisse annuelle à elle seule.
+    assert max(ecarts) < 2 * min(ecarts)
+    # Et le douzième mois retombe exactement sur l'âge entier suivant.
+    assert diviseurs[12] == pytest.approx(
+        convertisseur.coefficient(61.0, 2005, "H").diviseur
+    )
+
+
+def test_le_mois_de_liquidation_designe_la_circulaire_de_revalorisation(macro):
+    """Deux circulaires portent l'année 2022, et elles diffèrent de 3,9 %.
+
+    La revalorisation exceptionnelle du 1er juillet 2022 n'était opposée à
+    personne : le modèle ne retenait que les colonnes prenant effet au
+    1er janvier, si bien qu'une liquidation de septembre 2022 lisait celle de
+    janvier et sous-revalorisait tout son salaire annuel moyen.
+    """
+    lu = macro.coefficient_revalorisation_portee_au_compte
+    janvier = lu(2015, 2022, 1)
+    juillet = lu(2015, 2022, 7)
+    assert juillet > janvier
+    assert juillet / janvier == pytest.approx(1.039, abs=0.002)
+    # La colonne ne s'applique qu'à compter de sa date d'effet.
+    assert lu(2015, 2022, 6) == pytest.approx(janvier)
+    assert lu(2015, 2022, 12) == pytest.approx(juillet)

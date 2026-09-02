@@ -82,6 +82,36 @@ def _cas() -> list[dict]:
         cas.append((f"liquidation_{age}", {"liquidation": age}))
     cas.append(("liquidation_demi", {"liquidation": "64.5", "debut": "20.5"}))
 
+    # LE MOIS. Douze départs séparés d'un mois, pour que le diff montre ce que
+    # chaque mois déplace — et surtout qu'il ne montre plus la marche de six à
+    # sept pour cent que l'arrondi à l'année creusait au milieu de celle-ci.
+    for mois in range(12):
+        cas.append((f"liquidation_mois_{mois:02d}", {
+            "liquidation": "64", "liquidation_mois": str(mois),
+        }))
+    # Une année d'entrée elle aussi incomplète, et un mois de naissance qui
+    # décale tout : la carrière ne commence ni ne finit au 1er janvier.
+    cas.append(("mois_carriere_decalee", {
+        "naissance_mois": "9", "debut": "22", "debut_mois": "3",
+        "liquidation": "64", "liquidation_mois": "7",
+    }))
+    # Les deux générations que les textes coupent en cours d'année, de part et
+    # d'autre de la coupure : 1er juillet 1951, 1er septembre 1961.
+    for mois, cote in (("6", "avant"), ("8", "apres")):
+        cas.append((f"generation_coupee_1951_{cote}", {
+            "naissance": "1951", "naissance_mois": mois, "liquidation": "62",
+        }))
+    for mois, cote in (("8", "avant"), ("10", "apres")):
+        cas.append((f"generation_coupee_1961_{cote}", {
+            "naissance": "1961", "naissance_mois": mois, "liquidation": "62",
+        }))
+    # La revalorisation exceptionnelle du 1er juillet 2022 : deux liquidations
+    # de la même année, de part et d'autre de la circulaire.
+    for mois, cote in (("2", "avant"), ("8", "apres")):
+        cas.append((f"revalorisation_juillet_2022_{cote}", {
+            "naissance": "1958", "liquidation": "64", "liquidation_mois": mois,
+        }))
+
     # Règles de modélisation, une par une.
     for mode in ("triple_lock_inverse_nominal", "prix", "salaires"):
         cas.append((f"indexation_{mode}", {"indexation": mode}))

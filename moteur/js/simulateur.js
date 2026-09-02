@@ -136,9 +136,11 @@ export class Comparaison {
       assure: {
         identifiant: carriere.identifiant,
         annee_naissance: carriere.annee_naissance,
+        mois_naissance: carriere.mois_naissance,
         sexe: carriere.sexe,
         age_liquidation: carriere.age_liquidation,
         annee_liquidation: carriere.anneeLiquidation,
+        mois_liquidation: carriere.moisLiquidation,
         annees_cotisees: carriere.anneesCotisees.length,
         trimestres_actuels: carriere.trimestresActuels,
         affiliations: carriere.affiliationsUtilisees(),

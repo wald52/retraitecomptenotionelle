@@ -156,8 +156,18 @@ export class ScenarioActuel {
     // avec la réserve que `docs/limites.md` lui attache.
     const porteAuCompte = periode.salaire_reference !== "derniers_6_mois"
       && periode.salaire_reference !== "dernier_salaire";
+    // Le MOIS de la liquidation désigne la circulaire applicable : les arrêtés
+    // ne prennent pas tous effet au 1er janvier, et deux d'entre eux portent
+    // l'année 2022. Le mois ne vaut que si l'année passée est bien celle de la
+    // liquidation — certains appels la bornent à la fiche du régime.
+    const moisLiquidation = (carriere.age_liquidation !== null
+      && carriere.age_liquidation !== undefined
+      && anneeLiquidation === carriere.anneeLiquidation)
+      ? carriere.moisLiquidation
+      : 1;
     const revaloriser = porteAuCompte
-      ? (depart, arrivee) => this.macro.coefficientRevalorisationPorteeAuCompte(depart, arrivee)
+      ? (depart, arrivee) => this.macro.coefficientRevalorisationPorteeAuCompte(
+        depart, arrivee, moisLiquidation)
       : (depart, arrivee) => this.macro.coefficientRevalorisationSalaires(depart, arrivee);
     const revenus = [];
     for (const ligne of carriere.lignes) {
@@ -181,7 +191,13 @@ export class ScenarioActuel {
         revenu = assietteDeReference(periode, ligne);
       }
       if (plafonner) {
-        revenu = Math.min(revenu, this.macro.plafond_securite_sociale.valeur(ligne.annee));
+        // Le plafond se proratise sur les mois travaillés : l'année d'entrée
+        // dans la vie active n'est pas pleine.
+        revenu = Math.min(
+          revenu,
+          this.macro.plafond_securite_sociale.valeur(ligne.annee)
+            * ligne.fraction_annee,
+        );
       }
       revenus.push(revenu * revaloriser(ligne.annee, anneeLiquidation));
     }
@@ -202,6 +218,24 @@ export class ScenarioActuel {
       }
       retenus = [...revenus].sort((a, b) => b - a).slice(0, annees);
     } else if (reference === "derniers_6_mois" || reference === "dernier_salaire") {
+      // Le traitement des six derniers mois est celui EN VIGUEUR au départ.
+      // L'année de la liquidation est incomplète — l'assuré n'y a travaillé que
+      // quelques mois —, mais c'est bien son traitement que liquide le régime :
+      // on l'annualise plutôt que de reculer d'un an.
+      const derniere = carriere.ligne(anneeLiquidation);
+      if (derniere !== null && derniere.cotise && derniere.fraction_annee > 0
+          && this.affiliations.regimes(derniere.affiliation, anneeLiquidation)
+            .includes(code)) {
+        let traitement = assietteDeReference(periode, derniere)
+          / derniere.fraction_annee;
+        if (plafonner) {
+          traitement = Math.min(
+            traitement,
+            this.macro.plafond_securite_sociale.valeur(anneeLiquidation),
+          );
+        }
+        return traitement;
+      }
       return revenus[revenus.length - 1];
     } else {
       retenus = revenus;
@@ -224,7 +258,7 @@ export class ScenarioActuel {
   /** @returns {[number, number|null]} durée requise opposable, et fiabilité. */
   dureeRequise(periode, carriere) {
     if (periode.duree_requise_par_generation) {
-      const parGeneration = this.dureesRequises.trimestres(carriere.annee_naissance);
+      const parGeneration = this.dureesRequises.trimestres(carriere.generation);
       if (parGeneration !== null) {
         return parGeneration;
       }
@@ -251,7 +285,7 @@ export class ScenarioActuel {
     if (!periode.duree_proratisation_par_generation) {
       return [requis, null];
     }
-    const parGeneration = this.dureesProratisation.trimestres(carriere.annee_naissance);
+    const parGeneration = this.dureesProratisation.trimestres(carriere.generation);
     if (parGeneration === null) {
       return [requis, null];
     }
@@ -263,7 +297,7 @@ export class ScenarioActuel {
   /** Âge légal opposable à cet assuré dans ce régime. */
   ageOuverture(periode, carriere) {
     if (periode.age_ouverture_par_generation) {
-      const parGeneration = this.agesOuverture.age(carriere.annee_naissance);
+      const parGeneration = this.agesOuverture.age(carriere.generation);
       if (parGeneration !== null) {
         return parGeneration[0];
       }
@@ -274,7 +308,7 @@ export class ScenarioActuel {
   /** Âge d'annulation de la décote opposable à cet assuré. */
   ageTauxPlein(periode, carriere) {
     if (periode.age_taux_plein_par_generation) {
-      const parGeneration = this.agesAnnulationDecote.age(carriere.annee_naissance);
+      const parGeneration = this.agesAnnulationDecote.age(carriere.generation);
       if (parGeneration !== null) {
         return parGeneration[0];
       }
@@ -499,7 +533,8 @@ export class ScenarioActuel {
     // des périodes cotisées (D. 351-2-2).
     const trimestresCotisesParRegime = new Map();
     for (const ligne of carriere.lignes) {
-      if (ligne.annee >= anneeLiquidation) {
+      const retenusLigne = carriere.trimestresRetenus(ligne);
+      if (retenusLigne <= 0) {
         continue;
       }
       for (const code of this.affiliations.regimes(ligne.affiliation, ligne.annee)) {
@@ -507,12 +542,11 @@ export class ScenarioActuel {
           continue;
         }
         trimestresParRegime.set(
-          code, (trimestresParRegime.get(code) ?? 0) + ligne.trimestres_valides,
+          code, (trimestresParRegime.get(code) ?? 0) + retenusLigne,
         );
         if (ligne.cotise) {
           trimestresCotisesParRegime.set(
-            code,
-            (trimestresCotisesParRegime.get(code) ?? 0) + ligne.trimestres_valides,
+            code, (trimestresCotisesParRegime.get(code) ?? 0) + retenusLigne,
           );
         }
       }
@@ -536,10 +570,12 @@ export class ScenarioActuel {
     }
 
     for (const ligne of carriere.lignes) {
-      if (ligne.annee >= anneeLiquidation) {
-        // Une ligne postérieure à la liquidation décrit une activité exercée
-        // APRÈS le départ : elle n'ouvre pas de droits dans la pension qu'on
-        // liquide.
+      // Une ligne postérieure à la liquidation décrit une activité exercée
+      // APRÈS le départ : elle n'ouvre pas de droits dans la pension qu'on
+      // liquide. L'année du départ, elle, ouvre ceux de ses mois qui l'ont
+      // précédé — ni zéro ni douze, mais le compte juste.
+      const part = carriere.partRetenue(ligne.annee);
+      if (part <= 0) {
         continue;
       }
       if (!ligne.cotise && ligne.familles_cotisantes.length === 0) {
@@ -547,7 +583,10 @@ export class ScenarioActuel {
       }
       // Pendant une période indemnisée, seuls les régimes complémentaires
       // encaissent, et sur le salaire d'avant l'interruption.
-      const baseLigne = ligne.cotise ? ligne.revenu : ligne.revenu_reference;
+      let baseLigne = ligne.cotise ? ligne.revenu : ligne.revenu_reference;
+      if (part < ligne.fraction_annee) {
+        baseLigne *= part / ligne.fraction_annee;
+      }
       const famillesAdmises = ligne.cotise ? null : new Set(ligne.familles_cotisantes);
       for (const code of this.affiliations.regimes(ligne.affiliation, ligne.annee)) {
         if (!this.catalogue.contient(code)) {
@@ -558,8 +597,16 @@ export class ScenarioActuel {
           continue;
         }
         for (const periode of regime.periodesActives(ligne.annee)) {
-          const pass = this.macro.plafond_securite_sociale.valeur(ligne.annee);
-          const [borneBasse, borneHaute] = periode.bornesAssietteEnEuros(pass);
+          // Les bornes d'assiette et le repère en points sont ANNUELS : une
+          // année incomplète ne les atteint qu'à proportion de ses mois, comme
+          // le plafond lui-même.
+          const passPlein = this.macro.plafond_securite_sociale.valeur(ligne.annee);
+          const pass = passPlein * part;
+          let [borneBasse, borneHaute] = periode.bornesAssietteEnEuros(passPlein);
+          if (part < 1.0) {
+            borneBasse *= part;
+            borneHaute = borneHaute === null ? null : borneHaute * part;
+          }
           let base = baseLigne;
           if (periode.assiette === "primes_uniquement") {
             base = baseLigne * ligne.part_primes;
@@ -570,7 +617,8 @@ export class ScenarioActuel {
           let assiette = Math.max(0.0, Math.min(base, plafond) - borneBasse);
           const repere = periode.repereAssiette(
             pass, this.macro.smic_horaire.valeur(ligne.annee),
-          );
+          ) * (periode.assiette_repere_smic !== null
+            && periode.assiette_repere_smic !== undefined ? part : 1.0);
           if (periode.assiette_plancher && assiette < repere) {
             // Assiette minimale : la complémentaire agricole cotise sur
             // 1 820 SMIC même quand le revenu est en dessous.
@@ -657,8 +705,8 @@ export class ScenarioActuel {
     // longue et la majoration du minimum contributif.
     let trimestresCotises = 0;
     for (const ligne of carriere.lignes) {
-      if (ligne.cotise && ligne.annee < anneeLiquidation) {
-        trimestresCotises += ligne.trimestres_valides;
+      if (ligne.cotise && ligne.annee <= anneeLiquidation) {
+        trimestresCotises += carriere.trimestresRetenus(ligne);
       }
     }
 
@@ -1293,9 +1341,9 @@ function assietteDeReference(periode, ligne) {
 function trimestresValidesAvant(carriere, age, anneeLiquidation) {
   let total = 0;
   for (const ligne of carriere.lignes) {
-    if (ligne.annee < anneeLiquidation
+    if (ligne.annee <= anneeLiquidation
         && ligne.annee - carriere.annee_naissance < age) {
-      total += ligne.trimestres_valides;
+      total += carriere.trimestresRetenus(ligne);
     }
   }
   return total;
@@ -1309,9 +1357,9 @@ function trimestresCotisesEntre(carriere, ageBas, ageHaut, anneeLiquidation) {
   let total = 0;
   for (const ligne of carriere.lignes) {
     const age = ligne.annee - carriere.annee_naissance;
-    if (ligne.cotise && ligne.annee < anneeLiquidation
+    if (ligne.cotise && ligne.annee <= anneeLiquidation
         && age >= ageBas && age < ageHaut) {
-      total += ligne.trimestres_valides;
+      total += carriere.trimestresRetenus(ligne);
     }
   }
   return total;
@@ -1325,9 +1373,9 @@ function trimestresCotisesEntre(carriere, ageBas, ageHaut, anneeLiquidation) {
 function trimestresCotisesApres(carriere, age, anneeLiquidation) {
   let total = 0;
   for (const ligne of carriere.lignes) {
-    if (ligne.cotise && ligne.annee < anneeLiquidation
+    if (ligne.cotise && ligne.annee <= anneeLiquidation
         && ligne.annee - carriere.annee_naissance >= age) {
-      total += ligne.trimestres_valides;
+      total += carriere.trimestresRetenus(ligne);
     }
   }
   return total;

@@ -212,16 +212,43 @@ export class DonneesMortalite {
     return loi;
   }
 
-  /** Probabilité de passer de ``age`` à ``age+1`` pendant l'année ``annee``. */
-  survieAnnuelle(age, annee, sexe) {
+  /** Survie d'un âge ENTIER au suivant, quotient observé s'il existe. */
+  _survieCellule(age, annee, sexe) {
     const table = this._quotients[`${annee}|${sexe}`];
     if (table !== undefined) {
-      const qx = table[String(Math.trunc(age))];
+      const qx = table[String(age)];
       if (qx !== undefined) {
         return 1.0 - qx;
       }
     }
     return this.loi(annee, sexe).survie(age, 1.0);
+  }
+
+  /**
+   * Probabilité de passer de ``age`` à ``age+1`` pendant l'année ``annee``.
+   *
+   * **L'âge est fractionnaire, et il compte.** La méthode lisait
+   * ``quotients[trunc(age)]`` : la part OBSERVÉE de la table était aveugle aux
+   * mois, et le diviseur d'un départ à 60 ans et onze mois était celui d'un
+   * départ à 60 ans tout rond — 1,7 % de pension d'un coup à chaque
+   * anniversaire, et rien entre deux.
+   *
+   * Entre deux âges entiers, la force de mortalité est supposée CONSTANTE —
+   * l'hypothèse actuarielle usuelle, et la seule qui rende la survie continue
+   * en l'âge : p(x+f) = p(x)^(1-f) · p(x+1)^f. L'année civile, elle, n'est pas
+   * interpolée : une table est publiée par millésime, et lisser entre deux
+   * millésimes inventerait une tendance infra-annuelle que la source ne porte
+   * pas.
+   */
+  survieAnnuelle(age, annee, sexe) {
+    const plancher = Math.floor(age);
+    const fraction = age - plancher;
+    const basse = this._survieCellule(plancher, annee, sexe);
+    if (fraction <= 1e-9) {
+      return basse;
+    }
+    const haute = this._survieCellule(plancher + 1, annee, sexe);
+    return basse ** (1.0 - fraction) * haute ** fraction;
   }
 
   // -- tables de génération --------------------------------------------------

@@ -284,7 +284,11 @@ qu'elle l'est à la CNAV ; une année de chômage non indemnisé est vide partou
 Un trimestre ne s'acquiert pas par le temps qui passe mais par un **montant
 cotisé** : 150 fois le SMIC horaire depuis 2014, 200 fois entre 1972 et 2013,
 dans la limite de quatre par année civile. Une année à temps très partiel en
-valide donc moins de quatre. La série du SMIC horaire vient d'OpenFisca-France
+valide donc moins de quatre. Le montant commande le nombre, les MOIS en
+commandent le plafond : l'année du point de départ et celle de l'entrée dans la
+vie active sont incomplètes, et ne valident que les trimestres civils écoulés —
+un départ au 1<sup>er</sup> août en laisse deux derrière lui, si gros que soit
+le salaire de ces sept mois. La série du SMIC horaire vient d'OpenFisca-France
 (`scripts/fetch/openfisca_smic.py`), transcription du *Journal officiel* : elle
 plafonne à la fiabilité `haute`.
 
@@ -427,8 +431,12 @@ théorie à reconstruire toutes les autres — en pratique la caisse arrondit sa
 table à trois décimales et repart chaque année de la précédente, si bien que la
 reconstruction dérive avec la distance : 0,02 % à deux ans, 0,16 % à sept. Le
 dépôt garde donc les **dix colonnes publiées** d'octobre 2017 à janvier 2026. Le
-modèle sert la colonne de l'année quand elle existe — l'écart est alors nul — et
-ancre sinon sur la plus proche, ce qui divise la dérive par dix.
+modèle sert la colonne EN VIGUEUR À LA DATE DE LIQUIDATION — la plus récente
+dont la date d'effet ne lui est pas postérieure, dans son année — et l'écart est
+alors nul ; il ancre sinon sur la plus proche, ce qui divise la dérive par dix.
+C'est le mois qui désigne la colonne, et il faut qu'il le fasse : deux
+circulaires portent l'année 2022, celle du 1<sup>er</sup> juillet dépassant
+celle du 1<sup>er</sup> janvier de 3,9 %.
 
 Trois bornes demeurent : avant 2017 aucune circulaire n'est accessible et la
 dérive y est invérifiable ; après 2026 le coefficient est ancré sur la dernière

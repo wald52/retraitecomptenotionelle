@@ -19,6 +19,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from functools import cached_property
 
+from .calendrier import formater_age
 from .carriere import Affiliations, Carriere
 from .config import Parametres, PartCotisation
 from .donnees.chargement import DonneeInsuffisante, Fiabilite
@@ -190,11 +191,12 @@ class Comparaison:
         conversion = self.notionnel_retroactif.conversion
 
         lignes = [
-            f"Assuré : {c.identifiant} — né(e) en {c.annee_naissance}, sexe {c.sexe}",
+            f"Assuré : {c.identifiant} — né(e) en {c.date_naissance}, sexe {c.sexe}",
             f"Carrière : {c.premiere_annee}-{c.derniere_annee}, "
             f"{len(c.annees_cotisees)} années cotisées, "
             f"{c.trimestres_actuels} trimestres au sens actuel",
-            f"Liquidation : {c.age_liquidation:g} ans en {c.annee_liquidation}",
+            f"Liquidation : {formater_age(c.age_liquidation)}, "
+            f"en {c.date_liquidation}",
             f"Âge de référence à cliquet : {ecart.age_reference:g} ans -> {ecart}",
             f"Coefficient de conversion : {conversion.diviseur:.2f} "
             f"(espérance de vie résiduelle {conversion.esperance_residuelle:.2f} ans, "
@@ -281,7 +283,7 @@ class Comparaison:
             age = self.actuel.age_ouverture_opposable
             lignes.append(
                 "ATTENTION : le droit en vigueur N'OUVRE PAS cette liquidation à "
-                f"{self.carriere.age_liquidation:g} ans"
+                f"{formater_age(self.carriere.age_liquidation)}"
                 + (f" — il faut attendre {age:g} ans" if age is not None else "")
                 + ". Le montant du scénario 1 est un contrefactuel, pas une "
                 "pension que le système actuel servirait."
@@ -294,9 +296,11 @@ class Comparaison:
             "assure": {
                 "identifiant": self.carriere.identifiant,
                 "annee_naissance": self.carriere.annee_naissance,
+                "mois_naissance": self.carriere.mois_naissance,
                 "sexe": self.carriere.sexe,
                 "age_liquidation": self.carriere.age_liquidation,
                 "annee_liquidation": self.carriere.annee_liquidation,
+                "mois_liquidation": self.carriere.mois_liquidation,
                 "annees_cotisees": len(self.carriere.annees_cotisees),
                 "trimestres_actuels": self.carriere.trimestres_actuels,
                 "affiliations": list(self.carriere.affiliations_utilisees()),

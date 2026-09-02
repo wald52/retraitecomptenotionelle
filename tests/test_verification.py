@@ -284,6 +284,76 @@ def test_les_deux_montants_du_minimum_se_lisent_sans_verbe():
     ) == (2014, pytest.approx(13440.0))
 
 
+def test_une_generation_coupee_en_cours_d_annee_rend_deux_segments():
+    """« Nés à compter du 1er septembre 1961 » n'est pas « nés en 1961 ».
+
+    Le récupérateur comptait les mois de chaque génération pour départager deux
+    valeurs à la majorité, puis jetait le décompte : la date de la coupure était
+    perdue, et le modèle opposait la valeur majoritaire à toute la génération —
+    un trimestre d'âge légal d'écart pour qui naissait du mauvais côté. Il rend
+    désormais un segment par valeur, la clé portant le mois.
+    """
+    module = _charger_script("dila_legi_parametres_retraite", "scripts", "fetch",
+                             "dila_legi_parametres_retraite.py")
+    # L'article D. 161-2-1-9, resserré à ce qui compte ici.
+    alineas = [
+        (60.0, "Soixante ans pour les assurés nés avant le 1er juillet 1951 ;"),
+        (60.33, "Soixante ans et quatre mois pour les assurés nés entre le "
+                "1er juillet 1951 et le 31 décembre 1951 inclus ;"),
+        (60.75, "Soixante ans et neuf mois pour les assurés nés en 1952 ;"),
+        (62.0, "Soixante-deux ans pour les assurés nés entre le 1er janvier "
+               "1955 et le 31 août 1961 inclus ;"),
+        (62.25, "Soixante-deux ans et trois mois pour les assurés nés entre le "
+                "1er septembre 1961 et le 31 décembre 1961 inclus ;"),
+        (64.0, "Soixante-quatre ans pour les assurés nés à compter du "
+               "1er janvier 1968 ;"),
+    ]
+    table = module.table_par_generation(alineas)
+
+    # Les deux générations que les textes coupent portent deux clés ; les
+    # autres n'en portent qu'une, et janvier ne met pas de décimale.
+    assert [c for c in table if int(c) == 1951] == [1951, 1951.5]
+    assert [c for c in table if int(c) == 1961] == [1961, 1961.667]
+    assert [c for c in table if int(c) == 1952] == [1952]
+    assert table[1951] == 60.0 and table[1951.5] == 60.33
+    assert table[1961] == 62.0 and table[1961.667] == 62.25
+
+    # Ce sont exactement les lignes que porte le fichier de référence.
+    chemin = (Path(__file__).resolve().parents[1] / "data" / "reference"
+              / "legislation" / "age_ouverture_requis.csv")
+    with chemin.open(encoding="utf-8") as flux:
+        lignes = (l for l in flux if not l.lstrip().startswith("#"))
+        fichier = {float(l["generation"]): float(l["age"])
+                   for l in csv.DictReader(lignes)}
+    for cle in (1951, 1951.5, 1961, 1961.667):
+        assert fichier[cle] == table[cle], cle
+
+
+def test_une_version_plus_recente_efface_les_coupures_qu_elle_recouvre():
+    """Une version d'article REMPLACE la précédente, coupures comprises.
+
+    Sans cela, une coupure abandonnée par un texte plus récent survivrait à son
+    abrogation : la clé décimale, que la nouvelle version ne réécrit pas,
+    resterait dans la table à côté de la valeur qui l'a remplacée.
+    """
+    module = _charger_script("dila_legi_parametres_retraite", "scripts", "fetch",
+                             "dila_legi_parametres_retraite.py")
+
+    def lire(texte):
+        if texte == "avant_2023":
+            return {1961: 62.0}
+        return {1961: 62.0, 1961.667: 62.25}
+
+    assert module._par_version([("2011", "avant_2023")], lire) == {1961: 62.0}
+    assert module._par_version(
+        [("2011", "avant_2023"), ("2023", "apres")], lire
+    ) == {1961: 62.0, 1961.667: 62.25}
+    # Ordre inverse : la version la plus récente est celle qui ne coupe pas.
+    assert module._par_version(
+        [("2023", "apres"), ("2024", "avant_2023")], lire
+    ) == {1961: 62.0}
+
+
 def test_lecture_d_un_classeur_excel_97():
     """Le lecteur BIFF doit rendre les nombres, et rien d'autre.
 

@@ -40,10 +40,12 @@ retient donc, pour chaque article, le code attendu, qu'il lit dans l'en-tête de
 la version.
 
 **Une génération coupée en cours d'année.** La loi coupe parfois une génération
-à une date — le 1er juillet 1951, le 1er septembre 1961. Le modèle ne connaît
-que l'année de naissance : il retient la valeur qui couvre le plus grand nombre
-de mois, et, à égalité, la plus exigeante. C'est la convention qu'annonçaient
-déjà les fichiers, appliquée ici au texte plutôt qu'à la main.
+à une date — le 1er juillet 1951, le 1er septembre 1961. Le script rendait alors
+la valeur couvrant le plus de mois, à égalité la plus exigeante : le modèle ne
+connaissait que l'année de naissance, et l'approximation valait un trimestre
+d'âge légal. Il rend désormais UN SEGMENT PAR VALEUR, la clé portant le mois de
+la coupure — `1951.5` pour le 1er juillet 1951, `1961.667` pour le 1er septembre
+1961 —, et le modèle lit ces tables au mois de naissance.
 """
 
 from __future__ import annotations
@@ -133,18 +135,24 @@ def age_en_lettres(texte: str) -> float | None:
     return round(annees + mois / 12.0, 2)
 
 
-def _mois_couverts(alinea: str) -> dict[int, int]:
-    """Nombre de mois de chaque génération que cet alinéa vise.
+def _mois_couverts(alinea: str) -> dict[int, set[int]]:
+    """MOIS de chaque génération que cet alinéa vise, un par un.
 
     Une génération pleine compte douze mois ; une génération coupée en compte
-    autant que la période en couvre. C'est ce décompte qui départage, ensuite,
-    deux valeurs opposées à une même année de naissance.
+    autant que la période en couvre — et l'on retient LESQUELS, pas seulement
+    combien. Le récupérateur ne comptait que le nombre, ce qui suffisait à
+    départager deux valeurs à la majorité mais perdait la date de la coupure :
+    « nés à compter du 1er septembre 1961 » se réduisait à « quatre mois de la
+    génération 1961 », et le modèle opposait alors la valeur majoritaire à
+    toute la génération. La table peut désormais couper là où le texte coupe.
     """
-    couverts: dict[int, int] = {}
+    couverts: dict[int, set[int]] = {}
 
-    def ajouter(annee: int, mois: int) -> None:
-        if PREMIERE_GENERATION <= annee <= DERNIERE_GENERATION and mois > 0:
-            couverts[annee] = couverts.get(annee, 0) + mois
+    def ajouter(annee: int, premier: int, dernier: int) -> None:
+        if PREMIERE_GENERATION <= annee <= DERNIERE_GENERATION and dernier >= premier:
+            couverts.setdefault(annee, set()).update(
+                range(max(1, premier), min(12, dernier) + 1)
+            )
 
     trouve = ENTRE.search(alinea)
     if trouve:
@@ -155,7 +163,7 @@ def _mois_couverts(alinea: str) -> dict[int, int]:
         for annee in range(int(a1), int(a2) + 1):
             premier = debut_mois if annee == int(a1) else 1
             dernier = fin_mois if annee == int(a2) else 12
-            ajouter(annee, dernier - premier + 1)
+            ajouter(annee, premier, dernier)
         return couverts
 
     trouve = AVANT.search(alinea)
@@ -165,8 +173,8 @@ def _mois_couverts(alinea: str) -> dict[int, int]:
         if borne is None:
             return {}
         for a in range(PREMIERE_GENERATION, int(annee)):
-            ajouter(a, 12)
-        ajouter(int(annee), borne - 1)
+            ajouter(a, 1, 12)
+        ajouter(int(annee), 1, borne - 1)
         return couverts
 
     trouve = A_COMPTER.search(alinea)
@@ -175,20 +183,20 @@ def _mois_couverts(alinea: str) -> dict[int, int]:
         borne = MOIS.get(mois.lower())
         if borne is None:
             return {}
-        ajouter(int(annee), 12 - borne + 1)
+        ajouter(int(annee), borne, 12)
         for a in range(int(annee) + 1, DERNIERE_GENERATION + 1):
-            ajouter(a, 12)
+            ajouter(a, 1, 12)
         return couverts
 
     trouve = APRES_ANNEE.search(alinea)
     if trouve:
         for a in range(int(trouve.group(1)) + 1, DERNIERE_GENERATION + 1):
-            ajouter(a, 12)
+            ajouter(a, 1, 12)
         return couverts
 
     trouve = EN_ANNEE.search(alinea)
     if trouve:
-        ajouter(int(trouve.group(1)), 12)
+        ajouter(int(trouve.group(1)), 1, 12)
     return couverts
 
 
@@ -202,28 +210,58 @@ def _par_version(versions: list[tuple[str, str]],
     que la précédente disait des générations qu'elle couvre — et laissant
     intact ce dont elle ne parle pas.
     """
-    valeurs: dict[int, float] = {}
+    valeurs: dict[float, float] = {}
     for _, texte in sorted(versions):
-        valeurs.update(lire(texte))
+        nouvelles = lire(texte)
+        # Une version REMPLACE ce que la précédente disait des générations
+        # qu'elle couvre — y compris les coupures : on retire d'abord toutes
+        # les clés de ces générations, sans quoi une coupure abandonnée par un
+        # texte plus récent survivrait à son abrogation.
+        annees = {int(cle) for cle in nouvelles}
+        valeurs = {cle: v for cle, v in valeurs.items() if int(cle) not in annees}
+        valeurs.update(nouvelles)
     return valeurs
 
 
-def table_par_generation(alineas: list[tuple[float, str]]) -> dict[int, float]:
-    """Valeur opposable à chaque génération, la plus couvrante l'emportant.
+def generation_decimale(annee: int, mois: int) -> float:
+    """Génération et mois -> clé de table. Janvier donne l'année toute nue."""
+    return annee if mois == 1 else round(annee + (mois - 1) / 12.0, 3)
 
-    À égalité de couverture — une génération coupée en son milieu, comme 1951 —
-    c'est la valeur la PLUS EXIGEANTE qui est retenue : le modèle ne prête
-    jamais à personne le régime le plus favorable quand il ne sait pas trancher.
+
+def table_par_generation(alineas: list[tuple[float, str]]) -> dict[float, float]:
+    """Valeur opposable à chaque génération, coupures comprises.
+
+    La table était annuelle : une génération que le texte coupe en cours
+    d'année — 1951 au 1er juillet, 1961 au 1er septembre — s'y voyait attribuer
+    la valeur couvrant le plus de mois. L'approximation valait un trimestre
+    d'âge légal, et le récupérateur la fabriquait alors qu'il avait le mois
+    sous les yeux.
+
+    Elle rend désormais un SEGMENT par valeur : la clé est l'année pour un
+    segment ouvert en janvier, l'année plus la part écoulée sinon —
+    ``1951.5`` pour le 1er juillet 1951. Un mois qu'aucun alinéa ne vise hérite
+    du segment précédent, la lecture du modèle étant en escalier.
+
+    À valeurs concurrentes sur un même mois — deux alinéas qui se recouvrent —
+    c'est la PLUS EXIGEANTE qui l'emporte : le modèle ne prête jamais à
+    personne le régime le plus favorable quand il ne sait pas trancher.
     """
-    poids: dict[int, dict[float, int]] = {}
+    par_mois: dict[int, dict[int, float]] = {}
     for valeur, alinea in alineas:
         for annee, mois in _mois_couverts(alinea).items():
-            poids.setdefault(annee, {})
-            poids[annee][valeur] = poids[annee].get(valeur, 0) + mois
-    return {
-        annee: max(valeurs, key=lambda v: (valeurs[v], v))
-        for annee, valeurs in sorted(poids.items())
-    }
+            cible = par_mois.setdefault(annee, {})
+            for m in mois:
+                cible[m] = max(cible[m], valeur) if m in cible else valeur
+
+    table: dict[float, float] = {}
+    for annee, mois in sorted(par_mois.items()):
+        precedente = None
+        for m in sorted(mois):
+            valeur = mois[m]
+            if valeur != precedente:
+                table[generation_decimale(annee, m)] = valeur
+                precedente = valeur
+    return table
 
 
 def _alineas(texte: str) -> list[str]:
@@ -455,9 +493,11 @@ def main() -> int:
             "articles": ARTICLES,
             "recupere_le": date.today().isoformat(),
             "note": "tables par génération lues dans le texte des articles, "
-                    "une génération coupée en cours d'année étant attribuée à "
-                    "la valeur qui couvre le plus de mois, et à la plus "
-                    "exigeante en cas d'égalité",
+                    "une génération coupée en cours d'année étant rendue en "
+                    "deux segments — la clé porte alors le mois de la coupure, "
+                    "1951.5 pour le 1er juillet 1951 — et deux alinéas qui se "
+                    "recouvrent étant départagés par la valeur la plus "
+                    "exigeante",
             "serie": {
                 f"{nom}|{cle}": valeur
                 for nom in ("age_ouverture", "duree_requise",
@@ -469,11 +509,11 @@ def main() -> int:
         encoding="utf-8",
     )
 
-    print(f"\nÂge d'ouverture        {len(ages)} générations, "
+    print(f"\nÂge d'ouverture        {len(ages)} segments, "
           f"{min(ages.values()):g} -> {max(ages.values()):g} ans")
-    print(f"Durée requise          {len(durees)} générations, "
+    print(f"Durée requise          {len(durees)} segments, "
           f"{min(durees.values()):g} -> {max(durees.values()):g} trimestres")
-    print(f"Coefficient minoration {len(coefficients)} générations, "
+    print(f"Coefficient minoration {len(coefficients)} segments, "
           f"{max(coefficients.values()):.3%} -> {min(coefficients.values()):.3%}")
     print(f"Carrière longue        {len(tables['carriere_longue'])} portes")
     print(f"Écrit dans {SORTIE}")

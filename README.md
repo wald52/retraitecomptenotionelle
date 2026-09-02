@@ -146,6 +146,12 @@ pip install -e .
 retraite-notionnelle simuler --naissance 1960 --statut salarie_prive_non_cadre \
                              --debut 20 --liquidation 62
 
+# Au mois près — la date de liquidation commande les mois cotisés de l'année
+# du départ, les trimestres qu'ils valident et le diviseur actuariel
+retraite-notionnelle simuler --naissance 1961 --naissance-mois 9 \
+                             --statut salarie_prive_non_cadre \
+                             --debut 20a6m --liquidation 64a7m
+
 # Le cas général : grille cas type × génération
 retraite-notionnelle cas-types
 
@@ -170,8 +176,9 @@ from retraite_notionnelle.simulateur import Simulateur
 
 simulateur = Simulateur(Parametres())
 carriere = simulateur.carriere_simple(
-    annee_naissance=1975, sexe="F", affiliation="fonctionnaire_etat",
-    age_debut=23, age_liquidation=64, part_primes=0.20,
+    annee_naissance=1975, mois_naissance=4, sexe="F",
+    affiliation="fonctionnaire_etat",
+    age_debut=23, age_liquidation=64 + 7 / 12, part_primes=0.20,
 )
 print(simulateur.simuler(carriere).tableau())
 ```
@@ -195,6 +202,7 @@ print(simulateur.simuler(carriere).tableau())
 | Part salariale et part patronale distinguées, pour tous | `part_salariale` dans chaque fiche de salariés — 40,87 % au régime général en 2023, 40 % à l'Agirc-Arrco —, et `sans_employeur` sur les cinq statuts qui cotisent seuls |
 | Part employeur du public, quand elle est publiée | Taux implicite de l'État 1995-2005, taux appelé par le CAS « Pensions » 2006-2026, CNRACL depuis 1948, SNCF 2007-2018 — portés au compte par les scénarios 4 et 5, et le modèle dit sur combien d'années il a dû s'en passer |
 | Capitalisation hors comparaison | Le RAFP et les assurances sociales de 1930 sont PROVISIONNÉS : leur rente sort d'un placement, non de la cotisation des actifs. Une réforme de la répartition ne les atteint pas — ils sont donc retirés des **cinq** totaux et servis à l'identique, à leur propre barème, affichés à côté |
+| Le mois, là où le droit le date | Date de liquidation, année d'entrée et année de départ portées au compte au prorata de leurs mois, trimestres bornés aux trimestres civils écoulés, diviseur lu à l'âge exact, circulaire de revalorisation en vigueur à la date, générations que la loi coupe au 1<sup>er</sup> juillet 1951 et au 1<sup>er</sup> septembre 1961. Le pas du moteur reste l'année, parce que les séries le sont — voir [« Le mois, là où le droit le date »](docs/limites.md#le-mois-là-où-le-droit-le-date) |
 | Trimestres acquis par le revenu, pas par le temps | 150 SMIC horaires depuis 2014, 200 avant : un temps très partiel valide moins de quatre trimestres |
 | Motif d'interruption lu, pas seulement enregistré | Un chômage indemnisé ouvre des points complémentaires financés par l'UNEDIC ; un chômage non indemnisé n'ouvre rien |
 | Étalon fidèle au droit, minima compris | Le scénario 1 sert le minimum contributif (au taux plein, deux prorata, écrêté), le minimum garanti de la fonction publique, l'ASPA, la majoration pour enfants, les trimestres accordés au titre des enfants — MDA du régime général et des régimes alignés, bonification de la fonction publique —, la surcote parentale de 2023, l'AVPF et la garantie minimale de points de l'Agirc |
