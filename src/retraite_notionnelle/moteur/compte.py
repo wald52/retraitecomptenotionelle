@@ -151,7 +151,13 @@ class ConstructeurCompte:
                 borne_basse, _ = periode.bornes_assiette_en_pass()
                 if borne_basse > 0:
                     continue
-                total += periode.taux_cotisation_retraite
+                # La cotisation déplafonnée en fait partie : elle est prélevée
+                # sur le salarié du privé comme le reste, et un régime qui
+                # emprunte ce taux de référence doit emprunter le même effort.
+                # L'omettre désalignait `TOTALE_ALIGNEE`, dont c'est justement
+                # la raison d'être : prêter au public le taux du privé.
+                total += (periode.taux_cotisation_retraite
+                          + periode.taux_cotisation_deplafonnee)
         self._taux_pivot[annee] = total
         return total
 
@@ -444,6 +450,30 @@ class ConstructeurCompte:
                     fiabilite = min(fiabilite, fiabilite_taux)
                 montant = assiette * taux
 
+                # LA COTISATION DÉPLAFONNÉE. Le régime général prélève, en
+                # plus de la cotisation plafonnée, un taux sur la TOTALITÉ du
+                # salaire — 2,41 % depuis 2023 —, et cette part n'ouvre aucun
+                # droit : elle finance la solidarité. Le scénario 1 a donc
+                # raison de l'ignorer.
+                #
+                # Un compte notionnel, lui, porte au compte ce qui a été VERSÉ.
+                # La fiche portait auparavant les deux taux confondus en un
+                # seul, appliqué à l'assiette PLAFONNÉE : la déplafonnée
+                # s'arrêtait donc au plafond, alors que la loi la lève sur tout
+                # le salaire. En dessous du plafond les deux écritures donnent
+                # le même chiffre au centime près ; au-dessus, ce qui avait été
+                # réellement payé manquait au compte — jusqu'à 122 643 € de
+                # capital, soit 4,5 %, sur le témoin `salaire_8` part
+                # employeur comprise.
+                deplafonnee = base * periode.taux_cotisation_deplafonnee
+                if deplafonnee > 0:
+                    part_agent = periode.part_salariale_deplafonnee
+                    if sans_employeur:
+                        part_agent = 1.0
+                    montant += (deplafonnee * part_agent
+                                if self.parametres.part_cotisation
+                                is PartCotisation.SALARIALE else deplafonnee)
+
                 if regime.hors_repartition and self.parametres.isoler_capitalisation:
                     # RAFP, assurances sociales d'avant-guerre : ces droits sont
                     # provisionnés, ils ne rejoignent pas le compte notionnel.
@@ -452,6 +482,15 @@ class ConstructeurCompte:
                     cotisation += montant
                     assiette_totale += assiette
                     part_employeur += assiette * taux_employeur
+                    if (deplafonnee > 0 and not sans_employeur
+                            and self.parametres.part_cotisation
+                            is not PartCotisation.SALARIALE):
+                        # Même règle que pour `taux_employeur` ci-dessus : sous
+                        # `salariale`, le compte ne porte que la part de
+                        # l'assuré, et la mesure de l'effort patronal est nulle.
+                        part_employeur += deplafonnee * (
+                            1.0 - periode.part_salariale_deplafonnee
+                        )
                 retenus.append(code)
 
         if acquisition_commune:

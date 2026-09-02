@@ -155,6 +155,21 @@ class PeriodeRegime:
     #: C'est l'assiette minimale de la complémentaire agricole.
     assiette_plancher: bool
     avantages_non_contributifs: tuple[str, ...]
+    #: Taux prélevé sur la TOTALITÉ de la rémunération, en plus du taux
+    #: ci-dessus, et qui n'ouvre AUCUN droit — la cotisation « déplafonnée » du
+    #: régime général, créée en 1991 pour l'employeur et 2004 pour le salarié.
+    #:
+    #: Le scénario 1 l'ignore, et c'est le droit : elle finance la solidarité
+    #: sans rien acquérir. Les comptes notionnels la portent au compte, parce
+    #: que leur principe est d'y inscrire ce qui a été VERSÉ. Elle est donc lue
+    #: par le seul constructeur de compte, jamais par le calcul de la pension
+    #: actuelle : la séparer d'un champ plutôt que d'une seconde période garantit
+    #: qu'elle ne peut pas déplacer l'étalon par inadvertance.
+    taux_cotisation_deplafonnee: float = 0.0
+    #: Fraction de ce taux supportée par l'assuré. Elle n'a rien à voir avec
+    #: celle du taux plafonné : en 2025, le salarié porte 0,40 point sur 2,42,
+    #: soit 16,6 %, contre 44,7 % sur la part plafonnée.
+    part_salariale_deplafonnee: float = 0.0
     notes: str = ""
 
     @property
@@ -385,6 +400,12 @@ class CatalogueRegimes:
                 taux_cotisation_retraite=float(p["taux_cotisation_retraite"]),
                 perimetre_taux=p.get("perimetre_taux", "total"),
                 part_salariale=float(p.get("part_salariale", 1.0)),
+                taux_cotisation_deplafonnee=float(
+                    p.get("taux_cotisation_deplafonnee", 0.0)
+                ),
+                part_salariale_deplafonnee=float(
+                    p.get("part_salariale_deplafonnee", 0.0)
+                ),
                 decote_par_trimestre=(
                     None if p.get("decote_par_trimestre") is None
                     else float(p["decote_par_trimestre"])

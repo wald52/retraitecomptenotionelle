@@ -1012,9 +1012,12 @@ institutions:
           structurée par périodes législatives, y reporter une série annuelle
           demande un arbitrage qui doit rester explicite. Les quatre composantes
           sont récupérées séparément — salarié et employeur, plafonnée et
-          déplafonnée —, ce qui permet de contrôler aussi la RÉPARTITION
-          salarié/employeur des fiches (`part_salariale`), et non seulement leur
-          total.
+          déplafonnée —, et le contrôle les confronte aux fiches DEUX PAR DEUX :
+          `taux_cotisation_retraite` et `part_salariale` contre la plafonnée,
+          `taux_cotisation_deplafonnee` et `part_salariale_deplafonnee` contre
+          la déplafonnée. Comparer les sommes suffirait à laisser passer deux
+          erreurs de sens contraire qui se compensent — et qui ne portent
+          pourtant pas sur la même assiette.
 
       - id: openfisca_part_salariale
         titre: Répartition salarié / employeur des cotisations retraite

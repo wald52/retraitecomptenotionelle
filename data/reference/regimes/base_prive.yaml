@@ -106,8 +106,8 @@ regimes:
         taux_plein: 0.40
         salaire_reference: 10_meilleures_annees
         assiette: plafonnee
-        taux_cotisation_retraite: 0.085
-        part_salariale: 0.3479   # mesurée sur 1968-1971, la transcription OpenFisca ne remontant pas plus haut
+        taux_cotisation_retraite: 0.0860   # part PLAFONNÉE seule, moyenne OpenFisca sur la période
+        part_salariale: 0.3488   # du taux plafonné
         decote_par_trimestre: 0.025
         decote_annulee_par_la_duree: false
         surcote_par_trimestre: null
@@ -138,8 +138,8 @@ regimes:
         decote_par_generation: true
         salaire_reference: 10_meilleures_annees
         assiette: plafonnee
-        taux_cotisation_retraite: 0.1119
-        part_salariale: 0.3324   # OpenFisca, moyenne 1972-1982
+        taux_cotisation_retraite: 0.1119   # part PLAFONNÉE seule, moyenne OpenFisca sur la période
+        part_salariale: 0.3343   # du taux plafonné
         decote_par_trimestre: 0.025
         decote_annulee_par_la_duree: false
         surcote_par_trimestre: null
@@ -169,8 +169,10 @@ regimes:
         decote_par_generation: true
         salaire_reference: 10_meilleures_annees
         assiette: plafonnee
-        taux_cotisation_retraite: 0.1505
-        part_salariale: 0.4253   # OpenFisca, moyenne 1983-1993
+        taux_cotisation_retraite: 0.1461   # part PLAFONNÉE seule, moyenne OpenFisca sur la période
+        taux_cotisation_deplafonnee: 0.0044   # prélevée sur la TOTALITÉ du salaire, n'ouvre aucun droit
+        part_salariale_deplafonnee: 0.0000
+        part_salariale: 0.4390   # du taux plafonné
         decote_par_trimestre: 0.0125
         surcote_par_trimestre: null
         avantages_non_contributifs:
@@ -197,8 +199,10 @@ regimes:
         duree_proratisation_par_generation: true
         salaire_reference: 25_meilleures_annees
         assiette: plafonnee
-        taux_cotisation_retraite: 0.1635
-        part_salariale: 0.4006   # OpenFisca, moyenne 1994-2003
+        taux_cotisation_retraite: 0.1475   # part PLAFONNÉE seule, moyenne OpenFisca sur la période
+        taux_cotisation_deplafonnee: 0.0160   # prélevée sur la TOTALITÉ du salaire, n'ouvre aucun droit
+        part_salariale_deplafonnee: 0.0000
+        part_salariale: 0.4441   # du taux plafonné
         decote_par_trimestre: 0.0125
         surcote_par_trimestre: null
         avantages_non_contributifs:
@@ -226,8 +230,10 @@ regimes:
         duree_proratisation_par_generation: true
         salaire_reference: 25_meilleures_annees
         assiette: plafonnee
-        taux_cotisation_retraite: 0.1659
-        part_salariale: 0.4049   # OpenFisca, moyenne 2004-2008
+        taux_cotisation_retraite: 0.1487   # part PLAFONNÉE seule, moyenne OpenFisca sur la période
+        taux_cotisation_deplafonnee: 0.0170   # prélevée sur la TOTALITÉ du salaire, n'ouvre aucun droit
+        part_salariale_deplafonnee: 0.0588
+        part_salariale: 0.4445   # du taux plafonné
         decote_par_trimestre: 0.0125
         surcote_par_trimestre: 0.0075
         avantages_non_contributifs:
@@ -252,8 +258,10 @@ regimes:
         duree_proratisation_par_generation: true
         salaire_reference: 25_meilleures_annees
         assiette: plafonnee
-        taux_cotisation_retraite: 0.1659
-        part_salariale: 0.4054   # OpenFisca, moyenne 2009-2010
+        taux_cotisation_retraite: 0.1495   # part PLAFONNÉE seule, moyenne OpenFisca sur la période
+        taux_cotisation_deplafonnee: 0.0170   # prélevée sur la TOTALITÉ du salaire, n'ouvre aucun droit
+        part_salariale_deplafonnee: 0.0588
+        part_salariale: 0.4448   # du taux plafonné
         decote_par_trimestre: 0.0125
         surcote_par_trimestre: 0.0125
         avantages_non_contributifs:
@@ -279,8 +287,10 @@ regimes:
         duree_proratisation_par_generation: true
         salaire_reference: 25_meilleures_annees
         assiette: plafonnee
-        taux_cotisation_retraite: 0.1743
-        part_salariale: 0.4096   # OpenFisca, moyenne 2011-2022
+        taux_cotisation_retraite: 0.1533   # part PLAFONNÉE seule, moyenne OpenFisca sur la période
+        taux_cotisation_deplafonnee: 0.0210   # prélevée sur la TOTALITÉ du salaire, n'ouvre aucun droit
+        part_salariale_deplafonnee: 0.1429
+        part_salariale: 0.4463   # du taux plafonné
         decote_par_trimestre: 0.0125
         surcote_par_trimestre: 0.0125
         avantages_non_contributifs:
@@ -306,8 +316,10 @@ regimes:
         duree_proratisation_par_generation: true
         salaire_reference: 25_meilleures_annees
         assiette: plafonnee
-        taux_cotisation_retraite: 0.1786
-        part_salariale: 0.4087   # OpenFisca, moyenne 2023-2026
+        taux_cotisation_retraite: 0.1545   # part PLAFONNÉE seule, moyenne OpenFisca sur la période
+        taux_cotisation_deplafonnee: 0.0241   # prélevée sur la TOTALITÉ du salaire, n'ouvre aucun droit
+        part_salariale_deplafonnee: 0.1660
+        part_salariale: 0.4466   # du taux plafonné
         decote_par_trimestre: 0.0125
         surcote_par_trimestre: 0.0125
         avantages_non_contributifs:

@@ -151,6 +151,40 @@ champs_periode:
     unite: "fraction, entre 0 et 1"
     defaut: 1.0
 
+  taux_cotisation_deplafonnee:
+    description: >-
+      Taux TOTAL prélevé, sur la même période, sur la TOTALITÉ de la
+      rémunération — sans s'arrêter au plafond de l'assiette ci-dessus. Le
+      régime général en prélève un depuis 1983 : 0,44 % à l'origine, 2,41 %
+      depuis 2023.
+
+      Ce prélèvement N'OUVRE AUCUN DROIT dans le droit positif : il finance la
+      solidarité. Le scénario 1, qui doit coller à la loi, l'ignore donc, et
+      c'est voulu — aucun calcul de pension actuelle ne le lit.
+
+      Les comptes notionnels, eux, portent au compte ce qui a été VERSÉ : chaque
+      euro cotisé doit s'y retrouver. Ce champ était auparavant confondu avec
+      `taux_cotisation_retraite` — un seul taux, appliqué à l'assiette plafonnée
+      —, si bien que la déplafonnée s'arrêtait au plafond alors que la loi la
+      lève sur tout le salaire. En dessous du plafond les deux écritures sont
+      équivalentes ; au-dessus, une part de ce qui avait été payé manquait au
+      compte.
+
+      Un champ plutôt qu'une seconde période d'assiette `deplafonnee` : une
+      période supplémentaire serait entrée dans le calcul du scénario 1, qui
+      parcourt toutes les périodes actives d'un régime.
+    unite: "fraction de la rémunération entière"
+    defaut: 0.0
+
+  part_salariale_deplafonnee:
+    description: >-
+      Fraction de `taux_cotisation_deplafonnee` supportée par l'assuré. Elle
+      diffère largement de `part_salariale` — la déplafonnée est très
+      majoritairement patronale : 0 % jusqu'en 2003, 16,6 % depuis 2023 — d'où
+      un champ distinct plutôt qu'un partage commun.
+    unite: "fraction, entre 0 et 1"
+    defaut: 0.0
+
   decote_par_trimestre: "abattement par trimestre manquant (fraction, null si aucun)"
 
   bareme_decote:

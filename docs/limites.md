@@ -1041,42 +1041,49 @@ Trois bornes à connaître, et elles sont étroites :
   valide tout : le récupérateur refuse donc d'écrire un profil dont la durée ou
   la pension serait nulle, et le test le revérifie.
 
-### Un écart identifié, mesuré, et laissé en l'état
+### La cotisation déplafonnée est portée au compte
 
-Il l'est à dessein : il demande un arbitrage de modélisation qu'il vaut mieux
-poser que trancher en silence.
+C'était le dernier arbitrage de modélisation laissé ouvert. Il est tranché :
+**chaque euro cotisé va à la retraite notionnelle**, y compris celui qui, dans
+le droit positif, n'ouvre aucun droit.
 
-Les mesures ci-dessous portent sur les **cas types du dépôt**
-(`src/retraite_notionnelle/castypes.py`), et non sur des carrières improvisées :
-elles se refont à l'identique. Elles ont été reprises après les corrections des
-coefficients de revalorisation et des barèmes de 2026 — celles qui figuraient
-ici auparavant étaient antérieures, et l'étalon a bougé sous elles.
+Le régime général prélève deux cotisations retraite : l'une **plafonnée**, qui
+s'arrête au plafond de la Sécurité sociale et ouvre des droits, l'autre
+**déplafonnée** — 2,41 % depuis 2023 — qui porte sur la totalité du salaire et
+n'en ouvre aucun : elle finance la solidarité. Le scénario 1 a raison de
+l'ignorer, et continue de l'ignorer : il doit coller à la loi.
 
-* **La cotisation déplafonnée du régime général au-dessus du plafond n'alimente
-  pas le compte notionnel.** Le taux de 17,86 % porté par la fiche agrège la
-  part plafonnée et la part déplafonnée « pour un salaire au plafond » : il est
-  exact en dessous, et sous-évalué au-dessus, puisque les 0,40 % + 2,02 %
-  déplafonnés portent en réalité sur la totalité du salaire.
+La fiche du régime général confondait les deux en un seul taux — 17,86 % pour
+2023-2026 — appliqué à l'assiette **plafonnée**. En dessous du plafond, les deux
+écritures donnent le même chiffre au centime près ; au-dessus, la déplafonnée
+s'arrêtait au plafond alors que la loi la lève sur tout le salaire, et une part
+de ce qui avait été réellement payé ne se retrouvait nulle part.
 
-  Sur une année, au barème 2024 (plafond 46 368 €), la cotisation portée au
-  compte manque de 0,1 % au plafond, 6,4 % à un plafond et demi, **18,8 % à
-  2,7 plafonds**, 28,9 % à quatre et 48,7 % à huit : le biais croît avec le
-  salaire, sans borne. Sur une carrière entière — cas type `cadre` de la
-  génération 1975, qui va de 0,9 à 3,6 plafonds — ce sont **25 774 € versés et
-  jamais portés au compte**, sur un capital notionnel de 1 285 361 €, soit
-  **2,01 %** du compte ; en part totale, 63 063 € sur 1 677 921 €, soit 3,76 %.
+Les deux taux sont désormais saisis séparément — `taux_cotisation_retraite` et
+`taux_cotisation_deplafonnee`, chacun avec sa part salariale, la déplafonnée
+étant très majoritairement patronale (0 % de part salariale jusqu'en 2003,
+16,6 % depuis 2023). Le contrôle de vraisemblance les confronte à OpenFisca
+**un par un** plutôt que par leur somme : deux erreurs de sens contraire qui se
+compensaient passeraient sur le total, pas sur le détail. Les huit périodes du
+régime général y passent sans écart au-delà du seuil.
 
-  C'est correct pour les DROITS — la déplafonnée n'en ouvre aucun, et le
-  scénario 1 a raison de l'ignorer — mais contraire au principe des scénarios
-  notionnels, qui portent au compte ce qui a été VERSÉ. La correction
-  suppose de scinder la fiche du régime général en deux périodes de mêmes dates,
-  l'une plafonnée l'autre déplafonnée, avec leurs parts salariales respectives ;
-  elle touche une série que `scripts/verifier_donnees.py` recoupe à OpenFisca, et
-  demande donc d'être faite avec la source sous les yeux.
+Un champ plutôt qu'une seconde période d'assiette déplafonnée : une période
+supplémentaire serait entrée dans le calcul du scénario 1, qui parcourt toutes
+les périodes actives d'un régime — et le scénario 1 doit rester la loi.
 
-Un quatrième l'a été un temps — **trois valeurs de 2026 disponibles et non
-intégrées** — au motif que « ces trois valeurs relèvent des récupérateurs, qui
-demandent le réseau ». L'excuse ne tenait plus, et les trois sont refermées :
+**Ce que ça déplace, mesuré sur les 86 témoins.** Le scénario 1 ne bouge sur
+aucun, comme attendu. Les scénarios notionnels ne bougent pas non plus tant que
+le salaire reste sous le plafond : l'écart médian des témoins déplacés est de
++0,01 %. Il ne se voit que sur les hauts salaires, et croît avec eux — sur le
+témoin `salaire_8`, **+14 250 € de capital notionnel (+1,29 %)** en part
+salariale, **+122 643 € (+4,48 %)** part employeur comprise, soit +1,29 % et
++4,48 % de pension. Aucune pension ne baisse.
+
+### Trois valeurs de 2026 disponibles et non intégrées
+
+Cet écart-là a été laissé ouvert un temps, au motif que « ces trois valeurs
+relèvent des récupérateurs, qui demandent le réseau ». L'excuse ne tenait plus,
+et les trois sont refermées :
 
 * le **plafond de la Sécurité sociale 2026** était juste (48 060 €) mais marqué
   `estimee`, et cette fiabilité sous-évaluée se propageait à tout résultat qui

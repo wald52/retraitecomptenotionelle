@@ -56,7 +56,8 @@ export class ConstructeurCompte {
         if (borneBasse > 0) {
           continue;
         }
-        total += periode.taux_cotisation_retraite;
+        total += periode.taux_cotisation_retraite
+          + periode.taux_cotisation_deplafonnee;
       }
     }
     this._tauxPivot.set(annee, total);
@@ -361,7 +362,25 @@ export class ConstructeurCompte {
           origines.push(origine);
           fiabilite = Math.min(fiabilite, fiabiliteTaux);
         }
-        const montant = assiette * taux;
+        let montant = assiette * taux;
+
+        // LA COTISATION DÉPLAFONNÉE. Au-dessus du plafond, le régime général
+        // prélève encore sur la TOTALITÉ du salaire — 2,42 % en 2025 — et
+        // cette part n'ouvre aucun droit : elle finance la solidarité. Le
+        // scénario 1 a donc raison de l'ignorer.
+        //
+        // Un compte notionnel, lui, porte au compte ce qui a été VERSÉ. Chaque
+        // euro cotisé doit s'y retrouver, faute de quoi les hauts salaires
+        // paraissent perdre plus qu'ils ne perdent.
+        const deplafonnee = base * periode.taux_cotisation_deplafonnee;
+        if (deplafonnee > 0) {
+          let partAgent = periode.part_salariale_deplafonnee;
+          if (sansEmployeur) {
+            partAgent = 1.0;
+          }
+          montant += this.parametres.part_cotisation === PartCotisation.SALARIALE
+            ? deplafonnee * partAgent : deplafonnee;
+        }
 
         if (regime.hors_repartition && this.parametres.isoler_capitalisation) {
           // RAFP, assurances sociales d'avant-guerre : ces droits sont
@@ -371,6 +390,13 @@ export class ConstructeurCompte {
           cotisation += montant;
           assietteTotale += assiette;
           partEmployeur += assiette * tauxEmployeur;
+          if (deplafonnee > 0 && !sansEmployeur
+              && this.parametres.part_cotisation !== PartCotisation.SALARIALE) {
+            // Même règle que pour `tauxEmployeur` ci-dessus : sous
+            // `salariale`, le compte ne porte que la part de l'assuré, et la
+            // mesure de l'effort patronal est nulle.
+            partEmployeur += deplafonnee * (1.0 - periode.part_salariale_deplafonnee);
+          }
         }
         retenus.push(code);
       }

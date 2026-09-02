@@ -118,6 +118,25 @@ def _part_salariale_moyenne(candidats) -> float:
     return sum(p.part_salariale for _, p in candidats) / len(candidats)
 
 
+def _taux_total(periode: PeriodeRegime) -> float:
+    """Tout ce qui est prélevé pour la retraite, plafonné ou non.
+
+    L'assiette du régime unifié est DÉPLAFONNÉE : la cotisation déplafonnée du
+    régime général — 2,41 % en 2023, prélevés sur la totalité du salaire — y
+    porte donc sur la même base que la part plafonnée, et s'y ajoute. L'oublier
+    faisait perdre au compte notionnel, après la bascule, ce que la correction
+    d'avant la bascule venait précisément d'y porter.
+    """
+    return periode.taux_cotisation_retraite + periode.taux_cotisation_deplafonnee
+
+
+def _taux_salarie_total(periode: PeriodeRegime) -> float:
+    """La part de :func:`_taux_total` que l'assuré supporte lui-même."""
+    return (periode.taux_cotisation_salarie
+            + periode.taux_cotisation_deplafonnee
+            * periode.part_salariale_deplafonnee)
+
+
 def fusionner(catalogue: CatalogueRegimes, annee: int,
               regle: RegleFusion | None = None) -> RegimeFusionne:
     """Construit le régime unique applicable à compter de ``annee``."""
@@ -176,23 +195,23 @@ def fusionner(catalogue: CatalogueRegimes, annee: int,
             # Pour un régime à tranches, on retient la tranche 1 : c'est celle
             # qui s'applique à l'ensemble des rémunérations.
             pivot = min(actives, key=lambda p: p.bornes_assiette_en_pass()[0])
-            taux += pivot.taux_cotisation_retraite
-            salarie += pivot.taux_cotisation_salarie
-            composantes.append(f"{code} {pivot.taux_cotisation_retraite:.2%}")
+            taux += _taux_total(pivot)
+            salarie += _taux_salarie_total(pivot)
+            composantes.append(f"{code} {_taux_total(pivot):.2%}")
         if taux <= 0:
             raise ValueError(
                 f"aucun régime pivot exploitable en {annee} parmi {regle.regimes_pivot}"
             )
         origine_taux = "somme " + " + ".join(composantes)
     elif regle.critere_taux is CritereTaux.LE_PLUS_ELEVE:
-        taux, origine_taux = extremum(lambda p: p.taux_cotisation_retraite, max)
+        taux, origine_taux = extremum(_taux_total, max)
         salarie = taux * _part_salariale_moyenne(candidats)
     elif regle.critere_taux is CritereTaux.LE_PLUS_FAIBLE:
-        taux, origine_taux = extremum(lambda p: p.taux_cotisation_retraite, min)
+        taux, origine_taux = extremum(_taux_total, min)
         salarie = taux * _part_salariale_moyenne(candidats)
     else:
-        taux = sum(p.taux_cotisation_retraite for _, p in candidats) / len(candidats)
-        salarie = sum(p.taux_cotisation_salarie for _, p in candidats) / len(candidats)
+        taux = sum(_taux_total(p) for _, p in candidats) / len(candidats)
+        salarie = sum(_taux_salarie_total(p) for _, p in candidats) / len(candidats)
         origine_taux = "moyenne des régimes"
 
     fiabilite = min(regime.fiabilite for regime, _ in candidats)

@@ -1557,28 +1557,59 @@ def controle_vraisemblance_cotisations() -> list[str]:
         if not annees:
             continue
         comparees += 1
-        publie = sum(serie[str(a)]["total"] for a in annees) / len(annees)
-        saisi = float(periode["taux_cotisation_retraite"])
-        if abs(publie - saisi) > 0.002:
-            anomalies.append(
-                f"SUSPECT cotisations regime_general {periode['debut']}-{periode['fin']} : "
-                f"fiche {saisi:.2%}, OpenFisca {publie:.2%} en moyenne sur "
-                f"{annees[0]}-{annees[-1]}"
-            )
+
+        # PLAFONNÉE ET DÉPLAFONNÉE SÉPARÉMENT. La fiche porte les deux taux :
+        # celui qui s'arrête au plafond et celui qui court sur la totalité du
+        # salaire. Les confronter un par un — plutôt que leur somme au `total`
+        # d'OpenFisca — attrape la faute que la somme masque : deux erreurs de
+        # sens contraire qui se compensent, et qui ne portent pourtant pas sur
+        # la même assiette.
+        def _moyenne(*cles: str) -> float:
+            return sum(
+                sum(serie[str(a)][cle] for cle in cles) for a in annees
+            ) / len(annees)
+
+        for libelle, cles, champ in (
+            ("cotisations", ("salarie_plafonnee", "employeur_plafonnee"),
+             "taux_cotisation_retraite"),
+            ("cotisation déplafonnée",
+             ("salarie_deplafonnee", "employeur_deplafonnee"),
+             "taux_cotisation_deplafonnee"),
+        ):
+            publie = _moyenne(*cles)
+            saisi = float(periode.get(champ) or 0.0)
+            if abs(publie - saisi) > 0.002:
+                anomalies.append(
+                    f"SUSPECT {libelle} regime_general "
+                    f"{periode['debut']}-{periode['fin']} : "
+                    f"fiche {saisi:.2%}, OpenFisca {publie:.2%} en moyenne sur "
+                    f"{annees[0]}-{annees[-1]}"
+                )
+
         # La RÉPARTITION salarié/employeur, sur les mêmes années. C'est elle qui
         # sépare les scénarios 2 et 3 des scénarios 4 et 5 : une erreur d'un
-        # dixième s'y voit autant qu'une erreur de taux.
-        parts = [
-            (serie[str(a)]["salarie_plafonnee"] + serie[str(a)]["salarie_deplafonnee"])
-            / serie[str(a)]["total"]
-            for a in annees if serie[str(a)]["total"] > 0
-        ]
-        if parts and periode.get("part_salariale") is not None:
+        # dixième s'y voit autant qu'une erreur de taux. Elle se contrôle sur
+        # chaque taux, et non sur leur somme : la déplafonnée est presque
+        # entièrement patronale, la plafonnée se partage à peu près par moitié.
+        for libelle, part_cle, total_cles, champ in (
+            ("part salariale", "salarie_plafonnee",
+             ("salarie_plafonnee", "employeur_plafonnee"), "part_salariale"),
+            ("part salariale déplafonnée", "salarie_deplafonnee",
+             ("salarie_deplafonnee", "employeur_deplafonnee"),
+             "part_salariale_deplafonnee"),
+        ):
+            parts = [
+                serie[str(a)][part_cle] / sum(serie[str(a)][cle] for cle in total_cles)
+                for a in annees
+                if sum(serie[str(a)][cle] for cle in total_cles) > 0
+            ]
+            if not parts or periode.get(champ) is None:
+                continue
             publiee = sum(parts) / len(parts)
-            saisie = float(periode["part_salariale"])
+            saisie = float(periode[champ])
             if abs(publiee - saisie) > 0.01:
                 anomalies.append(
-                    f"SUSPECT part salariale regime_general "
+                    f"SUSPECT {libelle} regime_general "
                     f"{periode['debut']}-{periode['fin']} : fiche {saisie:.2%}, "
                     f"OpenFisca {publiee:.2%} en moyenne sur "
                     f"{annees[0]}-{annees[-1]}"

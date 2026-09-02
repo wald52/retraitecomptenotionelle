@@ -62,7 +62,23 @@ function premierExtremum(candidats, cle, comparateur) {
 const plusGrand = (a, b) => a > b;
 const plusPetit = (a, b) => a < b;
 
-/** Construit le régime unique applicable à compter de ``annee``. */
+/**
+ * Tout ce qui est prélevé pour la retraite, plafonné ou non.
+ *
+ * L'assiette du régime unifié est DÉPLAFONNÉE : la cotisation déplafonnée du
+ * régime général — 2,41 % en 2023, prélevés sur la totalité du salaire — y
+ * porte donc sur la même base que la part plafonnée, et s'y ajoute.
+ */
+function tauxTotal(periode) {
+  return periode.taux_cotisation_retraite + periode.taux_cotisation_deplafonnee;
+}
+
+/** La part de {@link tauxTotal} que l'assuré supporte lui-même. */
+function tauxSalarieTotal(periode) {
+  return periode.tauxCotisationSalarie
+    + periode.taux_cotisation_deplafonnee * periode.part_salariale_deplafonnee;
+}
+
 /**
  * Répartition salarié/employeur moyenne des régimes fusionnés. Sert aux
  * critères de taux qui retiennent UN taux et n'héritent d'aucune répartition.
@@ -75,6 +91,7 @@ function partSalarialeMoyenne(candidats) {
   return somme / candidats.length;
 }
 
+/** Construit le régime unique applicable à compter de ``annee``. */
 export function fusionner(catalogue, annee, regle = REGLE_FUSION_DEFAUT) {
   const candidats = [];
   for (const regime of catalogue) {
@@ -146,9 +163,9 @@ export function fusionner(catalogue, annee, regle = REGLE_FUSION_DEFAUT) {
       // Pour un régime à tranches, on retient la tranche 1 : c'est celle qui
       // s'applique à l'ensemble des rémunérations.
       const pivot = premierExtremum(actives, (p) => p.bornesAssietteEnPass()[0], plusPetit);
-      taux += pivot.taux_cotisation_retraite;
-      salarie += pivot.tauxCotisationSalarie;
-      composantes.push(`${code} ${formatPourcentage(pivot.taux_cotisation_retraite, 2)}`);
+      taux += tauxTotal(pivot);
+      salarie += tauxSalarieTotal(pivot);
+      composantes.push(`${code} ${formatPourcentage(tauxTotal(pivot), 2)}`);
     }
     if (taux <= 0) {
       throw new Error(
@@ -157,17 +174,17 @@ export function fusionner(catalogue, annee, regle = REGLE_FUSION_DEFAUT) {
     }
     origineTaux = `somme ${composantes.join(" + ")}`;
   } else if (regle.critere_taux === CritereTaux.LE_PLUS_ELEVE) {
-    [taux, origineTaux] = extremum((p) => p.taux_cotisation_retraite, plusGrand);
+    [taux, origineTaux] = extremum(tauxTotal, plusGrand);
     salarie = taux * partSalarialeMoyenne(candidats);
   } else if (regle.critere_taux === CritereTaux.LE_PLUS_FAIBLE) {
-    [taux, origineTaux] = extremum((p) => p.taux_cotisation_retraite, plusPetit);
+    [taux, origineTaux] = extremum(tauxTotal, plusPetit);
     salarie = taux * partSalarialeMoyenne(candidats);
   } else {
     let somme = 0.0;
     let sommeSalarie = 0.0;
     for (const [, periode] of candidats) {
-      somme += periode.taux_cotisation_retraite;
-      sommeSalarie += periode.tauxCotisationSalarie;
+      somme += tauxTotal(periode);
+      sommeSalarie += tauxSalarieTotal(periode);
     }
     taux = somme / candidats.length;
     salarie = sommeSalarie / candidats.length;

@@ -221,13 +221,27 @@ def test_fusion_deplafonne_l_assiette(catalogue):
 
 
 def test_fusion_somme_les_taux_du_statut_pivot(catalogue):
+    """Et la cotisation DÉPLAFONNÉE en fait partie.
+
+    L'assiette du régime unifié est déplafonnée : les 2,41 % que le régime
+    général prélève sur la totalité du salaire y portent donc sur la même base
+    que la part plafonnée, et s'y ajoutent. Les omettre faisait perdre au compte
+    notionnel, après la bascule, exactement ce que la séparation des deux taux
+    venait d'y porter avant elle.
+    """
     fusionne = fusionner(catalogue, 2026)
+    base = catalogue["regime_general"].periode(2026)
+    complementaire = min(catalogue["agirc_arrco"].periodes_actives(2026),
+                         key=lambda p: p.bornes_assiette_en_pass()[0])
     attendu = (
-        catalogue["regime_general"].periode(2026).taux_cotisation_retraite
-        + min(catalogue["agirc_arrco"].periodes_actives(2026),
-              key=lambda p: p.bornes_assiette_en_pass()[0]).taux_cotisation_retraite
+        base.taux_cotisation_retraite + base.taux_cotisation_deplafonnee
+        + complementaire.taux_cotisation_retraite
+        + complementaire.taux_cotisation_deplafonnee
     )
     assert fusionne.taux_cotisation_retraite == pytest.approx(attendu)
+    assert base.taux_cotisation_deplafonnee > 0, (
+        "sans déplafonnée au régime général, ce test ne prouve plus rien"
+    )
 
 
 def test_fusion_exclut_la_capitalisation(catalogue):
@@ -239,7 +253,7 @@ def test_fusion_variante_taux_le_plus_eleve(catalogue):
         catalogue, 2026, RegleFusion(critere_taux=CritereTaux.LE_PLUS_ELEVE)
     )
     maxima = max(
-        periode.taux_cotisation_retraite
+        periode.taux_cotisation_retraite + periode.taux_cotisation_deplafonnee
         for regime in catalogue if regime.vivant(2026) and not regime.hors_repartition
         for periode in regime.periodes_actives(2026)
     )
