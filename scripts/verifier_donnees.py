@@ -203,21 +203,43 @@ def source_productivite() -> dict[tuple, float]:
     return {(str(a),): v for a, v in sorted(variations.items())}
 
 
+#: Nombre minimal d'observations mensuelles concordantes pour retenir une année.
+#:
+#: Le plafond est fixé par arrêté pour l'ANNÉE CIVILE : ses douze mois sont
+#: égaux par construction, et la dernière année à en avoir connu plusieurs est
+#: 1961. Exiger les douze revenait donc à refuser de certifier, onze mois durant,
+#: une valeur que le décret a déjà fixée — le plafond de 2026 restait `estimee`
+#: alors que l'arrêté du 22 décembre 2025 le porte à 4 005 € par mois, et cette
+#: fiabilité sous-évaluée se propageait à tout résultat qui touche au plafond.
+#:
+#: Trois suffisent donc, à trois conditions : qu'elles concordent — une année
+#: dont les mois divergent est écartée plutôt que moyennée —, qu'elles ne soient
+#: pas une observation isolée, et que la série couvre l'année DEPUIS JANVIER.
+#: Cette dernière condition n'est pas une précaution de principe : la série
+#: mensuelle de l'INSEE commence en août 2001, et retenir cette année-là sur ses
+#: cinq derniers mois donnait 27 348 € contre les 27 349 € que porte le décret —
+#: un euro d'arrondi, mais deux certifications qui se disputent la même ligne à
+#: chaque exécution.
+MOIS_MINIMAUX_PLAFOND = 3
+
+
 def source_plafond() -> dict[tuple, float]:
     """Plafond annuel de la Sécurité sociale, à partir du plafond mensuel.
 
-    Le plafond est fixé pour l'année civile : les douze observations d'une même
-    année doivent être identiques, et une année où elles ne le sont pas est
-    écartée plutôt que moyennée.
+    Le plafond est fixé pour l'année civile : les observations d'une même année
+    doivent être identiques, et une année où elles ne le sont pas est écartée
+    plutôt que moyennée.
     """
     mensuel = _observations("plafond_mensuel")
     par_annee: dict[int, list[float]] = {}
     for periode, valeur in mensuel.items():
         par_annee.setdefault(int(periode[:4]), []).append(valeur)
+    debuts = {int(periode[:4]): periode for periode in sorted(mensuel, reverse=True)}
     return {
         (str(annee),): round(valeurs[0] * 12)
         for annee, valeurs in sorted(par_annee.items())
-        if len(valeurs) == 12 and len(set(valeurs)) == 1
+        if len(valeurs) >= MOIS_MINIMAUX_PLAFOND and len(set(valeurs)) == 1
+        and debuts[annee].endswith("-01")
     }
 
 
@@ -382,6 +404,47 @@ def source_valeurs_point_ircantec() -> dict[tuple, float]:
     }
 
 
+def source_valeurs_point_agirc_arrco() -> dict[tuple, float]:
+    """Barèmes du régime unifié, publiés par la fédération Agirc-Arrco.
+
+    Producteur de la donnée, donc seule source de ces lignes qui puisse être
+    certifiée. Elle couvre le régime depuis sa création en 2019 ; l'Agirc et
+    l'Arrco d'avant la fusion restent transcrits d'OpenFisca.
+
+    La valeur d'achat y va un an plus loin que la valeur de service : la
+    fédération la publie par année civile, quand la valeur de service dépend de
+    la décision de novembre. Le récupérateur n'invente pas celle qui manque.
+    """
+    return {
+        tuple(cle.split("|")): valeur
+        for cle, valeur in sorted(
+            _serie_json("agirc_arrco_valeurs_point.json",
+                        "scripts/fetch/agirc_arrco_valeurs_point.py").items()
+        )
+    }
+
+
+def source_valeurs_point_agirc_arrco_en_cours() -> dict[tuple, float]:
+    """Valeur de service en vigueur dans l'année en cours, pas encore arrêtée.
+
+    La fédération fixe cette valeur au 1er novembre ; la règle du dépôt retient
+    celle du 31 décembre. L'année qui suit la dernière décision a donc une valeur
+    OPPOSABLE — celle reconduite depuis le 1er janvier — sans être arrêtée.
+
+    Ne rien écrire n'était pas neutre : faute de barème, le modèle prolongeait la
+    dernière valeur par les PRIX, servant 1,46378 € pour 2026 là où la fédération
+    publie un gel à 1,4386 € jusqu'au 1er novembre 2026. Entre inventer une
+    décision et reconduire celle qui est en vigueur, la seconde a une source —
+    d'où un niveau en retrait, et non une absence.
+    """
+    charge = _lire_json("agirc_arrco_valeurs_point.json",
+                        "scripts/fetch/agirc_arrco_valeurs_point.py")
+    return {
+        tuple(cle.split("|")): valeur
+        for cle, valeur in sorted(charge.get("serie_en_cours", {}).items())
+    }
+
+
 def source_valeurs_point() -> dict[tuple, float]:
     """Salaires de référence, valeurs de service et taux d'appel, par régime.
 
@@ -390,17 +453,21 @@ def source_valeurs_point() -> dict[tuple, float]:
     par le taux d'appel donne les points acquis, que la valeur de service
     convertit en rente à la liquidation.
 
-    Ce que la Caisse des dépôts publie elle-même est retiré d'ici : deux
-    contrôles ne doivent pas se disputer les mêmes lignes, et le producteur
-    l'emporte sur la transcription. Si son fichier manque, OpenFisca reprend
-    toute la couverture — au niveau ``haute``, comme il se doit.
+    Ce que les producteurs publient eux-mêmes est retiré d'ici — la Caisse des
+    dépôts pour l'Ircantec, la fédération pour l'Agirc-Arrco : deux contrôles ne
+    doivent pas se disputer les mêmes lignes, et le producteur l'emporte sur la
+    transcription. Si l'un de ces fichiers manque, OpenFisca reprend sa
+    couverture — au niveau ``haute``, comme il se doit.
     """
     valeurs = _cles_points("serie", substituees=False)
-    try:
-        producteur = set(source_valeurs_point_ircantec())
-    except SourceAbsente:
-        return valeurs
-    return {cle: valeur for cle, valeur in valeurs.items() if cle not in producteur}
+    producteurs: set[tuple] = set()
+    for source in (source_valeurs_point_ircantec, source_valeurs_point_agirc_arrco,
+                   source_valeurs_point_agirc_arrco_en_cours):
+        try:
+            producteurs |= set(source())
+        except SourceAbsente:
+            continue
+    return {cle: valeur for cle, valeur in valeurs.items() if cle not in producteurs}
 
 
 def source_valeurs_point_substituees() -> dict[tuple, float]:
@@ -578,8 +645,20 @@ def source_valeurs_point_insee() -> dict[tuple, float]:
     recouvrent : ``controle_vraisemblance_point_insee`` les y confronte, et
     c'est tout. Ce qu'elle apporte, c'est la fin de la série : OpenFisca
     s'arrête à sa dernière année publiée, l'INSEE continue.
+
+    Elle s'efface AUSSI devant le producteur lui-même, depuis que la fédération
+    Agirc-Arrco est lue directement. Sans cela, l'INSEE reprenait la valeur de
+    service de 2025 — la seule qu'OpenFisca n'ait pas — et la reversait au
+    niveau ``haute`` après que le producteur l'avait certifiée : la dernière
+    certification écrite gagne, et c'était la moins bien placée.
     """
     connues = set(_cles_points("serie", substituees=False))
+    for source in (source_valeurs_point_agirc_arrco,
+                   source_valeurs_point_agirc_arrco_en_cours):
+        try:
+            connues |= set(source())
+        except SourceAbsente:
+            continue
     return {
         (regime, str(annee), "valeur_service"): valeur
         for regime, valeurs in sorted(_point_insee().items())
@@ -652,6 +731,27 @@ def source_employeur_etat_implicite() -> dict[tuple, float]:
     }
 
 
+def source_employeur_public_texte() -> dict[tuple, float]:
+    """Taux employeur qu'aucune transcription machine ne porte, saisis du décret.
+
+    Le décret n° 2025-86 du 30 janvier 2025 programme quatre marches de trois
+    points pour la CNRACL — 34,65 % en 2025, puis 37,65 %, 40,65 % et 43,65 % —
+    quand la transcription d'OpenFisca s'arrête à la première. Les ignorer
+    revenait à prolonger le taux de 2025 au niveau ``estimee``, c'est-à-dire à
+    ne pas voir une hausse déjà publiée au *Journal officiel*.
+
+    Saisies depuis le texte, ni transcrites par un tiers ni recoupées : niveau
+    ``moyenne``, comme le taux d'appel Agirc-Arrco.
+    """
+    charge = _lire_json("contribution_employeur_public.json",
+                        "scripts/fetch/contribution_employeur_public.py")
+    return {
+        (annee, regime): taux
+        for cle, taux in sorted(charge.get("complements", {}).items())
+        for regime, annee in [cle.split("|")]
+    }
+
+
 def source_employeur_cnracl() -> dict[tuple, float]:
     """Contribution employeur à la CNRACL, depuis 1948.
 
@@ -659,6 +759,9 @@ def source_employeur_cnracl() -> dict[tuple, float]:
     de l'État : ses employeurs cotisent à une caisse, dont le taux est fixé par
     décret depuis 1947. Transcription OpenFisca des décrets et des barèmes de la
     Caisse des dépôts : niveau `haute`.
+
+    Ce que le décret programme au-delà de la transcription est servi à part, par
+    :func:`source_employeur_public_texte`, à un niveau en retrait.
     """
     return {
         (annee, "cnracl"): taux
@@ -705,15 +808,36 @@ class Certification:
     niveau: str = "certifiee"
     #: en-tête à écrire si le fichier de référence n'existe pas encore
     entete: tuple[str, ...] = ()
+    #: Source d'APPOINT : elle ne comble que ce que les autres ne couvrent pas,
+    #: et peut donc légitimement n'avoir rien à dire. Sans ce drapeau, une telle
+    #: source vide serait indiscernable d'un récupérateur cassé — et le contrôle
+    #: qui exige qu'une série certifiée apporte au moins une valeur doit rester
+    #: sévère pour toutes les autres.
+    complementaire: bool = False
 
     def format(self, valeur: float) -> str:
         return f"{valeur:.{self.decimales}f}" if self.decimales else f"{valeur:.0f}"
 
-    def confronter(self, appliquer: bool) -> tuple[list[str], dict]:
+    def confronter(self, appliquer: bool) -> tuple[list[str], dict | None]:
+        """Confronte la série à sa source.
+
+        Rend les messages et la trace à consigner : un dictionnaire vide quand
+        il n'y a rien à consigner, et ``None`` quand la trace existante doit au
+        contraire être RETIRÉE du journal.
+        """
         try:
             attendu = self.source()
         except SourceAbsente as erreur:
             return [f"IGNORÉ  {self.nom} : {erreur}"], {}
+
+        if not attendu and self.complementaire:
+            # ``None`` et non ``{}`` : le journal se complète d'ordinaire, mais
+            # une trace qui affirme une certification qui n'a plus lieu doit
+            # être RETIRÉE, pas conservée.
+            return [
+                f"RIEN    {self.nom} : {self.origine} n'ajoute rien, tout ce "
+                "qu'elle couvre l'est déjà par une source mieux placée"
+            ], None
 
         if not self.chemin.exists():
             if not appliquer:
@@ -906,6 +1030,27 @@ CERTIFICATIONS = (
         tolerance=5e-7,
     ),
     Certification(
+        nom="valeurs_point_agirc_arrco",
+        chemin=REFERENCE / "regimes" / "valeurs_point.csv",
+        cles=("regime", "annee", "mesure"),
+        colonne="valeur",
+        source=source_valeurs_point_agirc_arrco,
+        origine="Fédération Agirc-Arrco, compilation des valeurs de point",
+        decimales=6,
+        tolerance=5e-7,
+    ),
+    Certification(
+        nom="valeurs_point_agirc_arrco_en_cours",
+        chemin=REFERENCE / "regimes" / "valeurs_point.csv",
+        cles=("regime", "annee", "mesure"),
+        colonne="valeur",
+        source=source_valeurs_point_agirc_arrco_en_cours,
+        origine="Fédération Agirc-Arrco, valeur en vigueur dans l'année en cours",
+        decimales=6,
+        tolerance=5e-7,
+        niveau="haute",
+    ),
+    Certification(
         nom="valeurs_point_cnbf",
         chemin=REFERENCE / "regimes" / "valeurs_point.csv",
         cles=("regime", "annee", "mesure"),
@@ -957,6 +1102,10 @@ CERTIFICATIONS = (
         decimales=6,
         tolerance=5e-7,
         niveau="haute",
+        # Elle ne sert que la fin de la série, là où ni OpenFisca ni la
+        # fédération ne vont : depuis que celle-ci est lue directement, elle
+        # peut n'avoir plus rien à ajouter.
+        complementaire=True,
     ),
     Certification(
         nom="valeurs_point_unirs",
@@ -1114,6 +1263,18 @@ CERTIFICATIONS = (
         tolerance=5e-7,
         niveau="haute",
         gabarit={"nature": "implicite"},
+    ),
+    Certification(
+        nom="employeur_public_texte",
+        chemin=REFERENCE / "legislation" / "contribution_employeur_public.csv",
+        cles=("annee", "regime"),
+        colonne="taux",
+        source=source_employeur_public_texte,
+        origine="Décret n° 2025-86 du 30 janvier 2025 (montée en charge CNRACL)",
+        decimales=6,
+        tolerance=5e-7,
+        niveau="moyenne",
+        gabarit={"nature": "appelee"},
     ),
     Certification(
         nom="employeur_public_cnracl",
@@ -1710,10 +1871,13 @@ def main(argv: list[str] | None = None) -> int:
 
     messages: list[str] = []
     journal: dict[str, dict] = {}
+    retires: set[str] = set()
     for certification in CERTIFICATIONS:
         lignes, trace = certification.confronter(arguments.appliquer)
         messages.extend(lignes)
-        if trace:
+        if trace is None:
+            retires.add(certification.nom)
+        elif trace:
             journal[certification.nom] = trace
 
     messages.append("")
@@ -1732,7 +1896,7 @@ def main(argv: list[str] | None = None) -> int:
     for message in messages:
         print(message)
 
-    if arguments.appliquer and journal:
+    if arguments.appliquer and (journal or retires):
         # Le journal se COMPLÈTE, il ne se remplace pas. Les récupérateurs sont
         # indépendants et lents : on lance rarement les onze d'un coup, et
         # réécrire le fichier à partir des seules sources présentes ce jour-là
@@ -1744,6 +1908,8 @@ def main(argv: list[str] | None = None) -> int:
         if JOURNAL.exists():
             consigne = json.loads(JOURNAL.read_text(encoding="utf-8")).get("series", {})
         consigne.update(journal)
+        for nom in retires:
+            consigne.pop(nom, None)
         JOURNAL.write_text(
             json.dumps({"certifie_le": date.today().isoformat(), "series": consigne},
                        ensure_ascii=False, indent=1, sort_keys=True),

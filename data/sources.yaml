@@ -406,6 +406,39 @@ institutions:
           série exploitable. La transcription machine est celle d'OpenFisca
           (openfisca_points), reprise au niveau `haute`.
 
+      - id: agirc_arrco_valeurs_point
+        titre: Valeurs de service et d'achat du point, 2019-2026
+        url: https://www.agirc-arrco.fr/storage/2024/10/Compilation_valeurs_de_point_novembre_2025.pdf
+        acces: document
+        statut_integration: automatise
+        cible: data/reference/regimes/valeurs_point.csv
+        recuperation: scripts/fetch/agirc_arrco_valeurs_point.py
+        note: >-
+          La fédération publie elle-même l'historique complet de ses deux
+          barèmes : c'est le PRODUCTEUR de la donnée, là où le dépôt se
+          contentait de la transcription d'OpenFisca, plafonnée à `haute`. Les
+          valeurs de 2019 à 2025 passent donc à `certifiee`, et les lignes
+          correspondantes sont retirées de la couverture d'OpenFisca comme de
+          celle de l'INSEE — qui n'est pas davantage productrice de ces barèmes.
+          Même règle que pour l'Ircantec, dont les barèmes viennent de la Caisse
+          des dépôts qui la gère.
+          La transcription était en outre en retard : elle s'arrête à 2025,
+          quand la fédération publie déjà la valeur d'achat de 2026 (20,1877 €,
+          gelée). Faute de ce barème, les cotisations de 2026 retombaient sur le
+          rendement instantané, et la valeur de service était prolongée PAR LES
+          PRIX — 1,46378 €, soit une revalorisation de +1,75 % que personne n'a
+          décidée, là où la fédération publie un gel à 1,4386 € jusqu'au
+          1er novembre 2026. Mesuré : −1,72 % sur la pension Agirc-Arrco et
+          −0,59 % sur le total d'une liquidation en 2026.
+          DEUX NIVEAUX. La valeur d'achat est publiée par année civile : celle
+          de 2026 est arrêtée. La valeur de service l'est par date d'effet, au
+          1er novembre, et la règle du dépôt retient celle du 31 décembre :
+          celle de 2026 est donc reconduite au niveau `haute`, la décision de
+          novembre pouvant encore la déplacer.
+          Périmètre : le régime unifié depuis 2019. Les barèmes de l'Agirc et de
+          l'Arrco d'avant la fusion figurent dans le même document sous une
+          présentation différente, et restent transcrits d'OpenFisca.
+
       - id: agirc_arrco_coefficients
         titre: Coefficients d'anticipation et plafond des majorations familiales
         url: https://www.agirc-arrco.fr/storage/2024/10/Coefficients-de-minorations-AA.pdf
@@ -663,6 +696,27 @@ institutions:
           requise des générations 1958 et suivantes, coefficient de minoration —
           ne sont plus ici : elles sont certifiées contre la base LEGI, voir
           dila_legi_parametres_retraite.
+
+      - id: legifrance_cnracl_montee_en_charge
+        titre: Montée en charge de la contribution employeur CNRACL, 2025-2028
+        url: https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000051070354
+        acces: document
+        statut_integration: saisi
+        cible: data/reference/legislation/contribution_employeur_public.csv
+        recuperation: scripts/fetch/contribution_employeur_public.py
+        note: >-
+          Le décret n° 2025-86 du 30 janvier 2025 réécrit le premier alinéa du
+          II de l'article 5 du décret n° 91-613 du 28 juin 1991 et PROGRAMME
+          quatre marches de trois points : 34,65 % au 1er janvier 2025, puis
+          37,65 %, 40,65 % et 43,65 %. La transcription d'OpenFisca ne porte que
+          la première ; les trois autres étaient donc ignorées, et le modèle
+          prolongeait le taux de 2025 au niveau `estimee` — c'est-à-dire qu'il
+          ne voyait pas une hausse déjà publiée au Journal officiel.
+          Saisies depuis le texte, ni transcrites par un tiers ni recoupées :
+          niveau `moyenne`, comme le taux d'appel Agirc-Arrco. Elles sont
+          portées par la constante COMPLEMENTS du récupérateur, qui refuse un
+          complément recouvrant une année déjà transcrite — le décret programme
+          l'avenir, il ne réécrit pas le passé.
 
       - id: dila_legi_minimum_contributif
         titre: Minimum contributif, minimum majoré et plafond d'écrêtement

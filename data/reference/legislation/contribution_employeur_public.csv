@@ -173,4 +173,7 @@ annee,regime,taux,nature,fiabilite
 2024,fonction_publique_etat,0.742800,appelee,certifiee
 2025,cnracl,0.346500,appelee,haute
 2025,fonction_publique_etat,0.782800,appelee,certifiee
+2026,cnracl,0.376500,appelee,moyenne
 2026,fonction_publique_etat,0.822800,appelee,certifiee
+2027,cnracl,0.406500,appelee,moyenne
+2028,cnracl,0.436500,appelee,moyenne

@@ -245,7 +245,13 @@ def test_journal_de_certification_decrit_les_series_certifiees():
         "valeurs_point_ircantec": "regimes/valeurs_point.csv",
         "valeurs_point_cnbf": "regimes/valeurs_point.csv",
         "valeurs_point_cnavpl": "regimes/valeurs_point.csv",
-        "valeurs_point_insee": "regimes/valeurs_point.csv",
+        # L'INSEE ne comble que la fin de série : depuis que la fédération
+        # Agirc-Arrco est lue directement, elle n'a plus rien à ajouter, et sa
+        # trace est retirée du journal plutôt que d'y affirmer une
+        # certification qui n'a pas lieu. Elle y reparaîtra le jour où l'INSEE
+        # publiera une année que le producteur n'a pas encore.
+        "valeurs_point_agirc_arrco": "regimes/valeurs_point.csv",
+        "valeurs_point_agirc_arrco_en_cours": "regimes/valeurs_point.csv",
         "valeurs_point_msa": "regimes/valeurs_point.csv",
         "valeurs_point_unirs": "regimes/valeurs_point.csv",
         "valeurs_point_texte": "regimes/valeurs_point.csv",
@@ -257,8 +263,14 @@ def test_journal_de_certification_decrit_les_series_certifiees():
             "legislation/contribution_employeur_public.csv",
         "employeur_public_sncf":
             "legislation/contribution_employeur_public.csv",
+        "employeur_public_texte":
+            "legislation/contribution_employeur_public.csv",
     }
-    assert set(journal["series"]) == set(fichiers)
+    # Les séries d'APPOINT — celles qui ne comblent que ce que les autres ne
+    # couvrent pas — peuvent n'avoir rien à dire, et sont alors absentes.
+    appoint = {"valeurs_point_insee"}
+    assert set(journal["series"]) <= set(fichiers)
+    assert set(fichiers) - set(journal["series"]) <= appoint
 
     # Deux contrôles peuvent viser le même fichier à des niveaux différents —
     # le plafond en est le cas : INSEE certifie 2002-2025, OpenFisca renseigne

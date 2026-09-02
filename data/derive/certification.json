@@ -1,5 +1,5 @@
 {
- "certifie_le": "2026-08-30",
+ "certifie_le": "2026-09-02",
  "series": {
   "age_ouverture_requis": {
    "ajoutees": 0,
@@ -38,40 +38,49 @@
    "valeurs": 18
   },
   "employeur_public_cnracl": {
-   "ajoutees": 78,
+   "ajoutees": 0,
    "corrigees": 0,
    "empreinte": "5f73b6f1ee98c804",
-   "identiques": 0,
+   "identiques": 78,
    "niveau": "haute",
    "source": "OpenFisca-France, décrets CNRACL et barèmes de la Caisse des dépôts",
    "valeurs": 78
   },
   "employeur_public_etat": {
-   "ajoutees": 21,
+   "ajoutees": 0,
    "corrigees": 0,
    "empreinte": "adce04ab61f245f8",
-   "identiques": 0,
+   "identiques": 21,
    "niveau": "certifiee",
    "source": "Service des retraites de l'État, fiche « Historique des taux de cotisations »",
    "valeurs": 21
   },
   "employeur_public_etat_implicite": {
-   "ajoutees": 11,
+   "ajoutees": 0,
    "corrigees": 0,
    "empreinte": "f388868c5194a5a4",
-   "identiques": 0,
+   "identiques": 11,
    "niveau": "haute",
    "source": "OpenFisca-France, taux implicite du jaune « pensions » du PLF 2011",
    "valeurs": 11
   },
   "employeur_public_sncf": {
-   "ajoutees": 12,
+   "ajoutees": 0,
    "corrigees": 0,
    "empreinte": "c1d8e81d6f45f365",
-   "identiques": 0,
+   "identiques": 12,
    "niveau": "haute",
    "source": "OpenFisca-France, arrêtés annuels fixant les composantes T1 et T2",
    "valeurs": 12
+  },
+  "employeur_public_texte": {
+   "ajoutees": 0,
+   "corrigees": 0,
+   "empreinte": "b2da1c2e568a8529",
+   "identiques": 3,
+   "niveau": "moyenne",
+   "source": "Décret n° 2025-86 du 30 janvier 2025 (montée en charge CNRACL)",
+   "valeurs": 3
   },
   "esperance_65_derivee": {
    "ajoutees": 0,
@@ -112,11 +121,11 @@
   "plafond": {
    "ajoutees": 0,
    "corrigees": 0,
-   "empreinte": "26639dee3a21b59c",
-   "identiques": 24,
+   "empreinte": "4ff3567f49e62767",
+   "identiques": 25,
    "niveau": "certifiee",
    "source": "INSEE BDM, idbank 000822494",
-   "valeurs": 24
+   "valeurs": 25
   },
   "plafond_ancien": {
    "ajoutees": 0,
@@ -175,11 +184,29 @@
   "valeurs_point": {
    "ajoutees": 0,
    "corrigees": 0,
-   "empreinte": "b22e96a0f9f4d01e",
-   "identiques": 613,
+   "empreinte": "67ac511dabbb13d3",
+   "identiques": 600,
    "niveau": "haute",
    "source": "OpenFisca-France-Pension, paramètres des régimes en points",
-   "valeurs": 613
+   "valeurs": 600
+  },
+  "valeurs_point_agirc_arrco": {
+   "ajoutees": 0,
+   "corrigees": 0,
+   "empreinte": "32197a6757a8d239",
+   "identiques": 15,
+   "niveau": "certifiee",
+   "source": "Fédération Agirc-Arrco, compilation des valeurs de point",
+   "valeurs": 15
+  },
+  "valeurs_point_agirc_arrco_en_cours": {
+   "ajoutees": 0,
+   "corrigees": 0,
+   "empreinte": "e398b564f1c064df",
+   "identiques": 1,
+   "niveau": "haute",
+   "source": "Fédération Agirc-Arrco, valeur en vigueur dans l'année en cours",
+   "valeurs": 1
   },
   "valeurs_point_cnavpl": {
    "ajoutees": 0,
@@ -198,15 +225,6 @@
    "niveau": "certifiee",
    "source": "CNBF, barèmes annuels des cotisations et prestations",
    "valeurs": 18
-  },
-  "valeurs_point_insee": {
-   "ajoutees": 0,
-   "corrigees": 0,
-   "empreinte": "18296415a374565e",
-   "identiques": 1,
-   "niveau": "haute",
-   "source": "INSEE BDM, idbanks 000849395, 000822495 et 010593202",
-   "valeurs": 1
   },
   "valeurs_point_ircantec": {
    "ajoutees": 0,

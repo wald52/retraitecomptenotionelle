@@ -64,22 +64,35 @@ def test_inflation_chaine_les_deux_bases(verificateur, monkeypatch):
     assert serie[("1992",)] == pytest.approx(53 / 51 - 1)
 
 
-def test_plafond_ecarte_une_annee_incomplete_ou_mouvante(verificateur, monkeypatch):
-    """Le plafond est annuel : douze mois identiques, ou rien.
+def test_plafond_ecarte_une_annee_mouvante_ou_entamee(verificateur, monkeypatch):
+    """Le plafond est annuel : des mois identiques DEPUIS JANVIER, ou rien.
 
-    Une année partiellement observée donnerait un plafond faux sans que rien ne
-    le signale — c'est exactement le genre de valeur qui ne doit jamais être
-    certifiée.
+    Il est fixé par arrêté pour l'année civile, et la dernière année à en avoir
+    connu plusieurs est 1961 : exiger les douze mois revenait à refuser onze
+    mois durant une valeur que le décret a déjà fixée — le plafond de 2026
+    restait `estimee` alors que l'arrêté du 22 décembre 2025 le porte à 4 005 €.
+
+    Trois garde-fous restent, et chacun a coûté quelque chose pour être trouvé :
+    une année dont les mois DIVERGENT est écartée plutôt que moyennée ; une
+    année vue depuis autre chose que janvier l'est aussi — la série de l'INSEE
+    commence en août 2001, et retenir cette année-là sur ses cinq derniers mois
+    donnait 27 348 € contre les 27 349 € du décret ; et une observation isolée
+    ne certifie rien.
     """
     mensuel = {}
     mensuel.update({f"2010-{mois:02d}": 2885.0 for mois in range(1, 13)})   # complète
-    mensuel.update({f"2011-{mois:02d}": 2946.0 for mois in range(1, 9)})    # partielle
+    mensuel.update({f"2011-{mois:02d}": 2946.0 for mois in range(1, 10)})   # entamée
     mensuel.update({f"2012-{mois:02d}": 3031.0 for mois in range(1, 12)})
     mensuel["2012-12"] = 3100.0                                             # mouvante
+    mensuel.update({f"2013-{mois:02d}": 3086.0 for mois in range(8, 13)})   # sans janvier
+    mensuel["2014-01"] = 3129.0                                             # isolée
     monkeypatch.setattr(verificateur, "_observations", lambda nom: mensuel)
 
     plafond = verificateur.source_plafond()
-    assert plafond == {("2010",): round(2885.0 * 12)}
+    assert plafond == {
+        ("2010",): round(2885.0 * 12),
+        ("2011",): round(2946.0 * 12),
+    }
 
 
 # -- règle de certification --------------------------------------------------

@@ -73,7 +73,7 @@ Scénario                                                  Courants   Constants 
 Rien à installer, rien à lancer : une adresse à ouvrir. Le modèle et ses données
 de référence s'exécutent **dans votre navigateur**. Aucune donnée saisie ne
 quitte votre machine, puisqu'il n'y a pas de serveur de calcul. Le premier
-chargement transfère 221 Ko compressés (811 Ko bruts) et prend quelques dixièmes
+chargement transfère 221 Ko compressés (812 Ko bruts) et prend quelques dixièmes
 de seconde ; les suivants sont immédiats.
 
 Quatre pages : **Simuler** (une carrière, avec le détail du calcul, la
@@ -88,7 +88,7 @@ la page.
 <details>
 <summary>Comment la page fonctionne, et comment on sait qu'elle dit vrai</summary>
 
-`index.html` charge deux choses : `moteur/donnees.json` (532 Ko — les séries, les
+`index.html` charge deux choses : `moteur/donnees.json` (533 Ko — les séries, les
 tables de mortalité observées de 1899 à 2024, les 37 fiches de régime) et
 `moteur/js/`, un portage du modèle en JavaScript sans aucune bibliothèque. Le site est servi depuis la racine
 du dépôt, telle quelle : c'est ce que GitHub Pages publie sans aucun réglage, et
@@ -370,6 +370,7 @@ python scripts/fetch/ined_vallin_mesle.py       # quotients de mortalité d'avan
 python scripts/fetch/eurostat_hicp.py           # contrôle croisé de l'inflation
 python scripts/fetch/openfisca_regime_general.py  # contre-expertise du scénario 1
 python scripts/fetch/cnav_revalorisation_salaires.py  # revalorisation des salaires portés au compte
+python scripts/fetch/agirc_arrco_valeurs_point.py  # valeurs du point, par la fédération
 
 python scripts/verifier_donnees.py              # confronte, sans rien écrire
 python scripts/verifier_donnees.py --appliquer  # aligne sur la source et certifie
@@ -423,7 +424,7 @@ src/retraite_notionnelle/
 index.html                      le site : charge les données, puis le moteur JavaScript
 .nojekyll                       servir les fichiers sans transformation
 moteur/                         ce que le navigateur charge, et rien d'autre
-  donnees.json                  séries, tables et régimes (532 Ko, produit par script)
+  donnees.json                  séries, tables et régimes (533 Ko, produit par script)
   style.css                     extraite de gabarit.py (produite par script)
   js/                           portage du modèle, sans bibliothèque ni étape de build
 

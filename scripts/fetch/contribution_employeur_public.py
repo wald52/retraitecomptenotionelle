@@ -84,6 +84,28 @@ PARAMETRES_OPENFISCA = {
 #: reconstitué et non appelé.
 PREMIERE_ANNEE_CAS = 2006
 
+#: Ce qu'OpenFisca ne porte pas encore, et qui vient directement du décret.
+#:
+#: Le décret n° 2025-86 du 30 janvier 2025 réécrit le premier alinéa du II de
+#: l'article 5 du décret n° 91-613 du 28 juin 1991 et PROGRAMME quatre marches
+#: de trois points : 34,65 % au 1er janvier 2025, puis 37,65 %, 40,65 % et
+#: 43,65 %. La transcription d'OpenFisca s'arrête à la première.
+#:
+#: Ne pas les écrire n'était pas neutre : le modèle prolongeait le taux de 2025
+#: au niveau `estimee`, c'est-à-dire qu'il ignorait une hausse déjà au Journal
+#: officiel. Ce sont des valeurs SAISIES depuis le texte, non transcrites par un
+#: tiers ni recoupées : elles sont versées au niveau `moyenne`, comme le taux
+#: d'appel Agirc-Arrco l'est dans scripts/fetch/openfisca_points.py.
+COMPLEMENTS = {
+    "cnracl|2026": 0.3765,
+    "cnracl|2027": 0.4065,
+    "cnracl|2028": 0.4365,
+}
+ORIGINE_COMPLEMENTS = (
+    "Décret n° 2025-86 du 30 janvier 2025, article 1er, modifiant le II de "
+    "l'article 5 du décret n° 91-613 du 28 juin 1991"
+)
+
 
 # -- lecture des paramètres OpenFisca ---------------------------------------
 
@@ -239,7 +261,20 @@ def main() -> int:
             "sncf": sncf,
         },
         "recoupement_openfisca": {"ecarts": ecarts, "annees": len(civils)},
+        "complements": dict(sorted(COMPLEMENTS.items())),
+        "origine_complements": ORIGINE_COMPLEMENTS,
     }
+
+    # Garde-fou : un complément qui recouvre une année déjà transcrite ferait
+    # se disputer deux sources. Le décret programme l'avenir, il ne réécrit pas
+    # le passé.
+    for cle in COMPLEMENTS:
+        regime, annee = cle.split("|")
+        if annee in contenu["series"].get(regime, {}):
+            print(f"ÉCHEC   complément {cle} : cette année est déjà transcrite "
+                  "par OpenFisca — les deux sources se disputeraient la ligne",
+                  file=sys.stderr)
+            return 1
     SORTIE.parent.mkdir(parents=True, exist_ok=True)
     SORTIE.write_text(json.dumps(contenu, ensure_ascii=False, indent=1),
                       encoding="utf-8")
@@ -250,6 +285,8 @@ def main() -> int:
             print(f"{nom:<40} {len(serie):>3} années "
                   f"{min(serie)}-{max(serie)}, "
                   f"de {min(serie.values()):.2%} à {max(serie.values()):.2%}")
+    print(f"{'complements (décret)':<40} {len(COMPLEMENTS):>3} valeurs "
+          f"{min(COMPLEMENTS).split('|')[1]}-{max(COMPLEMENTS).split('|')[1]}")
     print(f"\nÉcrit dans {SORTIE}")
     return 0
 

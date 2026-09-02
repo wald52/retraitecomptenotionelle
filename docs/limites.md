@@ -1041,7 +1041,7 @@ Trois bornes à connaître, et elles sont étroites :
   valide tout : le récupérateur refuse donc d'écrire un profil dont la durée ou
   la pension serait nulle, et le test le revérifie.
 
-### Quatre écarts identifiés, mesurés, et laissés en l'état
+### Trois écarts identifiés, mesurés, et laissés en l'état
 
 Ils l'ont été à dessein : chacun demande un arbitrage de modélisation qu'il vaut
 mieux poser que trancher en silence.
@@ -1089,17 +1089,52 @@ mieux poser que trancher en silence.
   différemment : les droits figés sont-ils « calculés selon les règles
   actuelles » ou « débarrassés des avantages non contributifs » ?
 
-* **Trois valeurs de 2026 sont disponibles et non intégrées.** Le plafond de la
-  Sécurité sociale 2026 (48 060 €) est marqué `estimee` alors que l'arrêté du
-  22 décembre 2025 le fixe : la valeur est juste, la fiabilité est sous-évaluée
-  et se propage à tout résultat. Les barèmes Agirc-Arrco 2026 — salaire de
-  référence 20,1877 €, valeur de service 1,4386 €, tous deux INCHANGÉS par la
-  décision du 17 octobre 2025 — ne figurent pas dans `valeurs_point.csv`, si
-  bien que les cotisations de 2026 et au-delà retombent sur le rendement
-  instantané au lieu du calcul en points. Et la CNRACL n'a pas de ligne 2026
-  dans `contribution_employeur_public.csv` : son taux 2025 est prolongé en
-  `estimee`. Ces trois valeurs relèvent des récupérateurs, qui demandent le
-  réseau — d'où leur absence ici plutôt qu'une saisie à la main.
+Un quatrième l'a été un temps — **trois valeurs de 2026 disponibles et non
+intégrées** — au motif que « ces trois valeurs relèvent des récupérateurs, qui
+demandent le réseau ». L'excuse ne tenait plus, et les trois sont refermées :
+
+* le **plafond de la Sécurité sociale 2026** était juste (48 060 €) mais marqué
+  `estimee`, et cette fiabilité sous-évaluée se propageait à tout résultat qui
+  touche au plafond. La source exigeait douze mois publiés quand l'INSEE n'en
+  avait que neuf ; or le plafond est fixé par arrêté pour l'ANNÉE CIVILE, et la
+  dernière année à en avoir connu plusieurs est 1961. Trois mois concordants
+  suffisent désormais, à condition que la série couvre l'année depuis janvier —
+  garde-fou qui n'est pas de principe : la série mensuelle commence en août
+  2001, et retenir cette année-là sur ses cinq derniers mois donnait 27 348 €
+  contre les 27 349 € du décret ;
+
+* les **barèmes Agirc-Arrco de 2026** manquaient, si bien que les cotisations
+  de 2026 retombaient sur le rendement instantané. Pire : faute de valeur de
+  service, le modèle prolongeait celle de 2025 **par les prix** et servait
+  1,46378 €, c'est-à-dire une revalorisation de +1,75 % que personne n'a
+  décidée, là où la fédération publie un gel à 1,4386 € jusqu'au 1<sup>er</sup>
+  novembre 2026. Un récupérateur lit maintenant la fédération elle-même —
+  le PRODUCTEUR, là où le dépôt se contentait d'une transcription : les valeurs
+  de 2019 à 2025 passent de `haute` à `certifiee`, celle d'achat de 2026 est
+  ajoutée au même niveau, et la valeur de service en vigueur en 2026 est
+  reconduite au niveau `haute`, puisque la décision de novembre peut encore la
+  déplacer avant le 31 décembre. Mesuré : **−1,72 % sur la pension Agirc-Arrco
+  et −0,59 % sur le total** d'une liquidation en 2026 ;
+
+* la **CNRACL n'avait pas de ligne 2026**, son taux 2025 étant prolongé en
+  `estimee`. Le décret n° 2025-86 du 30 janvier 2025 programme pourtant quatre
+  marches de trois points — 34,65 % en 2025, puis 37,65 %, 40,65 % et 43,65 % —
+  dont la transcription d'OpenFisca ne porte que la première. Les trois autres
+  sont saisies depuis le texte, au niveau `moyenne`.
+
+Sur les 86 témoins, ces corrections déplacent 174 pensions, **toutes à la
+baisse**, de 0,01 % à 0,99 %.
+
+Deux constats en sont sortis, qui valent au-delà de ces trois valeurs. La
+règle « le producteur l'emporte sur la transcription » n'était appliquée qu'à
+l'Ircantec : elle vaut maintenant aussi pour l'Agirc-Arrco, et l'INSEE — qui
+n'est pas producteur de ces barèmes — leur cède la place. Et
+`scripts/verifier_donnees.py --appliquer` lancé sur un `data/brut/`
+incomplet **dégradait en silence** une valeur certifiée : faute du fichier de
+la Caisse des dépôts, la transcription d'OpenFisca reprenait les lignes de
+l'Ircantec et proposait de réécrire le taux d'appel de 1991, de 1,173 à 1,200.
+Rien ne l'empêche encore : il faut lancer les récupérateurs des producteurs
+avant d'appliquer.
 
 ---
 
