@@ -1046,30 +1046,53 @@ Trois bornes à connaître, et elles sont étroites :
 Ils l'ont été à dessein : chacun demande un arbitrage de modélisation qu'il vaut
 mieux poser que trancher en silence.
 
+Les mesures ci-dessous portent sur les **cas types du dépôt**
+(`src/retraite_notionnelle/castypes.py`), et non sur des carrières improvisées :
+elles se refont à l'identique. Elles ont été reprises après les corrections des
+coefficients de revalorisation et des barèmes de 2026 — celles qui figuraient
+ici auparavant étaient antérieures, et l'étalon a bougé sous elles.
+
 * **Le compartiment de capitalisation rend la comparaison des cinq scénarios
   non homogène.** Le scénario 1 INCLUT le RAFP dans son total, comme le fait le
-  droit ; les scénarios 2 à 5 l'EXCLUENT et l'affichent « servi à part ». Et
-  sous `part_cotisation = salariale`, le compartiment isolé ne reçoit que la
-  moitié salariale du RAFP quand le scénario 1 en sert la totalité. Pour une
-  fonctionnaire d'État née en 1975, cela fait 1 369 € de RAFP dans les 31 714 €
-  du scénario 1 — 4,3 % — contre 312 € affichés sous le tableau : l'écart
-  annoncé de −82,0 % vaut −81,2 % à périmètre égal. Trois traitements se
-  défendent, et le choix n'est pas technique : retrancher le RAFP du total du
-  scénario 1 et l'afficher à part des deux côtés ; l'ajouter aux totaux
-  notionnels ; ou considérer qu'un régime PROVISIONNÉ est hors d'atteinte d'une
-  réforme de la répartition et le servir à l'identique dans les cinq scénarios,
-  à sa propre règle. Le troisième est sans doute le plus juste
+  droit ; les scénarios 2 à 5 l'EXCLUENT et l'affichent « servi à part ».
+  L'écart affiché compare donc deux périmètres.
+
+  Sur le cas type `fonctionnaire_sedentaire` de la génération 1975, en euros
+  constants de 2026 : le scénario 1 sert 43 086,63 €, dont **1 213,57 € de
+  RAFP** — 2,8 %. Le compartiment isolé, lui, n'affiche que 246,93 € sous
+  `part_cotisation = salariale`, et 493,86 € en part totale. L'écart annoncé de
+  −51,4 % vaut **−50,0 % à périmètre égal** (−40,6 % contre −38,9 % en part
+  totale).
+
+  La part salariale n'explique qu'un facteur deux entre 246,93 € et 493,86 € :
+  le reste de l'écart au RAFP du scénario 1 tient à la règle de conversion
+  propre du compartiment, qui n'a pas été disséquée ici et n'est donc pas
+  affirmée.
+
+  Trois traitements se défendent, et le choix n'est pas technique : retrancher
+  le RAFP du total du scénario 1 et l'afficher à part des deux côtés ; l'ajouter
+  aux totaux notionnels ; ou considérer qu'un régime PROVISIONNÉ est hors
+  d'atteinte d'une réforme de la répartition et le servir à l'identique dans les
+  cinq scénarios, à sa propre règle. Le troisième est sans doute le plus juste
   économiquement — c'est aussi celui qui change le plus de choses.
 
 * **La cotisation déplafonnée du régime général au-dessus du plafond n'alimente
   pas le compte notionnel.** Le taux de 17,86 % porté par la fiche agrège la
   part plafonnée et la part déplafonnée « pour un salaire au plafond » : il est
   exact en dessous, et sous-évalué au-dessus, puisque les 0,40 % + 2,02 %
-  déplafonnés de 2025 portent en réalité sur la totalité du salaire. Mesuré :
-  **−2,6 %** sur la cotisation salariale portée au compte d'un cadre à 2,7
-  plafonds en 2024. C'est correct pour les DROITS — la déplafonnée n'en ouvre
-  aucun, et le scénario 1 a raison de l'ignorer — mais contraire au principe des
-  scénarios notionnels, qui portent au compte ce qui a été VERSÉ. La correction
+  déplafonnés portent en réalité sur la totalité du salaire.
+
+  Sur une année, au barème 2024 (plafond 46 368 €), la cotisation portée au
+  compte manque de 0,1 % au plafond, 6,4 % à un plafond et demi, **18,8 % à
+  2,7 plafonds**, 28,9 % à quatre et 48,7 % à huit : le biais croît avec le
+  salaire, sans borne. Sur une carrière entière — cas type `cadre` de la
+  génération 1975, qui va de 0,9 à 3,6 plafonds — ce sont **25 774 € versés et
+  jamais portés au compte**, sur un capital notionnel de 1 285 361 €, soit
+  **2,01 %** du compte ; en part totale, 63 063 € sur 1 677 921 €, soit 3,76 %.
+
+  C'est correct pour les DROITS — la déplafonnée n'en ouvre aucun, et le
+  scénario 1 a raison de l'ignorer — mais contraire au principe des scénarios
+  notionnels, qui portent au compte ce qui a été VERSÉ. La correction
   suppose de scinder la fiche du régime général en deux périodes de mêmes dates,
   l'une plafonnée l'autre déplafonnée, avec leurs parts salariales respectives ;
   elle touche une série que `scripts/verifier_donnees.py` recoupe à OpenFisca, et
@@ -1078,11 +1101,11 @@ mieux poser que trancher en silence.
 * **Une falaise sépare deux générations consécutives à l'année de bascule.** Un
   salarié qui liquide en 2026 voit son scénario 3 égal au scénario 1, minima et
   majorations compris ; celui qui liquide en 2027, avec la même carrière, le voit
-  à −11,1 % au salaire moyen et à −26,2 % au SMIC. Deux règles s'y heurtent : la
-  frontière `annee_liquidation <= bascule` rend la pension du scénario 1
+  à **−15,0 % au salaire moyen et à −16,9 % au SMIC**. Deux règles s'y heurtent :
+  la frontière `annee_liquidation <= bascule` rend la pension du scénario 1
   ENTIÈRE, quand `_droits_acquis` fige les mêmes droits DÉBARRASSÉS des avantages
   non contributifs. Sous `--conversion-acquis liquidation`, censée rendre la
-  conversion neutre, le saut subsiste à −4,7 % et −17,7 %. Une part de cette
+  conversion neutre, le saut se réduit à −5,2 % et −7,3 % sans se refermer. Une part de cette
   marche est réelle — une année de cotisation passe du système actuel au compte
   notionnel — mais l'essentiel tient au traitement asymétrique de la frontière.
   La question de fond est celle que le README et ce document tranchent
