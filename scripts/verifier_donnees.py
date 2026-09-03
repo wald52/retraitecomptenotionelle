@@ -191,6 +191,20 @@ def source_salaire_moyen() -> dict[tuple, float]:
     return {(str(a),): v for a, v in sorted(variations.items())}
 
 
+def source_masse_salariale() -> dict[tuple, float]:
+    """Variation nominale de la masse salariale — l'assiette des cotisations.
+
+    Salaires et traitements bruts (D11, total des branches), en euros courants,
+    pris EN NIVEAU et non par tête : c'est le produit du salaire moyen par
+    l'emploi salarié, et donc la grandeur dont dépend ce que la répartition
+    peut servir. Le même agrégat sert de numérateur au salaire moyen par tête ;
+    la différence entre les deux séries est exactement la croissance de
+    l'emploi salarié.
+    """
+    variations = _variations(_observations("salaires_bruts"))
+    return {(str(a),): v for a, v in sorted(variations.items())}
+
+
 def source_productivite() -> dict[tuple, float]:
     """Variation réelle de la productivité par tête.
 
@@ -945,6 +959,40 @@ CERTIFICATIONS = (
         tolerance=5e-4,
     ),
     Certification(
+        nom="masse_salariale",
+        chemin=REFERENCE / "macro" / "masse_salariale.csv",
+        cles=("annee",),
+        colonne="variation_nominale",
+        source=source_masse_salariale,
+        origine="INSEE BDM, idbank 011785411",
+        decimales=5,
+        tolerance=5e-4,
+        entete=(
+            "# Masse salariale — variation annuelle nominale, ensemble de l'économie",
+            "# source_id: insee_bdm_masse_salariale (comptes nationaux annuels, base 2020)",
+            "# unite: taux de variation annuel nominal, en fraction",
+            "# fiabilite:",
+            "#   certifiee (1950-2025) : salaires et traitements bruts (D11, total des",
+            "#             branches, idbank 011785411) pris EN NIVEAU, recontrôlés par",
+            "#             scripts/verifier_donnees.py.",
+            "#   estimee   (1930-1949) : les comptes nationaux ne remontent pas avant",
+            "#             1949, et aucune série d'emploi salarié ne couvre la guerre.",
+            "#             Ces vingt années reprennent donc la variation du SALAIRE",
+            "#             MOYEN, c'est-à-dire supposent l'emploi salarié constant.",
+            "#             L'hypothèse est fausse — l'emploi s'est effondré puis",
+            "#             reconstitué — mais elle est la seule qui n'invente rien, et",
+            "#             la fiabilité `estimee` se propage jusqu'au résultat.",
+            "#",
+            "# C'est l'assiette des cotisations : le taux de rendement qu'un système en",
+            "# répartition peut servir sans changer son taux de cotisation (Samuelson",
+            "# 1958, Aaron 1966). La différence avec salaire_moyen.csv est exactement la",
+            "# croissance de l'emploi salarié : ×2,14 sur 1950-2025.",
+            "#",
+            "# Ne pas modifier les années certifiées à la main : elles seraient écrasées",
+            "# au prochain scripts/verifier_donnees.py --appliquer.",
+        ),
+    ),
+    Certification(
         nom="productivite",
         chemin=REFERENCE / "macro" / "productivite.csv",
         cles=("annee",),
@@ -1323,6 +1371,7 @@ def controle_coherence_interne() -> list[str]:
     fichiers = {
         "ipc_annuel.csv": ("variation", -0.15, 0.70),
         "salaire_moyen.csv": ("variation_nominale", -0.15, 0.70),
+        "masse_salariale.csv": ("variation_nominale", -0.15, 0.70),
         "productivite.csv": ("variation_reelle", -0.15, 0.20),
     }
     for nom, (colonne, mini, maxi) in fichiers.items():

@@ -56,6 +56,16 @@ class ModeIndexation(str, Enum):
     #: fragile.
     MOYENNE_TROIS_TAUX = "moyenne_trois_taux"
 
+    #: Croissance de la MASSE SALARIALE — l'assiette des cotisations. C'est le
+    #: taux de rendement interne d'un système en répartition (Samuelson 1958,
+    #: Aaron 1966) : le seul qui laisse le système en équilibre sans toucher au
+    #: taux de cotisation, et donc le taux d'indexation que la théorie des
+    #: comptes notionnels désigne. Il vaut salaire moyen + emploi salarié, ce
+    #: qui le rend NETTEMENT PLUS GÉNÉREUX que toutes les autres règles sur la
+    #: période observée : l'emploi salarié a doublé depuis 1950. Ce n'est pas
+    #: une règle d'austérité, c'est une règle d'équilibre.
+    MASSE_SALARIALE = "masse_salariale"
+
     #: Revalorisation RÉELLEMENT PRATIQUÉE par le régime général : les
     #: coefficients des arrêtés annuels, tels que le scénario 1 les applique
     #: aux salaires portés au compte (les salaires jusqu'en 1986, les prix

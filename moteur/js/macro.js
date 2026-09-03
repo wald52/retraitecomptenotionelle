@@ -43,6 +43,7 @@ export class DonneesMacro {
 
     this.inflation = prolonger(serie("inflation"), "inflation");
     this.salaire_moyen = prolonger(serie("salaire_moyen"), "salaire_moyen_nominal");
+    this.masse_salariale = prolonger(serie("masse_salariale"), "masse_salariale_nominale");
     this.productivite = prolonger(serie("productivite"), "productivite_reelle");
     this.plafond_securite_sociale = this._plafond(serie("pass"), hypotheses);
     this.smic_horaire = this._prolongeParSalaire(serie("smic_horaire"), "smic_horaire");

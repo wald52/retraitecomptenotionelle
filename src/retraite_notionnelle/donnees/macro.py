@@ -74,6 +74,23 @@ class DonneesMacro:
         return self._prolonger(serie, "salaire_moyen_nominal")
 
     @cached_property
+    def masse_salariale(self) -> SerieAnnuelle:
+        """Variation annuelle NOMINALE de la masse salariale — l'assiette.
+
+        Salaires et traitements bruts du total des branches, pris en niveau :
+        le produit du salaire moyen par l'emploi salarié. C'est le taux de
+        rendement qu'un système en répartition peut servir sans changer son
+        taux de cotisation, et donc, dans la théorie des comptes notionnels, le
+        taux d'indexation de référence.
+        """
+        serie = charger_serie_annuelle(
+            self.racine / "reference" / "macro" / "masse_salariale.csv",
+            colonne_valeur="variation_nominale",
+            nom="masse_salariale_nominale",
+        )
+        return self._prolonger(serie, "masse_salariale_nominale")
+
+    @cached_property
     def productivite(self) -> SerieAnnuelle:
         """Variation annuelle RÉELLE de la productivité du travail par tête."""
         serie = charger_serie_annuelle(

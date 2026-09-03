@@ -61,7 +61,8 @@ def esperances() -> dict[tuple[int, str, str], float]:
 
 
 def test_series_macro_couvrent_toute_la_periode(macro):
-    for serie in (macro.inflation, macro.salaire_moyen, macro.productivite):
+    for serie in (macro.inflation, macro.salaire_moyen, macro.productivite,
+                  macro.masse_salariale):
         assert serie.premiere_annee <= 1941, f"{serie.nom} commence trop tard"
         assert serie.derniere_annee >= 2070, f"{serie.nom} ne va pas assez loin"
 
@@ -109,13 +110,15 @@ def test_series_macro_certifiees_depuis_1950(macro):
     1950 est la première année où l'indice des prix, les comptes nationaux et
     l'emploi sont tous trois publiés en série continue par l'INSEE.
     """
-    for serie in (macro.inflation, macro.salaire_moyen, macro.productivite):
+    for serie in (macro.inflation, macro.salaire_moyen, macro.productivite,
+                  macro.masse_salariale):
         assert serie.fiabilite_minimale_sur(1950, 2025) == Fiabilite.CERTIFIEE, serie.nom
 
 
 def test_ce_qui_precede_1950_reste_annonce_comme_estime(macro):
     """Aucune source n'existe pour l'avant-guerre : le dire, plutôt que l'oublier."""
-    for serie in (macro.inflation, macro.salaire_moyen, macro.productivite):
+    for serie in (macro.inflation, macro.salaire_moyen, macro.productivite,
+                  macro.masse_salariale):
         assert serie.fiabilite(1935) == Fiabilite.ESTIMEE, serie.nom
 
 
@@ -227,6 +230,7 @@ def test_journal_de_certification_decrit_les_series_certifiees():
     fichiers = {
         "inflation": "macro/ipc_annuel.csv",
         "salaire_moyen": "macro/salaire_moyen.csv",
+        "masse_salariale": "macro/masse_salariale.csv",
         "productivite": "macro/productivite.csv",
         "plafond": "macro/plafond_securite_sociale.csv",
         "plafond_ancien": "macro/plafond_securite_sociale.csv",

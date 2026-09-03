@@ -26,6 +26,12 @@ export const ModeIndexation = Object.freeze({
   //: compris au plus haut. Ce n'est plus une règle d'austérité, et le taux
   //: obtenu n'est celui d'aucun agrégat observé.
   MOYENNE_TROIS_TAUX: "moyenne_trois_taux",
+  //: Croissance de la MASSE SALARIALE — l'assiette des cotisations, et le taux
+  //: de rendement interne d'un système en répartition (Samuelson, Aaron) : le
+  //: seul qui laisse le système en équilibre sans toucher au taux de
+  //: cotisation. Salaire moyen + emploi salarié : nettement plus généreux que
+  //: toutes les autres règles, l'emploi salarié ayant doublé depuis 1950.
+  MASSE_SALARIALE: "masse_salariale",
   //: Revalorisation RÉELLEMENT PRATIQUÉE par le régime général : les
   //: coefficients des arrêtés annuels, ceux-là mêmes que le scénario 1
   //: applique aux salaires portés au compte. C'est ce mode, et non ``PRIX``,

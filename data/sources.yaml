@@ -74,6 +74,22 @@ institutions:
           l'emploi salarié intérieur en personnes physiques — la définition du
           SMPT dans les comptes nationaux. Disponible depuis 1949.
 
+      - id: insee_bdm_masse_salariale
+        titre: Masse salariale (D11), comptes nationaux annuels base 2020
+        url: https://api.insee.fr/series/BDM/V1/data/SERIES_BDM/011785411
+        idbank: ["011785411"]
+        acces: api
+        statut_integration: certifie
+        cible: data/reference/macro/masse_salariale.csv
+        recuperation: scripts/fetch/insee_bdm.py
+        note: >-
+          Le même agrégat que le numérateur du salaire moyen par tête, mais pris
+          EN NIVEAU : salaires et traitements bruts du total des branches, en
+          euros courants, disponibles depuis 1949. C'est l'assiette des
+          cotisations, donc le taux de rendement qu'un système en répartition
+          peut servir sans changer son taux de cotisation. L'écart avec le SMPT
+          est exactement la croissance de l'emploi salarié.
+
       - id: insee_bdm_productivite
         titre: Productivité du travail par tête, comptes nationaux base 2020
         url: https://api.insee.fr/series/BDM/V1/data/SERIES_BDM/011785223

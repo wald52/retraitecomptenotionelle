@@ -109,6 +109,15 @@
    "source": "INSEE BDM, idbanks 000008965 et 001764363",
    "valeurs": 76
   },
+  "masse_salariale": {
+   "ajoutees": 76,
+   "corrigees": 0,
+   "empreinte": "79ffd6c89abaa812",
+   "identiques": 0,
+   "niveau": "certifiee",
+   "source": "INSEE BDM, idbank 011785411",
+   "valeurs": 76
+  },
   "minimum_contributif": {
    "ajoutees": 0,
    "corrigees": 0,

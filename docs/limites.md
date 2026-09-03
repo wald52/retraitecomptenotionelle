@@ -963,6 +963,26 @@ ci-dessus :
   de construction, et le taux obtenu n'est celui d'aucun agrégat publié. À lire
   comme un contrefactuel, pas comme une règle candidate.
 
+La règle d'équilibre — `--indexation masse_salariale`, la croissance de
+l'assiette des cotisations — a elle aussi ses limites, et elles ne sont pas du
+même ordre :
+
+- **périmètre.** Le taux d'équilibre est celui du système entier ; les scénarios
+  2 et 3 ne portent au compte que la part salariale. Leur adosser ce rendement
+  mélange deux périmètres, et flatte le résultat. Les scénarios 4 et 5, qui
+  portent la cotisation entière, sont les seuls auxquels cette règle se compare
+  sans biais ;
+- **1930-1949 est estimé.** Les comptes nationaux ne remontent pas avant 1949 et
+  aucune série d'emploi salarié ne couvre la guerre : ces vingt années supposent
+  l'emploi salarié constant. L'hypothèse est fausse — l'emploi s'est effondré
+  puis reconstitué — et elle porte sur les années les plus lourdes du scénario
+  rétroactif ;
+- **la projection ne reconduit pas la croissance de l'emploi.** Au-delà de 2025,
+  l'emploi salarié est supposé constant. Le rendement projeté est donc celui du
+  seul salaire moyen : la règle est nettement moins généreuse en projection
+  qu'en rétrospective, et l'écart entre générations anciennes et récentes en
+  vient pour partie de là, non d'un effet de la réforme simulée.
+
 ---
 
 ## 3. Le scénario « système actuel » est une approximation

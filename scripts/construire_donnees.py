@@ -89,6 +89,9 @@ def _series() -> dict:
             macro / "ipc_annuel.csv", "variation", nom="inflation"),
         "salaire_moyen": charger_serie_annuelle(
             macro / "salaire_moyen.csv", "variation_nominale", nom="salaire_moyen_nominal"),
+        "masse_salariale": charger_serie_annuelle(
+            macro / "masse_salariale.csv", "variation_nominale",
+            nom="masse_salariale_nominale"),
         "productivite": charger_serie_annuelle(
             macro / "productivite.csv", "variation_reelle", nom="productivite_reelle"),
         "pass": charger_serie_annuelle(

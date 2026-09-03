@@ -99,6 +99,7 @@ Mesure sur la période complète (`retraite-notionnelle indexation --de 1941 --a
 | Indexation sur les prix | ×322,2 | ×322,2 | 100 % |
 | Médiane des trois taux | ×397,6 | ×322,2 | 123,4 % |
 | Revalorisation réellement pratiquée | ×1 538,2 | ×322,2 | 477,4 % |
+| Masse salariale (règle d'équilibre) | ×3 685,1 | ×322,2 | 1 143,7 % |
 
 Ces chiffres sont ceux que produit la commande citée ci-dessus, et le
 tableau les a longtemps donnés périmés — ×243,7 et ×318,6, valeurs d'une
@@ -188,6 +189,39 @@ minimum, à termes inchangés. Ce que les données disent, sur 1941-2025 :
   le taux qu'elle produit n'est celui d'aucun agrégat publié. C'est la variante
   la plus fragile des trois sur le plan économique ; elle est fournie pour être
   mesurée, pas recommandée.
+
+### La règle d'équilibre : la masse salariale
+
+Toutes les règles ci-dessus sont des choix ; celle-ci découle d'un argument. En
+répartition, le taux de rendement interne soutenable est la croissance de
+l'assiette des cotisations — la masse salariale, soit le salaire moyen
+multiplié par l'emploi salarié (Samuelson 1958, Aaron 1966). C'est le seul taux
+qui laisse le système en équilibre sans toucher au taux de cotisation, et c'est
+donc celui que la théorie des comptes notionnels désigne pour revaloriser les
+comptes. Les systèmes notionnels réels s'en approchent : indice de revenu par
+tête en Suède, PIB nominal lissé sur cinq ans en Italie, masse salariale
+d'assiette en Pologne et en Lettonie.
+
+`--indexation masse_salariale` la sert depuis les salaires et traitements bruts
+du total des branches (D11, comptes nationaux base 2020, idbank 011785411),
+pris **en niveau** et non par tête : `data/reference/macro/masse_salariale.csv`,
+certifié de 1950 à 2025 par `scripts/verifier_donnees.py`. Les vingt années
+1930-1949 sont estimées — les comptes nationaux ne remontent pas plus haut, et
+aucune série d'emploi salarié ne couvre la guerre : elles reprennent la
+variation du salaire moyen, c'est-à-dire supposent l'emploi salarié constant.
+Au-delà de 2025, la projection reconduit le salaire moyen nominal, l'emploi
+salarié étant supposé constant faute d'hypothèse d'emploi long terme dont on
+puisse se réclamer.
+
+Sur 1941-2025 la règle vaut ×3 685, onze fois les prix : l'emploi salarié a été
+multiplié par 2,14 depuis 1950, et cette croissance s'ajoute chaque année à
+celle des salaires. C'est de loin la plus généreuse des règles disponibles.
+
+Une incohérence de périmètre, qu'il faut connaître : ce taux est le rendement du
+système **entier**, alors que les scénarios 2 et 3 ne portent au compte que la
+part salariale de la cotisation. Adosser un rendement collectif à une cotisation
+partielle mélange deux périmètres ; les scénarios 4 et 5, qui portent la
+cotisation entière, sont ceux auxquels cette règle se compare sans biais.
 
 Aucun plancher n'est appliqué par défaut : le taux peut être négatif, ce qui est
 la conséquence logique de la règle (`plancher_indexation`).

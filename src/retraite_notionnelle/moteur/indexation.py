@@ -94,6 +94,8 @@ class Indexation:
                 "salaire_moyen": salaire,
                 "productivite_nominale": self.macro.productivite_nominale(annee),
             }
+        elif mode is ModeIndexation.MASSE_SALARIALE:
+            candidats = {"masse_salariale": self.macro.masse_salariale(annee)}
         elif mode is ModeIndexation.REVALORISATION_PORTEE_AU_COMPTE:
             # Le taux annuel des arrêtés, lu comme le scénario 1 le lit : le
             # rapport de deux années consécutives dans la colonne publiée. Le

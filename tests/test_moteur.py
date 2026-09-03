@@ -215,6 +215,55 @@ def test_l_indexation_sur_les_prix_n_est_pas_la_regle_du_droit_positif(macro):
     assert depuis_1987 == pytest.approx(prix_depuis_1987, rel=0.10)
 
 
+def test_masse_salariale_est_le_salaire_moyen_plus_l_emploi(macro):
+    """La masse salariale se décompose exactement en salaire moyen × emploi.
+
+    Le contrôle ne dispose pas d'une série d'emploi — le modèle n'en charge pas —
+    mais l'identité impose au moins ceci : sur la période où l'emploi salarié a
+    crû, la masse salariale doit croître plus vite que le salaire moyen, et
+    l'écart cumulé doit valoir le doublement de l'emploi salarié observé par
+    l'INSEE entre 1950 et 2025 (×2,14).
+    """
+    masse = Indexation(
+        macro, Parametres(mode_indexation=ModeIndexation.MASSE_SALARIALE)
+    ).coefficient(1950, 2025)
+    salaires = Indexation(
+        macro, Parametres(mode_indexation=ModeIndexation.SALAIRES)
+    ).coefficient(1950, 2025)
+    assert masse / salaires == pytest.approx(2.14, abs=0.05)
+
+
+def test_la_masse_salariale_est_la_regle_la_plus_genereuse(macro):
+    """Le taux d'équilibre de la répartition n'est pas une règle d'austérité.
+
+    C'est le point que le modèle doit rendre visible : la règle que la théorie
+    désigne — le rendement que l'assiette peut servir — est très au-dessus de
+    toutes celles qui ont été discutées, y compris de l'indexation sur les
+    salaires, parce qu'elle y ajoute la croissance de l'emploi.
+    """
+    coefficients = {
+        mode: Indexation(macro, Parametres(mode_indexation=mode)).coefficient(1941, 2025)
+        for mode in ModeIndexation
+    }
+    masse = coefficients[ModeIndexation.MASSE_SALARIALE]
+    assert masse == max(coefficients.values())
+    assert masse > coefficients[ModeIndexation.SALAIRES]
+    assert masse > 10 * macro.coefficient_prix(1941, 2025)
+
+
+def test_la_masse_salariale_est_certifiee_depuis_1950(macro):
+    """Une règle par défaut ne peut pas reposer sur une série non sourcée.
+
+    1930-1949 reste estimé — les comptes nationaux ne remontent pas plus haut,
+    et ces vingt années supposent l'emploi salarié constant — mais la fiabilité
+    le dit, et elle se propage jusqu'au résultat.
+    """
+    from retraite_notionnelle.donnees.chargement import Fiabilite
+
+    assert macro.masse_salariale.fiabilite_minimale_sur(1950, 2025) == Fiabilite.CERTIFIEE
+    assert macro.masse_salariale.fiabilite(1935) == Fiabilite.ESTIMEE
+
+
 def test_indexation_prix_reproduit_l_inflation(macro):
     indexation = Indexation(macro, Parametres(mode_indexation=ModeIndexation.PRIX))
     assert indexation.coefficient(1980, 2020) == pytest.approx(

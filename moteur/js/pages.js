@@ -31,6 +31,7 @@ export const INDEXATIONS = [
   ["revalorisation_portee_au_compte", "Revalorisation réellement pratiquée (arrêtés Cnav)"],
   ["prix", "Prix"],
   ["salaires", "Salaire moyen"],
+  ["masse_salariale", "Masse salariale (règle d'équilibre de la répartition)"],
 ];
 
 export const AGES_REFERENCE = [
@@ -757,7 +758,7 @@ function decomposition(contexte, saisie, comparaison) {
 
   return `
 <h2>D'où vient l'écart</h2>
-<p>La même carrière, le même calcul notionnel rétroactif, avec sept règles de
+<p>La même carrière, le même calcul notionnel rétroactif, avec huit règles de
 revalorisation des comptes. Les quatre premières partent des mêmes trois séries
 — inflation, salaire moyen, productivité — et n'en changent que ce qu'on en
 retient : le minimum, le minimum rendu homogène, la médiane, la moyenne. La
@@ -787,6 +788,16 @@ se concentrent sur les dernières années, où les deux règles coïncident. Le
 facteur cinq est celui de l'indice cumulé depuis 1941, pas celui du résultat. Les lignes « médiane » et « moyenne » gardent les trois mêmes séries
 que le triple lock et n'en changent que la statistique : elles chiffrent ce que
 coûte le choix du minimum, indépendamment du choix des termes.</p>
+<p class="discret">La dernière ligne, la <strong>masse salariale</strong>, est la
+seule qui repose sur un argument théorique et non sur un choix : c'est
+l'assiette des cotisations, donc le taux de rendement qu'un système en
+répartition peut servir sans toucher à son taux de cotisation. Elle vaut salaire
+moyen + emploi salarié, et l'emploi salarié a doublé depuis 1950 : c'est la
+règle la plus généreuse du tableau, et de loin. Elle a sa propre incohérence, à
+garder en tête : elle crédite le compte du rendement que le système ENTIER
+dégage, alors que les scénarios 2 et 3 n'y versent que la part salariale de la
+cotisation. C'est aux scénarios 4 et 5, qui portent la cotisation entière,
+qu'elle se compare sans biais.</p>
 `;
 }
 
@@ -1080,6 +1091,7 @@ ${g.tableau(
       ["Indexation sur les prix", "×322,2", "×322,2", "100 %"],
       ["Médiane des trois taux", "×397,6", "×322,2", "123,4 %"],
       ["Revalorisation réellement pratiquée", "×1 538,2", "×322,2", "477,4 %"],
+      ["Masse salariale (règle d'équilibre)", "×3 685,1", "×322,2", "1 143,7 %"],
     ],
     ["", "nombre", "nombre", "nombre"],
   )}
@@ -1088,10 +1100,10 @@ la règle telle qu'énoncée, appliquée sans correctif — et c'est de là que 
 l'essentiel de la baisse affichée par le scénario rétroactif, non du passage aux
 comptes notionnels. Le tableau « D'où vient l'écart » de chaque simulation
 sépare les deux effets.</p>
-<p>La dernière ligne est la seule qui ne soit pas une hypothèse : c'est le
-coefficient que les arrêtés annuels ont réellement appliqué aux salaires portés
-au compte, celui dont le scénario 1 se sert pour calculer le salaire de
-référence. Il vaut <strong>×1 538</strong> sur la période, soit près de cinq
+<p>La ligne « Revalorisation réellement pratiquée » est la seule qui ne soit pas
+une hypothèse : c'est le coefficient que les arrêtés annuels ont réellement
+appliqué aux salaires portés au compte, celui dont le scénario 1 se sert pour
+calculer le salaire de référence. Il vaut <strong>×1 538</strong> sur la période, soit près de cinq
 fois les prix, parce que le régime général a revalorisé sur les SALAIRES
 jusqu'en 1986 et sur les prix seulement depuis 1987. C'est donc cette ligne, et
 non « Indexation sur les prix », qui neutralise la question de l'indexation
@@ -1100,6 +1112,17 @@ longtemps désigné la mauvaise. Sur une carrière, la correction reste modeste 
 +6,2 points pour la génération 1920, +0,1 pour 1945, et -0,5 pour 1958, dont la
 carrière est presque entièrement postérieure à 1987. Les cotisations se
 concentrent sur les dernières années, là où les deux règles coïncident.</p>
+<p>La dernière ligne est d'une autre nature : elle ne décrit ni une règle
+demandée, ni une règle appliquée, mais la règle que la <strong>théorie</strong>
+désigne. En répartition, le rendement qu'un système peut servir sans changer son
+taux de cotisation est la croissance de son assiette — la masse salariale, soit
+le salaire moyen multiplié par l'emploi salarié (Samuelson 1958, Aaron 1966).
+C'est le taux d'indexation des comptes notionnels suédois, italiens, polonais et
+lettons, à des variantes près. Sur 1941-2025 il vaut ×3 685, onze fois les
+prix : l'emploi salarié a doublé depuis 1950, et cette croissance-là s'ajoute
+chaque année à celle des salaires. Une réserve : ce rendement est celui du
+système ENTIER, alors que les scénarios 2 et 3 ne portent au compte que la part
+salariale de la cotisation. C'est aux scénarios 4 et 5 qu'il faut le comparer.</p>
 <p>Le minimum n'est pas la seule statistique possible sur ces trois séries. Deux
 variantes gardent les <em>mêmes</em> termes et ne changent que ce qu'on en
 retient : la <strong>médiane</strong> — le taux du milieu — et la

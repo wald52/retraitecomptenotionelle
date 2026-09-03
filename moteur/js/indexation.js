@@ -60,6 +60,8 @@ export class Indexation {
         ["salaire_moyen", salaire],
         ["productivite_nominale", this.macro.productiviteNominale(annee)],
       ];
+    } else if (mode === ModeIndexation.MASSE_SALARIALE) {
+      candidats = [["masse_salariale", this.macro.masse_salariale.valeur(annee)]];
     } else if (mode === ModeIndexation.REVALORISATION_PORTEE_AU_COMPTE) {
       // Le taux annuel des arrêtés, lu comme le scénario 1 le lit : le rapport
       // de deux années consécutives dans la colonne publiée.

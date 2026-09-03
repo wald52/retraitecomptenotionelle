@@ -1,0 +1,119 @@
+# Masse salariale — variation annuelle nominale, ensemble de l'économie
+# source_id: insee_bdm_masse_salariale (comptes nationaux annuels, base 2020)
+# unite: taux de variation annuel nominal, en fraction
+# fiabilite:
+#   certifiee (1950-2025) : salaires et traitements bruts (D11, total des
+#             branches, idbank 011785411) pris EN NIVEAU, recontrôlés par
+#             scripts/verifier_donnees.py.
+#   estimee   (1930-1949) : les comptes nationaux ne remontent pas avant
+#             1949, et aucune série d'emploi salarié ne couvre la guerre.
+#             Ces vingt années reprennent donc la variation du SALAIRE
+#             MOYEN, c'est-à-dire supposent l'emploi salarié constant.
+#             L'hypothèse est fausse — l'emploi s'est effondré puis
+#             reconstitué — mais elle est la seule qui n'invente rien, et
+#             la fiabilité `estimee` se propage jusqu'au résultat.
+#
+# C'est l'assiette des cotisations : le taux de rendement qu'un système en
+# répartition peut servir sans changer son taux de cotisation (Samuelson
+# 1958, Aaron 1966). La différence avec salaire_moyen.csv est exactement la
+# croissance de l'emploi salarié : ×2,14 sur 1950-2025.
+#
+# Ne pas modifier les années certifiées à la main : elles seraient écrasées
+# au prochain scripts/verifier_donnees.py --appliquer.
+annee,variation_nominale,fiabilite
+1930,-0.020,estimee
+1931,-0.030,estimee
+1932,-0.070,estimee
+1933,-0.040,estimee
+1934,-0.060,estimee
+1935,-0.075,estimee
+1936,0.150,estimee
+1937,0.290,estimee
+1938,0.140,estimee
+1939,0.080,estimee
+1940,0.150,estimee
+1941,0.180,estimee
+1942,0.190,estimee
+1943,0.240,estimee
+1944,0.230,estimee
+1945,0.560,estimee
+1946,0.610,estimee
+1947,0.480,estimee
+1948,0.610,estimee
+1949,0.180,estimee
+1950,0.10874,certifiee
+1951,0.27243,certifiee
+1952,0.19743,certifiee
+1953,0.03934,certifiee
+1954,0.08012,certifiee
+1955,0.08077,certifiee
+1956,0.12337,certifiee
+1957,0.12266,certifiee
+1958,0.14147,certifiee
+1959,0.09301,certifiee
+1960,0.09078,certifiee
+1961,0.10236,certifiee
+1962,0.12412,certifiee
+1963,0.13947,certifiee
+1964,0.11002,certifiee
+1965,0.07364,certifiee
+1966,0.07756,certifiee
+1967,0.07495,certifiee
+1968,0.12347,certifiee
+1969,0.14121,certifiee
+1970,0.13804,certifiee
+1971,0.12861,certifiee
+1972,0.11925,certifiee
+1973,0.15426,certifiee
+1974,0.19422,certifiee
+1975,0.16354,certifiee
+1976,0.15645,certifiee
+1977,0.13005,certifiee
+1978,0.13105,certifiee
+1979,0.12665,certifiee
+1980,0.15272,certifiee
+1981,0.13697,certifiee
+1982,0.13744,certifiee
+1983,0.09128,certifiee
+1984,0.06956,certifiee
+1985,0.05542,certifiee
+1986,0.05407,certifiee
+1987,0.04185,certifiee
+1988,0.05596,certifiee
+1989,0.06442,certifiee
+1990,0.07156,certifiee
+1991,0.04727,certifiee
+1992,0.03188,certifiee
+1993,0.01822,certifiee
+1994,0.02180,certifiee
+1995,0.04015,certifiee
+1996,0.02799,certifiee
+1997,0.02855,certifiee
+1998,0.03872,certifiee
+1999,0.04694,certifiee
+2000,0.06244,certifiee
+2001,0.04668,certifiee
+2002,0.04195,certifiee
+2003,0.02670,certifiee
+2004,0.03641,certifiee
+2005,0.03875,certifiee
+2006,0.04399,certifiee
+2007,0.04041,certifiee
+2008,0.03068,certifiee
+2009,0.00112,certifiee
+2010,0.02723,certifiee
+2011,0.02493,certifiee
+2012,0.01905,certifiee
+2013,0.01346,certifiee
+2014,0.01141,certifiee
+2015,0.01379,certifiee
+2016,0.02166,certifiee
+2017,0.03348,certifiee
+2018,0.02608,certifiee
+2019,0.03170,certifiee
+2020,-0.04019,certifiee
+2021,0.07873,certifiee
+2022,0.07838,certifiee
+2023,0.05625,certifiee
+2024,0.03120,certifiee
+2025,0.01589,certifiee

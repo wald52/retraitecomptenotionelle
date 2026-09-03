@@ -238,6 +238,7 @@ productivité qui l'emporte.
 | Indexation sur les prix | ×322,2 | ×322,2 | 100 % |
 | Médiane des trois taux | ×397,6 | ×322,2 | 123,4 % |
 | **Revalorisation réellement pratiquée** | **×1 538,2** | ×322,2 | **477,4 %** |
+| Masse salariale (règle d'équilibre) | ×3 685,1 | ×322,2 | 1 143,7 % |
 
 Une cotisation de 1950 ne conserve donc que 1,5 % de sa valeur réelle. Dans le
 scénario rétroactif, **l'essentiel de la baisse affichée vient de la règle
@@ -308,6 +309,41 @@ le fait ; la moyenne, elle, est un objet composite dont la sévérité vient d'u
 artefact de construction plutôt que d'un choix assumé. Les deux sont disponibles,
 en ligne de commande comme dans le formulaire web, et le tableau « D'où vient
 l'écart » de chaque simulation les affiche côte à côte.
+
+### 1 ter. La règle que la théorie désigne : la masse salariale
+
+Les six règles précédentes sont des choix. Il en existe une septième qui n'en
+est pas un : en répartition, le rendement qu'un système peut servir sans changer
+son taux de cotisation est **la croissance de son assiette** — la masse
+salariale, soit le salaire moyen multiplié par l'emploi salarié (Samuelson 1958,
+Aaron 1966). C'est le taux d'indexation des comptes notionnels suédois,
+italiens, polonais et lettons, à des variantes près, et c'est le seul candidat
+qui découle d'un argument plutôt que d'une intention.
+
+`--indexation masse_salariale` la sert, depuis les salaires et traitements bruts
+des comptes nationaux (D11, INSEE, idbank 011785411, certifiés depuis 1950).
+Sur 1941-2025 elle vaut **×3 685, soit onze fois les prix** : l'emploi salarié a
+doublé depuis 1950, et cette croissance-là s'ajoute chaque année à celle des
+salaires. C'est de très loin la règle la plus généreuse du tableau — une règle
+d'équilibre, pas une règle d'austérité.
+
+Deux réserves, à lire avant de s'en servir :
+
+- **elle crédite le compte d'un rendement collectif, alors que les scénarios 2
+  et 3 n'y versent qu'une cotisation partielle.** Le taux d'équilibre est celui
+  du système entier ; y adosser la seule part salariale mélange deux périmètres.
+  C'est aux scénarios 4 et 5, qui portent la cotisation entière, qu'elle se
+  compare sans biais — et l'écart au système actuel y passe de -81 % à -51 %
+  pour la génération 1930, de -69 % à -41 % pour 1945 ;
+- **1930-1949 est estimé**, faute de comptes nationaux : ces vingt années
+  supposent l'emploi salarié constant et reprennent la variation du salaire
+  moyen. La fiabilité `estimee` le dit et se propage jusqu'au résultat.
+
+Et un résultat qui recadre tout le reste : même sous cette règle, le scénario
+rétroactif reste 70 à 81 % en dessous du système actuel (scénario 2), et 28 à
+51 % en dessous avec la cotisation entière (scénario 4). L'indexation explique
+donc une part importante de l'écart, mais pas la totalité : le reste tient à ce
+que le système actuel sert plus qu'un compte strictement contributif.
 
 ### 2. La fusion augmente les cotisations des indépendants
 
@@ -522,6 +558,7 @@ sous « Options de modélisation ».
 --indexation      triple_lock_inverse | triple_lock_inverse_nominal
                   | mediane_trois_taux | moyenne_trois_taux
                   | revalorisation_portee_au_compte | prix | salaires
+                  | masse_salariale
 --age-reference   cliquet_legal | cliquet_puis_esperance_vie | legal_sans_cliquet
 --conversion-acquis  reference | liquidation
 --part-cotisation      salariale | totale | totale_alignee
