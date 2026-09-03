@@ -253,6 +253,30 @@ def test_rendre_produit_un_corps_pour_chaque_page(contexte, chemin):
     assert len(corps) > 500
 
 
+@pytest.mark.parametrize("chemin", ["/", "/cas-types", "/methode"])
+def test_les_ages_rendus_ne_doublent_pas_leur_unite(contexte, chemin):
+    """« 64 ans ans ».
+
+    L'âge s'écrivait « 64 » et les appelants ajoutaient « ans ». Le jour où il
+    s'est mis à s'écrire « 64 ans et 7 mois », l'unité s'est retrouvée en
+    double sur chaque page — et aucun test ne pouvait le voir, puisque les deux
+    portages étaient d'accord et que les témoins avaient été régénérés avec la
+    faute. Celui-ci regarde le texte rendu.
+    """
+    import re
+
+    _, corps = rendre(contexte, chemin, {
+        "naissance": "1962", "naissance_mois": "3", "debut": "22",
+        "liquidation": "64", "liquidation_mois": "7",
+        "statut": "salarie_prive_non_cadre",
+    })
+    for faute in ("ans ans", "mois mois", "ans et ans"):
+        assert faute not in corps, f"{faute!r} dans {chemin}"
+    # Et l'âge s'y lit bien en ans et en mois.
+    if chemin == "/":
+        assert re.search(r"64 ans et 7 mois", corps)
+
+
 def test_rendre_ignore_un_chemin_inconnu(contexte):
     titre, _ = rendre(contexte, "/n-importe-quoi")
     assert titre == "Simuler"

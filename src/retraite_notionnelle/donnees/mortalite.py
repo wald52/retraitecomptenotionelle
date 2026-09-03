@@ -312,43 +312,69 @@ class DonneesMortalite:
                     return 1.0 - qx
         return self.loi(annee, sexe).survie(float(age), 1.0)
 
-    def survie_annuelle(self, age: float, annee: int, sexe: str) -> float:
-        """Probabilité de passer de ``age`` à ``age+1`` pendant l'année ``annee``.
+    def survie_annuelle(self, age: float, annee: float, sexe: str) -> float:
+        """Probabilité de survivre un an à partir de ``age`` en ``annee``.
 
-        **L'âge est fractionnaire, et il compte.** La méthode lisait
-        ``quotients[int(age)]`` : la part OBSERVÉE de la table — 1986-2024 —
-        était donc aveugle aux mois, et le diviseur d'un départ à 60 ans et onze
-        mois était celui d'un départ à 60 ans tout rond. La sanction du départ
-        anticipé, qui est la moitié du modèle, s'appliquait par marches d'un an :
-        1,7 % de pension d'un coup à chaque anniversaire, et rien entre deux.
+        **L'âge et la date sont fractionnaires, et tous deux comptent.** La
+        méthode lisait ``quotients[int(age)]`` : la part OBSERVÉE de la table —
+        1986-2024 — était aveugle aux mois, et le diviseur d'un départ à 60 ans
+        et onze mois était celui d'un départ à 60 ans tout rond. La sanction du
+        départ anticipé, qui est la moitié du modèle, s'appliquait par marches
+        d'un an : 1,7 % de pension d'un coup à chaque anniversaire, et rien
+        entre deux.
 
-        Entre deux âges entiers, la force de mortalité est supposée CONSTANTE —
-        l'hypothèse actuarielle usuelle, et la seule qui rende la survie
-        continue en l'âge :
+        **La force de mortalité est supposée constante dans chaque cellule**
+        (âge entier × millésime) — l'hypothèse actuarielle usuelle, et la seule
+        qui rende la survie continue. Un assuré parti en juillet 2038 à 63 ans
+        et 4 mois passe son année de rente dans quatre cellules successives : il
+        franchit son anniversaire, puis le 1er janvier. Le trajet est donc
+        découpé à ces deux franchissements, et chaque tronçon reçoit la force de
+        la cellule qu'il traverse.
 
-        .. math:: p_{x+f} = p_x^{\,1-f} \; p_{x+1}^{\,f}
-
-        L'année civile, elle, n'est pas interpolée : une table de mortalité est
-        publiée par millésime, et lisser entre deux millésimes inventerait une
-        tendance infra-annuelle que la source ne porte pas. C'est la règle du
-        dépôt — interpoler ce que le réel a de continu, laisser en escalier ce
-        qu'il a de daté.
+        Ce n'est pas lisser entre deux millésimes : c'est répartir l'EXPOSITION
+        entre eux. Une table de mortalité reste publiée par millésime, et aucune
+        tendance infra-annuelle n'est inventée — on dit seulement combien de
+        mois de l'année le cohorte a vécus sous chacune. Sans ce découpage,
+        l'année civile sautait d'un bloc au 1er janvier quand l'âge, lui,
+        avançait mois par mois : le diviseur REMONTAIT à cette date, et partir
+        un mois plus tard rallongeait la durée de service attendue.
         """
-        plancher = math.floor(age)
-        fraction = age - plancher
-        entier = int(plancher)
-        basse = self._survie_cellule(entier, annee, sexe)
-        if fraction <= 1e-9:
-            return basse
-        haute = self._survie_cellule(entier + 1, annee, sexe)
-        return basse ** (1.0 - fraction) * haute ** fraction
+        age_entier, part_age = math.floor(age), age - math.floor(age)
+        annee_entiere, part_annee = math.floor(annee), annee - math.floor(annee)
+        if part_age <= 1e-9 and part_annee <= 1e-9:
+            return self._survie_cellule(int(age_entier), int(annee_entiere), sexe)
+
+        # Les deux coordonnées avancent à la même vitesse : le trajet franchit
+        # l'âge entier suivant en ``1 - part_age`` et le 1er janvier suivant en
+        # ``1 - part_annee``. D'où deux coupures au plus, et trois tronçons.
+        coupures = sorted(
+            {borne for borne in (1.0 - part_age, 1.0 - part_annee)
+             if 1e-9 < borne < 1.0 - 1e-9}
+        )
+        bornes = [0.0, *coupures, 1.0]
+        cumul = 0.0
+        for debut, fin in zip(bornes, bornes[1:]):
+            milieu = 0.5 * (debut + fin)
+            cellule = self._survie_cellule(
+                int(age_entier + math.floor(part_age + milieu)),
+                int(annee_entiere + math.floor(part_annee + milieu)),
+                sexe,
+            )
+            # Force de mortalité de la cellule, appliquée sur la durée du
+            # tronçon : -ln p, puis somme, puis exponentielle.
+            cumul += (fin - debut) * -math.log(max(cellule, 1e-300))
+        return math.exp(-cumul)
 
     # -- tables de génération ------------------------------------------------
 
     @lru_cache(maxsize=4096)
-    def courbe_survie(self, age_debut: float, annee_debut: int, sexe: str,
+    def courbe_survie(self, age_debut: float, annee_debut: float, sexe: str,
                       generation: bool = True) -> tuple[float, ...]:
         """Survie cumulée année par année à partir de ``age_debut``.
+
+        ``annee_debut`` peut porter une fraction : c'est la position de la
+        liquidation dans son année civile, ``(mois - 1) / 12``. Elle dit sous
+        quel millésime le rentier passe chaque tronçon de son année de rente.
 
         L'élément d'indice ``t`` est la probabilité d'être encore en vie
         ``t`` années après la liquidation. En table de génération, chaque année
@@ -376,7 +402,7 @@ class DonneesMortalite:
             duree += 1
         return tuple(probabilites)
 
-    def courbe_survie_unisexe(self, age_debut: float, annee_debut: int,
+    def courbe_survie_unisexe(self, age_debut: float, annee_debut: float,
                               generation: bool = True) -> tuple[float, ...]:
         """Courbe de survie moyenne pondérée des deux sexes.
 
@@ -394,7 +420,7 @@ class DonneesMortalite:
             for t in range(longueur)
         )
 
-    def courbe(self, age_debut: float, annee_debut: int, sexe: str | None,
+    def courbe(self, age_debut: float, annee_debut: float, sexe: str | None,
                generation: bool = True) -> tuple[float, ...]:
         """Courbe de survie, unisexe si ``sexe`` vaut ``None``."""
         if sexe is None:
@@ -406,11 +432,13 @@ class DonneesMortalite:
         courbe = self.courbe_survie(age_debut, annee_debut, sexe, generation)
         return courbe[duree] if duree < len(courbe) else 0.0
 
-    def esperance_residuelle(self, age: float, annee: int, sexe: str | None = None,
+    def esperance_residuelle(self, age: float, annee: float, sexe: str | None = None,
                              generation: bool = True) -> float:
         """Espérance de vie résiduelle en années, table de génération par défaut."""
         courbe = self.courbe(age, annee, sexe, generation)
         return sum(0.5 * (courbe[t] + courbe[t + 1]) for t in range(len(courbe) - 1))
 
-    def fiabilite(self, annee: int) -> Fiabilite:
-        return min(self.loi(annee, "H").fiabilite, self.loi(annee, "F").fiabilite)
+    def fiabilite(self, annee: float) -> Fiabilite:
+        millesime = int(math.floor(annee))
+        return min(self.loi(millesime, "H").fiabilite,
+                   self.loi(millesime, "F").fiabilite)

@@ -34,12 +34,20 @@ export class Convertisseur {
     return sexe;
   }
 
-  /** Diviseur annuitaire et éléments qui l'expliquent. */
-  coefficient(ageLiquidation, anneeLiquidation, sexe = null) {
+  /**
+   * Diviseur annuitaire à une DATE de liquidation.
+   *
+   * `moisLiquidation` dit où la liquidation tombe dans son année civile, donc
+   * sous quel millésime de table le rentier passe chaque tronçon de sa première
+   * année de rente. Sans lui, la table sautait d'un millésime au 1er janvier
+   * quand l'âge avançait mois par mois, et le diviseur remontait à cette date.
+   */
+  coefficient(ageLiquidation, anneeLiquidation, sexe = null, moisLiquidation = 1) {
     const sexeTable = this._sexeTable(sexe);
     const generation = this.parametres.table_generation;
+    const dateLiquidation = anneeLiquidation + (moisLiquidation - 1) / 12;
     const courbe = this.mortalite.courbe(
-      ageLiquidation, anneeLiquidation, sexeTable, generation,
+      ageLiquidation, dateLiquidation, sexeTable, generation,
     );
 
     const nu = this.parametres.taux_anticipe_conversion;
@@ -83,9 +91,14 @@ export class Convertisseur {
    * Rapport des pensions à capital notionnel donné, anticipé / à l'heure.
    * Isole la seule sanction due à l'allongement de la durée de service.
    */
-  effetAnticipation(ageAnticipe, ageReference, anneeLiquidation, sexe = null) {
-    const anticipe = this.coefficient(ageAnticipe, anneeLiquidation, sexe);
-    const reference = this.coefficient(ageReference, anneeLiquidation, sexe);
+  effetAnticipation(ageAnticipe, ageReference, anneeLiquidation, sexe = null,
+    moisLiquidation = 1) {
+    const anticipe = this.coefficient(
+      ageAnticipe, anneeLiquidation, sexe, moisLiquidation,
+    );
+    const reference = this.coefficient(
+      ageReference, anneeLiquidation, sexe, moisLiquidation,
+    );
     return reference.diviseur / anticipe.diviseur;
   }
 }

@@ -595,9 +595,11 @@ function resultats(contexte, saisie) {
     + (ecart.anticipe ? "plus tôt" : "plus tard");
   const fiches = [
     g.fiche("années cotisées", String(carriere.anneesCotisees.length)),
-    g.fiche("liquidation", `${age(carriere.age_liquidation)} ans `
-      + `<span class="discret">en ${carriere.anneeLiquidation}</span>`),
-    g.fiche(`âge de référence — ${anticipation}`, `${age(ecart.age_reference)} ans`),
+    // La date, et pas seulement l'année : la pension prend effet le premier du
+    // mois, et c'est ce mois que l'utilisateur vient de choisir.
+    g.fiche("liquidation", `${age(carriere.age_liquidation)} `
+      + `<span class="discret">en ${carriere.dateLiquidation}</span>`),
+    g.fiche(`âge de référence — ${anticipation}`, `${age(ecart.age_reference)}`),
     g.fiche("coefficient de conversion", g.nombre(conversion.diviseur, 1)),
     g.fiche("capital notionnel rétroactif", g.euros(retro.capital_notionnel)),
   ].join("");
@@ -798,7 +800,7 @@ function cascade(comparaison, saisie) {
       "carrière arrêtée à la bascule, règles actuelles, avantages non "
       + "contributifs retirés, sans décote",
       `${g.euros(acquis.pension_figee)} par an`],
-    [`b) × diviseur à ${age(acquis.age_conversion)} ans`,
+    [`b) × diviseur à ${age(acquis.age_conversion)}`,
       `coefficient de conversion en ${saisie.bascule} : `
       + `${g.nombre(acquis.diviseur, 2)}`,
       g.euros(acquis.capital_a_la_bascule)],
@@ -811,7 +813,7 @@ function cascade(comparaison, saisie) {
       g.euros(capitalApres)],
     ["e) = capital notionnel", "ce que la carrière a effectivement financé",
       g.euros(prospectif.capital_notionnel)],
-    [`f) ÷ diviseur à ${age(ageLiquidation)} ans`,
+    [`f) ÷ diviseur à ${age(ageLiquidation)}`,
       `coefficient de conversion en ${liquidation} : ${g.nombre(diviseur, 2)}`,
       `${g.euros(prospectif.pension_annuelle)} par an`],
   ];
@@ -821,8 +823,8 @@ function cascade(comparaison, saisie) {
   if (saisie.conversion_acquis === "reference"
       && acquis.age_conversion > ageLiquidation) {
     neutralite = `<p>Ligne b) : les droits déjà ouverts sont convertis au diviseur de `
-      + `l'âge de référence (${age(acquis.age_conversion)} ans), alors que la `
-      + `rente sera servie depuis ${age(ageLiquidation)} ans. L'anticipation `
+      + `l'âge de référence (${age(acquis.age_conversion)}), alors que la `
+      + `rente sera servie depuis ${age(ageLiquidation)}. L'anticipation `
       + `est donc payée une seconde fois, sur le passé. L'option « conversion `
       + `des droits acquis à l'âge de départ effectif » supprime cet `
       + `abattement, et c'est la convention qu'une réforme réelle `
@@ -1127,8 +1129,8 @@ active, ni périodes assimilées, ni réversion, ni décote ni surcote. Le scén
 <h3>La fusion des régimes</h3>
 <p>À compter de l'année de bascule, les ${nombreRegimes} régimes du catalogue sont remplacés
 par un régime unique dont chaque paramètre est le plus défavorable de
-l'ensemble : ouverture à ${age(fusionne.age_ouverture)} ans, taux plein à
-${age(fusionne.age_taux_plein)} ans, ${fusionne.duree_requise_trimestres} trimestres
+l'ensemble : ouverture à ${age(fusionne.age_ouverture)}, taux plein à
+${age(fusionne.age_taux_plein)}, ${fusionne.duree_requise_trimestres} trimestres
 requis, cotisation de ${g.pourcentage(fusionne.taux_cotisation_retraite, false, 2)}
 sur assiette déplafonnée.</p>
 

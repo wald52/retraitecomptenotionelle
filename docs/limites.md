@@ -180,10 +180,25 @@ parité du millésime : deux assurés déclarant « soixante-quatre ans et six m
 | Année du départ | Elle est portée au compte **au prorata de ses mois**, plafond de la Sécurité sociale proratisé comme le veut R. 242-2. Elle valait zéro ou douze mois selon l'arrondi |
 | Trimestres de cette année-là | Plafonnés aux trimestres **civils écoulés** avant le point de départ (R. 351-9) : trois mois de travail n'en valident qu'un |
 | Année d'entrée dans la vie active | Incomplète elle aussi, et traitée de même |
-| Diviseur actuariel | Lu à l'âge exact, force de mortalité supposée constante entre deux âges entiers. Il ne lisait que l'âge entier là où les quotients sont observés : **1,7 % de pension d'un coup à chaque anniversaire**, et rien entre deux |
+| Diviseur actuariel | Lu à la DATE exacte — âge et millésime —, force de mortalité supposée constante dans chaque cellule (âge entier × millésime). Il ne lisait que l'âge entier là où les quotients sont observés : **1,7 % de pension d'un coup à chaque anniversaire**, et rien entre deux |
+| Taux de remplacement | Rapporté au dernier revenu **annualisé** : l'année du départ ne porte que ses mois, et la rapporter telle quelle doublait le taux |
 | Revalorisation des salaires portés au compte | La circulaire applicable est celle en vigueur **à la date** de liquidation — 3,9 % d'écart au second semestre 2022 |
 | Générations coupées par un texte | 1<sup>er</sup> juillet 1951, 1<sup>er</sup> septembre 1961 : les tables portent deux lignes, lues au mois de naissance |
 | Traitement des six derniers mois | Celui **en vigueur au départ**, annualisé, et non celui de la dernière année pleine |
+
+**Une exposition n'est pas une interpolation.** Le diviseur mélange deux
+dimensions — l'âge et le millésime de la table —, et la seconde a d'abord été
+laissée en escalier, au motif qu'une table de mortalité est publiée par année
+civile. C'était une erreur, et elle se voyait : l'âge avançait mois par mois
+quand l'année sautait d'un bloc au 1<sup>er</sup> janvier, si bien que le
+diviseur **remontait** à cette date et que partir un mois plus tard rallongeait
+la durée de service attendue. Le rentier parti en juillet 2038 ne passe pas son
+année de rente sous le seul millésime 2038 : il en passe la moitié sous 2039.
+Découper son trajet à ses deux franchissements — son anniversaire, puis le
+1<sup>er</sup> janvier — et donner à chaque tronçon la force de mortalité de la
+cellule qu'il traverse, ce n'est pas inventer une tendance infra-annuelle :
+c'est répartir l'EXPOSITION entre deux tables publiées. Le diviseur décroît
+depuis lors de mois en mois, sans marche ni remontée.
 
 **Ce qui reste annuel, et doit le rester.** Le pas du moteur n'a pas changé,
 parce que les données ne l'ont pas. Un salaire est déclaré à l'année, le salaire

@@ -245,12 +245,21 @@ function resumeNotionnel(resultat, tauxRemplacementScenario, variation, coeffici
 }
 
 /** Pension rapportée au dernier revenu d'activité. */
+/**
+ * Pension rapportée au dernier revenu d'activité, ANNUALISÉ.
+ *
+ * L'année du départ est incomplète — six mois de salaire pour qui liquide au
+ * 1er juillet —, et la rapporter telle quelle doublait le taux de remplacement.
+ * Ce que le taux compare, c'est une pension annuelle au traitement ANNUEL que
+ * l'assuré percevait en partant.
+ */
 function tauxRemplacement(carriere, pension) {
   const derniers = carriere.lignes.filter((ligne) => ligne.cotise);
   if (derniers.length === 0 || pension <= 0) {
     return 0.0;
   }
-  return pension / derniers[derniers.length - 1].revenu;
+  const dernier = derniers[derniers.length - 1].revenuAnnualise;
+  return dernier > 0 ? pension / dernier : 0.0;
 }
 
 /** Façade : charge les données une fois, simule autant de carrières que voulu. */

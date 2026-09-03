@@ -390,6 +390,63 @@ def test_le_diviseur_ne_fait_plus_de_marche_a_l_anniversaire(mortalite):
     )
 
 
+def test_le_diviseur_decroit_aussi_au_passage_du_1er_janvier(mortalite):
+    """Le millésime de la table ne doit pas sauter quand l'âge, lui, glisse.
+
+    L'âge avançait mois par mois et l'année civile d'un bloc au 1er janvier :
+    le diviseur REMONTAIT à cette date, et partir un mois plus tard rallongeait
+    la durée de service attendue. Le trajet d'une année de rente est désormais
+    découpé à ses deux franchissements — l'anniversaire, puis le 1er janvier —,
+    chaque tronçon recevant la force de mortalité de la cellule qu'il traverse.
+    """
+    parametres = Parametres(racine_donnees=RACINE_DONNEES)
+    convertisseur = Convertisseur(mortalite, parametres)
+
+    # Vingt-quatre mois consécutifs, à cheval sur deux 1er janvier.
+    diviseurs = []
+    for k in range(25):
+        annee, mois = 2037 + k // 12, k % 12 + 1
+        diviseurs.append(
+            convertisseur.coefficient(62 + k / 12, annee, "H", mois).diviseur
+        )
+    ecarts = [avant - apres for avant, apres in zip(diviseurs, diviseurs[1:])]
+
+    assert all(ecart > 0 for ecart in ecarts), diviseurs
+    # Le pas de janvier ne se distingue pas des autres : c'était le symptôme.
+    assert max(ecarts) < 2 * min(ecarts), ecarts
+
+    # Et douze mois de mois valent exactement un an d'âge, au même mois.
+    assert diviseurs[12] == pytest.approx(
+        convertisseur.coefficient(63.0, 2038, "H", 1).diviseur
+    )
+
+
+def test_le_taux_de_remplacement_rapporte_un_revenu_annualise(macro):
+    """L'année du départ ne porte que ses mois ; le taux compare des années.
+
+    Le dernier revenu servait de dénominateur tel quel. L'année du départ étant
+    devenue incomplète, six mois de salaire y répondaient d'une pension
+    annuelle : le taux de remplacement doublait pour qui liquidait en juillet.
+    """
+    from retraite_notionnelle.simulateur import Simulateur
+    from retraite_notionnelle.carriere import Carriere
+
+    simulateur = Simulateur(Parametres(racine_donnees=RACINE_DONNEES))
+    taux = []
+    for mois in range(12):
+        carriere = Carriere.depuis_profil(
+            1962, "H", "salarie_prive_non_cadre", 22, 64 + mois / 12,
+            simulateur.macro, profil_carriere="plat",
+        )
+        taux.append(simulateur.simuler(carriere).taux_remplacement_actuel)
+
+    # Aucun mois ne fait bondir le taux : il suit la pension, pas la troncature
+    # de la dernière année.
+    for avant, apres in zip(taux, taux[1:]):
+        assert abs(apres / avant - 1) < 0.03, taux
+    assert all(0.2 < t < 1.2 for t in taux), taux
+
+
 def test_le_mois_de_liquidation_designe_la_circulaire_de_revalorisation(macro):
     """Deux circulaires portent l'année 2022, et elles diffèrent de 3,9 %.
 

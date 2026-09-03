@@ -559,10 +559,12 @@ def _resultats(contexte: Contexte, saisie: Saisie) -> str:
     )
     fiches = "".join([
         g.fiche("années cotisées", str(len(carriere.annees_cotisees))),
-        g.fiche("liquidation", f"{_age(carriere.age_liquidation)} ans "
-                f'<span class="discret">en {carriere.annee_liquidation}</span>'),
+        # La date, et pas seulement l'année : la pension prend effet le premier
+        # du mois, et c'est ce mois que l'utilisateur vient de choisir.
+        g.fiche("liquidation", f"{_age(carriere.age_liquidation)} "
+                f'<span class="discret">en {carriere.date_liquidation}</span>'),
         g.fiche(f"âge de référence — {anticipation}",
-                f"{_age(ecart.age_reference)} ans"),
+                f"{_age(ecart.age_reference)}"),
         g.fiche("coefficient de conversion", g.nombre(conversion.diviseur, 1)),
         g.fiche("capital notionnel rétroactif", g.euros(retro.capital_notionnel)),
     ])
@@ -765,7 +767,7 @@ def _cascade(comparaison: Comparaison, saisie: Saisie) -> str:
          "carrière arrêtée à la bascule, règles actuelles, avantages non "
          "contributifs retirés, sans décote",
          g.euros(acquis.pension_figee) + " par an"],
-        [f"b) × diviseur à {_age(acquis.age_conversion)} ans",
+        [f"b) × diviseur à {_age(acquis.age_conversion)}",
          f"coefficient de conversion en {saisie.bascule} : "
          f"{g.nombre(acquis.diviseur, 2)}",
          g.euros(acquis.capital_a_la_bascule)],
@@ -778,7 +780,7 @@ def _cascade(comparaison: Comparaison, saisie: Saisie) -> str:
          g.euros(capital_apres)],
         ["e) = capital notionnel", "ce que la carrière a effectivement financé",
          g.euros(prospectif.capital_notionnel)],
-        [f"f) ÷ diviseur à {_age(age_liquidation)} ans",
+        [f"f) ÷ diviseur à {_age(age_liquidation)}",
          f"coefficient de conversion en {liquidation} : {g.nombre(diviseur, 2)}",
          g.euros(prospectif.pension_annuelle) + " par an"],
     ]
@@ -788,8 +790,8 @@ def _cascade(comparaison: Comparaison, saisie: Saisie) -> str:
     if saisie.conversion_acquis == "reference" and acquis.age_conversion > age_liquidation:
         neutralite = (
             f"<p>Ligne b) : les droits déjà ouverts sont convertis au diviseur de "
-            f"l'âge de référence ({_age(acquis.age_conversion)} ans), alors que la "
-            f"rente sera servie depuis {_age(age_liquidation)} ans. L'anticipation "
+            f"l'âge de référence ({_age(acquis.age_conversion)}), alors que la "
+            f"rente sera servie depuis {_age(age_liquidation)}. L'anticipation "
             f"est donc payée une seconde fois, sur le passé. L'option « conversion "
             f"des droits acquis à l'âge de départ effectif » supprime cet "
             f"abattement, et c'est la convention qu'une réforme réelle "
@@ -1091,8 +1093,8 @@ active, ni périodes assimilées, ni réversion, ni décote ni surcote. Le scén
 <h3>La fusion des régimes</h3>
 <p>À compter de l'année de bascule, les {nombre_regimes} régimes du catalogue sont remplacés
 par un régime unique dont chaque paramètre est le plus défavorable de
-l'ensemble : ouverture à {_age(fusionne.age_ouverture)} ans, taux plein à
-{_age(fusionne.age_taux_plein)} ans, {fusionne.duree_requise_trimestres} trimestres
+l'ensemble : ouverture à {_age(fusionne.age_ouverture)}, taux plein à
+{_age(fusionne.age_taux_plein)}, {fusionne.duree_requise_trimestres} trimestres
 requis, cotisation de {g.pourcentage(fusionne.taux_cotisation_retraite, decimales=2)}
 sur assiette déplafonnée.</p>
 

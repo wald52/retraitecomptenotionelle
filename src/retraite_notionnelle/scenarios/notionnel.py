@@ -190,7 +190,8 @@ class ScenarioNotionnel:
             regime_fusionne=regime_fusionne,
         )
         conversion = self.convertisseur.coefficient(
-            age_liquidation, annee_liquidation, self._sexe(carriere)
+            age_liquidation, annee_liquidation, self._sexe(carriere),
+            carriere.mois_liquidation,
         )
         pension = compte.capital / conversion.diviseur
 
@@ -237,7 +238,8 @@ class ScenarioNotionnel:
             regime_fusionne=regime_fusionne,
         )
         conversion = self.convertisseur.coefficient(
-            age_liquidation, annee_liquidation, self._sexe(carriere)
+            age_liquidation, annee_liquidation, self._sexe(carriere),
+            carriere.mois_liquidation,
         )
         capital_total = compte.capital + capital_acquis
         pension = capital_total / conversion.diviseur
@@ -261,7 +263,8 @@ class ScenarioNotionnel:
         age_liquidation = carriere.age_liquidation or 0.0
         actuel = self.scenario_actuel.calculer(carriere)
         conversion = self.convertisseur.coefficient(
-            age_liquidation, annee_liquidation, self._sexe(carriere)
+            age_liquidation, annee_liquidation, self._sexe(carriere),
+            carriere.mois_liquidation,
         )
         compte = self.constructeur.construire(
             carriere,

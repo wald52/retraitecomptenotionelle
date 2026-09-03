@@ -59,6 +59,7 @@ export class ScenarioNotionnel {
     );
     const conversion = this.convertisseur.coefficient(
       ageLiquidation, anneeLiquidation, this._sexe(carriere),
+      carriere.moisLiquidation,
     );
 
     return resultat({
@@ -101,6 +102,7 @@ export class ScenarioNotionnel {
     );
     const conversion = this.convertisseur.coefficient(
       ageLiquidation, anneeLiquidation, this._sexe(carriere),
+      carriere.moisLiquidation,
     );
     const capitalTotal = compte.capital + capitalAcquis;
 
@@ -125,6 +127,7 @@ export class ScenarioNotionnel {
     const actuel = this.scenarioActuel.calculer(carriere);
     const conversion = this.convertisseur.coefficient(
       ageLiquidation, anneeLiquidation, this._sexe(carriere),
+      carriere.moisLiquidation,
     );
     const compte = this.constructeur.construire(
       carriere, anneeLiquidation, anneeLiquidation, // aucune cotisation postérieure

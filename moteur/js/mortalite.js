@@ -225,30 +225,55 @@ export class DonneesMortalite {
   }
 
   /**
-   * Probabilité de passer de ``age`` à ``age+1`` pendant l'année ``annee``.
+   * Probabilité de survivre un an à partir de ``age`` en ``annee``.
    *
-   * **L'âge est fractionnaire, et il compte.** La méthode lisait
-   * ``quotients[trunc(age)]`` : la part OBSERVÉE de la table était aveugle aux
-   * mois, et le diviseur d'un départ à 60 ans et onze mois était celui d'un
+   * **L'âge et la date sont fractionnaires, et tous deux comptent.** La méthode
+   * lisait `quotients[trunc(age)]` : la part OBSERVÉE de la table était aveugle
+   * aux mois, et le diviseur d'un départ à 60 ans et onze mois était celui d'un
    * départ à 60 ans tout rond — 1,7 % de pension d'un coup à chaque
    * anniversaire, et rien entre deux.
    *
-   * Entre deux âges entiers, la force de mortalité est supposée CONSTANTE —
-   * l'hypothèse actuarielle usuelle, et la seule qui rende la survie continue
-   * en l'âge : p(x+f) = p(x)^(1-f) · p(x+1)^f. L'année civile, elle, n'est pas
-   * interpolée : une table est publiée par millésime, et lisser entre deux
-   * millésimes inventerait une tendance infra-annuelle que la source ne porte
-   * pas.
+   * **La force de mortalité est supposée constante dans chaque cellule** (âge
+   * entier × millésime) — l'hypothèse actuarielle usuelle, et la seule qui
+   * rende la survie continue. Un assuré parti en juillet 2038 à 63 ans et
+   * 4 mois passe son année de rente dans plusieurs cellules : il franchit son
+   * anniversaire, puis le 1er janvier. Le trajet est découpé à ces deux
+   * franchissements, et chaque tronçon reçoit la force de la cellule traversée.
+   *
+   * Ce n'est pas lisser entre deux millésimes : c'est répartir l'EXPOSITION
+   * entre eux. Sans ce découpage, l'année civile sautait d'un bloc au
+   * 1er janvier quand l'âge avançait mois par mois, et le diviseur REMONTAIT à
+   * cette date.
    */
   survieAnnuelle(age, annee, sexe) {
-    const plancher = Math.floor(age);
-    const fraction = age - plancher;
-    const basse = this._survieCellule(plancher, annee, sexe);
-    if (fraction <= 1e-9) {
-      return basse;
+    const ageEntier = Math.floor(age);
+    const partAge = age - ageEntier;
+    const anneeEntiere = Math.floor(annee);
+    const partAnnee = annee - anneeEntiere;
+    if (partAge <= 1e-9 && partAnnee <= 1e-9) {
+      return this._survieCellule(ageEntier, anneeEntiere, sexe);
     }
-    const haute = this._survieCellule(plancher + 1, annee, sexe);
-    return basse ** (1.0 - fraction) * haute ** fraction;
+
+    // Les deux coordonnées avancent à la même vitesse : le trajet franchit
+    // l'âge entier suivant en `1 - partAge` et le 1er janvier suivant en
+    // `1 - partAnnee`. D'où deux coupures au plus, et trois tronçons.
+    const coupures = [...new Set([1.0 - partAge, 1.0 - partAnnee])]
+      .filter((borne) => borne > 1e-9 && borne < 1.0 - 1e-9)
+      .sort((x, y) => x - y);
+    const bornes = [0.0, ...coupures, 1.0];
+    let cumul = 0.0;
+    for (let i = 0; i < bornes.length - 1; i += 1) {
+      const debut = bornes[i];
+      const fin = bornes[i + 1];
+      const milieu = 0.5 * (debut + fin);
+      const cellule = this._survieCellule(
+        ageEntier + Math.floor(partAge + milieu),
+        anneeEntiere + Math.floor(partAnnee + milieu),
+        sexe,
+      );
+      cumul += (fin - debut) * -Math.log(Math.max(cellule, 1e-300));
+    }
+    return Math.exp(-cumul);
   }
 
   // -- tables de génération --------------------------------------------------
@@ -337,6 +362,8 @@ export class DonneesMortalite {
   }
 
   fiabilite(annee) {
-    return Math.min(this.loi(annee, "H").fiabilite, this.loi(annee, "F").fiabilite);
+    const millesime = Math.floor(annee);
+    return Math.min(this.loi(millesime, "H").fiabilite,
+                    this.loi(millesime, "F").fiabilite);
   }
 }

@@ -71,11 +71,21 @@ class Convertisseur:
         return sexe
 
     def coefficient(self, age_liquidation: float, annee_liquidation: int,
-                    sexe: str | None = None) -> CoefficientConversion:
+                    sexe: str | None = None,
+                    mois_liquidation: int = 1) -> CoefficientConversion:
+        """Diviseur annuitaire à une DATE de liquidation.
+
+        ``mois_liquidation`` dit où la liquidation tombe dans son année civile,
+        donc sous quel millésime de table le rentier passe chaque tronçon de sa
+        première année de rente. Sans lui, la table sautait d'un millésime au
+        1er janvier quand l'âge avançait mois par mois, et le diviseur remontait
+        à cette date.
+        """
         sexe_table = self._sexe_table(sexe)
         generation = self.parametres.table_generation
+        date_liquidation = annee_liquidation + (mois_liquidation - 1) / 12
         courbe = self.mortalite.courbe(
-            age_liquidation, annee_liquidation, sexe_table, generation
+            age_liquidation, date_liquidation, sexe_table, generation
         )
 
         nu = self.parametres.taux_anticipe_conversion
@@ -107,13 +117,18 @@ class Convertisseur:
         )
 
     def effet_anticipation(self, age_anticipe: float, age_reference: float,
-                           annee_liquidation: int, sexe: str | None = None) -> float:
+                           annee_liquidation: int, sexe: str | None = None,
+                           mois_liquidation: int = 1) -> float:
         """Rapport des pensions à capital notionnel donné, anticipé / à l'heure.
 
         Isole la seule sanction due à l'allongement de la durée de service.
         L'effet total d'un départ anticipé est plus fort, puisque s'y ajoutent
         les cotisations non versées.
         """
-        anticipe = self.coefficient(age_anticipe, annee_liquidation, sexe)
-        reference = self.coefficient(age_reference, annee_liquidation, sexe)
+        anticipe = self.coefficient(
+            age_anticipe, annee_liquidation, sexe, mois_liquidation
+        )
+        reference = self.coefficient(
+            age_reference, annee_liquidation, sexe, mois_liquidation
+        )
         return reference.diviseur / anticipe.diviseur

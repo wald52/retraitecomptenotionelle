@@ -406,11 +406,19 @@ def _resume_notionnel(resultat: ResultatNotionnel, taux_remplacement: float,
 
 
 def _taux_remplacement(carriere: Carriere, pension: float) -> float:
-    """Pension rapportée au dernier revenu d'activité."""
+    """Pension rapportée au dernier revenu d'activité, ANNUALISÉ.
+
+    L'année du départ est incomplète — six mois de salaire pour qui liquide au
+    1er juillet —, et la rapporter telle quelle doublait le taux de
+    remplacement. Ce que le taux compare, c'est une pension annuelle au
+    traitement ANNUEL que l'assuré percevait en partant : c'est donc le revenu
+    ramené à l'année pleine qui fait le dénominateur.
+    """
     derniers = [l for l in carriere.lignes if l.cotise]
     if not derniers or pension <= 0:
         return 0.0
-    return pension / derniers[-1].revenu
+    dernier = derniers[-1].revenu_annualise
+    return pension / dernier if dernier > 0 else 0.0
 
 
 class Simulateur:
