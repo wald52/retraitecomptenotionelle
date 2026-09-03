@@ -871,7 +871,13 @@ plus volontiers.
     d'âge légal à qui naissait du mauvais côté d'une coupure. **Il rend
     désormais un segment par valeur** : la clé porte le mois, `1951.5` pour le
     1er juillet 1951, `1961.667` pour le 1er septembre 1961, et le modèle lit
-    ces tables au mois de naissance. L'approximation est levée ;
+    ces tables au mois de naissance. L'approximation est levée, et la passe du
+    3 septembre 2026 sur le dump LEGI du 13 juillet 2025 l'établit : **78
+    segments d'âge d'ouverture et 19 de durée requise, tous identiques** aux
+    lignes du dépôt — aucune correction, aucun ajout. Les trois lignes qui
+    portaient une coupure sont donc `certifiee` comme les autres. Le
+    coefficient de minoration, lui, ne porte AUCUN segment décimal : l'article
+    R. 351-27 ne coupe pas ces générations, et le modèle ne l'invente pas ;
   * **le texte peut être fautif.** Le décret du 3 juin 2023 écrit « A
     soixante-deux pour les assurés » — le mot « ans » manque. Une expression
     régulière trop stricte perd la borne des 20 ans de la carrière longue, et

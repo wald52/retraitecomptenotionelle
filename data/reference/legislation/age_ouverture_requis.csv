@@ -31,13 +31,12 @@
 # en mars 1951 lit la ligne `1951` et un assuré né en octobre la ligne
 # `1951.5`.
 #
-# NIVEAU DE FIABILITÉ DES LIGNES COUPÉES. La valeur qui l'emportait à la
-# majorité reste `certifiee` — c'est elle que le récupérateur a lue dans le
-# texte, et elle n'a pas bougé, seule sa clé s'est précisée. Sa jumelle, la
-# fraction minoritaire de la génération, est `haute` : elle est transcrite du
-# même article, mais le récupérateur ne l'a pas encore rendue lui-même — il
-# faut pour cela qu'il émette des segments plutôt qu'une valeur majoritaire,
-# ce qu'il fait désormais, à sa prochaine passe sur les 9 Go de la base LEGI.
+# LES DEUX SEGMENTS SONT CERTIFIÉS. Le récupérateur émet un segment par valeur
+# et non plus une majorité de mois ; la passe du 3 septembre 2026 sur le dump
+# LEGI du 13 juillet 2025 a rendu SOIXANTE-DIX-HUIT segments — deux de plus que
+# la table annuelle — et les a trouvés IDENTIQUES aux soixante-dix-huit lignes
+# de ce fichier : aucune correction, aucun ajout. Les deux fractions de 1951 et
+# de 1961 viennent donc du texte au même titre que le reste.
 #
 # Le modèle ne connaissait que l'année de naissance et retenait la valeur de la
 # fraction la plus nombreuse — la plus exigeante en cas d'égalité. C'était la
@@ -98,7 +97,7 @@ generation,age,fiabilite
 1948,60.00,certifiee
 1949,60.00,certifiee
 1950,60.00,certifiee
-1951,60.00,haute
+1951,60.00,certifiee
 1951.5,60.33,certifiee
 1952,60.75,certifiee
 1953,61.17,certifiee
@@ -110,7 +109,7 @@ generation,age,fiabilite
 1959,62.00,certifiee
 1960,62.00,certifiee
 1961,62.00,certifiee
-1961.667,62.25,haute
+1961.667,62.25,certifiee
 1962,62.50,certifiee
 1963,62.75,certifiee
 1964,63.00,certifiee

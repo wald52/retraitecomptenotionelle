@@ -565,11 +565,17 @@ def _parametres_retraite() -> dict[str, float]:
 
 
 def _table_legi(prefixe: str) -> dict[tuple, float]:
-    """Une des tables par génération lues dans la loi, mise en forme de clés."""
+    """Une des tables par génération lues dans la loi, mise en forme de clés.
+
+    La clé de génération peut porter des décimales : deux textes coupent une
+    génération en cours d'année — le 1er juillet 1951, le 1er septembre 1961 —,
+    et le récupérateur rend alors un segment par valeur, `1951.5` désignant le
+    premier juillet. Le tri lisait ces clés avec ``int`` et les refusait.
+    """
     return {
         (cle.split("|")[1],): valeur
         for cle, valeur in sorted(_parametres_retraite().items(),
-                                  key=lambda kv: int(kv[0].split("|")[1]))
+                                  key=lambda kv: float(kv[0].split("|")[1]))
         if cle.startswith(f"{prefixe}|")
     }
 
@@ -885,7 +891,9 @@ class Certification:
 
         if appliquer:
             lignes.sort(key=lambda l: tuple(
-                (int(l[c]) if c == "annee" else l[c]) for c in self.cles
+                (int(l[c]) if c == "annee"
+                 else float(l[c]) if c == "generation" else l[c])
+                for c in self.cles
             ))
             _ecrire(self.chemin, commentaires, champs, lignes)
 

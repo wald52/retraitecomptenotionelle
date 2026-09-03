@@ -1,14 +1,14 @@
 {
- "certifie_le": "2026-09-02",
+ "certifie_le": "2026-09-03",
  "series": {
   "age_ouverture_requis": {
    "ajoutees": 0,
    "corrigees": 0,
-   "empreinte": "032da986368d787e",
-   "identiques": 76,
+   "empreinte": "87324cfad7650683",
+   "identiques": 78,
    "niveau": "certifiee",
    "source": "DILA, base LEGI, code de la sécurité sociale D. 161-2-1-9",
-   "valeurs": 76
+   "valeurs": 78
   },
   "carriere_longue": {
    "ajoutees": 0,
@@ -31,11 +31,11 @@
   "duree_assurance_requise": {
    "ajoutees": 0,
    "corrigees": 0,
-   "empreinte": "b21a080a3f0860e5",
-   "identiques": 18,
+   "empreinte": "eb9e393edaf923f5",
+   "identiques": 19,
    "niveau": "certifiee",
    "source": "DILA, base LEGI, code de la sécurité sociale L. 161-17-3",
-   "valeurs": 18
+   "valeurs": 19
   },
   "employeur_public_cnracl": {
    "ajoutees": 0,

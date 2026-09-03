@@ -323,10 +323,9 @@ def test_les_tables_par_generation_disent_le_droit_en_vigueur():
     # pour le 1er juillet 1951, `1961.667` pour le 1er septembre 1961.
     assert ages[1951][0] == 60.0 and ages[1951.5][0] == 60.33
     assert ages[1961][0] == 62.0 and ages[1961.667][0] == 62.25
-    # La valeur majoritaire reste celle que le récupérateur a lue ; sa jumelle
-    # minoritaire est transcrite du même article, et le dit.
-    assert ages[1951.5][1] == "certifiee" and ages[1951][1] == "haute"
-    assert ages[1961][1] == "certifiee" and ages[1961.667][1] == "haute"
+    # Les deux fractions viennent du texte au même titre : le récupérateur rend
+    # un segment par valeur, et la confrontation les a trouvées identiques.
+    assert all(niveau == "certifiee" for _, niveau in ages.values())
 
     annulation = table("age_annulation_decote.csv", "age")
     assert annulation[1950][0] == 65.0
