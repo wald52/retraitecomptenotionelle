@@ -2,10 +2,16 @@
 
 Toutes les décisions de modélisation contestables sont réunies ici, en un seul
 endroit, pour qu'on puisse les faire varier sans toucher au moteur. Les valeurs
-par défaut correspondent au cahier des charges :
+par défaut suivent le cahier des charges, à une exception près et une seule :
+l'indexation, où le défaut est la règle d'ÉQUILIBRE et non la règle DEMANDÉE.
+Un défaut est ce qu'on retient faute d'instruction contraire, pas ce qu'on
+cherche à démontrer ; la règle demandée reste à un paramètre de distance.
 
-* indexation par « triple lock inversé » (minimum des trois taux — la
-  médiane et la moyenne des mêmes trois taux sont disponibles en variantes) ;
+* indexation par la croissance de la masse salariale — le taux d'équilibre de
+  la répartition. Le « triple lock inversé » qui a donné son cahier des charges
+  au modèle reste disponible, avec ses variantes (médiane, moyenne, tout en
+  nominal), ainsi que la revalorisation réellement pratiquée par le régime
+  général ;
 * âge de référence à cliquet ;
 * neutralisation intégrale des droits non contributifs ;
 * fusion des régimes au cas le plus défavorable à compter de l'année de bascule.
@@ -299,7 +305,14 @@ class Parametres:
     scenario_projection: str = "cor_central"
 
     # --- Indexation ---------------------------------------------------------
-    mode_indexation: ModeIndexation = ModeIndexation.TRIPLE_LOCK_INVERSE
+    #: Le défaut est la règle d'ÉQUILIBRE — la croissance de l'assiette des
+    #: cotisations —, et non le triple lock inversé qui a donné son cahier des
+    #: charges au modèle. Raison : le triple lock inversé est une règle
+    #: proposée, la masse salariale est celle que la théorie de la répartition
+    #: désigne, et un défaut doit être ce qu'on retient faute d'instruction
+    #: contraire, pas ce qu'on veut démontrer. La règle demandée reste à un
+    #: paramètre de distance : ``--indexation triple_lock_inverse``.
+    mode_indexation: ModeIndexation = ModeIndexation.MASSE_SALARIALE
 
     #: Plancher éventuel appliqué au taux d'indexation. ``None`` = aucun
     #: plancher : le triple lock inversé peut être négatif, ce qui est sa
@@ -425,5 +438,8 @@ class Parametres:
         return replace(self, **modifications)
 
 
-#: Configuration de référence, celle qui répond littéralement au cahier des charges.
+#: Configuration de référence. Elle suit le cahier des charges partout sauf sur
+#: l'indexation, où elle retient le taux d'équilibre de la répartition ; la
+#: lecture littérale du cahier des charges est
+#: ``PARAMETRES_DEFAUT.avec(mode_indexation=ModeIndexation.TRIPLE_LOCK_INVERSE)``.
 PARAMETRES_DEFAUT = Parametres()

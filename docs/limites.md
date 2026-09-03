@@ -901,6 +901,12 @@ résiduelle se propage dans le même sens aux trois scénarios.
 
 ## 2. La règle d'indexation domine le scénario rétroactif
 
+Le modèle revalorise par défaut sur la croissance de la masse salariale — le
+taux d'équilibre de la répartition. Ce qui suit décrit la règle demandée, le
+triple lock inversé (`--indexation triple_lock_inverse`), parce que c'est elle
+qui porte les écarts les plus lourds ; les limites propres à la règle par défaut
+sont énoncées à la fin de cette section.
+
 Le triple lock inversé, pris à la lettre, retient le minimum entre deux taux
 **nominaux** (inflation, salaire moyen) et un taux **réel** (productivité). Dès
 que l'inflation dépasse la croissance de la productivité, c'est cette dernière

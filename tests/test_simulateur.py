@@ -824,7 +824,9 @@ def test_l_ecart_entre_regles_d_indexation_croit_avec_l_anciennete_de_la_carrier
     C'est pourquoi le choix de la règle pèse surtout sur le scénario rétroactif
     appliqué aux générations anciennes.
     """
-    litteral = Simulateur(Parametres())
+    litteral = Simulateur(
+        Parametres(mode_indexation=ModeIndexation.TRIPLE_LOCK_INVERSE)
+    )
     nominal = Simulateur(Parametres(
         mode_indexation=ModeIndexation.TRIPLE_LOCK_INVERSE_NOMINAL
     ))

@@ -56,17 +56,35 @@ Les régimes antérieurs figurent au catalogue mais sont traités à part :
 
 ---
 
-## 3. L'indexation : le triple lock inversé
+## 3. L'indexation
 
-### La règle
+### La règle par défaut, et la règle demandée
 
-À chaque année *t* :
+Le modèle revalorise les comptes, par défaut, sur la **croissance de la masse
+salariale** : l'assiette des cotisations, donc le rendement qu'un système en
+répartition peut servir sans changer son taux de cotisation. C'est la règle que
+la théorie des comptes notionnels désigne, et la section « La règle d'équilibre »
+plus bas la détaille.
+
+```
+taux d'indexation (défaut) = croissance nominale de la masse salariale
+```
+
+Ce n'est pas la règle qui a motivé ce dépôt. Celle-là est le **triple lock
+inversé** — `--indexation triple_lock_inverse` —, et c'est elle que décrit tout
+le reste de cette section, parce que c'est elle qui pose les questions de
+méthode les plus difficiles :
 
 ```
 taux d'indexation = min( inflation , croissance du salaire moyen , productivité réelle )
 ```
 
-Elle s'applique à la revalorisation des **comptes en cours de constitution**,
+Pourquoi ce n'est pas elle le défaut : un défaut est ce qu'on retient faute
+d'instruction contraire, pas ce qu'on cherche à démontrer. La règle demandée est
+une proposition, et une proposition se compare à un point de référence qu'elle
+n'a pas choisi.
+
+La règle d'indexation, quelle qu'elle soit, s'applique à la revalorisation des **comptes en cours de constitution**,
 depuis 1941. Elle ne s'applique pas aux pensions déjà liquidées — non par
 choix, mais parce que le modèle n'a pas de phase postérieure à la liquidation :
 il calcule une pension à la date de départ, dans les euros de cette année-là,

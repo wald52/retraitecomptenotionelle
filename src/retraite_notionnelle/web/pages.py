@@ -34,16 +34,18 @@ PROFILS = [
     ("fortement_ascendant", "Fortement ascendant — profil cadre"),
 ]
 
+#: La règle par défaut vient EN TÊTE : c'est celle que la simulation applique, et
+#: donc la première ligne du tableau « D'où vient l'écart ».
 INDEXATIONS = [
+    ("masse_salariale", "Masse salariale — règle d'équilibre (défaut)"),
+    ("revalorisation_portee_au_compte",
+     "Revalorisation réellement pratiquée (arrêtés Cnav)"),
     ("triple_lock_inverse", "Triple lock inversé (règle demandée)"),
     ("triple_lock_inverse_nominal", "Triple lock inversé, tout en nominal"),
     ("mediane_trois_taux", "Médiane des trois taux"),
     ("moyenne_trois_taux", "Moyenne des trois taux"),
-    ("revalorisation_portee_au_compte",
-     "Revalorisation réellement pratiquée (arrêtés Cnav)"),
     ("prix", "Prix"),
     ("salaires", "Salaire moyen"),
-    ("masse_salariale", "Masse salariale (règle d'équilibre de la répartition)"),
 ]
 
 AGES_REFERENCE = [
@@ -105,7 +107,7 @@ class Saisie:
     primes: float = 0.0
     enfants: int = 0
     interruptions: str = ""
-    indexation: str = "triple_lock_inverse"
+    indexation: str = "masse_salariale"
     age_reference: str = "cliquet_legal"
     table: str = "unisexe"
     conversion_acquis: str = "reference"
@@ -704,8 +706,15 @@ les scénarios 4 et 5 y ajoutent la seconde, et ne changent rien d'autre.</p>
 
 def _decomposition(contexte: Contexte, saisie: Saisie,
                    comparaison: Comparaison) -> str:
-    """Sépare l'effet de la règle d'indexation de celui des comptes notionnels."""
-    if saisie.indexation != "triple_lock_inverse":
+    """Sépare l'effet de la règle d'indexation de celui des comptes notionnels.
+
+    Le tableau ne s'affiche que sur la règle par défaut : ailleurs, l'utilisateur
+    a lui-même choisi sa ligne de comparaison, et la première ligne du tableau ne
+    serait plus celle qu'il regarde. Le défaut est lu sur la saisie, non écrit
+    ici : ce test a nommé « triple_lock_inverse » en dur jusqu'à ce que le défaut
+    change, et le tableau aurait alors disparu de la page d'accueil.
+    """
+    if saisie.indexation != Saisie.indexation:
         return ""
 
     lignes = []
@@ -729,41 +738,40 @@ def _decomposition(contexte: Contexte, saisie: Saisie,
     return f"""
 <h2>D'où vient l'écart</h2>
 <p>La même carrière, le même calcul notionnel rétroactif, avec huit règles de
-revalorisation des comptes. Les quatre premières partent des mêmes trois séries
-— inflation, salaire moyen, productivité — et n'en changent que ce qu'on en
-retient : le minimum, le minimum rendu homogène, la médiane, la moyenne. La
-cinquième n'est pas une hypothèse : c'est le coefficient que les arrêtés ont
-réellement appliqué aux salaires portés au compte, celui-là même dont le
-scénario 1 se sert. La colonne « rendement » est le facteur par lequel les
-cotisations ont été multipliées entre leur versement et la liquidation.</p>
+revalorisation des comptes. La <strong>première ligne est celle que la
+simulation applique</strong> : la croissance de la masse salariale, c'est-à-dire
+le rendement qu'un système en répartition peut servir sans changer son taux de
+cotisation. La deuxième n'est pas une hypothèse mais un relevé : le coefficient
+que les arrêtés ont réellement appliqué aux salaires portés au compte, celui-là
+même dont le scénario 1 se sert. Les quatre suivantes sont le triple lock
+inversé et ses variantes — mêmes trois séries, inflation, salaire moyen,
+productivité, seul change ce qu'on en retient. La colonne « rendement » est le
+facteur par lequel les cotisations ont été multipliées entre leur versement et
+la liquidation.</p>
 {g.tableau(
     ["Règle d'indexation", "Rendement cumulé", "Pension mensuelle", "Écart au système actuel"],
     lignes,
     ["", "nombre", "nombre", "nombre"],
 )}
-<p class="discret">Le triple lock inversé compare deux taux nominaux (inflation,
-salaire moyen) à un taux réel (productivité) : dès que l'inflation dépasse la
-productivité — soit presque toute la période 1945-1985 — c'est la productivité
-qui l'emporte, et la valeur réelle des comptes s'effondre. La ligne de partage
-est la <strong>revalorisation réellement pratiquée</strong> : l'écart entre la
-première ligne et celle-là mesure l'effet de la règle d'indexation, l'écart
-entre celle-là et le système actuel mesure l'effet propre des comptes
-notionnels. La ligne « Prix » ne joue pas ce rôle, contrairement à ce que cette
-page a longtemps dit : le régime général ne revalorise sur les prix que depuis
-1987, et suivait les salaires avant — sur 1941-2025, la prendre pour le droit
-positif revient à sous-estimer d'un facteur cinq ce que le compte a réellement
-rapporté. Sur une carrière donnée l'écart entre les deux lignes reste faible,
-et peut même s'inverser pour celles qui commencent après 1987 : les cotisations
-se concentrent sur les dernières années, où les deux règles coïncident. Le
-facteur cinq est celui de l'indice cumulé depuis 1941, pas celui du résultat. Les lignes « médiane » et « moyenne » gardent les trois mêmes séries
-que le triple lock et n'en changent que la statistique : elles chiffrent ce que
-coûte le choix du minimum, indépendamment du choix des termes.</p>
-<p class="discret">La dernière ligne, la <strong>masse salariale</strong>, est la
-seule qui repose sur un argument théorique et non sur un choix : c'est
+<p class="discret">La ligne de repère est la <strong>revalorisation réellement
+pratiquée</strong> : c'est celle du droit positif. L'écart entre elle et le
+système actuel mesure l'effet propre des comptes notionnels ; tout ce qui sépare
+les autres lignes de celle-là mesure l'effet de la règle d'indexation. La ligne
+« Prix » ne joue pas ce rôle, contrairement à ce que cette page a longtemps dit :
+le régime général ne revalorise sur les prix que depuis 1987, et suivait les
+salaires avant. Le triple lock inversé, lui, compare deux taux nominaux
+(inflation, salaire moyen) à un taux réel (productivité) : dès que l'inflation
+dépasse la productivité — soit presque toute la période 1945-1985 — c'est la
+productivité qui l'emporte, et la valeur réelle des comptes s'effondre. Les
+lignes « médiane » et « moyenne » gardent ses trois séries et n'en changent que
+la statistique.</p>
+<p class="discret">La première ligne, la <strong>masse salariale</strong>, est
+la seule qui repose sur un argument théorique et non sur un choix : c'est
 l'assiette des cotisations, donc le taux de rendement qu'un système en
-répartition peut servir sans toucher à son taux de cotisation. Elle vaut salaire
-moyen + emploi salarié, et l'emploi salarié a doublé depuis 1950 : c'est la
-règle la plus généreuse du tableau, et de loin. Elle a sa propre incohérence, à
+répartition peut servir sans toucher à son taux de cotisation. C'est pourquoi
+elle est le défaut du simulateur. Elle vaut salaire moyen + emploi salarié, et
+l'emploi salarié a doublé depuis 1950 : c'est la règle la plus généreuse du
+tableau, et de loin. Elle a sa propre incohérence, à
 garder en tête : elle crédite le compte du rendement que le système ENTIER
 dégage, alors que les scénarios 2 et 3 n'y versent que la part salariale de la
 cotisation. C'est aux scénarios 4 et 5, qui portent la cotisation entière,
@@ -1043,10 +1051,16 @@ cotisations ; partir tôt coûte deux fois (moins de cotisations, rente servie
 plus longtemps) ; aucun droit non financé par une cotisation n'existe.</p>
 
 <h3 id="indexation">La règle d'indexation, et pourquoi elle domine tout</h3>
-<p>La règle retenue par défaut est le <strong>triple lock inversé</strong> :
-<code>min(inflation, croissance du salaire moyen, productivité réelle)</code>,
-appliqué aux comptes <em>et</em> aux pensions déjà liquidées. Prise à la lettre,
-elle compare deux taux nominaux à un taux réel.</p>
+<p>La règle retenue par défaut est la croissance de la <strong>masse
+salariale</strong> : l'assiette des cotisations, c'est-à-dire le rendement qu'un
+système en répartition peut servir sans toucher à son taux de cotisation. C'est
+la règle que la théorie désigne, et non celle qui a donné son cahier des charges
+au modèle.</p>
+<p>Celle-là, le <strong>triple lock inversé</strong> —
+<code>min(inflation, croissance du salaire moyen, productivité réelle)</code> —
+reste à un clic dans les options, et c'est elle qui a motivé ce simulateur.
+Prise à la lettre, elle compare deux taux nominaux à un taux réel, et voici ce
+qu'elle produit.</p>
 {g.tableau(
     ["Règle appliquée 1941-2025", "Comptes", "Prix", "Pouvoir d'achat conservé"],
     [

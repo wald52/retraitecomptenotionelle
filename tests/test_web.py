@@ -192,7 +192,7 @@ def test_virgule_decimale_acceptee():
 
 def test_option_inconnue_retombe_sur_le_defaut():
     saisie = Saisie.depuis_requete({"indexation": "au_doigt_mouille"})
-    assert saisie.indexation == "triple_lock_inverse"
+    assert saisie.indexation == "masse_salariale"
 
 
 def test_interruptions_analysees():

@@ -29,21 +29,33 @@ comparables :
 | **4** | Le scénario **2**, part patronale comprise | Le même compte rétroactif, la cotisation de l'employeur en plus : celle de la fiche pour le privé, celle réellement versée — jusqu'à 82,28 % du traitement en 2026 — pour le public. |
 | **5** | Le scénario **3**, part patronale comprise | Le même compte prospectif, droits acquis conservés, avec la même part patronale en plus. |
 
+Les comptes sont revalorisés, par défaut, sur la croissance de la **masse
+salariale** — l'assiette des cotisations, donc le rendement qu'un système en
+répartition peut servir sans changer son taux de cotisation. Sept autres règles
+sont disponibles, dont le **triple lock inversé** qui a donné son cahier des
+charges à ce dépôt : `--indexation triple_lock_inverse`. Le choix pèse lourd,
+et le simulateur affiche d'office ce qu'il déplace.
+
 Les scénarios **2 et 3 ne portent au compte que la part salariale** — ce que
 l'assuré a supporté lui-même, la même grandeur pour tous les statuts. Les
 scénarios **4 et 5 y ajoutent la part patronale**. Pour un non-salarié, qui n'a
 pas d'employeur, les quatre se réduisent à deux.
+
+```bash
+retraite-notionnelle simuler --naissance 1955 --statut agent_sncf \
+    --debut 20 --liquidation 50 --salaire 1.1
+```
 
 ```
 Agent de conduite SNCF né en 1955, parti à 50 ans (quinze ans avant l'âge de référence)
 
 Scénario                                                  Courants   Constants   Mensuel    Écart
 ------------------------------------------------------------------------------------------------
-1. Système actuel                                          15,719€     22,008€    1,834€     réf.
-2. Notionnel rétroactif, part salariale                     1,281€      1,793€      149€   -91.9%
-3. Notionnel dès 2026, part salariale                      15,719€     22,008€    1,834€    +0.0%
-4. Notionnel rétroactif, salariale + patronale              3,298€      4,617€      385€   -79.0%
-5. Notionnel dès 2026, salariale + patronale               15,719€     22,008€    1,834€    +0.0%
+1. Système actuel                                          22,479€     31,472€    2,623€     réf.
+2. Notionnel rétroactif, part salariale                     2,131€      2,983€      249€   -90.5%
+3. Notionnel dès 2026, part salariale                      22,479€     31,472€    2,623€    +0.0%
+4. Notionnel rétroactif, salariale + patronale              5,390€      7,546€      629€   -76.0%
+5. Notionnel dès 2026, salariale + patronale               22,479€     31,472€    2,623€    +0.0%
 ```
 
 > Les scénarios 4 et 5 sont les scénarios 2 et 3, à une différence près et une
@@ -225,6 +237,14 @@ print(simulateur.simuler(carriere).tableau())
 
 ### 1. La règle d'indexation domine tout le reste
 
+Le modèle revalorise **par défaut les comptes sur la croissance de la masse
+salariale** — le taux d'équilibre de la répartition, celui que la théorie des
+comptes notionnels désigne (voir §1 ter). Ce n'est pas la règle qui a motivé ce
+dépôt : celle-là, le **triple lock inversé**, est à un paramètre de distance
+(`--indexation triple_lock_inverse`). Un défaut doit être ce qu'on retient faute
+d'instruction contraire, pas ce qu'on cherche à démontrer — et c'est bien la
+règle demandée qui produit les écarts les plus spectaculaires.
+
 Le triple lock inversé, pris à la lettre, compare deux taux **nominaux**
 (inflation, salaire moyen) à un taux **réel** (productivité). Dès que l'inflation
 dépasse la productivité — soit presque toute la période 1945-1985 — c'est la
@@ -376,25 +396,30 @@ séries l'en dispensent :
   appelé par décret — 49,90 %, puis 74,28 % de 2013 à 2024, 78,28 % en 2025 et
   **82,28 % en 2026** ; la SNCF publie ses composantes T1 et T2 de 2007 à 2018.
 
+```bash
+retraite-notionnelle simuler --naissance 1975 --sexe F --statut fonctionnaire_etat \
+    --debut 22 --liquidation 64 --primes 0.2 --detail
+```
+
 ```
 Fonctionnaire d'État née en 1975, 20 % de primes, partie à 64 ans
 
 Scénario                                                  Courants   Constants   Mensuel    Écart
 ------------------------------------------------------------------------------------------------
-1. Système actuel                                          31,714€     25,310€    2,109€     réf.
-2. Notionnel rétroactif, part salariale                     5,693€      4,544€      379€   -82.0%
-3. Notionnel dès 2026, part salariale                      19,124€     15,263€    1,272€   -39.7%
-4. Notionnel rétroactif, salariale + patronale             30,371€     24,239€    2,020€    -4.2%
-5. Notionnel dès 2026, salariale + patronale               23,195€     18,511€    1,543€   -26.9%
+1. Système actuel                                          42,656€     34,043€    2,837€     réf.
+2. Notionnel rétroactif, part salariale                     8,241€      6,577€      548€   -80.7%
+3. Notionnel dès 2026, part salariale                      25,690€     20,503€    1,709€   -39.8%
+4. Notionnel rétroactif, salariale + patronale             45,509€     36,321€    3,027€    +6.7%
+5. Notionnel dès 2026, salariale + patronale               31,176€     24,881€    2,073€   -26.9%
 
 Qui verse la cotisation, en euros courants cumulés :
-  part salariale           130,756 €   scénarios 2 et 3
-  part patronale           548,229 €   soit 81% du total
-  total                    678,985 €   scénarios 4 et 5
-  contribution employeur publique trouvée sur 28 année(s)
+  part salariale           138,298 €   scénarios 2 et 3
+  part patronale           524,169 €   soit 79% du total
+  total                    662,467 €   scénarios 4 et 5
+  contribution employeur publique trouvée sur 29 année(s)
 ```
 
-L'employeur verse ici 81 % du total. C'est l'ordre de grandeur d'un taux
+L'employeur verse ici 79 % du total. C'est l'ordre de grandeur d'un taux
 d'**équilibre**, et c'est la limite du scénario 4 : 82,28 % ne signifie pas
 qu'un fonctionnaire acquiert 82 % de son traitement en droits nouveaux, mais
 qu'il faut aujourd'hui cette contribution pour payer les pensions
@@ -435,7 +460,7 @@ sourcée et reprise automatiquement, plafonne à `haute`.
 
 | Donnée | Période certifiée | Producteur |
 |---|---|---|
-| Inflation, salaire moyen, productivité | 1950-2025 | INSEE, Banque de données macroéconomiques |
+| Inflation, salaire moyen, masse salariale, productivité | 1950-2025 | INSEE, Banque de données macroéconomiques |
 | Espérance de vie à 0 et 60 ans | 1946-2025 | INSEE |
 | Espérance de vie à 65 ans | 1960-2024 | OCDE (l'INSEE ne la publie pas) |
 | Quotients de mortalité par âge | 1986-2024 | Eurostat |
@@ -558,7 +583,7 @@ sous « Options de modélisation ».
 --indexation      triple_lock_inverse | triple_lock_inverse_nominal
                   | mediane_trois_taux | moyenne_trois_taux
                   | revalorisation_portee_au_compte | prix | salaires
-                  | masse_salariale
+                  | masse_salariale       (masse_salariale par défaut)
 --age-reference   cliquet_legal | cliquet_puis_esperance_vie | legal_sans_cliquet
 --conversion-acquis  reference | liquidation
 --part-cotisation      salariale | totale | totale_alignee

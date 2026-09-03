@@ -39,7 +39,11 @@ def catalogue() -> CatalogueRegimes:
 
 
 def test_triple_lock_inverse_retient_bien_le_minimum(macro):
-    indexation = Indexation(macro, Parametres())
+    # Le mode est nommé : ce n'est plus le défaut du modèle depuis que celui-ci
+    # est la règle d'équilibre. Un test sur la règle demandée doit la demander.
+    indexation = Indexation(
+        macro, Parametres(mode_indexation=ModeIndexation.TRIPLE_LOCK_INVERSE)
+    )
     for annee in (1975, 1990, 2005, 2020):
         taux = indexation.taux(annee)
         assert taux.taux == min(taux.inflation, taux.salaire_moyen, taux.productivite)
@@ -47,7 +51,9 @@ def test_triple_lock_inverse_retient_bien_le_minimum(macro):
 
 def test_triple_lock_inverse_est_domine_par_la_productivite_en_forte_inflation(macro):
     """Le mélange réel/nominal fait gagner la productivité dès que l'inflation monte."""
-    indexation = Indexation(macro, Parametres())
+    indexation = Indexation(
+        macro, Parametres(mode_indexation=ModeIndexation.TRIPLE_LOCK_INVERSE)
+    )
     for annee in (1974, 1980, 1981):
         assert indexation.taux(annee).terme_retenu == "productivite_reelle"
 
@@ -61,7 +67,9 @@ def test_regle_litterale_detruit_le_pouvoir_d_achat_des_comptes_anciens(macro):
     réelle. La variante nominale, qui ramène la productivité en termes nominaux
     avant de prendre le minimum, en conserve l'essentiel.
     """
-    litterale = Indexation(macro, Parametres())
+    litterale = Indexation(
+        macro, Parametres(mode_indexation=ModeIndexation.TRIPLE_LOCK_INVERSE)
+    )
     nominale = Indexation(
         macro, Parametres(mode_indexation=ModeIndexation.TRIPLE_LOCK_INVERSE_NOMINAL)
     )
@@ -106,7 +114,9 @@ def test_mediane_et_moyenne_adoucissent_la_regle_annee_par_annee(macro):
     reste sous le maximum. C'est tout ce que la théorie garantit — le reste,
     ce sont les données qui le disent (test suivant).
     """
-    minimum = Indexation(macro, Parametres())
+    minimum = Indexation(
+        macro, Parametres(mode_indexation=ModeIndexation.TRIPLE_LOCK_INVERSE)
+    )
     mediane = Indexation(
         macro, Parametres(mode_indexation=ModeIndexation.MEDIANE_TROIS_TAUX)
     )
@@ -138,7 +148,9 @@ def test_la_mediane_depasse_les_prix_quand_la_moyenne_reste_dessous(macro):
     moyenne = Indexation(
         macro, Parametres(mode_indexation=ModeIndexation.MOYENNE_TROIS_TAUX)
     ).coefficient(1941, 2025)
-    litteral = Indexation(macro, Parametres()).coefficient(1941, 2025)
+    litteral = Indexation(
+        macro, Parametres(mode_indexation=ModeIndexation.TRIPLE_LOCK_INVERSE)
+    ).coefficient(1941, 2025)
 
     assert mediane > prix > moyenne > litteral
 

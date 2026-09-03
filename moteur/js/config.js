@@ -3,10 +3,12 @@
  *
  * Portage de ``src/retraite_notionnelle/config.py``. Toutes les décisions de
  * modélisation contestables sont réunies ici, en un seul endroit, pour qu'on
- * puisse les faire varier sans toucher au moteur. Les valeurs par défaut
- * correspondent au cahier des charges : indexation par « triple lock inversé »,
- * âge de référence à cliquet, neutralisation intégrale des droits non
- * contributifs, fusion des régimes au cas le plus défavorable.
+ * puisse les faire varier sans toucher au moteur. Les valeurs par défaut suivent
+ * le cahier des charges à une exception près : l'indexation, où le défaut est la
+ * croissance de la masse salariale — le taux d'équilibre de la répartition — et
+ * non le « triple lock inversé » demandé, qui reste à un paramètre de distance.
+ * Pour le reste : âge de référence à cliquet, neutralisation intégrale des
+ * droits non contributifs, fusion des régimes au cas le plus défavorable.
  */
 
 /** Règle de revalorisation des comptes et des pensions. */
@@ -142,7 +144,10 @@ export const PARAMETRES_DEFAUT = Object.freeze({
   scenario_projection: "cor_central",
 
   // --- Indexation -----------------------------------------------------------
-  mode_indexation: ModeIndexation.TRIPLE_LOCK_INVERSE,
+  //: Le défaut est la règle d'ÉQUILIBRE, pas le triple lock inversé qui a donné
+  //: son cahier des charges au modèle : un défaut doit être ce qu'on retient
+  //: faute d'instruction contraire, pas ce qu'on veut démontrer.
+  mode_indexation: ModeIndexation.MASSE_SALARIALE,
   //: ``null`` = aucun plancher : le triple lock inversé peut être négatif, ce
   //: qui est sa conséquence logique et non un défaut.
   plancher_indexation: null,

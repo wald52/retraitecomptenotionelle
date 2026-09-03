@@ -113,9 +113,9 @@ def _cas() -> list[dict]:
         }))
 
     # Règles de modélisation, une par une.
-    for mode in ("triple_lock_inverse_nominal", "mediane_trois_taux",
-                 "moyenne_trois_taux", "revalorisation_portee_au_compte",
-                 "prix", "salaires", "masse_salariale"):
+    for mode in ("triple_lock_inverse", "triple_lock_inverse_nominal",
+                 "mediane_trois_taux", "moyenne_trois_taux",
+                 "revalorisation_portee_au_compte", "prix", "salaires"):
         cas.append((f"indexation_{mode}", {"indexation": mode}))
     for mode in ("cliquet_puis_esperance_vie", "legal_sans_cliquet"):
         cas.append((f"age_reference_{mode}", {"age_reference": mode}))

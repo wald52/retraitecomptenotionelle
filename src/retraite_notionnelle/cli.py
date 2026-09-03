@@ -302,7 +302,8 @@ def _ajouter_options_communes(analyseur: argparse.ArgumentParser) -> None:
     analyseur.add_argument("--donnees", help="racine du répertoire de données")
     analyseur.add_argument(
         "--indexation", choices=[m.value for m in ModeIndexation],
-        help="règle d'indexation (défaut : triple_lock_inverse)",
+        help="règle d'indexation (défaut : masse_salariale, le taux d'équilibre "
+        "de la répartition ; la règle demandée est triple_lock_inverse)",
     )
     analyseur.add_argument(
         "--age-reference", dest="age_reference",
