@@ -18,6 +18,14 @@ export const ModeIndexation = Object.freeze({
   TRIPLE_LOCK_INVERSE: "triple_lock_inverse",
   //: Variante homogène : les trois termes sont ramenés en nominal.
   TRIPLE_LOCK_INVERSE_NOMINAL: "triple_lock_inverse_nominal",
+  //: Médiane des trois mêmes termes au lieu de leur minimum : le taux retenu
+  //: reste l'un des trois, mais celui du milieu. Moins sévère que la règle
+  //: littérale, et robuste à une série aberrante.
+  MEDIANE_TROIS_TAUX: "mediane_trois_taux",
+  //: Moyenne arithmétique des trois mêmes termes : poids égal à chacun, y
+  //: compris au plus haut. Ce n'est plus une règle d'austérité, et le taux
+  //: obtenu n'est celui d'aucun agrégat observé.
+  MOYENNE_TROIS_TAUX: "moyenne_trois_taux",
   //: Indexation sur les seuls prix (règle en vigueur depuis 1993).
   PRIX: "prix",
   //: Indexation sur le salaire moyen (règle antérieure à 1987).

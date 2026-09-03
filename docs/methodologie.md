@@ -94,10 +94,12 @@ Mesure sur la période complète (`retraite-notionnelle indexation --de 1941 --a
 | Règle | Revalorisation cumulée 1941-2025 | Prix | Pouvoir d'achat conservé |
 |---|---|---|---|
 | Triple lock inversé, littéral | ×4,9 | ×322,2 | **1,5 %** |
+| Moyenne des trois taux | ×175,7 | ×322,2 | 54,5 % |
 | Triple lock inversé, tout en nominal | ×223,3 | ×322,2 | 69,3 % |
 | Indexation sur les prix | ×322,2 | ×322,2 | 100 % |
+| Médiane des trois taux | ×397,6 | ×322,2 | 123,4 % |
 
-Ces trois chiffres sont ceux que produit la commande citée ci-dessus, et le
+Ces chiffres sont ceux que produit la commande citée ci-dessus, et le
 tableau les a longtemps donnés périmés — ×243,7 et ×318,6, valeurs d'une
 révision antérieure des séries INSEE, quand le README, lui, portait les bonnes.
 Deux documents ne peuvent pas dire deux chiffres pour la même mesure : c'est le
@@ -116,6 +118,38 @@ choses :
   nominaux avant de prendre le minimum : la règle reste austère, mais homogène ;
 - `--indexation prix` isole l'effet propre des comptes notionnels, indexation
   neutralisée.
+
+### Changer de statistique : médiane et moyenne
+
+Le minimum est une statistique parmi d'autres. Deux variantes gardent les
+**mêmes trois termes** — mêmes séries, même mélange nominal/réel — et ne
+changent que ce qu'on en retient :
+
+```
+mediane_trois_taux :  médiane( inflation , salaire moyen , productivité réelle )
+moyenne_trois_taux :  moyenne( inflation , salaire moyen , productivité réelle )
+```
+
+L'écart avec la règle littérale mesure alors exactement ce que coûte le choix du
+minimum, à termes inchangés. Ce que les données disent, sur 1941-2025 :
+
+- la **médiane** est l'inflation 43 années sur 85 et le salaire moyen 20 :
+  autrement dit, un taux nominal dans trois cas sur quatre. Elle ne passe sous
+  l'inflation que 18 années sur 85, contre 61 pour le minimum, et son cumul
+  dépasse celui des prix (×397,6 contre ×322,2) parce que le salaire moyen
+  l'emporte quand la productivité est forte. **La médiane n'est plus une règle
+  d'austérité** : c'est en pratique une indexation intermédiaire entre prix et
+  salaires, dont le taux reste un taux observé — propriété que le minimum a
+  aussi, et que la moyenne n'a pas ;
+- la **moyenne** est plus sévère que la médiane, et même que les prix (×175,7,
+  soit 54,5 % du pouvoir d'achat). Non parce qu'elle serait « au milieu », mais
+  parce qu'elle incorpore **un tiers de productivité réelle chaque année**, y
+  compris pendant les années à dix ou vingt points d'inflation, là où le minimum
+  et la médiane ne retiennent le terme réel que les années où il gagne. Sa
+  sévérité est donc un effet du mélange nominal/réel, pas un choix assumé — et
+  le taux qu'elle produit n'est celui d'aucun agrégat publié. C'est la variante
+  la plus fragile des trois sur le plan économique ; elle est fournie pour être
+  mesurée, pas recommandée.
 
 Aucun plancher n'est appliqué par défaut : le taux peut être négatif, ce qui est
 la conséquence logique de la règle (`plancher_indexation`).

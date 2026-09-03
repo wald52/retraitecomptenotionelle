@@ -233,8 +233,10 @@ productivité qui l'emporte.
 | Règle | Comptes 1941-2025 | Prix | Pouvoir d'achat conservé |
 |---|---|---|---|
 | Triple lock inversé, littéral | ×4,9 | ×322,2 | **1,5 %** |
+| Moyenne des trois taux | ×175,7 | ×322,2 | 54,5 % |
 | Triple lock inversé, tout en nominal | ×223,3 | ×322,2 | 69,3 % |
 | Indexation sur les prix | ×322,2 | ×322,2 | 100 % |
+| Médiane des trois taux | ×397,6 | ×322,2 | 123,4 % |
 
 Une cotisation de 1950 ne conserve donc que 1,5 % de sa valeur réelle. Dans le
 scénario rétroactif, **l'essentiel de la baisse affichée vient de la règle
@@ -244,6 +246,33 @@ C'est la règle telle qu'énoncée, appliquée sans correctif. Pour séparer les
 effets : `--indexation triple_lock_inverse_nominal` (règle homogène, toujours
 austère) ou `--indexation prix` (effet propre des comptes notionnels). Chaque
 simulation web affiche cette décomposition d'office.
+
+### 1 bis. Le minimum n'est pas la seule statistique : médiane et moyenne
+
+Le minimum de trois séries est une règle sévère par construction. Deux variantes
+gardent **exactement les mêmes trois termes** et ne changent que ce qu'on en
+retient — `--indexation mediane_trois_taux` et `--indexation moyenne_trois_taux`.
+Elles isolent donc le coût du choix du minimum, à termes inchangés. Le résultat
+n'est pas celui qu'on attend :
+
+- la **médiane** est presque toujours l'inflation (43 années sur 85) ou le
+  salaire moyen (20) : deux taux **nominaux**. Elle suit donc les prix et les
+  dépasse même légèrement — ×397,6 contre ×322,2 — parce que le salaire moyen
+  l'emporte quand la productivité est forte. Sur les 85 années, elle ne passe
+  sous l'inflation que 18 fois, contre 61 pour le minimum. **Ce n'est plus une
+  règle d'austérité** ; c'est, en pratique, une indexation prix-salaires ;
+- la **moyenne** est plus sévère que la médiane, et même que les prix — ×175,7,
+  soit 54,5 % du pouvoir d'achat. La raison n'est pas la statistique mais le
+  mélange : la moyenne incorpore **un tiers de productivité réelle chaque
+  année**, y compris pendant les années à dix ou vingt points d'inflation, là où
+  le minimum et la médiane ne retiennent le terme réel que les années où il
+  gagne. Le taux obtenu n'est en outre celui d'aucun agrégat observé.
+
+Autrement dit : si l'objectif est d'adoucir la règle sans la vider, la médiane
+le fait ; la moyenne, elle, est un objet composite dont la sévérité vient d'un
+artefact de construction plutôt que d'un choix assumé. Les deux sont disponibles,
+en ligne de commande comme dans le formulaire web, et le tableau « D'où vient
+l'écart » de chaque simulation les affiche côte à côte.
 
 ### 2. La fusion augmente les cotisations des indépendants
 
@@ -455,7 +484,8 @@ Elles valent pour toutes les commandes, et se retrouvent dans le formulaire web
 sous « Options de modélisation ».
 
 ```bash
---indexation      triple_lock_inverse | triple_lock_inverse_nominal | prix | salaires
+--indexation      triple_lock_inverse | triple_lock_inverse_nominal
+                  | mediane_trois_taux | moyenne_trois_taux | prix | salaires
 --age-reference   cliquet_legal | cliquet_puis_esperance_vie | legal_sans_cliquet
 --conversion-acquis  reference | liquidation
 --part-cotisation      salariale | totale | totale_alignee

@@ -8,10 +8,24 @@
  * productivité réelle. C'est une règle d'austérité structurelle, et elle
  * mélange deux taux nominaux à un taux réel — d'où l'effondrement de la valeur
  * réelle des comptes sur les périodes de forte inflation.
+ *
+ * Le minimum n'est pas la seule statistique possible sur ces trois séries :
+ * ``MEDIANE_TROIS_TAUX`` retient celui du milieu, ``MOYENNE_TROIS_TAUX`` leur
+ * moyenne arithmétique. Mêmes termes, agrégation différente.
  */
 
 import { ModeIndexation } from "./config.js";
 import { Fiabilite } from "./serie.js";
+
+/**
+ * Modes qui comparent les trois taux tels qu'ils sont publiés — deux nominaux,
+ * un réel. Ils ne diffèrent que par la statistique retenue, pas par les termes.
+ */
+const MODES_TROIS_TAUX_REELS = new Set([
+  ModeIndexation.TRIPLE_LOCK_INVERSE,
+  ModeIndexation.MEDIANE_TROIS_TAUX,
+  ModeIndexation.MOYENNE_TROIS_TAUX,
+]);
 
 /** Calcule et compose les taux d'indexation annuels. */
 export class Indexation {
@@ -34,7 +48,7 @@ export class Indexation {
     const mode = this.parametres.mode_indexation;
 
     let candidats;
-    if (mode === ModeIndexation.TRIPLE_LOCK_INVERSE) {
+    if (MODES_TROIS_TAUX_REELS.has(mode)) {
       candidats = [
         ["inflation", inflation],
         ["salaire_moyen", salaire],
@@ -54,12 +68,30 @@ export class Indexation {
       throw new Error(`mode d'indexation non géré : ${mode}`);
     }
 
-    // Comme ``min`` en Python : à égalité, le premier terme cité l'emporte.
-    let [terme, taux] = candidats[0];
-    for (const [nom, valeur] of candidats.slice(1)) {
-      if (valeur < taux) {
-        terme = nom;
-        taux = valeur;
+    // Le mode choisit la STATISTIQUE appliquée aux candidats fixés ci-dessus :
+    // minimum par défaut — la règle demandée —, médiane ou moyenne pour les
+    // variantes. Les trois coïncident quand il n'y a qu'un candidat.
+    let terme;
+    let taux;
+    if (mode === ModeIndexation.MOYENNE_TROIS_TAUX) {
+      // La moyenne n'est le taux d'aucun des trois : pas de terme retenu.
+      terme = "moyenne";
+      taux = candidats.reduce((somme, [, valeur]) => somme + valeur, 0)
+        / candidats.length;
+    } else if (mode === ModeIndexation.MEDIANE_TROIS_TAUX) {
+      // Nombre impair de candidats : la médiane est un candidat, pas une
+      // interpolation. Le tri de JavaScript est stable, comme celui de Python :
+      // à égalité, le premier terme cité l'emporte.
+      const classes = [...candidats].sort((a, b) => a[1] - b[1]);
+      [terme, taux] = classes[Math.floor(classes.length / 2)];
+    } else {
+      // Comme ``min`` en Python : à égalité, le premier terme cité l'emporte.
+      [terme, taux] = candidats[0];
+      for (const [nom, valeur] of candidats.slice(1)) {
+        if (valeur < taux) {
+          terme = nom;
+          taux = valeur;
+        }
       }
     }
 

@@ -26,6 +26,8 @@ export const PROFILS = [
 export const INDEXATIONS = [
   ["triple_lock_inverse", "Triple lock inversé (règle demandée)"],
   ["triple_lock_inverse_nominal", "Triple lock inversé, tout en nominal"],
+  ["mediane_trois_taux", "Médiane des trois taux"],
+  ["moyenne_trois_taux", "Moyenne des trois taux"],
   ["prix", "Prix"],
   ["salaires", "Salaire moyen"],
 ];
@@ -754,9 +756,12 @@ function decomposition(contexte, saisie, comparaison) {
 
   return `
 <h2>D'où vient l'écart</h2>
-<p>La même carrière, le même calcul notionnel rétroactif, avec quatre règles de
-revalorisation des comptes. La colonne « rendement » est le facteur par lequel les
-cotisations ont été multipliées entre leur versement et la liquidation.</p>
+<p>La même carrière, le même calcul notionnel rétroactif, avec six règles de
+revalorisation des comptes. Les quatre premières partent des mêmes trois séries
+— inflation, salaire moyen, productivité — et n'en changent que ce qu'on en
+retient : le minimum, le minimum rendu homogène, la médiane, la moyenne. La
+colonne « rendement » est le facteur par lequel les cotisations ont été
+multipliées entre leur versement et la liquidation.</p>
 ${g.tableau(
     ["Règle d'indexation", "Rendement cumulé", "Pension mensuelle", "Écart au système actuel"],
     lignes,
@@ -768,7 +773,9 @@ productivité — soit presque toute la période 1945-1985 — c'est la producti
 qui l'emporte, et la valeur réelle des comptes s'effondre. L'écart entre la
 première ligne et la ligne « Prix » mesure l'effet de la règle d'indexation ;
 l'écart entre la ligne « Prix » et le système actuel mesure l'effet propre des
-comptes notionnels.</p>
+comptes notionnels. Les lignes « médiane » et « moyenne » gardent les trois
+mêmes séries et n'en changent que la statistique : elles chiffrent ce que coûte
+le choix du minimum, indépendamment du choix des termes.</p>
 `;
 }
 
@@ -1056,9 +1063,11 @@ elle compare deux taux nominaux à un taux réel.</p>
 ${g.tableau(
     ["Règle appliquée 1941-2025", "Comptes", "Prix", "Pouvoir d'achat conservé"],
     [
-      ["Triple lock inversé, littéral", "×4,9", "×318,6", "<strong>1,5 %</strong>"],
-      ["Triple lock inversé, tout en nominal", "×243,7", "×318,6", "76,5 %"],
-      ["Indexation sur les prix", "×318,6", "×318,6", "100 %"],
+      ["Triple lock inversé, littéral", "×4,9", "×322,2", "<strong>1,5 %</strong>"],
+      ["Moyenne des trois taux", "×175,7", "×322,2", "54,5 %"],
+      ["Triple lock inversé, tout en nominal", "×223,3", "×322,2", "69,3 %"],
+      ["Indexation sur les prix", "×322,2", "×322,2", "100 %"],
+      ["Médiane des trois taux", "×397,6", "×322,2", "123,4 %"],
     ],
     ["", "nombre", "nombre", "nombre"],
   )}
@@ -1067,6 +1076,17 @@ la règle telle qu'énoncée, appliquée sans correctif — et c'est de là que 
 l'essentiel de la baisse affichée par le scénario rétroactif, non du passage aux
 comptes notionnels. Le tableau « D'où vient l'écart » de chaque simulation
 sépare les deux effets.</p>
+<p>Le minimum n'est pas la seule statistique possible sur ces trois séries. Deux
+variantes gardent les <em>mêmes</em> termes et ne changent que ce qu'on en
+retient : la <strong>médiane</strong> — le taux du milieu — et la
+<strong>moyenne</strong>. Le résultat n'est pas celui qu'on attend. La médiane
+est l'inflation ou le salaire moyen trois années sur quatre, donc un taux
+nominal : elle suit les prix et les dépasse même un peu, et cesse d'être une
+règle d'austérité. La moyenne, elle, est plus sévère que les prix, non par
+sévérité assumée mais parce qu'elle incorpore un tiers de productivité réelle
+<em>chaque</em> année, y compris à vingt points d'inflation — là où le minimum
+et la médiane ne retiennent le terme réel que les années où il gagne. Les deux
+sont sélectionnables dans les options de modélisation.</p>
 
 <h3>Ce que le scénario 1 applique du droit positif</h3>
 <p>L'étalon ne vaut que par ce qu'il reproduit. Il applique la décote et la

@@ -74,6 +74,75 @@ def test_regle_litterale_detruit_le_pouvoir_d_achat_des_comptes_anciens(macro):
     assert cumul_nominal > 10 * cumul_litteral
 
 
+def test_mediane_retient_le_terme_du_milieu(macro):
+    """La médiane est l'un des trois taux, celui du milieu — jamais un calcul."""
+    indexation = Indexation(
+        macro, Parametres(mode_indexation=ModeIndexation.MEDIANE_TROIS_TAUX)
+    )
+    for annee in range(1941, 2026):
+        taux = indexation.taux(annee)
+        trois = sorted((taux.inflation, taux.salaire_moyen, taux.productivite))
+        assert taux.taux == trois[1]
+        assert taux.terme_retenu in {"inflation", "salaire_moyen", "productivite_reelle"}
+
+
+def test_moyenne_est_la_moyenne_arithmetique_des_trois(macro):
+    indexation = Indexation(
+        macro, Parametres(mode_indexation=ModeIndexation.MOYENNE_TROIS_TAUX)
+    )
+    for annee in range(1941, 2026):
+        taux = indexation.taux(annee)
+        assert taux.taux == pytest.approx(
+            (taux.inflation + taux.salaire_moyen + taux.productivite) / 3
+        )
+        assert taux.terme_retenu == "moyenne"
+
+
+def test_mediane_et_moyenne_adoucissent_la_regle_annee_par_annee(macro):
+    """Même carrière, mêmes trois séries : seule la statistique change.
+
+    Le minimum est par construction le plus bas des trois ; la médiane et la
+    moyenne lui sont donc supérieures ou égales chaque année, et la médiane
+    reste sous le maximum. C'est tout ce que la théorie garantit — le reste,
+    ce sont les données qui le disent (test suivant).
+    """
+    minimum = Indexation(macro, Parametres())
+    mediane = Indexation(
+        macro, Parametres(mode_indexation=ModeIndexation.MEDIANE_TROIS_TAUX)
+    )
+    moyenne = Indexation(
+        macro, Parametres(mode_indexation=ModeIndexation.MOYENNE_TROIS_TAUX)
+    )
+    for annee in range(1941, 2026):
+        bas = minimum.taux(annee)
+        haut = max(bas.inflation, bas.salaire_moyen, bas.productivite)
+        assert bas.taux <= mediane.taux(annee).taux <= haut
+        assert bas.taux <= moyenne.taux(annee).taux <= haut
+
+
+def test_la_mediane_depasse_les_prix_quand_la_moyenne_reste_dessous(macro):
+    """Le résultat le moins intuitif des deux variantes, sur 1941-2025.
+
+    La médiane est presque toujours l'inflation ou le salaire moyen — deux taux
+    NOMINAUX : elle suit donc les prix, et les dépasse même un peu (le salaire
+    moyen l'emporte quand la productivité est forte). La moyenne, elle, incorpore
+    un tiers de productivité RÉELLE chaque année, y compris pendant les années à
+    dix ou vingt points d'inflation : elle reste durablement sous les prix. La
+    moyenne est donc plus sévère que la médiane, ce qui ne se lit pas dans
+    l'ordre des trois statistiques mais dans le mélange nominal/réel.
+    """
+    prix = macro.coefficient_prix(1941, 2025)
+    mediane = Indexation(
+        macro, Parametres(mode_indexation=ModeIndexation.MEDIANE_TROIS_TAUX)
+    ).coefficient(1941, 2025)
+    moyenne = Indexation(
+        macro, Parametres(mode_indexation=ModeIndexation.MOYENNE_TROIS_TAUX)
+    ).coefficient(1941, 2025)
+    litteral = Indexation(macro, Parametres()).coefficient(1941, 2025)
+
+    assert mediane > prix > moyenne > litteral
+
+
 def test_indexation_prix_reproduit_l_inflation(macro):
     indexation = Indexation(macro, Parametres(mode_indexation=ModeIndexation.PRIX))
     assert indexation.coefficient(1980, 2020) == pytest.approx(

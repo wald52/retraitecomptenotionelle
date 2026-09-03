@@ -924,6 +924,22 @@ La variante nominale conserve 69 % du pouvoir d'achat sur la même période, tou
 en restant plus sévère que l'indexation sur les prix. C'est probablement ce que
 vise l'intention d'une règle d'indexation prudente ; le choix reste ouvert.
 
+Deux autres variantes gardent les mêmes trois termes et ne changent que la
+statistique — `--indexation mediane_trois_taux` et `--indexation
+moyenne_trois_taux`. Elles ont leurs propres limites, symétriques de celle
+ci-dessus :
+
+- la **médiane** cesse d'être une règle d'austérité. Sur 1941-2025 elle revalorise
+  les comptes ×397,6 quand les prix font ×322,2 : elle rend le scénario
+  rétroactif un peu plus généreux que l'indexation sur les prix. Ce n'est pas un
+  défaut de calcul, c'est ce que produit le fait de retenir, trois années sur
+  quatre, un terme nominal ;
+- la **moyenne** hérite du mélange nominal/réel de façon permanente : chaque
+  année, un tiers du taux est un taux réel. Sa sévérité (×175,7, soit 54,5 % du
+  pouvoir d'achat) ne mesure donc pas une intention de prudence mais un artefact
+  de construction, et le taux obtenu n'est celui d'aucun agrégat publié. À lire
+  comme un contrefactuel, pas comme une règle candidate.
+
 ---
 
 ## 3. Le scénario « système actuel » est une approximation

@@ -18,6 +18,19 @@ Deux conséquences, à garder à l'esprit en lisant les résultats :
    s'effondre. C'est bien ce que produit la règle telle qu'énoncée ;
    :data:`ModeIndexation.TRIPLE_LOCK_INVERSE_NOMINAL` permet de mesurer ce que
    coûte précisément le mélange.
+
+Le minimum n'est pas la seule statistique possible sur ces trois séries. Deux
+variantes prennent les mêmes trois termes et n'en changent que l'agrégation :
+
+* :data:`ModeIndexation.MEDIANE_TROIS_TAUX` retient celui du milieu. Le taux
+  reste un taux observé, et la règle cesse d'être commandée par la série la plus
+  basse : c'est la variante « sévère mais robuste ».
+* :data:`ModeIndexation.MOYENNE_TROIS_TAUX` retient la moyenne arithmétique.
+  Elle n'est plus austère du tout, et n'est le taux de rien : c'est la variante
+  la plus fragile économiquement, fournie pour être mesurée.
+
+Ces deux variantes gardent le mélange nominal/réel de la règle littérale — c'est
+le prix à payer pour que la comparaison porte sur la seule statistique.
 """
 
 from __future__ import annotations
@@ -27,6 +40,15 @@ from dataclasses import dataclass
 from ..config import ModeIndexation, Parametres
 from ..donnees.chargement import Fiabilite
 from ..donnees.macro import DonneesMacro
+
+
+#: Modes qui comparent les trois taux tels qu'ils sont publiés — deux nominaux,
+#: un réel. Ils ne diffèrent que par la statistique retenue, pas par les termes.
+_MODES_TROIS_TAUX_REELS = frozenset({
+    ModeIndexation.TRIPLE_LOCK_INVERSE,
+    ModeIndexation.MEDIANE_TROIS_TAUX,
+    ModeIndexation.MOYENNE_TROIS_TAUX,
+})
 
 
 @dataclass(frozen=True)
@@ -60,7 +82,7 @@ class Indexation:
         productivite = self.macro.productivite(annee)
         mode = self.parametres.mode_indexation
 
-        if mode is ModeIndexation.TRIPLE_LOCK_INVERSE:
+        if mode in _MODES_TROIS_TAUX_REELS:
             candidats = {
                 "inflation": inflation,
                 "salaire_moyen": salaire,
@@ -79,7 +101,22 @@ class Indexation:
         else:  # pragma: no cover - garde-fou
             raise ValueError(f"mode d'indexation non géré : {mode}")
 
-        terme, taux = min(candidats.items(), key=lambda couple: couple[1])
+        # Le mode choisit la STATISTIQUE appliquée aux candidats ; les candidats
+        # eux-mêmes viennent d'être fixés au-dessus. Minimum par défaut — la
+        # règle demandée —, médiane ou moyenne pour les variantes. Les trois
+        # coïncident quand il n'y a qu'un candidat (PRIX, SALAIRES).
+        if mode is ModeIndexation.MOYENNE_TROIS_TAUX:
+            # La moyenne n'est le taux d'aucun des trois : elle n'a pas de terme
+            # retenu, et c'est ce que le libellé dit.
+            terme = "moyenne"
+            taux = sum(candidats.values()) / len(candidats)
+        elif mode is ModeIndexation.MEDIANE_TROIS_TAUX:
+            # Nombre impair de candidats (trois, ou un) : la médiane est un
+            # candidat, pas une interpolation, et le terme du milieu est nommé.
+            classes = sorted(candidats.items(), key=lambda couple: couple[1])
+            terme, taux = classes[len(classes) // 2]
+        else:
+            terme, taux = min(candidats.items(), key=lambda couple: couple[1])
 
         plancher = self.parametres.plancher_indexation
         if plancher is not None and taux < plancher:

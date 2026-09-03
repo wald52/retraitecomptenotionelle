@@ -4,7 +4,8 @@ Toutes les décisions de modélisation contestables sont réunies ici, en un seu
 endroit, pour qu'on puisse les faire varier sans toucher au moteur. Les valeurs
 par défaut correspondent au cahier des charges :
 
-* indexation par « triple lock inversé » (minimum des trois taux) ;
+* indexation par « triple lock inversé » (minimum des trois taux — la
+  médiane et la moyenne des mêmes trois taux sont disponibles en variantes) ;
 * âge de référence à cliquet ;
 * neutralisation intégrale des droits non contributifs ;
 * fusion des régimes au cas le plus défavorable à compter de l'année de bascule.
@@ -36,6 +37,24 @@ class ModeIndexation(str, Enum):
     #: (productivité réelle + inflation) avant de prendre le minimum.
     #: Fournie pour mesurer l'effet du mélange nominal/réel, pas par défaut.
     TRIPLE_LOCK_INVERSE_NOMINAL = "triple_lock_inverse_nominal"
+
+    #: Médiane des trois mêmes termes, au lieu de leur minimum. Le terme retenu
+    #: reste l'un des trois, mais celui du milieu : la règle cesse d'être
+    #: gouvernée par la série la plus basse — en pratique la productivité réelle
+    #: dès que l'inflation monte — sans pour autant retenir la plus haute.
+    #: Variante moins sévère que la règle littérale, et défendable : c'est un
+    #: choix robuste au sens statistique, insensible à une série aberrante.
+    MEDIANE_TROIS_TAUX = "mediane_trois_taux"
+
+    #: Moyenne arithmétique des trois mêmes termes. Elle donne un poids égal à
+    #: chacun, y compris à la série la plus haute, et n'est donc plus une règle
+    #: d'austérité. Deux réserves : la moyenne n'est pas un taux observé — aucun
+    #: agrégat économique ne progresse à ce rythme —, et elle importe un tiers
+    #: du mélange nominal/réel dans le résultat de CHAQUE année, là où le
+    #: minimum et la médiane ne le font que les années où le terme réel gagne.
+    #: Fournie parce qu'elle a été demandée, avec ce que ce fondement a de
+    #: fragile.
+    MOYENNE_TROIS_TAUX = "moyenne_trois_taux"
 
     #: Indexation sur les seuls prix (règle en vigueur depuis 1993).
     PRIX = "prix"
