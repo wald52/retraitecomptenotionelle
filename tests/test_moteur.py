@@ -143,6 +143,78 @@ def test_la_mediane_depasse_les_prix_quand_la_moyenne_reste_dessous(macro):
     assert mediane > prix > moyenne > litteral
 
 
+def test_revalorisation_portee_au_compte_sert_les_coefficients_des_arretes(macro):
+    """Le mode lit les arrêtés, il ne les approche pas.
+
+    Année par année, le taux est le rapport de deux années consécutives dans la
+    colonne publiée par la caisse — la grandeur même dont le scénario 1 se sert
+    pour revaloriser les salaires de son salaire de référence.
+    """
+    indexation = Indexation(
+        macro,
+        Parametres(mode_indexation=ModeIndexation.REVALORISATION_PORTEE_AU_COMPTE),
+    )
+    for annee in (1955, 1975, 1986, 1987, 2000, 2024, 2025):
+        taux = indexation.taux(annee)
+        attendu = macro.coefficient_revalorisation_portee_au_compte(annee - 1, annee) - 1
+        assert taux.taux == pytest.approx(attendu)
+        assert taux.terme_retenu == "revalorisation_legale"
+
+
+def test_la_composition_annuelle_ne_derive_pas_des_colonnes_publiees(macro):
+    """Le moteur compose ce mode année par année, la caisse arrondit à trois
+    décimales : les deux chemins doivent rester à distance négligeable.
+
+    0,04 % sur quatre-vingt-quatre ans — deux ordres de grandeur sous les écarts
+    que ce mode sert à mesurer. Si la borne saute, c'est que la table a changé
+    de forme et que le mode ne peut plus se composer comme les autres.
+    """
+    indexation = Indexation(
+        macro,
+        Parametres(mode_indexation=ModeIndexation.REVALORISATION_PORTEE_AU_COMPTE),
+    )
+    compose = indexation.coefficient(1941, 2025)
+    publie = macro.coefficient_revalorisation_portee_au_compte(1941, 2025)
+    assert compose == pytest.approx(publie, rel=0.001)
+
+
+def test_l_indexation_sur_les_prix_n_est_pas_la_regle_du_droit_positif(macro):
+    """La régression que ce mode corrige, et qui valait un facteur cinq.
+
+    Le README, la documentation et le site ont longtemps présenté
+    ``--indexation prix`` comme la règle neutralisant l'indexation, donc comme
+    celle du système actuel. Le régime général ne revalorise sur les prix que
+    depuis 1987 : avant, les arrêtés suivaient les salaires. Confondre les deux
+    imputait aux comptes notionnels un écart qui venait encore de l'indexation.
+    """
+    legale = Indexation(
+        macro,
+        Parametres(mode_indexation=ModeIndexation.REVALORISATION_PORTEE_AU_COMPTE),
+    ).coefficient(1941, 2025)
+    prix = Indexation(
+        macro, Parametres(mode_indexation=ModeIndexation.PRIX)
+    ).coefficient(1941, 2025)
+    salaires = Indexation(
+        macro, Parametres(mode_indexation=ModeIndexation.SALAIRES)
+    ).coefficient(1941, 2025)
+
+    # ×3,9 les prix sur 1942-2025 (le tableau du README annonce ×4,8 : il
+    # cumule aussi l'année 1941, première année de la période qu'il couvre).
+    assert legale > 3.5 * prix, "les arrêtés ont suivi les salaires jusqu'en 1986"
+    assert legale < salaires, "et les prix depuis 1987"
+
+    # Depuis la bascule de 1987, en revanche, les deux règles se rejoignent :
+    # c'est bien la même règle, mais seulement sur cette portion-là.
+    depuis_1987 = Indexation(
+        macro,
+        Parametres(mode_indexation=ModeIndexation.REVALORISATION_PORTEE_AU_COMPTE),
+    ).coefficient(1990, 2025)
+    prix_depuis_1987 = Indexation(
+        macro, Parametres(mode_indexation=ModeIndexation.PRIX)
+    ).coefficient(1990, 2025)
+    assert depuis_1987 == pytest.approx(prix_depuis_1987, rel=0.10)
+
+
 def test_indexation_prix_reproduit_l_inflation(macro):
     indexation = Indexation(macro, Parametres(mode_indexation=ModeIndexation.PRIX))
     assert indexation.coefficient(1980, 2020) == pytest.approx(

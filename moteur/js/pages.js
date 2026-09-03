@@ -28,6 +28,7 @@ export const INDEXATIONS = [
   ["triple_lock_inverse_nominal", "Triple lock inversé, tout en nominal"],
   ["mediane_trois_taux", "Médiane des trois taux"],
   ["moyenne_trois_taux", "Moyenne des trois taux"],
+  ["revalorisation_portee_au_compte", "Revalorisation réellement pratiquée (arrêtés Cnav)"],
   ["prix", "Prix"],
   ["salaires", "Salaire moyen"],
 ];
@@ -756,12 +757,14 @@ function decomposition(contexte, saisie, comparaison) {
 
   return `
 <h2>D'où vient l'écart</h2>
-<p>La même carrière, le même calcul notionnel rétroactif, avec six règles de
+<p>La même carrière, le même calcul notionnel rétroactif, avec sept règles de
 revalorisation des comptes. Les quatre premières partent des mêmes trois séries
 — inflation, salaire moyen, productivité — et n'en changent que ce qu'on en
 retient : le minimum, le minimum rendu homogène, la médiane, la moyenne. La
-colonne « rendement » est le facteur par lequel les cotisations ont été
-multipliées entre leur versement et la liquidation.</p>
+cinquième n'est pas une hypothèse : c'est le coefficient que les arrêtés ont
+réellement appliqué aux salaires portés au compte, celui-là même dont le
+scénario 1 se sert. La colonne « rendement » est le facteur par lequel les
+cotisations ont été multipliées entre leur versement et la liquidation.</p>
 ${g.tableau(
     ["Règle d'indexation", "Rendement cumulé", "Pension mensuelle", "Écart au système actuel"],
     lignes,
@@ -770,12 +773,20 @@ ${g.tableau(
 <p class="discret">Le triple lock inversé compare deux taux nominaux (inflation,
 salaire moyen) à un taux réel (productivité) : dès que l'inflation dépasse la
 productivité — soit presque toute la période 1945-1985 — c'est la productivité
-qui l'emporte, et la valeur réelle des comptes s'effondre. L'écart entre la
-première ligne et la ligne « Prix » mesure l'effet de la règle d'indexation ;
-l'écart entre la ligne « Prix » et le système actuel mesure l'effet propre des
-comptes notionnels. Les lignes « médiane » et « moyenne » gardent les trois
-mêmes séries et n'en changent que la statistique : elles chiffrent ce que coûte
-le choix du minimum, indépendamment du choix des termes.</p>
+qui l'emporte, et la valeur réelle des comptes s'effondre. La ligne de partage
+est la <strong>revalorisation réellement pratiquée</strong> : l'écart entre la
+première ligne et celle-là mesure l'effet de la règle d'indexation, l'écart
+entre celle-là et le système actuel mesure l'effet propre des comptes
+notionnels. La ligne « Prix » ne joue pas ce rôle, contrairement à ce que cette
+page a longtemps dit : le régime général ne revalorise sur les prix que depuis
+1987, et suivait les salaires avant — sur 1941-2025, la prendre pour le droit
+positif revient à sous-estimer d'un facteur cinq ce que le compte a réellement
+rapporté. Sur une carrière donnée l'écart entre les deux lignes reste faible,
+et peut même s'inverser pour celles qui commencent après 1987 : les cotisations
+se concentrent sur les dernières années, où les deux règles coïncident. Le
+facteur cinq est celui de l'indice cumulé depuis 1941, pas celui du résultat. Les lignes « médiane » et « moyenne » gardent les trois mêmes séries
+que le triple lock et n'en changent que la statistique : elles chiffrent ce que
+coûte le choix du minimum, indépendamment du choix des termes.</p>
 `;
 }
 
@@ -1068,6 +1079,7 @@ ${g.tableau(
       ["Triple lock inversé, tout en nominal", "×223,3", "×322,2", "69,3 %"],
       ["Indexation sur les prix", "×322,2", "×322,2", "100 %"],
       ["Médiane des trois taux", "×397,6", "×322,2", "123,4 %"],
+      ["Revalorisation réellement pratiquée", "×1 538,2", "×322,2", "477,4 %"],
     ],
     ["", "nombre", "nombre", "nombre"],
   )}
@@ -1076,6 +1088,18 @@ la règle telle qu'énoncée, appliquée sans correctif — et c'est de là que 
 l'essentiel de la baisse affichée par le scénario rétroactif, non du passage aux
 comptes notionnels. Le tableau « D'où vient l'écart » de chaque simulation
 sépare les deux effets.</p>
+<p>La dernière ligne est la seule qui ne soit pas une hypothèse : c'est le
+coefficient que les arrêtés annuels ont réellement appliqué aux salaires portés
+au compte, celui dont le scénario 1 se sert pour calculer le salaire de
+référence. Il vaut <strong>×1 538</strong> sur la période, soit près de cinq
+fois les prix, parce que le régime général a revalorisé sur les SALAIRES
+jusqu'en 1986 et sur les prix seulement depuis 1987. C'est donc cette ligne, et
+non « Indexation sur les prix », qui neutralise la question de l'indexation
+quand on veut isoler l'effet propre des comptes notionnels — cette page a
+longtemps désigné la mauvaise. Sur une carrière, la correction reste modeste :
++6,2 points pour la génération 1920, +0,1 pour 1945, et -0,5 pour 1958, dont la
+carrière est presque entièrement postérieure à 1987. Les cotisations se
+concentrent sur les dernières années, là où les deux règles coïncident.</p>
 <p>Le minimum n'est pas la seule statistique possible sur ces trois séries. Deux
 variantes gardent les <em>mêmes</em> termes et ne changent que ce qu'on en
 retient : la <strong>médiane</strong> — le taux du milieu — et la

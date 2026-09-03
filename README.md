@@ -237,6 +237,7 @@ productivité qui l'emporte.
 | Triple lock inversé, tout en nominal | ×223,3 | ×322,2 | 69,3 % |
 | Indexation sur les prix | ×322,2 | ×322,2 | 100 % |
 | Médiane des trois taux | ×397,6 | ×322,2 | 123,4 % |
+| **Revalorisation réellement pratiquée** | **×1 538,2** | ×322,2 | **477,4 %** |
 
 Une cotisation de 1950 ne conserve donc que 1,5 % de sa valeur réelle. Dans le
 scénario rétroactif, **l'essentiel de la baisse affichée vient de la règle
@@ -244,8 +245,42 @@ d'indexation, pas du passage aux comptes notionnels**.
 
 C'est la règle telle qu'énoncée, appliquée sans correctif. Pour séparer les deux
 effets : `--indexation triple_lock_inverse_nominal` (règle homogène, toujours
-austère) ou `--indexation prix` (effet propre des comptes notionnels). Chaque
-simulation web affiche cette décomposition d'office.
+austère) ou `--indexation revalorisation_portee_au_compte` (effet propre des
+comptes notionnels). Chaque simulation web affiche cette décomposition d'office.
+
+La dernière ligne du tableau est la seule qui ne soit pas une hypothèse : c'est
+le coefficient que les arrêtés annuels ont réellement appliqué aux salaires
+portés au compte, celui dont le scénario 1 se sert pour son salaire de
+référence. Il vaut ×1 538, près de cinq fois les prix, parce que le régime
+général a revalorisé sur les **salaires** jusqu'en 1986 et sur les prix
+seulement depuis 1987. Ce README, la documentation et le site ont longtemps
+désigné `--indexation prix` comme la règle qui neutralise l'indexation :
+c'était faux d'un facteur cinq, et cela imputait aux comptes notionnels un
+écart qui venait encore du choix de la revalorisation.
+
+Ce que la correction déplace est plus modeste que ce facteur cinq ne le
+suggère, et il faut le dire aussi : les cotisations d'une carrière se
+concentrent sur ses dernières années — en euros courants, une année de fin de
+carrière pèse dix à trente fois une année de début —, et c'est là que les deux
+règles coïncident. Sur le scénario rétroactif, pour un salarié du privé non
+cadre entré à 20 ans et parti à 62 :
+
+| Génération | Carrière | Ligne de référence « Prix » | Ligne corrigée | Écart |
+|---|---|---|---|---|
+| 1920 | 1940-1982 | -90,8 % | -84,6 % | **+6,2 pt** |
+| 1930 | 1950-1992 | -88,8 % | -86,1 % | +2,6 pt |
+| 1945 | 1965-2007 | -84,5 % | -84,3 % | +0,1 pt |
+| 1958 | 1978-2020 | -79,9 % | -80,4 % | **-0,5 pt** |
+| 1990 | 2010-2052 | -77,6 % | -77,6 % | -0,1 pt |
+
+L'écart change même de signe pour les carrières entièrement postérieures à
+1987 : depuis 1990 les arrêtés ont revalorisé un peu moins vite que les prix
+(×1,69 contre ×1,80), l'indexation légale étant assise sur l'inflation de
+l'année précédente. L'erreur portait donc sur l'indice cumulé et sur ce qu'on
+en disait, pas sur l'ordre de grandeur des résultats — mais une ligne de
+référence fausse reste une ligne de référence fausse, et c'est sur elle que
+reposait la phrase « l'écart entre la ligne Prix et le système actuel mesure
+l'effet propre des comptes notionnels ».
 
 ### 1 bis. Le minimum n'est pas la seule statistique : médiane et moyenne
 
@@ -485,7 +520,8 @@ sous « Options de modélisation ».
 
 ```bash
 --indexation      triple_lock_inverse | triple_lock_inverse_nominal
-                  | mediane_trois_taux | moyenne_trois_taux | prix | salaires
+                  | mediane_trois_taux | moyenne_trois_taux
+                  | revalorisation_portee_au_compte | prix | salaires
 --age-reference   cliquet_legal | cliquet_puis_esperance_vie | legal_sans_cliquet
 --conversion-acquis  reference | liquidation
 --part-cotisation      salariale | totale | totale_alignee

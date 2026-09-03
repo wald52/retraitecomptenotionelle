@@ -56,7 +56,20 @@ class ModeIndexation(str, Enum):
     #: fragile.
     MOYENNE_TROIS_TAUX = "moyenne_trois_taux"
 
-    #: Indexation sur les seuls prix (règle en vigueur depuis 1993).
+    #: Revalorisation RÉELLEMENT PRATIQUÉE par le régime général : les
+    #: coefficients des arrêtés annuels, tels que le scénario 1 les applique
+    #: aux salaires portés au compte (les salaires jusqu'en 1986, les prix
+    #: depuis, hors de la plage publiée). C'est le seul mode qui ne suppose
+    #: rien : il demande ce qu'aurait donné le compte notionnel s'il avait
+    #: rapporté exactement ce que le droit en vigueur a accordé. C'est donc
+    #: LUI, et non ``PRIX``, qui neutralise l'indexation quand on veut isoler
+    #: l'effet propre des comptes notionnels.
+    REVALORISATION_PORTEE_AU_COMPTE = "revalorisation_portee_au_compte"
+
+    #: Indexation sur les seuls prix (règle en vigueur depuis 1993). Ce n'est
+    #: la règle du régime général que DEPUIS 1987 : avant, les arrêtés
+    #: suivaient les salaires. Prendre cette ligne pour celle du droit positif
+    #: sur toute la période est une erreur — voir le mode ci-dessus.
     PRIX = "prix"
 
     #: Indexation sur le salaire moyen (règle antérieure à 1987).

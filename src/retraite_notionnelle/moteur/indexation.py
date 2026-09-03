@@ -94,6 +94,19 @@ class Indexation:
                 "salaire_moyen": salaire,
                 "productivite_nominale": self.macro.productivite_nominale(annee),
             }
+        elif mode is ModeIndexation.REVALORISATION_PORTEE_AU_COMPTE:
+            # Le taux annuel des arrêtés, lu comme le scénario 1 le lit : le
+            # rapport de deux années consécutives dans la colonne publiée. Le
+            # produit de ces taux annuels dérive de 0,04 % sur 1941-2025 par
+            # rapport au coefficient lu directement de bout en bout — la caisse
+            # arrondit ses colonnes à trois décimales. C'est le prix de
+            # l'uniformité : ce mode se compose comme tous les autres.
+            candidats = {
+                "revalorisation_legale":
+                    self.macro.coefficient_revalorisation_portee_au_compte(
+                        annee - 1, annee
+                    ) - 1,
+            }
         elif mode is ModeIndexation.PRIX:
             candidats = {"inflation": inflation}
         elif mode is ModeIndexation.SALAIRES:

@@ -98,6 +98,7 @@ Mesure sur la période complète (`retraite-notionnelle indexation --de 1941 --a
 | Triple lock inversé, tout en nominal | ×223,3 | ×322,2 | 69,3 % |
 | Indexation sur les prix | ×322,2 | ×322,2 | 100 % |
 | Médiane des trois taux | ×397,6 | ×322,2 | 123,4 % |
+| Revalorisation réellement pratiquée | ×1 538,2 | ×322,2 | 477,4 % |
 
 Ces chiffres sont ceux que produit la commande citée ci-dessus, et le
 tableau les a longtemps donnés périmés — ×243,7 et ×318,6, valeurs d'une
@@ -116,8 +117,45 @@ choses :
 
 - `--indexation triple_lock_inverse_nominal` ramène la productivité en termes
   nominaux avant de prendre le minimum : la règle reste austère, mais homogène ;
-- `--indexation prix` isole l'effet propre des comptes notionnels, indexation
-  neutralisée.
+- `--indexation revalorisation_portee_au_compte` isole l'effet propre des
+  comptes notionnels, indexation neutralisée.
+
+### La seule ligne qui ne soit pas une hypothèse
+
+Ce paragraphe désignait `--indexation prix` comme la règle neutralisant
+l'indexation. C'était une erreur, et elle valait un facteur cinq. Le régime
+général ne revalorise les salaires portés au compte sur les prix que **depuis
+1987** : avant, les arrêtés annuels suivaient les salaires. Le coefficient
+réellement appliqué vaut ×1 538 sur 1941-2025, contre ×322,2 pour les prix.
+Comparer le compte notionnel à une indexation sur les prix ne le comparait donc
+pas au droit positif ; cela lui opposait une troisième règle, jamais appliquée,
+et imputait aux comptes notionnels un écart qui venait encore de l'indexation.
+
+Le mode `revalorisation_portee_au_compte` sert les coefficients des arrêtés
+eux-mêmes (`data/reference/legislation/revalorisation_salaires.csv`), par le
+rapport de deux années consécutives dans la colonne publiée — exactement la
+grandeur dont le scénario 1 se sert pour revaloriser les salaires de son salaire
+de référence. Hors de la plage publiée, il retombe sur l'approximation légale :
+les salaires jusqu'en 1986, les prix depuis. La question qu'il pose est la seule
+qui ne suppose rien : **et si le compte notionnel avait rapporté exactement ce
+que le droit en vigueur a accordé ?**
+
+Ce que la correction déplace est modeste, et le dire fait partie de la
+correction : les cotisations se concentrent sur les dernières années d'une
+carrière, où les deux règles coïncident. La ligne de référence du scénario
+rétroactif passe de -90,8 % à -84,6 % pour la génération 1920, de -88,8 % à
+-86,1 % pour 1930, de -84,5 % à -84,3 % pour 1945, et l'écart s'inverse pour
+les carrières entièrement postérieures à 1987 (-79,9 % à -80,4 % pour 1958) :
+depuis 1990, les arrêtés revalorisent un peu moins vite que les prix (×1,69
+contre ×1,80), l'indexation légale étant assise sur l'inflation de l'année
+précédente. Le facteur cinq est celui de l'indice cumulé sur 1941-2025, pas
+celui du résultat.
+
+Une réserve de composition : le modèle compose ce mode année par année, comme
+tous les autres, alors que la caisse arrondit ses colonnes à trois décimales. Le
+produit des taux annuels s'écarte de 0,04 % du coefficient lu directement de
+bout en bout sur 1941-2025. C'est le prix de l'uniformité du moteur, et c'est
+deux ordres de grandeur sous les écarts que ce mode sert à mesurer.
 
 ### Changer de statistique : médiane et moyenne
 

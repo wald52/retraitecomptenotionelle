@@ -26,7 +26,14 @@ export const ModeIndexation = Object.freeze({
   //: compris au plus haut. Ce n'est plus une règle d'austérité, et le taux
   //: obtenu n'est celui d'aucun agrégat observé.
   MOYENNE_TROIS_TAUX: "moyenne_trois_taux",
-  //: Indexation sur les seuls prix (règle en vigueur depuis 1993).
+  //: Revalorisation RÉELLEMENT PRATIQUÉE par le régime général : les
+  //: coefficients des arrêtés annuels, ceux-là mêmes que le scénario 1
+  //: applique aux salaires portés au compte. C'est ce mode, et non ``PRIX``,
+  //: qui neutralise l'indexation quand on veut isoler l'effet propre des
+  //: comptes notionnels.
+  REVALORISATION_PORTEE_AU_COMPTE: "revalorisation_portee_au_compte",
+  //: Indexation sur les seuls prix — la règle du régime général DEPUIS 1987
+  //: seulement : avant, les arrêtés suivaient les salaires.
   PRIX: "prix",
   //: Indexation sur le salaire moyen (règle antérieure à 1987).
   SALAIRES: "salaires",

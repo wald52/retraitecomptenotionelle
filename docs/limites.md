@@ -917,12 +917,35 @@ Pour les distinguer :
 
 ```bash
 retraite-notionnelle simuler ... --indexation triple_lock_inverse_nominal
-retraite-notionnelle simuler ... --indexation prix
+retraite-notionnelle simuler ... --indexation revalorisation_portee_au_compte
 ```
 
 La variante nominale conserve 69 % du pouvoir d'achat sur la même période, tout
 en restant plus sévère que l'indexation sur les prix. C'est probablement ce que
 vise l'intention d'une règle d'indexation prudente ; le choix reste ouvert.
+
+**Ce document, le README et le site ont longtemps désigné `--indexation prix`
+comme la règle qui neutralise l'indexation.** C'était faux, et l'erreur n'était
+pas petite : le régime général ne revalorise les salaires portés au compte sur
+les PRIX que depuis 1987 ; auparavant, les arrêtés suivaient les SALAIRES. Sur
+1941-2025, le coefficient réellement appliqué vaut ×1 538 quand les prix font
+×322,2 — un facteur cinq. Comparer le compte notionnel à une indexation sur les
+prix, ce n'était donc pas le comparer au droit positif, c'était le comparer à
+une troisième règle qui n'a jamais existé, et attribuer aux comptes notionnels
+un écart qui venait encore de l'indexation. Le mode
+`revalorisation_portee_au_compte` sert désormais les coefficients des arrêtés
+eux-mêmes — ceux que le scénario 1 applique déjà pour son salaire de référence —
+et c'est lui, et lui seul, qui isole l'effet propre des comptes notionnels.
+
+Ce que la correction déplace reste modeste, et il faut le dire aussi : les
+cotisations se concentrent sur les dernières années d'une carrière, où les deux
+règles coïncident. La ligne de référence du scénario rétroactif passe de
+-90,8 % à -84,6 % pour la génération 1920, de -88,8 % à -86,1 % pour 1930, de
+-84,5 % à -84,3 % pour 1945 — et l'écart change de signe pour les carrières
+entièrement postérieures à 1987 (-79,9 % à -80,4 % pour 1958), les arrêtés
+ayant depuis 1990 revalorisé un peu moins vite que les prix. L'erreur portait
+sur l'indice cumulé et sur ce qu'on en disait, pas sur l'ordre de grandeur des
+résultats.
 
 Deux autres variantes gardent les mêmes trois termes et ne changent que la
 statistique — `--indexation mediane_trois_taux` et `--indexation
