@@ -34,6 +34,10 @@ export const ModeIndexation = Object.freeze({
   //: cotisation. Salaire moyen + emploi salarié : nettement plus généreux que
   //: toutes les autres règles, l'emploi salarié ayant doublé depuis 1950.
   MASSE_SALARIALE: "masse_salariale",
+  //: PIB nominal lissé sur cinq ans — la règle italienne. Assiette plus large
+  //: que la masse salariale, et lissage qui supprime la loterie de cohorte.
+  //: Indicative : le modèle ne reproduit pas le reste du système italien.
+  PIB_NOMINAL_LISSE: "pib_nominal_lisse",
   //: Revalorisation RÉELLEMENT PRATIQUÉE par le régime général : les
   //: coefficients des arrêtés annuels, ceux-là mêmes que le scénario 1
   //: applique aux salaires portés au compte. C'est ce mode, et non ``PRIX``,

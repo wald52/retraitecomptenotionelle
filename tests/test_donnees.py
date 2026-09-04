@@ -231,6 +231,7 @@ def test_journal_de_certification_decrit_les_series_certifiees():
         "inflation": "macro/ipc_annuel.csv",
         "salaire_moyen": "macro/salaire_moyen.csv",
         "masse_salariale": "macro/masse_salariale.csv",
+        "pib_nominal": "macro/pib_nominal.csv",
         "productivite": "macro/productivite.csv",
         "plafond": "macro/plafond_securite_sociale.csv",
         "plafond_ancien": "macro/plafond_securite_sociale.csv",

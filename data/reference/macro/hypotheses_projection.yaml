@@ -23,6 +23,11 @@
 # C'est une hypothèse neutre, et non un résultat : sur 1950-2025 l'emploi
 # salarié a été multiplié par 2,14, soit près d'un point de croissance annuelle
 # que la projection ne reconduit pas.
+#
+# Le PIB nominal suit la même convention que la masse salariale : au-delà de
+# 2025, il croît au rythme du salaire moyen nominal. Supposer autre chose
+# reviendrait à projeter une déformation du partage de la valeur ajoutée, ce
+# qu'aucun des scénarios retenus ne fait.
 
 annee_derniere_observation: 2025
 annee_fin_projection: 2100
@@ -37,6 +42,7 @@ scenarios:
     productivite_reelle: 0.010
     salaire_moyen_nominal: 0.0275
     masse_salariale_nominale: 0.0275   # emploi salarié supposé constant
+    pib_nominal: 0.0275               # partage de la valeur ajoutée stable
 
   cor_favorable:
     libelle: Scénario favorable — productivité 1,3 % par an
@@ -44,6 +50,7 @@ scenarios:
     productivite_reelle: 0.013
     salaire_moyen_nominal: 0.0305
     masse_salariale_nominale: 0.0305   # emploi salarié supposé constant
+    pib_nominal: 0.0305               # partage de la valeur ajoutée stable
 
   cor_defavorable:
     libelle: Scénario défavorable — productivité 0,7 % par an
@@ -51,6 +58,7 @@ scenarios:
     productivite_reelle: 0.007
     salaire_moyen_nominal: 0.0245
     masse_salariale_nominale: 0.0245   # emploi salarié supposé constant
+    pib_nominal: 0.0245               # partage de la valeur ajoutée stable
 
   stagnation:
     libelle: Stagnation durable — productivité 0,3 % par an
@@ -58,6 +66,7 @@ scenarios:
     productivite_reelle: 0.003
     salaire_moyen_nominal: 0.0205
     masse_salariale_nominale: 0.0205   # emploi salarié supposé constant
+    pib_nominal: 0.0205               # partage de la valeur ajoutée stable
 
 # Le plafond de la Sécurité sociale suit la croissance du salaire moyen, ce qui
 # est la règle en vigueur (article L. 241-3 du code de la sécurité sociale).

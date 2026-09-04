@@ -21,6 +21,13 @@ import { Fiabilite } from "./serie.js";
  * Modes qui comparent les trois taux tels qu'ils sont publiés — deux nominaux,
  * un réel. Ils ne diffèrent que par la statistique retenue, pas par les termes.
  */
+/**
+ * Longueur de la fenêtre de lissage de la règle italienne, en années : c'est
+ * elle, et elle seule, qui distingue la règle italienne d'une indexation sur le
+ * PIB de l'année.
+ */
+const FENETRE_LISSAGE_ITALIENNE = 5;
+
 const MODES_TROIS_TAUX_REELS = new Set([
   ModeIndexation.TRIPLE_LOCK_INVERSE,
   ModeIndexation.MEDIANE_TROIS_TAUX,
@@ -60,6 +67,8 @@ export class Indexation {
         ["salaire_moyen", salaire],
         ["productivite_nominale", this.macro.productiviteNominale(annee)],
       ];
+    } else if (mode === ModeIndexation.PIB_NOMINAL_LISSE) {
+      candidats = [["pib_nominal_lisse", this._pibLisse(annee)]];
     } else if (mode === ModeIndexation.MASSE_SALARIALE) {
       candidats = [["masse_salariale", this.macro.masse_salariale.valeur(annee)]];
     } else if (mode === ModeIndexation.REVALORISATION_PORTEE_AU_COMPTE) {
@@ -125,6 +134,25 @@ export class Indexation {
     };
     this._taux.set(annee, resultat);
     return resultat;
+  }
+
+  /**
+   * Moyenne géométrique du PIB nominal sur la fenêtre italienne.
+   *
+   * Fenêtre tronquée au début de la série plutôt qu'indisponible : la première
+   * année publiée n'a pas quatre années derrière elle. Deux écarts assumés avec
+   * la règle italienne — l'Italie décale la fenêtre de deux ans, le temps que
+   * les comptes nationaux soient arrêtés, et l'applique à un système dont ce
+   * modèle ne reprend ni les coefficients de transformation ni les planchers.
+   */
+  _pibLisse(annee) {
+    const serie = this.macro.pib_nominal;
+    const debut = Math.max(annee - FENETRE_LISSAGE_ITALIENNE + 1, serie.premiereAnnee);
+    let produit = 1.0;
+    for (let a = debut; a <= annee; a += 1) {
+      produit *= 1 + serie.valeur(a);
+    }
+    return produit ** (1 / (annee - debut + 1)) - 1;
   }
 
   /**

@@ -42,6 +42,13 @@ from ..donnees.chargement import Fiabilite
 from ..donnees.macro import DonneesMacro
 
 
+#: Longueur de la fenêtre de lissage de la règle italienne, en années. L'Italie
+#: revalorise sur la moyenne géométrique du PIB nominal des CINQ dernières
+#: années — c'est ce chiffre, et lui seul, qui distingue la règle italienne
+#: d'une indexation sur le PIB de l'année.
+FENETRE_LISSAGE_ITALIENNE = 5
+
+
 #: Modes qui comparent les trois taux tels qu'ils sont publiés — deux nominaux,
 #: un réel. Ils ne diffèrent que par la statistique retenue, pas par les termes.
 _MODES_TROIS_TAUX_REELS = frozenset({
@@ -94,6 +101,8 @@ class Indexation:
                 "salaire_moyen": salaire,
                 "productivite_nominale": self.macro.productivite_nominale(annee),
             }
+        elif mode is ModeIndexation.PIB_NOMINAL_LISSE:
+            candidats = {"pib_nominal_lisse": self._pib_lisse(annee)}
         elif mode is ModeIndexation.MASSE_SALARIALE:
             candidats = {"masse_salariale": self.macro.masse_salariale(annee)}
         elif mode is ModeIndexation.REVALORISATION_PORTEE_AU_COMPTE:
@@ -151,6 +160,29 @@ class Indexation:
             productivite=productivite,
             fiabilite=fiabilite,
         )
+
+    def _pib_lisse(self, annee: int) -> float:
+        """Moyenne géométrique du PIB nominal sur la fenêtre italienne.
+
+        Fenêtre tronquée au début de la série plutôt qu'indisponible : la
+        première année publiée n'a pas quatre années derrière elle, et refuser
+        de calculer y ferait échouer toute carrière ancienne. Une moyenne sur
+        moins de cinq ans reste une moyenne ; ce qu'elle a de moins lissé est
+        couvert par la fiabilité `estimee` que portent ces années-là.
+
+        Deux écarts assumés avec la règle italienne, qui font que ce mode est
+        indicatif et non une reproduction : l'Italie décale la fenêtre de deux
+        ans, le temps que les comptes nationaux soient arrêtés, et l'applique à
+        un système dont ce modèle ne reprend ni les coefficients de
+        transformation ni les planchers. Ici la fenêtre se termine sur l'année
+        courante, le modèle travaillant sur une série déjà arrêtée.
+        """
+        serie = self.macro.pib_nominal
+        debut = max(annee - FENETRE_LISSAGE_ITALIENNE + 1, serie.premiere_annee)
+        produit = 1.0
+        for a in range(debut, annee + 1):
+            produit *= 1 + serie(a)
+        return produit ** (1 / (annee - debut + 1)) - 1
 
     def coefficient(self, annee_depart: int, annee_arrivee: int) -> float:
         """Coefficient de revalorisation cumulée entre deux années.

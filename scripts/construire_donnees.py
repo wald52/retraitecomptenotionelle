@@ -92,6 +92,8 @@ def _series() -> dict:
         "masse_salariale": charger_serie_annuelle(
             macro / "masse_salariale.csv", "variation_nominale",
             nom="masse_salariale_nominale"),
+        "pib_nominal": charger_serie_annuelle(
+            macro / "pib_nominal.csv", "variation_nominale", nom="pib_nominal"),
         "productivite": charger_serie_annuelle(
             macro / "productivite.csv", "variation_reelle", nom="productivite_reelle"),
         "pass": charger_serie_annuelle(

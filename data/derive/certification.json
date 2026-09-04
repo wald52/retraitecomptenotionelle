@@ -1,5 +1,5 @@
 {
- "certifie_le": "2026-09-03",
+ "certifie_le": "2026-09-04",
  "series": {
   "age_ouverture_requis": {
    "ajoutees": 0,
@@ -110,10 +110,10 @@
    "valeurs": 76
   },
   "masse_salariale": {
-   "ajoutees": 76,
+   "ajoutees": 0,
    "corrigees": 0,
    "empreinte": "79ffd6c89abaa812",
-   "identiques": 0,
+   "identiques": 76,
    "niveau": "certifiee",
    "source": "INSEE BDM, idbank 011785411",
    "valeurs": 76
@@ -126,6 +126,15 @@
    "niveau": "certifiee",
    "source": "DILA, base LEGI, code de la sécurité sociale D. 351-2-1 et D. 173-21-0-0-1",
    "valeurs": 6
+  },
+  "pib_nominal": {
+   "ajoutees": 76,
+   "corrigees": 0,
+   "empreinte": "e4e5db4f2d0dabe0",
+   "identiques": 0,
+   "niveau": "certifiee",
+   "source": "INSEE BDM, idbank 011779992",
+   "valeurs": 76
   },
   "plafond": {
    "ajoutees": 0,

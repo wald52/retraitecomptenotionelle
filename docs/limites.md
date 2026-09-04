@@ -989,6 +989,15 @@ même ordre :
   qu'en rétrospective, et l'écart entre générations anciennes et récentes en
   vient pour partie de là, non d'un effet de la réforme simulée.
 
+La variante italienne — `--indexation pib_nominal_lisse` — est fournie à titre
+indicatif et n'est pas une reproduction du système italien : elle en reprend le
+taux (moyenne géométrique du PIB nominal sur cinq ans), pas le décalage de
+publication de deux ans, ni les coefficients de transformation, ni les
+planchers. Sa moyenne mobile a en outre un effet propre sur les cumuls longs :
+elle recule la base de référence d'environ deux ans, ce qui gonfle d'une
+vingtaine de pour cent le coefficient affiché sur 1941-2025. Sur une carrière,
+l'écart à la règle par défaut reste de deux à trois points.
+
 ---
 
 ## 3. Le scénario « système actuel » est une approximation

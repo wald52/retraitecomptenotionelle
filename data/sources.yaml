@@ -90,6 +90,22 @@ institutions:
           peut servir sans changer son taux de cotisation. L'écart avec le SMPT
           est exactement la croissance de l'emploi salarié.
 
+      - id: insee_bdm_pib
+        titre: Produit intérieur brut, prix courant, comptes nationaux base 2020
+        url: https://api.insee.fr/series/BDM/V1/data/SERIES_BDM/011779992
+        idbank: ["011779992"]
+        acces: api
+        statut_integration: certifie
+        cible: data/reference/macro/pib_nominal.csv
+        recuperation: scripts/fetch/insee_bdm.py
+        note: >-
+          PIB approche produit, en euros courants, disponible depuis 1949.
+          Assiette la plus large qu'un système de retraite puisse viser : elle
+          capte le déplacement de la valeur ajoutée vers les revenus non
+          salariaux, que la masse salariale subit. Sert la variante « à
+          l'italienne » de l'indexation, dont le lissage sur cinq ans est
+          appliqué par le moteur et non par la série.
+
       - id: insee_bdm_productivite
         titre: Productivité du travail par tête, comptes nationaux base 2020
         url: https://api.insee.fr/series/BDM/V1/data/SERIES_BDM/011785223

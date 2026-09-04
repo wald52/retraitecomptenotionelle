@@ -258,9 +258,41 @@ def test_la_masse_salariale_est_la_regle_la_plus_genereuse(macro):
         for mode in ModeIndexation
     }
     masse = coefficients[ModeIndexation.MASSE_SALARIALE]
-    assert masse == max(coefficients.values())
+    # Le PIB nominal lissé est mis à part : son cumul dépasse celui de la masse
+    # salariale par un effet de moyenne mobile, pas par une assiette plus
+    # dynamique. Le test suivant fixe précisément ce point.
+    autres = {mode: valeur for mode, valeur in coefficients.items()
+              if mode is not ModeIndexation.PIB_NOMINAL_LISSE}
+    assert masse == max(autres.values())
     assert masse > coefficients[ModeIndexation.SALAIRES]
     assert masse > 10 * macro.coefficient_prix(1941, 2025)
+
+
+def test_le_cumul_du_pib_lisse_doit_son_avance_a_la_moyenne_mobile(macro):
+    """Un lissage n'est pas neutre sur un cumul de quatre-vingts ans.
+
+    Le PIB nominal croît MOINS vite que la masse salariale sur 1941-2025. Son
+    cumul lissé la dépasse pourtant : le produit des moyennes glissantes revient
+    à mesurer la croissance depuis une base reculée d'environ deux ans, et sur
+    une période aussi longue cela vaut une vingtaine de pour cent. Le lissage
+    reste ce qu'on en attend d'une année sur l'autre ; c'est le CUMUL qu'il
+    faut lire avec cette réserve, et sur une carrière réelle l'écart retombe à
+    deux ou trois points.
+    """
+    # Même fenêtre que ``coefficient`` : de 1942 à 2025 inclus, l'année de départ
+    # n'étant pas revalorisée. Comparer deux conventions donnerait un écart qui
+    # ne doit rien au lissage.
+    brut = 1.0
+    for annee in range(1942, 2026):
+        brut *= 1 + macro.pib_nominal(annee)
+    masse = Indexation(
+        macro, Parametres(mode_indexation=ModeIndexation.MASSE_SALARIALE)
+    ).coefficient(1941, 2025)
+    lisse = Indexation(
+        macro, Parametres(mode_indexation=ModeIndexation.PIB_NOMINAL_LISSE)
+    ).coefficient(1941, 2025)
+
+    assert brut < masse < lisse
 
 
 def test_la_masse_salariale_est_certifiee_depuis_1950(macro):
@@ -274,6 +306,48 @@ def test_la_masse_salariale_est_certifiee_depuis_1950(macro):
 
     assert macro.masse_salariale.fiabilite_minimale_sur(1950, 2025) == Fiabilite.CERTIFIEE
     assert macro.masse_salariale.fiabilite(1935) == Fiabilite.ESTIMEE
+
+
+def test_le_pib_lisse_est_la_moyenne_geometrique_de_cinq_annees(macro):
+    """La règle italienne est un lissage, et un lissage se vérifie sur la fenêtre."""
+    from retraite_notionnelle.moteur.indexation import FENETRE_LISSAGE_ITALIENNE
+
+    indexation = Indexation(
+        macro, Parametres(mode_indexation=ModeIndexation.PIB_NOMINAL_LISSE)
+    )
+    for annee in (1975, 2000, 2020, 2025):
+        produit = 1.0
+        for a in range(annee - FENETRE_LISSAGE_ITALIENNE + 1, annee + 1):
+            produit *= 1 + macro.pib_nominal(a)
+        attendu = produit ** (1 / FENETRE_LISSAGE_ITALIENNE) - 1
+        assert indexation.taux(annee).taux == pytest.approx(attendu)
+        assert indexation.taux(annee).terme_retenu == "pib_nominal_lisse"
+
+
+def test_le_lissage_absorbe_le_trou_de_2020(macro):
+    """Ce que le lissage sert à faire, sur l'année qui le montre le mieux.
+
+    Le PIB nominal recule de plusieurs points en 2020. Sans lissage, les comptes
+    d'une génération liquidée cette année-là en porteraient la trace entière ;
+    avec, l'année est absorbée par les quatre qui l'entourent — et le taux reste
+    positif.
+    """
+    brut = macro.pib_nominal(2020)
+    lisse = Indexation(
+        macro, Parametres(mode_indexation=ModeIndexation.PIB_NOMINAL_LISSE)
+    ).taux(2020).taux
+    assert brut < 0 < lisse
+
+
+def test_la_fenetre_de_lissage_est_tronquee_au_debut_de_la_serie(macro):
+    """Aux premières années, la fenêtre est plus courte — jamais indisponible."""
+    indexation = Indexation(
+        macro, Parametres(mode_indexation=ModeIndexation.PIB_NOMINAL_LISSE)
+    )
+    premiere = macro.pib_nominal.premiere_annee
+    assert indexation.taux(premiere).taux == pytest.approx(macro.pib_nominal(premiere))
+    # et une carrière ancienne se calcule sans lever
+    assert indexation.coefficient(premiere, 2025) > 1.0
 
 
 def test_indexation_prix_reproduit_l_inflation(macro):

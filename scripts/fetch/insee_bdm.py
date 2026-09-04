@@ -73,6 +73,13 @@ SERIES: dict[str, dict[str, str]] = {
         "role": "Emploi salarié intérieur total, en personnes physiques, milliers, 1949-",
         "note": "dénominateur du salaire moyen par tête",
     },
+    # -- produit intérieur brut ---------------------------------------------
+    "pib_nominal": {
+        "idbank": "011779992",
+        "role": "Produit intérieur brut, approche produit, prix courant, 1949-",
+        "note": "assiette la plus large qu'un système de retraite puisse viser ; "
+                "sert la variante « à l'italienne » de l'indexation",
+    },
     # -- productivité -------------------------------------------------------
     "valeur_ajoutee_volume": {
         "idbank": "011785223",

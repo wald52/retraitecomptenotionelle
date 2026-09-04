@@ -91,6 +91,23 @@ class DonneesMacro:
         return self._prolonger(serie, "masse_salariale_nominale")
 
     @cached_property
+    def pib_nominal(self) -> SerieAnnuelle:
+        """Variation annuelle NOMINALE du produit intérieur brut.
+
+        Assiette plus large que la masse salariale : elle capte le déplacement
+        de la valeur ajoutée vers les revenus non salariaux, que la masse
+        salariale subit. C'est celle que l'Italie retient pour revaloriser les
+        comptes notionnels, lissée sur cinq ans — le lissage est appliqué par
+        :class:`~retraite_notionnelle.moteur.indexation.Indexation`, pas ici.
+        """
+        serie = charger_serie_annuelle(
+            self.racine / "reference" / "macro" / "pib_nominal.csv",
+            colonne_valeur="variation_nominale",
+            nom="pib_nominal",
+        )
+        return self._prolonger(serie, "pib_nominal")
+
+    @cached_property
     def productivite(self) -> SerieAnnuelle:
         """Variation annuelle RÉELLE de la productivité du travail par tête."""
         serie = charger_serie_annuelle(

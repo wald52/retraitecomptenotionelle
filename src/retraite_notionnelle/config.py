@@ -72,6 +72,18 @@ class ModeIndexation(str, Enum):
     #: une règle d'austérité, c'est une règle d'équilibre.
     MASSE_SALARIALE = "masse_salariale"
 
+    #: PIB nominal lissé sur cinq ans — la règle italienne. L'Italie revalorise
+    #: les comptes notionnels sur la moyenne géométrique de la croissance du PIB
+    #: nominal des cinq dernières années. L'assiette est plus large que la masse
+    #: salariale : elle capte le déplacement de la valeur ajoutée vers les
+    #: revenus non salariaux, que la masse salariale, elle, subit. Le lissage
+    #: supprime la loterie de cohorte — deux carrières identiques à un an
+    #: d'écart ne doivent pas diverger parce qu'une année d'inflation est tombée
+    #: d'un côté ou de l'autre. Fournie à titre indicatif : le modèle ne
+    #: reproduit pas le reste du système italien (décalage de publication de
+    #: deux ans, coefficients de transformation, plancher).
+    PIB_NOMINAL_LISSE = "pib_nominal_lisse"
+
     #: Revalorisation RÉELLEMENT PRATIQUÉE par le régime général : les
     #: coefficients des arrêtés annuels, tels que le scénario 1 les applique
     #: aux salaires portés au compte (les salaires jusqu'en 1986, les prix

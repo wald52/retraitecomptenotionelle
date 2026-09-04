@@ -44,6 +44,7 @@ INDEXATIONS = [
     ("triple_lock_inverse_nominal", "Triple lock inversé, tout en nominal"),
     ("mediane_trois_taux", "Médiane des trois taux"),
     ("moyenne_trois_taux", "Moyenne des trois taux"),
+    ("pib_nominal_lisse", "PIB nominal lissé sur 5 ans (règle italienne)"),
     ("prix", "Prix"),
     ("salaires", "Salaire moyen"),
 ]
@@ -737,7 +738,7 @@ def _decomposition(contexte: Contexte, saisie: Saisie,
 
     return f"""
 <h2>D'où vient l'écart</h2>
-<p>La même carrière, le même calcul notionnel rétroactif, avec huit règles de
+<p>La même carrière, le même calcul notionnel rétroactif, avec neuf règles de
 revalorisation des comptes. La <strong>première ligne est celle que la
 simulation applique</strong> : la croissance de la masse salariale, c'est-à-dire
 le rendement qu'un système en répartition peut servir sans changer son taux de
@@ -775,7 +776,10 @@ tableau, et de loin. Elle a sa propre incohérence, à
 garder en tête : elle crédite le compte du rendement que le système ENTIER
 dégage, alors que les scénarios 2 et 3 n'y versent que la part salariale de la
 cotisation. C'est aux scénarios 4 et 5, qui portent la cotisation entière,
-qu'elle se compare sans biais.</p>
+qu'elle se compare sans biais. La ligne « PIB nominal lissé » est la même idée
+poussée à l'assiette la plus large — c'est la règle italienne, moyenne
+géométrique sur cinq ans —, donnée à titre indicatif : le modèle n'en reprend
+que le taux, pas le reste du système italien.</p>
 """
 
 
@@ -1071,6 +1075,7 @@ qu'elle produit.</p>
         ["Médiane des trois taux", "×397,6", "×322,2", "123,4 %"],
         ["Revalorisation réellement pratiquée", "×1 538,2", "×322,2", "477,4 %"],
         ["Masse salariale (règle d'équilibre)", "×3 685,1", "×322,2", "1 143,7 %"],
+        ["PIB nominal lissé sur 5 ans (Italie)", "×4 152,7", "×322,2", "1 288,8 %"],
     ],
     ["", "nombre", "nombre", "nombre"],
 )}
@@ -1102,6 +1107,18 @@ prix : l'emploi salarié a doublé depuis 1950, et cette croissance-là s'ajoute
 chaque année à celle des salaires. Une réserve : ce rendement est celui du
 système ENTIER, alors que les scénarios 2 et 3 ne portent au compte que la part
 salariale de la cotisation. C'est aux scénarios 4 et 5 qu'il faut le comparer.</p>
+<p>La ligne suivante est la même idée poussée à l'assiette la plus large : le
+<strong>PIB nominal</strong>, lissé sur cinq ans comme le fait l'Italie pour ses
+propres comptes notionnels. L'assiette y gagne ce que la masse salariale perd
+quand la valeur ajoutée se déplace vers les revenus non salariaux, et le lissage
+supprime la loterie de cohorte — deux carrières identiques à un an d'écart ne
+divergent plus parce qu'une année d'inflation est tombée d'un côté ou de
+l'autre. Elle est donnée <em>à titre indicatif</em> : le modèle en reprend le
+taux, pas le reste du système italien (décalage de publication de deux ans,
+coefficients de transformation, planchers). Sur une carrière, elle s'écarte de
+deux à trois points de la règle par défaut ; l'écart plus large du tableau
+ci-dessus tient à la moyenne mobile, qui recule la base de référence de deux ans
+sur une période de quatre-vingts ans.</p>
 <p>Le minimum n'est pas la seule statistique possible sur ces trois séries. Deux
 variantes gardent les <em>mêmes</em> termes et ne changent que ce qu'on en
 retient : la <strong>médiane</strong> — le taux du milieu — et la

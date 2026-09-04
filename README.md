@@ -259,6 +259,7 @@ productivité qui l'emporte.
 | Médiane des trois taux | ×397,6 | ×322,2 | 123,4 % |
 | **Revalorisation réellement pratiquée** | **×1 538,2** | ×322,2 | **477,4 %** |
 | Masse salariale (règle d'équilibre) | ×3 685,1 | ×322,2 | 1 143,7 % |
+| PIB nominal lissé sur 5 ans (Italie) | ×4 152,7 | ×322,2 | 1 288,8 % |
 
 Une cotisation de 1950 ne conserve donc que 1,5 % de sa valeur réelle. Dans le
 scénario rétroactif, **l'essentiel de la baisse affichée vient de la règle
@@ -358,6 +359,19 @@ Deux réserves, à lire avant de s'en servir :
 - **1930-1949 est estimé**, faute de comptes nationaux : ces vingt années
   supposent l'emploi salarié constant et reprennent la variation du salaire
   moyen. La fiabilité `estimee` le dit et se propage jusqu'au résultat.
+
+Pour les curieux, une neuvième règle : **`--indexation pib_nominal_lisse`**,
+la variante italienne — moyenne géométrique du PIB nominal sur cinq ans.
+L'assiette y est plus large (elle capte ce que la masse salariale perd quand la
+valeur ajoutée se déplace vers les revenus non salariaux) et le lissage supprime
+la loterie de cohorte : le trou de 2020 y est absorbé par les quatre années qui
+l'entourent au lieu d'être porté en entier par la génération liquidée cette
+année-là. Elle est donnée **à titre indicatif** — le modèle en reprend le taux,
+pas le reste du système italien — et s'écarte de deux à trois points de la règle
+par défaut sur une carrière. Une réserve de lecture : son cumul de tableau
+dépasse celui de la masse salariale alors que le PIB nominal croît *moins* vite
+qu'elle ; c'est un effet de la moyenne mobile, qui recule la base de référence
+d'environ deux ans, et non une assiette plus dynamique.
 
 Et un résultat qui recadre tout le reste : même sous cette règle, le scénario
 rétroactif reste 70 à 81 % en dessous du système actuel (scénario 2), et 28 à
@@ -583,7 +597,8 @@ sous « Options de modélisation ».
 --indexation      triple_lock_inverse | triple_lock_inverse_nominal
                   | mediane_trois_taux | moyenne_trois_taux
                   | revalorisation_portee_au_compte | prix | salaires
-                  | masse_salariale       (masse_salariale par défaut)
+                  | masse_salariale | pib_nominal_lisse
+                                          (masse_salariale par défaut)
 --age-reference   cliquet_legal | cliquet_puis_esperance_vie | legal_sans_cliquet
 --conversion-acquis  reference | liquidation
 --part-cotisation      salariale | totale | totale_alignee

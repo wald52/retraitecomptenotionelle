@@ -1,0 +1,117 @@
+# Produit intérieur brut — variation annuelle nominale, France
+# source_id: insee_bdm_pib (comptes nationaux annuels, base 2020)
+# unite: taux de variation annuel nominal, en fraction
+# fiabilite:
+#   certifiee (1950-2025) : PIB approche produit, prix courant
+#             (idbank 011779992), recontrôlé par
+#             scripts/verifier_donnees.py.
+#   estimee   (1930-1949) : les comptes nationaux ne remontent pas avant
+#             1949. Ces vingt années reprennent la variation du salaire
+#             moyen, faute de mieux — même convention que
+#             masse_salariale.csv, et même réserve.
+#
+# Sert la variante « à l'italienne » de l'indexation : l'Italie revalorise
+# les comptes notionnels sur la moyenne géométrique du PIB nominal des cinq
+# dernières années. Le LISSAGE est appliqué par le moteur, pas ici : cette
+# série est la variation annuelle brute, seule grandeur que l'INSEE publie
+# et donc seule grandeur certifiable.
+#
+# Ne pas modifier les années certifiées à la main : elles seraient écrasées
+# au prochain scripts/verifier_donnees.py --appliquer.
+annee,variation_nominale,fiabilite
+1930,-0.020,estimee
+1931,-0.030,estimee
+1932,-0.070,estimee
+1933,-0.040,estimee
+1934,-0.060,estimee
+1935,-0.075,estimee
+1936,0.150,estimee
+1937,0.290,estimee
+1938,0.140,estimee
+1939,0.080,estimee
+1940,0.150,estimee
+1941,0.180,estimee
+1942,0.190,estimee
+1943,0.240,estimee
+1944,0.230,estimee
+1945,0.560,estimee
+1946,0.610,estimee
+1947,0.480,estimee
+1948,0.610,estimee
+1949,0.180,estimee
+1950,0.17227,certifiee
+1951,0.25944,certifiee
+1952,0.16616,certifiee
+1953,0.03615,certifiee
+1954,0.06296,certifiee
+1955,0.07552,certifiee
+1956,0.10249,certifiee
+1957,0.12998,certifiee
+1958,0.15411,certifiee
+1959,0.09256,certifiee
+1960,0.10759,certifiee
+1961,0.08391,certifiee
+1962,0.11969,certifiee
+1963,0.12009,certifiee
+1964,0.10919,certifiee
+1965,0.08031,certifiee
+1966,0.08303,certifiee
+1967,0.08033,certifiee
+1968,0.08995,certifiee
+1969,0.14976,certifiee
+1970,0.11984,certifiee
+1971,0.11535,certifiee
+1972,0.11515,certifiee
+1973,0.14625,certifiee
+1974,0.16577,certifiee
+1975,0.12677,certifiee
+1976,0.15469,certifiee
+1977,0.12677,certifiee
+1978,0.13583,certifiee
+1979,0.14284,certifiee
+1980,0.13416,certifiee
+1981,0.12806,certifiee
+1982,0.14769,certifiee
+1983,0.10996,certifiee
+1984,0.08797,certifiee
+1985,0.07160,certifiee
+1986,0.07754,certifiee
+1987,0.05086,certifiee
+1988,0.08146,certifiee
+1989,0.07729,certifiee
+1990,0.05571,certifiee
+1991,0.03722,certifiee
+1992,0.03567,certifiee
+1993,0.01193,certifiee
+1994,0.03359,certifiee
+1995,0.03482,certifiee
+1996,0.02733,certifiee
+1997,0.03424,certifiee
+1998,0.04393,certifiee
+1999,0.03627,certifiee
+2000,0.05617,certifiee
+2001,0.03838,certifiee
+2002,0.03154,certifiee
+2003,0.02787,certifiee
+2004,0.04549,certifiee
+2005,0.03888,certifiee
+2006,0.04766,certifiee
+2007,0.04976,certifiee
+2008,0.02690,certifiee
+2009,-0.02722,certifiee
+2010,0.03112,certifiee
+2011,0.03310,certifiee
+2012,0.01268,certifiee
+2013,0.01535,certifiee
+2014,0.01574,certifiee
+2015,0.02213,certifiee
+2016,0.01382,certifiee
+2017,0.02682,certifiee
+2018,0.02779,certifiee
+2019,0.03263,certifiee
+2020,-0.04684,certifiee
+2021,0.08188,certifiee
+2022,0.05817,certifiee
+2023,0.06776,certifiee
+2024,0.03579,certifiee
+2025,0.01902,certifiee
