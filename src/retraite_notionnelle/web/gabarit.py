@@ -56,7 +56,7 @@ body {
   font-size: 17px;
   line-height: 1.6;
 }
-main { max-width: 60rem; margin: 0 auto; padding: 0 1.25rem 5rem; }
+main { max-width: 60rem; margin: 0 auto; padding: 0 1.25rem; }
 header.bandeau {
   border-bottom: 1px solid var(--trait);
   background: var(--fond-carte);
@@ -148,7 +148,13 @@ td.nombre, th.nombre { font-variant-numeric: tabular-nums; }
 ul.serree { margin: 0.5rem 0; padding-left: 1.2rem; }
 ul.serree li { margin: 0.3rem 0; }
 footer {
-  border-top: 1px solid var(--trait); margin-top: 3rem; padding-top: 1.25rem;
+  /* Hors de <main>, le pied porte lui-même la boîte que <main> lui prêtait.
+     Le filet doit s'aligner sur le texte : la largeur est donc celle de la
+     *zone de contenu* de <main> — 60rem moins ses deux marges intérieures —
+     et le padding horizontal reste nul, sans quoi le filet déborderait. */
+  width: calc(100% - 2.5rem); max-width: 57.5rem;
+  margin: 3rem auto 0; padding: 1.25rem 0 5rem;
+  border-top: 1px solid var(--trait);
   font-size: 0.88rem; color: var(--texte-doux);
 }
 .erreur {
@@ -180,7 +186,8 @@ body.calcul-en-cours main { opacity: 0.45; transition: opacity 0.2s; }
    serrer contre lui, et la page respire un peu moins large. */
 @media (max-width: 34rem) {
   body { font-size: 16px; }
-  main { padding: 0 1rem 4rem; }
+  main { padding: 0 1rem; }
+  footer { width: calc(100% - 2rem); padding: 1.25rem 0 4rem; }
   .carte { padding: 1rem 1.1rem; }
   header.bandeau .interieur { gap: 0.4rem 1rem; }
   nav a { margin: 0 1.1rem 0 0; }

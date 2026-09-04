@@ -553,6 +553,82 @@ def test_le_prechargement_du_paquet_correspond_a_la_requete():
     )
 
 
+def test_les_modules_sont_tous_precharges():
+    """La liste de préchargement doit suivre le contenu de ``moteur/js/``.
+
+    Le portage est un graphe profond de cinq niveaux : sans déclaration, le
+    navigateur ne découvre chaque niveau qu'après avoir reçu le précédent, soit
+    cinq aller-retours avant le premier calcul — une seconde entière sur une
+    connexion mobile. Les ``modulepreload`` les font partir ensemble.
+
+    Une liste écrite à la main dérive dès qu'un module est ajouté ou renommé :
+    un module oublié réintroduit silencieusement la cascade, un module fantôme
+    fait télécharger un fichier qui n'existe plus. Les deux échouent ici.
+    """
+    import re
+    from pathlib import Path
+
+    racine = Path(__file__).resolve().parents[1]
+    page = (racine / "index.html").read_text(encoding="utf-8")
+
+    precharges = set(re.findall(
+        r'<link rel="modulepreload" href="moteur/js/([\w.-]+\.js)">', page))
+    presents = {chemin.name for chemin in (racine / "moteur" / "js").iterdir()
+                if chemin.suffix == ".js"}
+
+    assert precharges == presents, (
+        f"préchargés mais absents du dossier : {precharges - presents} ; "
+        f"présents mais non préchargés : {presents - precharges}"
+    )
+
+
+def test_le_pied_est_pose_hors_du_contenu_remplace():
+    """Un ``<footer>`` dans ``<main>`` n'est pas un repère « contentinfo ».
+
+    Il disparaît alors de la navigation par repères des lecteurs d'écran. Le
+    pied est donc inséré au montage de la coquille, à côté de ``<main>``, et le
+    rendu d'une page ne réinjecte que le corps — il est statique, le
+    reconstruire à chaque calcul ne servait rien non plus.
+    """
+    import re
+    from pathlib import Path
+
+    page = (Path(__file__).resolve().parents[1] / "index.html").read_text(encoding="utf-8")
+
+    assert re.search(r"insertAdjacentHTML\([^)]*gabarit\.pied\(\)", page, re.S), (
+        "le pied doit être posé une fois, au montage de la coquille"
+    )
+    assert "contenu.innerHTML = corps;" in page, (
+        "le rendu d'une page ne doit réinjecter que le corps"
+    )
+    assert "corps + gabarit.pied()" not in page, (
+        "le pied ne doit plus être réinséré dans <main> à chaque rendu"
+    )
+
+
+def test_le_resultat_est_annonce_aux_lecteurs_d_ecran():
+    """Le contenu de ``<main>`` est remplacé en bloc : rien ne le signale.
+
+    Sans région annoncée, valider le formulaire ne produit aucun retour audible
+    — alors que c'est l'interaction centrale du site.
+    """
+    import re
+    from pathlib import Path
+
+    page = (Path(__file__).resolve().parents[1] / "index.html").read_text(encoding="utf-8")
+
+    region = re.search(r'<p id="annonce"[^>]*>', page)
+    assert region, "la région d'annonce a disparu de la page"
+    assert 'aria-live="polite"' in region.group(0), "la région doit être annoncée poliment"
+    assert 'role="status"' in region.group(0)
+    assert "hors-ecran" in region.group(0), "la région ne doit pas s'afficher"
+
+    # Les trois issues d'un rendu doivent s'entendre : résultat, refus, échec.
+    assert page.count("annoncer(") >= 3, (
+        "le résultat, le refus de saisie et l'échec de calcul doivent tous être annoncés"
+    )
+
+
 def test_le_style_d_amorcage_ne_vise_que_des_elements_existants():
     """Pas de règle orpheline dans la page : ce qui ne sert plus s'enlève.
 

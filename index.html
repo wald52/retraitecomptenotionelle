@@ -13,6 +13,31 @@
 <link rel="stylesheet" href="moteur/style.css">
 <link rel="preload" href="moteur/donnees.json" as="fetch" crossorigin>
 
+<!-- Le portage est un graphe de modules profond de cinq niveaux : sans ces
+     déclarations le navigateur ne découvre chaque niveau qu'après avoir reçu le
+     précédent, soit cinq aller-retours avant que le modèle puisse tourner. Les
+     annoncer tous ici les fait partir ensemble, dès la lecture de l'en-tête.
+     La liste est verrouillée sur le contenu de moteur/js/ par un test. -->
+<link rel="modulepreload" href="moteur/js/pages.js">
+<link rel="modulepreload" href="moteur/js/simulateur.js">
+<link rel="modulepreload" href="moteur/js/scenario-notionnel.js">
+<link rel="modulepreload" href="moteur/js/age-reference.js">
+<link rel="modulepreload" href="moteur/js/carriere.js">
+<link rel="modulepreload" href="moteur/js/compte.js">
+<link rel="modulepreload" href="moteur/js/conversion.js">
+<link rel="modulepreload" href="moteur/js/fusion.js">
+<link rel="modulepreload" href="moteur/js/gabarit.js">
+<link rel="modulepreload" href="moteur/js/indexation.js">
+<link rel="modulepreload" href="moteur/js/macro.js">
+<link rel="modulepreload" href="moteur/js/mortalite.js">
+<link rel="modulepreload" href="moteur/js/scenario-actuel.js">
+<link rel="modulepreload" href="moteur/js/calendrier.js">
+<link rel="modulepreload" href="moteur/js/castypes.js">
+<link rel="modulepreload" href="moteur/js/config.js">
+<link rel="modulepreload" href="moteur/js/format.js">
+<link rel="modulepreload" href="moteur/js/regimes.js">
+<link rel="modulepreload" href="moteur/js/serie.js">
+
 <style>
   /* Écran d'attente. Il ne s'affiche qu'au-delà d'un tiers de seconde : sur une
      connexion rapide le simulateur est prêt avant, et un écran qui n'aurait
@@ -29,12 +54,19 @@
                           background: var(--accent);
                           animation: glisse 1.4s ease-in-out infinite; }
   @keyframes paraitre { from { opacity: 0; } to { opacity: 1; } }
+  /* Lue par les synthèses vocales, jamais affichée : le contenu de <main> est
+     remplacé en bloc à chaque calcul, ce qu'un lecteur d'écran ne signale pas
+     de lui-même. */
+  .hors-ecran { position: absolute; width: 1px; height: 1px; overflow: hidden;
+                clip-path: inset(50%); white-space: nowrap; }
   .replique { text-align: left; border-left: 3px solid var(--accent);
               background: var(--fond-appui); padding: 0.9rem 1.1rem; margin-top: 1.5rem;
               font-size: 0.92rem; }
 </style>
 </head>
 <body>
+
+<p id="annonce" class="hors-ecran" role="status" aria-live="polite"></p>
 
 <div id="amorce">
   <h1>Retraite à comptes notionnels</h1>
@@ -82,8 +114,40 @@ async function preparer() {
 
 function coquille() {
   amorce.remove();
+  // Le pied est posé une fois, à côté de <main> et non dedans : un <footer>
+  // imbriqué dans <main> n'est pas un repère « contentinfo » et disparaît de la
+  // navigation par repères. Il est statique, le reconstruire à chaque rendu ne
+  // servait rien non plus.
   document.body.insertAdjacentHTML("beforeend",
-    '<div id="entete"></div><main id="contenu"></main>');
+    '<div id="entete"></div><main id="contenu"></main>' + gabarit.pied());
+}
+
+// Ce que la synthèse vocale doit entendre après un calcul. Le contenu de <main>
+// est remplacé en bloc : sans cette annonce, valider le formulaire ne produit
+// aucun retour audible, alors que c'est l'interaction centrale du site.
+function annoncer(texte) {
+  const region = document.getElementById("annonce");
+  // Vider d'abord : deux calculs qui donnent le même texte doivent s'entendre
+  // deux fois, et une région dont le contenu ne change pas reste muette.
+  region.textContent = "";
+  setTimeout(() => { region.textContent = texte; }, 50);
+}
+
+// Résumé parlé d'une page rendue : le refus de saisie s'il y en a un, sinon les
+// scénarios chiffrés, sinon le seul titre.
+function resume(titre, contenu) {
+  const refus = contenu.querySelector(".erreur");
+  if (refus) { return `${titre}. ${refus.textContent.trim()}`; }
+
+  const scenarios = [...contenu.querySelectorAll(".scenario")].map((bloc) => {
+    const nom = bloc.querySelector(".titre")?.textContent.trim();
+    const mensuel = bloc.querySelector(".mensuel")?.textContent.trim();
+    return nom && mensuel ? `${nom} : ${mensuel} par mois` : null;
+  }).filter(Boolean);
+
+  return scenarios.length
+    ? `${titre}. ${scenarios.length} scénarios calculés. ${scenarios.join(". ")}.`
+    : `${titre}.`;
 }
 
 function chargement(message) {
@@ -128,13 +192,15 @@ async function afficher() {
     document.body.classList.remove("calcul-en-cours");
     contenu.innerHTML = '<div class="erreur"><strong>Le calcul a échoué.</strong> '
       + String(erreur).replace(/[<>&]/g, "") + "</div>";
+    annoncer(`Le calcul a échoué. ${String(erreur).replace(/[<>&]/g, "")}`);
     return;
   }
 
   document.getElementById("entete").innerHTML = gabarit.entete(cible.chemin);
-  contenu.innerHTML = corps + gabarit.pied();
+  contenu.innerHTML = corps;
   document.title = `${titre} — Retraite en comptes notionnels`;
   document.body.classList.remove("calcul-en-cours");
+  annoncer(resume(titre, contenu));
 
   const nouveauDetails = contenu.querySelector("form details");
   if (nouveauDetails && optionsDepliees) { nouveauDetails.open = true; }
