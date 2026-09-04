@@ -16,9 +16,6 @@ dependencies = [
 [project.optional-dependencies]
 dev = ["pytest>=8.0"]
 
-[project.scripts]
-retraite-notionnelle = "retraite_notionnelle.cli:main"
-
 [tool.setuptools.packages.find]
 where = ["src"]
 

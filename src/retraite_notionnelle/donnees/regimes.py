@@ -505,9 +505,6 @@ class CatalogueRegimes:
     def codes(self) -> tuple[str, ...]:
         return tuple(sorted(self._regimes))
 
-    def par_famille(self, famille: str) -> tuple[Regime, ...]:
-        return tuple(r for r in self if r.famille == famille)
-
     def en_repartition(self) -> tuple[Regime, ...]:
         return tuple(r for r in self if not r.hors_repartition)
 

@@ -304,7 +304,7 @@ modèle n'a pas, ou décrit un dispositif qu'il représenterait faussement.
 
 ## 1. État de certification des données
 
-`retraite-notionnelle donnees` affiche l'état exact. En résumé :
+La page **Données** du site affiche l'état exact. En résumé :
 
 | Donnée | Période | Niveau | Source |
 |---|---|---|---|
@@ -903,7 +903,7 @@ résiduelle se propage dans le même sens aux trois scénarios.
 
 Le modèle revalorise par défaut sur la croissance de la masse salariale — le
 taux d'équilibre de la répartition. Ce qui suit décrit la règle demandée, le
-triple lock inversé (`--indexation triple_lock_inverse`), parce que c'est elle
+triple lock inversé (`indexation=triple_lock_inverse`), parce que c'est elle
 qui porte les écarts les plus lourds ; les limites propres à la règle par défaut
 sont énoncées à la fin de cette section.
 
@@ -921,16 +921,15 @@ effets ne sont pas séparables par lecture directe du tableau.
 
 Pour les distinguer :
 
-```bash
-retraite-notionnelle simuler ... --indexation triple_lock_inverse_nominal
-retraite-notionnelle simuler ... --indexation revalorisation_portee_au_compte
-```
+Comparer, sur la même carrière, la règle « triple lock inversé, tout en
+nominal » et la règle « revalorisation portée au compte » — le sélecteur
+d'indexation du formulaire, ou `mode_indexation` en Python.
 
 La variante nominale conserve 69 % du pouvoir d'achat sur la même période, tout
 en restant plus sévère que l'indexation sur les prix. C'est probablement ce que
 vise l'intention d'une règle d'indexation prudente ; le choix reste ouvert.
 
-**Ce document, le README et le site ont longtemps désigné `--indexation prix`
+**Ce document, le README et le site ont longtemps désigné `indexation=prix`
 comme la règle qui neutralise l'indexation.** C'était faux, et l'erreur n'était
 pas petite : le régime général ne revalorise les salaires portés au compte sur
 les PRIX que depuis 1987 ; auparavant, les arrêtés suivaient les SALAIRES. Sur
@@ -954,9 +953,9 @@ sur l'indice cumulé et sur ce qu'on en disait, pas sur l'ordre de grandeur des
 résultats.
 
 Deux autres variantes gardent les mêmes trois termes et ne changent que la
-statistique — `--indexation mediane_trois_taux` et `--indexation
-moyenne_trois_taux`. Elles ont leurs propres limites, symétriques de celle
-ci-dessus :
+statistique — `indexation=mediane_trois_taux` et
+`indexation=moyenne_trois_taux`. Elles ont leurs propres limites, symétriques
+de celle ci-dessus :
 
 - la **médiane** cesse d'être une règle d'austérité. Sur 1941-2025 elle revalorise
   les comptes ×397,6 quand les prix font ×322,2 : elle rend le scénario
@@ -969,7 +968,7 @@ ci-dessus :
   de construction, et le taux obtenu n'est celui d'aucun agrégat publié. À lire
   comme un contrefactuel, pas comme une règle candidate.
 
-La règle d'équilibre — `--indexation masse_salariale`, la croissance de
+La règle d'équilibre — `indexation=masse_salariale`, la croissance de
 l'assiette des cotisations — a elle aussi ses limites, et elles ne sont pas du
 même ordre :
 
@@ -989,7 +988,7 @@ même ordre :
   qu'en rétrospective, et l'écart entre générations anciennes et récentes en
   vient pour partie de là, non d'un effet de la réforme simulée.
 
-Le **lissage pluriannuel** (`--lissage N`) s'applique à n'importe laquelle des
+Le **lissage pluriannuel** (`lissage=N`) s'applique à n'importe laquelle des
 neuf règles, et appelle deux réserves distinctes :
 
 - **sur les cumuls longs, une moyenne glissante n'est pas neutre.** Le produit
@@ -998,9 +997,9 @@ neuf règles, et appelle deux réserves distinctes :
   coefficient affiché sur 1941-2025 à cinq ans — sans qu'aucune série ait
   changé. Les tableaux de cumul lissé se lisent avec cette précaution ; sur une
   carrière, l'effet retombe à un ou deux points ;
-- **la règle italienne n'est reprise que par son taux.** `--indexation
-  pib_nominal --lissage 5` est bien la formule de revalorisation des comptes
-  notionnels italiens, mais le modèle n'en reprend ni le décalage de publication
+- **la règle italienne n'est reprise que par son taux.**
+  `indexation=pib_nominal&lissage=5` est bien la formule de revalorisation des
+  comptes notionnels italiens, mais le modèle n'en reprend ni le décalage de publication
   de deux ans, ni les coefficients de transformation, ni les planchers. C'est
   une indication, pas une reproduction du système italien.
 

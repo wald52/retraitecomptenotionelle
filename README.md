@@ -33,7 +33,7 @@ Les comptes sont revalorisés, par défaut, sur la croissance de la **masse
 salariale** — l'assiette des cotisations, donc le rendement qu'un système en
 répartition peut servir sans changer son taux de cotisation. Sept autres règles
 sont disponibles, dont le **triple lock inversé** qui a donné son cahier des
-charges à ce dépôt : `--indexation triple_lock_inverse`. Le choix pèse lourd,
+charges à ce dépôt : `indexation=triple_lock_inverse`. Le choix pèse lourd,
 et le simulateur affiche d'office ce qu'il déplace.
 
 Les scénarios **2 et 3 ne portent au compte que la part salariale** — ce que
@@ -41,9 +41,16 @@ l'assuré a supporté lui-même, la même grandeur pour tous les statuts. Les
 scénarios **4 et 5 y ajoutent la part patronale**. Pour un non-salarié, qui n'a
 pas d'employeur, les quatre se réduisent à deux.
 
-```bash
-retraite-notionnelle simuler --naissance 1955 --statut agent_sncf \
-    --debut 20 --liquidation 50 --salaire 1.1
+```python
+from retraite_notionnelle import Parametres
+from retraite_notionnelle.simulateur import Simulateur
+
+simulateur = Simulateur(Parametres())
+print(simulateur.simuler(simulateur.carriere_simple(
+    annee_naissance=1955, sexe="H", affiliation="agent_sncf",
+    age_debut=20, age_liquidation=50,
+    niveau_salaire=1.1, profil_carriere="ascendant",
+)).tableau())
 ```
 
 ```
@@ -147,38 +154,49 @@ et rien à construire au préalable :
 python -m http.server 8000        # puis http://127.0.0.1:8000
 ```
 
-## En ligne de commande
+## En Python, hors du site
 
-La seule dépendance est PyYAML.
+Le site expose le modèle en quatre pages. Pour l'interroger autrement — un
+calcul par lots, une variante de paramètres, un chiffre à vérifier à la main —
+le modèle de référence s'appelle directement. La seule dépendance est PyYAML.
 
 ```bash
 pip install -e .
+```
+
+```python
+from retraite_notionnelle import Parametres
+from retraite_notionnelle.castypes import calculer_cas_types
+from retraite_notionnelle.simulateur import Simulateur
+
+simulateur = Simulateur(Parametres())
 
 # Simuler une carrière : cinq informations suffisent
-retraite-notionnelle simuler --naissance 1960 --statut salarie_prive_non_cadre \
-                             --debut 20 --liquidation 62
+carriere = simulateur.carriere_simple(
+    annee_naissance=1960, sexe="H", affiliation="salarie_prive_non_cadre",
+    age_debut=20, age_liquidation=62,
+)
+print(simulateur.simuler(carriere).tableau())
 
 # Au mois près — la date de liquidation commande les mois cotisés de l'année
 # du départ, les trimestres qu'ils valident et le diviseur actuariel
-retraite-notionnelle simuler --naissance 1961 --naissance-mois 9 \
-                             --statut salarie_prive_non_cadre \
-                             --debut 20a6m --liquidation 64a7m
+simulateur.carriere_simple(
+    annee_naissance=1961, mois_naissance=9, sexe="H",
+    affiliation="salarie_prive_non_cadre",
+    age_debut=20 + 6 / 12, age_liquidation=64 + 7 / 12,
+)
 
 # Le cas général : grille cas type × génération
-retraite-notionnelle cas-types
+print(calculer_cas_types(simulateur).tableau())
 
 # Les 22 statuts et les 37 régimes du catalogue
-retraite-notionnelle regimes
-
-# La série d'indexation, année par année
-retraite-notionnelle indexation --de 1941 --a 2025
-
-# Le régime unique issu de la fusion
-retraite-notionnelle fusion
-
-# L'état de fiabilité des données — à lire en premier
-retraite-notionnelle donnees
+for regime in simulateur.catalogue:
+    print(f"{regime.code:<26} {regime.famille:<22} {regime.nom}")
 ```
+
+Le tableau de bord des données — l'état de fiabilité de chaque série, à lire en
+premier — est la page **Données** du site. En Python,
+`journal_certification(Parametres().racine_donnees)` produit la même matière.
 
 ## En bibliothèque
 
@@ -241,7 +259,7 @@ Le modèle revalorise **par défaut les comptes sur la croissance de la masse
 salariale** — le taux d'équilibre de la répartition, celui que la théorie des
 comptes notionnels désigne (voir §1 ter). Ce n'est pas la règle qui a motivé ce
 dépôt : celle-là, le **triple lock inversé**, est à un paramètre de distance
-(`--indexation triple_lock_inverse`). Un défaut doit être ce qu'on retient faute
+(`indexation=triple_lock_inverse`). Un défaut doit être ce qu'on retient faute
 d'instruction contraire, pas ce qu'on cherche à démontrer — et c'est bien la
 règle demandée qui produit les écarts les plus spectaculaires.
 
@@ -267,8 +285,8 @@ scénario rétroactif, **l'essentiel de la baisse affichée vient de la règle
 d'indexation, pas du passage aux comptes notionnels**.
 
 C'est la règle telle qu'énoncée, appliquée sans correctif. Pour séparer les deux
-effets : `--indexation triple_lock_inverse_nominal` (règle homogène, toujours
-austère) ou `--indexation revalorisation_portee_au_compte` (effet propre des
+effets : `indexation=triple_lock_inverse_nominal` (règle homogène, toujours
+austère) ou `indexation=revalorisation_portee_au_compte` (effet propre des
 comptes notionnels). Chaque simulation web affiche cette décomposition d'office.
 
 La dernière ligne du tableau est la seule qui ne soit pas une hypothèse : c'est
@@ -277,7 +295,7 @@ portés au compte, celui dont le scénario 1 se sert pour son salaire de
 référence. Il vaut ×1 538, près de cinq fois les prix, parce que le régime
 général a revalorisé sur les **salaires** jusqu'en 1986 et sur les prix
 seulement depuis 1987. Ce README, la documentation et le site ont longtemps
-désigné `--indexation prix` comme la règle qui neutralise l'indexation :
+désigné `indexation=prix` comme la règle qui neutralise l'indexation :
 c'était faux d'un facteur cinq, et cela imputait aux comptes notionnels un
 écart qui venait encore du choix de la revalorisation.
 
@@ -309,7 +327,7 @@ l'effet propre des comptes notionnels ».
 
 Le minimum de trois séries est une règle sévère par construction. Deux variantes
 gardent **exactement les mêmes trois termes** et ne changent que ce qu'on en
-retient — `--indexation mediane_trois_taux` et `--indexation moyenne_trois_taux`.
+retient — `indexation=mediane_trois_taux` et `indexation=moyenne_trois_taux`.
 Elles isolent donc le coût du choix du minimum, à termes inchangés. Le résultat
 n'est pas celui qu'on attend :
 
@@ -328,9 +346,9 @@ n'est pas celui qu'on attend :
 
 Autrement dit : si l'objectif est d'adoucir la règle sans la vider, la médiane
 le fait ; la moyenne, elle, est un objet composite dont la sévérité vient d'un
-artefact de construction plutôt que d'un choix assumé. Les deux sont disponibles,
-en ligne de commande comme dans le formulaire web, et le tableau « D'où vient
-l'écart » de chaque simulation les affiche côte à côte.
+artefact de construction plutôt que d'un choix assumé. Les deux sont disponibles
+dans le formulaire, et le tableau « D'où vient l'écart » de chaque simulation
+les affiche côte à côte.
 
 ### 1 ter. La règle que la théorie désigne : la masse salariale
 
@@ -342,7 +360,7 @@ Aaron 1966). C'est le taux d'indexation des comptes notionnels suédois,
 italiens, polonais et lettons, à des variantes près, et c'est le seul candidat
 qui découle d'un argument plutôt que d'une intention.
 
-`--indexation masse_salariale` la sert, depuis les salaires et traitements bruts
+`indexation=masse_salariale` la sert, depuis les salaires et traitements bruts
 des comptes nationaux (D11, INSEE, idbank 011785411, certifiés depuis 1950).
 Sur 1941-2025 elle vaut **×3 685, soit onze fois les prix** : l'emploi salarié a
 doublé depuis 1950, et cette croissance-là s'ajoute chaque année à celle des
@@ -361,31 +379,32 @@ Deux réserves, à lire avant de s'en servir :
   supposent l'emploi salarié constant et reprennent la variation du salaire
   moyen. La fiabilité `estimee` le dit et se propage jusqu'au résultat.
 
-Pour les curieux, une neuvième règle : **`--indexation pib_nominal`**,
+Pour les curieux, une neuvième règle : **`indexation=pib_nominal`**,
 l'assiette la plus large — elle capte ce que la masse salariale perd quand la
 valeur ajoutée se déplace vers les revenus non salariaux.
 
 ### 1 quater. Le lissage pluriannuel, qui n'est pas une règle
 
-`--lissage N` applique une moyenne glissante de N années au taux que la règle
-produit — **n'importe laquelle des neuf**, et N est libre (1 à 30 ans, dans le
-formulaire comme en ligne de commande). Ce n'est donc pas une dixième règle
+Le lissage applique une moyenne glissante de N années au taux que la règle
+produit — **n'importe laquelle des neuf**, et N est libre, de 1 à 30 ans. Ce
+n'est donc pas une dixième règle
 mais un réglage orthogonal, et il répond à une question que le choix de la règle
 ne pose pas : la **loterie de cohorte**.
 
 Sur le PIB nominal brut, une cotisation de 1980 vaut ×5,44 à une liquidation de
 2019 et **×5,18 en 2020** : attendre un an fait *perdre*, parce que l'année
 traversée s'est mal passée. Rien dans la carrière ne le justifie — c'est le
-calendrier qui tranche. Avec `--lissage 5`, le recul disparaît (×6,64 puis
+calendrier qui tranche. Avec `lissage=5`, le recul disparaît (×6,64 puis
 ×6,71) : le trou de 2020 est absorbé par les quatre années qui l'entourent. Sur
 1950-2025, le PIB nominal brut compte deux années où liquider plus tard rapporte
 moins ; lissé sur trois ou cinq ans, aucune.
 
-C'est le mécanisme des comptes notionnels italiens — `--indexation pib_nominal
---lissage 5` **est** la règle italienne, dont le modèle ne reprend que le taux,
-pas le reste du système (décalage de publication de deux ans, coefficients de
-transformation, planchers). Mais rien n'oblige à le réserver au PIB : le lissage
-s'applique aussi bien au triple lock inversé qu'à la masse salariale.
+C'est le mécanisme des comptes notionnels italiens —
+`indexation=pib_nominal&lissage=5` **est** la règle italienne, dont le modèle
+ne reprend que le taux, pas le reste du système (décalage de publication de
+deux ans, coefficients de transformation, planchers). Mais rien n'oblige à le
+réserver au PIB : le lissage s'applique aussi bien au triple lock inversé qu'à
+la masse salariale.
 
 Une réserve de lecture, valable pour toutes les lignes lissées du tableau
 ci-dessus : sur quatre-vingts ans, une moyenne glissante **n'est pas neutre**.
@@ -432,9 +451,17 @@ séries l'en dispensent :
   appelé par décret — 49,90 %, puis 74,28 % de 2013 à 2024, 78,28 % en 2025 et
   **82,28 % en 2026** ; la SNCF publie ses composantes T1 et T2 de 2007 à 2018.
 
-```bash
-retraite-notionnelle simuler --naissance 1975 --sexe F --statut fonctionnaire_etat \
-    --debut 22 --liquidation 64 --primes 0.2 --detail
+```python
+comparaison = simulateur.simuler(simulateur.carriere_simple(
+    annee_naissance=1975, sexe="F", affiliation="fonctionnaire_etat",
+    age_debut=22, age_liquidation=64,
+    part_primes=0.2, profil_carriere="ascendant",
+))
+print(comparaison.tableau())
+
+# Le détail par régime du scénario 1, que la page « Simuler » affiche aussi
+for pension in comparaison.actuel.pensions_par_regime:
+    print(f"{pension.regime:<28} {pension.montant:>10,.0f} €   {pension.detail}")
 ```
 
 ```
@@ -470,7 +497,7 @@ pivot privé, et non celle d'un employeur public qui, par construction, n'existe
 plus.
 
 Un quatrième réglage conserve l'ancienne convention, comme contrefactuel :
-`--part-cotisation totale_alignee` prête au public la part employeur du privé,
+`part_cotisation=totale_alignee` prête au public la part employeur du privé,
 et fait retrouver à un fonctionnaire et à un salarié de même rémunération
 exactement la même pension.
 
@@ -584,7 +611,6 @@ src/retraite_notionnelle/
   scenarios/                    système actuel, comptes notionnels
   simulateur.py                 façade et restitution
   castypes.py                   cas général
-  cli.py                        ligne de commande
   web/
     pages.py                    contenu des pages — sans autre dépendance que le moteur
     gabarit.py                  rendu HTML et feuille de style
@@ -611,27 +637,33 @@ tests/                          243 tests Python
 
 ## Principales options
 
-Elles valent pour toutes les commandes, et se retrouvent dans le formulaire web
-sous « Options de modélisation ».
+Ce sont les champs de `Parametres`. Le formulaire du site les expose sous
+« Options de modélisation », et l'adresse de la page les porte tous : une
+simulation se cite telle quelle.
 
-```bash
---indexation      triple_lock_inverse | triple_lock_inverse_nominal
-                  | mediane_trois_taux | moyenne_trois_taux
-                  | revalorisation_portee_au_compte | prix | salaires
-                  | masse_salariale | pib_nominal   (défaut : masse_salariale)
---lissage ANNÉES  moyenne glissante appliquée à la règle choisie (défaut 1,
-                  aucun lissage). « --indexation pib_nominal --lissage 5 »
-                  est la règle italienne
---age-reference   cliquet_legal | cliquet_puis_esperance_vie | legal_sans_cliquet
---conversion-acquis  reference | liquidation
---part-cotisation      salariale | totale | totale_alignee
---table           unisexe | par_sexe
---projection      cor_central | cor_favorable | cor_defavorable | stagnation
---bascule ANNÉE   année de passage au régime unique (défaut 2026)
---euros ANNÉE     année des euros constants (défaut 2026)
---fiabilite-min   refuse de calculer sous un certain niveau de fiabilité
---json            sortie machine
+```python
+mode_indexation        ModeIndexation.{TRIPLE_LOCK_INVERSE
+                       | TRIPLE_LOCK_INVERSE_NOMINAL | MEDIANE_TROIS_TAUX
+                       | MOYENNE_TROIS_TAUX | REVALORISATION_PORTEE_AU_COMPTE
+                       | PRIX | SALAIRES | MASSE_SALARIALE | PIB_NOMINAL}
+                       défaut : MASSE_SALARIALE
+lissage_indexation     moyenne glissante appliquée à la règle choisie (défaut 1,
+                       aucun lissage). PIB_NOMINAL lissé sur 5 ans est la règle
+                       italienne
+mode_age_reference     ModeAgeReference.{CLIQUET_LEGAL
+                       | CLIQUET_PUIS_ESPERANCE_VIE | LEGAL_SANS_CLIQUET}
+age_conversion_droits_acquis  AgeConversionDroitsAcquis.{REFERENCE | LIQUIDATION}
+part_cotisation        PartCotisation.{SALARIALE | TOTALE | TOTALE_ALIGNEE}
+table_conversion       TableConversion.{UNISEXE | PAR_SEXE}
+scenario_projection    cor_central | cor_favorable | cor_defavorable | stagnation
+annee_bascule          année de passage au régime unique (défaut 2026)
+annee_euros_constants  année des euros constants (défaut 2026)
+fiabilite_minimale     refuse de calculer sous un certain niveau de fiabilité
 ```
+
+`Comparaison.dictionnaire()` donne le résultat en structure de données plutôt
+qu'en tableau — c'est ce que la page publie sous « Les résultats complets en
+JSON ».
 
 ---
 

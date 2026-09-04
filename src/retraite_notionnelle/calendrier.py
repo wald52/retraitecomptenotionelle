@@ -64,13 +64,6 @@ class DateMois:
     def __str__(self) -> str:  # pragma: no cover - affichage
         return f"{NOMS_DE_MOIS[self.mois - 1]} {self.annee}"
 
-    # -- conversions ---------------------------------------------------------
-
-    @property
-    def annee_decimale(self) -> float:
-        """Position dans l'année civile, en fraction d'année."""
-        return self.annee + (self.mois - 1) / MOIS_PAR_AN
-
 
 NOMS_DE_MOIS = (
     "janvier", "février", "mars", "avril", "mai", "juin",
@@ -88,11 +81,6 @@ def en_mois(age: float) -> int:
     l'identique, et un âge saisi autrement se voit rattaché au mois qu'il désigne.
     """
     return round(age * MOIS_PAR_AN)
-
-
-def en_annees(mois: int) -> float:
-    """Âge en mois -> âge en années décimales."""
-    return mois / MOIS_PAR_AN
 
 
 def decomposer(age: float) -> tuple[int, int]:

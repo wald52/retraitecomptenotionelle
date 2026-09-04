@@ -201,10 +201,6 @@ class DonneesMacro:
 
     # -- grandeurs dérivées --------------------------------------------------
 
-    def salaire_moyen_reel(self, annee: int) -> float:
-        """Croissance réelle du salaire moyen : (1+w)/(1+π) - 1."""
-        return (1 + self.salaire_moyen(annee)) / (1 + self.inflation(annee)) - 1
-
     def productivite_nominale(self, annee: int) -> float:
         """Productivité réelle ramenée en nominal : (1+ρ)(1+π) - 1."""
         return (1 + self.productivite(annee)) * (1 + self.inflation(annee)) - 1

@@ -64,11 +64,6 @@ export function enMois(age) {
   return Math.round(age * MOIS_PAR_AN);
 }
 
-/** Âge en mois -> âge en années décimales. */
-export function enAnnees(mois) {
-  return mois / MOIS_PAR_AN;
-}
-
 /** Âge en années décimales -> [années entières, mois]. */
 export function decomposer(age) {
   const mois = enMois(age);

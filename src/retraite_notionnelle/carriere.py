@@ -90,10 +90,6 @@ class AnneeCarriere:
         return self.cotisations_versees and self.revenu > 0
 
     @property
-    def annee_complete(self) -> bool:
-        return self.fraction_annee >= 1.0
-
-    @property
     def revenu_annualise(self) -> float:
         """Revenu ramené à l'année pleine.
 
@@ -191,18 +187,6 @@ class Carriere:
     def fraction_annee_liquidation(self) -> float:
         """Part de l'année de liquidation qui précède le point de départ."""
         return (self.mois_liquidation - 1) / 12
-
-    def age_en(self, annee: int) -> float:
-        return annee - self.annee_naissance
-
-    @property
-    def deja_liquidee(self) -> bool:
-        """Vrai si la retraite est déjà liquidée à l'année courante du modèle.
-
-        Déterminé par comparaison avec l'année de liquidation ; le simulateur
-        tranche en fonction de son propre paramètre ``annee_courante``.
-        """
-        return self.age_liquidation is not None
 
     # -- agrégats ------------------------------------------------------------
 

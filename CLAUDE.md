@@ -18,7 +18,7 @@ commiter.
 ## Projet
 
 Modèle de retraite français en comptes notionnels appliqué rétroactivement.
-Voir `README.md` pour l'usage de la CLI `retraite-notionnelle`.
+Le livrable est le site statique ; voir `README.md`.
 
 - Modèle de référence, en Python : `src/`
 - Données (barèmes, régimes, séries) : `data/`

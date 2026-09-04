@@ -140,11 +140,6 @@ export class DonneesMacro {
 
   // -- grandeurs dérivées ----------------------------------------------------
 
-  /** Croissance réelle du salaire moyen : (1+w)/(1+π) - 1. */
-  salaireMoyenReel(annee) {
-    return (1 + this.salaire_moyen.valeur(annee)) / (1 + this.inflation.valeur(annee)) - 1;
-  }
-
   /** Productivité réelle ramenée en nominal : (1+ρ)(1+π) - 1. */
   productiviteNominale(annee) {
     return (1 + this.productivite.valeur(annee)) * (1 + this.inflation.valeur(annee)) - 1;

@@ -72,10 +72,6 @@ export class AnneeCarriere {
     return this.cotisations_versees && this.revenu > 0;
   }
 
-  get anneeComplete() {
-    return this.fraction_annee >= 1.0;
-  }
-
   /**
    * Revenu ramené à l'année pleine — le traitement EN VIGUEUR, celui que
    * liquident les régimes servant sur les six derniers mois de service.
@@ -170,10 +166,6 @@ export class Carriere {
   /** Part de l'année de liquidation qui précède le point de départ. */
   get fractionAnneeLiquidation() {
     return (this.moisLiquidation - 1) / 12;
-  }
-
-  ageEn(annee) {
-    return annee - this.annee_naissance;
   }
 
   // -- agrégats --------------------------------------------------------------

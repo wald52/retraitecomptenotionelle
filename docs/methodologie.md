@@ -71,7 +71,7 @@ taux d'indexation (défaut) = croissance nominale de la masse salariale
 ```
 
 Ce n'est pas la règle qui a motivé ce dépôt. Celle-là est le **triple lock
-inversé** — `--indexation triple_lock_inverse` —, et c'est elle que décrit tout
+inversé** — `indexation=triple_lock_inverse` —, et c'est elle que décrit tout
 le reste de cette section, parce que c'est elle qui pose les questions de
 méthode les plus difficiles :
 
@@ -107,7 +107,7 @@ dépasse la croissance de la productivité — c'est-à-dire pendant la quasi-to
 de la période 1945-1985 — c'est la productivité réelle qui l'emporte, et le
 compte est revalorisé de 1 à 5 % quand les prix montent de 10 à 50 %.
 
-Mesure sur la période complète (`retraite-notionnelle indexation --de 1941 --a 2025`) :
+Mesure sur la période complète, 1941-2025 :
 
 | Règle | Revalorisation cumulée 1941-2025 | Prix | Pouvoir d'achat conservé |
 |---|---|---|---|
@@ -136,14 +136,14 @@ C'est un résultat, pas un défaut : la règle a été appliquée telle qu'énon
 Mais l'interprétation doit en tenir compte. Deux moyens de faire la part des
 choses :
 
-- `--indexation triple_lock_inverse_nominal` ramène la productivité en termes
+- `indexation=triple_lock_inverse_nominal` ramène la productivité en termes
   nominaux avant de prendre le minimum : la règle reste austère, mais homogène ;
-- `--indexation revalorisation_portee_au_compte` isole l'effet propre des
+- `indexation=revalorisation_portee_au_compte` isole l'effet propre des
   comptes notionnels, indexation neutralisée.
 
 ### La seule ligne qui ne soit pas une hypothèse
 
-Ce paragraphe désignait `--indexation prix` comme la règle neutralisant
+Ce paragraphe désignait `indexation=prix` comme la règle neutralisant
 l'indexation. C'était une erreur, et elle valait un facteur cinq. Le régime
 général ne revalorise les salaires portés au compte sur les prix que **depuis
 1987** : avant, les arrêtés annuels suivaient les salaires. Le coefficient
@@ -222,7 +222,7 @@ comptes. Les systèmes notionnels réels s'en approchent : indice de revenu par
 tête en Suède, PIB nominal lissé sur cinq ans en Italie, masse salariale
 d'assiette en Pologne et en Lettonie.
 
-`--indexation masse_salariale` la sert depuis les salaires et traitements bruts
+`indexation=masse_salariale` la sert depuis les salaires et traitements bruts
 du total des branches (D11, comptes nationaux base 2020, idbank 011785411),
 pris **en niveau** et non par tête : `data/reference/macro/masse_salariale.csv`,
 certifié de 1950 à 2025 par `scripts/verifier_donnees.py`. Les vingt années
@@ -245,7 +245,7 @@ cotisation entière, sont ceux auxquels cette règle se compare sans biais.
 
 ### L'assiette la plus large : le PIB nominal
 
-`--indexation pib_nominal` sert le PIB approche produit en prix courants
+`indexation=pib_nominal` sert le PIB approche produit en prix courants
 (idbank 011779992, `data/reference/macro/pib_nominal.csv`, certifié 1950-2025 ;
 1930-1949 estimé selon la même convention que la masse salariale). Son intérêt
 sur la masse salariale : l'assiette capte le déplacement de la valeur ajoutée
@@ -254,7 +254,7 @@ sur 1941-2025 vaut ×3 442,3, un peu en dessous de la masse salariale.
 
 ### Le lissage pluriannuel, qui n'est pas une règle
 
-`--lissage N` (paramètre `lissage_indexation`) applique une moyenne géométrique
+`lissage=N` (paramètre `lissage_indexation`) applique une moyenne géométrique
 glissante de N années au taux que la règle produit — **n'importe laquelle des
 neuf**. C'est un réglage orthogonal, et non une dixième règle : il ne change pas
 ce qu'on mesure, il change la façon dont une année isolée se répercute.
@@ -274,8 +274,8 @@ L'ordre des opérations compte, et il est fixé dans `Indexation.taux` :
 3. le **plancher**, s'il y en a un, s'applique au résultat — un plancher qu'une
    moyenne pourrait repasser sous le seuil ne serait pas un plancher.
 
-La fenêtre se saisit librement, en ligne de commande comme dans le formulaire :
-n'importe quel entier de 1 à 30 ans. La borne haute n'est pas une limite du
+La fenêtre se saisit librement dans le formulaire : n'importe quel entier de
+1 à 30 ans. La borne haute n'est pas une limite du
 moteur mais un garde-fou de sens — au-delà d'une trentaine d'années la moyenne
 couvre presque toute une carrière, tous les millésimes reçoivent à peu près le
 même taux, et ce n'est plus un lissage mais un taux fixe reconstitué.
@@ -285,7 +285,7 @@ la première année publiée, `SerieAnnuelle` répète sa première valeur, et u
 moyenne glissante qui l'avalerait ferait passer une extrapolation pour une
 observation.
 
-**La règle italienne s'écrit donc `--indexation pib_nominal --lissage 5`** —
+**La règle italienne s'écrit donc `indexation=pib_nominal&lissage=5`** —
 c'est exactement ce que l'Italie applique à ses comptes notionnels. Le modèle
 n'en reprend que le taux : ni le décalage de publication de deux ans, ni les
 coefficients de transformation, ni les planchers.
@@ -910,7 +910,7 @@ Le 4 se lit donc contre le 2, le 5 contre le 3, et l'écart mesure une chose à 
 fois : ce que verse l'employeur. Pour un **non-salarié**, qui n'en a pas, les
 quatre scénarios se réduisent à deux — et c'est le test qui le vérifie.
 
-Le paramètre est `part_cotisation`, en ligne de commande `--part-cotisation`.
+Le paramètre est `part_cotisation`.
 Une troisième valeur, `totale_alignee`, conserve l'ancienne convention — part
 patronale du public empruntée au privé — comme contrefactuel : elle répond à
 « à effort contributif égal, que donnerait la règle notionnelle ? », question
@@ -948,8 +948,7 @@ scénario 2 ne l'est.
 
 Une troisième lecture existe — fixer un **taux d'acquisition commun** à tous, le
 surplus restant une contribution de transition qui n'ouvre aucun droit — et le
-moteur sait la calculer : `source_cotisations = taux_uniforme`, soit
-`--cotisations taux_uniforme` en ligne de commande. Elle ne figure pas parmi les
+moteur sait la calculer : `source_cotisations = taux_uniforme`. Elle ne figure pas parmi les
 cinq scénarios parce qu'elle ne répond pas à la même question : elle ne mesure
 plus ce qui a été versé, mais ce qu'une réforme choisirait de reconnaître.
 
@@ -975,7 +974,7 @@ Aucune valeur ne circule dans le modèle sans son niveau de fiabilité :
 
 La fiabilité d'un résultat est celle de **son maillon le plus faible**.
 `Parametres.fiabilite_minimale` fait échouer la simulation plutôt que de
-produire un chiffre trompeur. `retraite-notionnelle donnees` en dresse l'état.
+produire un chiffre trompeur. La page **Données** du site en dresse l'état.
 
 Le niveau `certifiee` suppose que la source soit le **producteur** de la donnée
 et que la valeur ait été recontrôlée contre elle par

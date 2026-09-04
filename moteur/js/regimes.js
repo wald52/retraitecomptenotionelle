@@ -694,10 +694,6 @@ export class CatalogueRegimes {
     yield* this._regimes.values();
   }
 
-  parFamille(famille) {
-    return [...this].filter((r) => r.famille === famille);
-  }
-
   enRepartition() {
     return [...this].filter((r) => !r.hors_repartition);
   }
