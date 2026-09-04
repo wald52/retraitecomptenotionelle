@@ -2,11 +2,13 @@
  * Description d'une carrière individuelle.
  *
  * Portage de ``src/retraite_notionnelle/carriere.py``. Deux niveaux d'entrée :
- * une ligne par année, telle qu'on la lit sur un relevé de carrière, ou un
- * profil — statut, âges de début et de fin, niveau de rémunération.
+ * une ligne par année, telle qu'on la lit sur un relevé de carrière, ou la suite
+ * des métiers exercés — statut, âge de début et niveau de rémunération pour
+ * chacun. Une carrière d'un seul métier en est le cas particulier.
  */
 
 import {
+  MOIS_PAR_AN,
   DateMois,
   enMois,
   fractionAnnee,
@@ -237,38 +239,86 @@ export class Carriere {
   // -- constructeurs ---------------------------------------------------------
 
   /**
-   * Construit une carrière à partir de quelques paramètres.
+   * Carrière d'un seul métier, exercé du premier au dernier jour. C'est le cas
+   * particulier de {@link depuisParcours} à un métier, et il se construit par
+   * elle : les deux chemins ne peuvent donc pas diverger.
+   */
+  static depuisProfil({
+    affiliation,
+    age_debut,
+    niveau_salaire = 1.0,
+    ...reste
+  }) {
+    return Carriere.depuisParcours({
+      ...reste,
+      metiers: [{ affiliation, age_debut, niveau_salaire }],
+    });
+  }
+
+  /**
+   * Construit une carrière à partir de la suite des métiers exercés.
    *
-   * ``niveauSalaire`` s'exprime en multiples du salaire moyen par tête de
+   * Chaque métier — `{ affiliation, age_debut, niveau_salaire }` — court
+   * jusqu'au début du suivant ; le dernier jusqu'à la liquidation. On faisait
+   * autrefois le même métier toute sa vie, c'est devenu l'exception.
+   *
+   * ``niveau_salaire`` s'exprime en multiples du salaire moyen par tête de
    * l'année considérée : 1,0 = salaire moyen, 0,6 ≈ niveau du SMIC. Ce choix
    * d'unité évite d'avoir à convertir des francs de 1975 en euros.
    *
    * ``profilCarriere`` décrit la déformation du salaire relatif au cours de la
-   * vie active ; ``interruptions`` associe une année à une période non cotisée.
+   * vie active, et il vaut pour la carrière ENTIÈRE, changements de métier
+   * compris : le niveau propre à chaque métier s'y superpose, il ne remet pas
+   * la progression à zéro. ``interruptions`` associe une année à une période
+   * non cotisée.
    */
-  static depuisProfil({
+  static depuisParcours({
     annee_naissance,
     sexe,
-    affiliation,
-    age_debut,
+    metiers,
     age_liquidation,
     macro,
     mois_naissance = 1,
-    niveau_salaire = 1.0,
     profil_carriere = "plat",
     interruptions = null,
     nombre_enfants = 0,
     part_primes = 0.0,
     identifiant = "assuré",
   }) {
+    if (!metiers || metiers.length === 0) {
+      throw new Error("une carrière compte au moins un métier");
+    }
+
     const dateNaissance = new DateMois(annee_naissance, mois_naissance);
-    const debut = dateNaissance.plusMois(enMois(age_debut));
+    const bornes = metiers.map(
+      (metier) => dateNaissance.plusMois(enMois(metier.age_debut)),
+    );
+    const debut = bornes[0];
     // La pension prend effet ce mois-là : il n'est plus travaillé, la borne
     // est donc EXCLUE.
     const fin = dateNaissance.plusMois(enMois(age_liquidation));
     if (fin.rang <= debut.rang) {
       throw new Error("âge de liquidation antérieur à l'âge de début d'activité");
     }
+    // Chaque métier s'arrête où commence le suivant : les périodes se touchent
+    // bout à bout et couvrent la carrière exactement une fois. Un métier qui
+    // commencerait avant le précédent, ou après la liquidation, laisserait un
+    // trou ou un recouvrement — donc des mois comptés deux fois, ou pas du tout.
+    for (let i = 1; i < bornes.length; i += 1) {
+      if (bornes[i].rang <= bornes[i - 1].rang) {
+        throw new Error(
+          "les métiers doivent se suivre : chacun commence après le précédent",
+        );
+      }
+    }
+    if (bornes[bornes.length - 1].rang >= fin.rang) {
+      throw new Error("le dernier métier commence après la liquidation");
+    }
+    const periodes = metiers.map((metier, i) => ({
+      metier,
+      ouverture: bornes[i],
+      cloture: i + 1 < bornes.length ? bornes[i + 1] : fin,
+    }));
 
     const anneeDebut = debut.annee;
     const annees = [];
@@ -293,8 +343,31 @@ export class Carriere {
       const trimestresMaximum = trimestresCivils(moisTravailles(annee, debut, fin));
       const avancement = (Math.max(new DateMois(annee, 1).rang, debut.rang)
         - debut.rang) / dureeMois;
-      const revenu = niveau_salaire * deformation(profil_carriere, avancement)
-        * salaireMoyen.get(annee) * part;
+      const deforme = deformation(profil_carriere, avancement);
+      // Ce que chaque métier a occupé de l'année. La somme vaut les mois
+      // travaillés de l'année : les périodes la découpent sans reste.
+      const moisParMetier = periodes.map(
+        ({ ouverture, cloture }) => moisTravailles(annee, ouverture, cloture),
+      );
+      let revenu = 0;
+      periodes.forEach(({ metier }, i) => {
+        if (moisParMetier[i] > 0) {
+          revenu += metier.niveau_salaire * deforme * salaireMoyen.get(annee)
+            * (moisParMetier[i] / MOIS_PAR_AN);
+        }
+      });
+      // Le moteur ne connaît qu'une ligne, donc qu'un statut, par année civile :
+      // les régimes liquident à l'année. L'année d'un changement de métier est
+      // donc rattachée à celui qui en occupe le plus de mois — et, à égalité, à
+      // celui qui l'ouvre. Le revenu, lui, reste la somme de ce que les deux ont
+      // réellement payé.
+      let dominant = 0;
+      moisParMetier.forEach((mois, i) => {
+        if (mois > moisParMetier[dominant]) {
+          dominant = i;
+        }
+      });
+      const affiliation = periodes[dominant].metier.affiliation;
 
       const typePeriode = plages.get(annee) ?? "emploi";
       const cotise = typePeriode === "emploi";

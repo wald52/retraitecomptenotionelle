@@ -20,7 +20,7 @@ from dataclasses import dataclass
 from functools import cached_property
 
 from .calendrier import formater_age
-from .carriere import Affiliations, Carriere
+from .carriere import Affiliations, Carriere, Metier
 from .config import Parametres, PartCotisation
 from .donnees.chargement import DonneeInsuffisante, Fiabilite
 from .donnees.macro import DonneesMacro
@@ -534,16 +534,13 @@ class Simulateur:
 
     def carriere_simple(self, annee_naissance: int, sexe: str, affiliation: str,
                         age_debut: float, age_liquidation: float, **kwargs) -> Carriere:
-        """Construit une carrière à partir de cinq informations.
+        """Construit une carrière d'un seul métier, à partir de cinq informations.
 
         C'est le chemin le plus court pour qu'un assuré se simule sans rien
-        connaître de la mécanique des régimes.
+        connaître de la mécanique des régimes. Pour une carrière qui en compte
+        plusieurs, voir :meth:`carriere_parcours`.
         """
-        if affiliation not in self.affiliations:
-            raise KeyError(
-                f"affiliation inconnue : {affiliation!r}. Disponibles : "
-                + ", ".join(self.affiliations.codes)
-            )
+        self._verifier_affiliation(affiliation)
         return Carriere.depuis_profil(
             annee_naissance=annee_naissance,
             sexe=sexe,
@@ -553,6 +550,33 @@ class Simulateur:
             macro=self.macro,
             **kwargs,
         )
+
+    def carriere_parcours(self, annee_naissance: int, sexe: str,
+                          metiers: list[Metier], age_liquidation: float,
+                          **kwargs) -> Carriere:
+        """Construit une carrière à partir de la suite des métiers exercés.
+
+        Un métier après l'autre, chacun avec son statut et son niveau de revenu :
+        c'est la forme générale, dont :meth:`carriere_simple` est le cas à un
+        métier.
+        """
+        for metier in metiers:
+            self._verifier_affiliation(metier.affiliation)
+        return Carriere.depuis_parcours(
+            annee_naissance=annee_naissance,
+            sexe=sexe,
+            metiers=list(metiers),
+            age_liquidation=age_liquidation,
+            macro=self.macro,
+            **kwargs,
+        )
+
+    def _verifier_affiliation(self, affiliation: str) -> None:
+        if affiliation not in self.affiliations:
+            raise KeyError(
+                f"affiliation inconnue : {affiliation!r}. Disponibles : "
+                + ", ".join(self.affiliations.codes)
+            )
 
     def simuler(self, carriere: Carriere) -> Comparaison:
         """Calcule les cinq scénarios pour une carrière."""

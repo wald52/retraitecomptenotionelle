@@ -311,18 +311,35 @@ export class Simulateur {
   }
 
   /**
-   * Construit une carrière à partir de cinq informations. C'est le chemin le
-   * plus court pour qu'un assuré se simule sans rien connaître de la mécanique
-   * des régimes.
+   * Construit une carrière d'un seul métier, à partir de cinq informations.
+   * C'est le chemin le plus court pour qu'un assuré se simule sans rien
+   * connaître de la mécanique des régimes ; pour une carrière qui en compte
+   * plusieurs, voir {@link carriereParcours}.
    */
   carriereSimple(options) {
-    if (!this.affiliations.contient(options.affiliation)) {
+    this._verifierAffiliation(options.affiliation);
+    return Carriere.depuisProfil({ ...options, macro: this.macro });
+  }
+
+  /**
+   * Construit une carrière à partir de la suite des métiers exercés — un
+   * métier après l'autre, chacun avec son statut et son niveau de revenu.
+   * C'est la forme générale, dont {@link carriereSimple} est le cas à un métier.
+   */
+  carriereParcours(options) {
+    for (const metier of options.metiers) {
+      this._verifierAffiliation(metier.affiliation);
+    }
+    return Carriere.depuisParcours({ ...options, macro: this.macro });
+  }
+
+  _verifierAffiliation(affiliation) {
+    if (!this.affiliations.contient(affiliation)) {
       throw new Error(
-        `affiliation inconnue : ${options.affiliation}. Disponibles : `
+        `affiliation inconnue : ${affiliation}. Disponibles : `
         + this.affiliations.codes.join(", "),
       );
     }
-    return Carriere.depuisProfil({ ...options, macro: this.macro });
   }
 
   /** Calcule les cinq scénarios pour une carrière. */

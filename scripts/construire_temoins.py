@@ -145,6 +145,47 @@ def _cas() -> list[dict]:
     for salaire in ("0.2", "0.55", "1.5", "3", "8"):
         cas.append((f"salaire_{salaire}", {"salaire": salaire}))
 
+    # Plusieurs métiers dans une vie. Ce qui est balayé ici, c'est le découpage
+    # de la carrière entre statuts : le changement au 1er janvier, le changement
+    # en cours d'année — avec l'égalité six mois contre six mois —, et la
+    # traversée de régimes qui n'ont ni le même taux ni le même barème.
+    cas.append(("metiers_prive_puis_fonctionnaire", {
+        "metier2_debut": "42", "metier2_statut": "fonctionnaire_etat",
+    }))
+    cas.append(("metiers_prive_puis_independant", {
+        "metier2_debut": "35", "metier2_statut": "artisan", "metier2_salaire": "1.6",
+    }))
+    cas.append(("metiers_trois_statuts", {
+        "metier2_debut": "33", "metier2_statut": "contractuel_public",
+        "metier2_salaire": "0.8",
+        "metier3_debut": "48", "metier3_statut": "fonctionnaire_etat",
+        "metier3_salaire": "1.3",
+    }))
+    # Six métiers : le maximum du formulaire, et cinq changements rapprochés —
+    # une année entière ne revient alors à aucun métier en totalité.
+    cas.append(("metiers_maximum", {
+        "naissance": "1960", "liquidation": "62",
+        "metier2_debut": "40", "metier2_statut": "agent_sncf",
+        "metier3_debut": "43", "metier3_statut": "avocat",
+        "metier4_debut": "46", "metier4_statut": "marin",
+        "metier5_debut": "49", "metier5_statut": "exploitant_agricole",
+        "metier6_debut": "52", "metier6_statut": "salarie_prive_cadre",
+    }))
+    # Le changement tombe en cours d'année, et le mois de naissance décide
+    # duquel des deux métiers l'année relève : juillet donne six mois contre
+    # six — l'égalité revient au métier qui ouvre l'année.
+    for mois, cote in (("5", "avant"), ("7", "egalite"), ("10", "apres")):
+        cas.append((f"metiers_changement_en_cours_d_annee_{cote}", {
+            "naissance_mois": mois, "metier2_debut": "42",
+            "metier2_statut": "artisan", "metier2_salaire": "3",
+        }))
+    # Une interruption qui tombe sur le changement de métier : l'année n'est pas
+    # cotisée, mais elle relève quand même d'un statut, et d'un seul.
+    cas.append(("metiers_avec_interruption", {
+        "naissance": "1970", "metier2_debut": "40", "metier2_statut": "artisan",
+        "interruptions": "2008:2012:chomage_indemnise",
+    }))
+
     # Interruptions de carrière, primes, enfants — ce que les scénarios
     # notionnels neutralisent.
     cas.append(("interruption_simple", {"interruptions": "2000:2004:education_enfant"}))
@@ -275,6 +316,18 @@ def _pages(contexte: Contexte) -> dict:
             **BASE, "interruptions": "1996:2038:chomage_indemnise",
         }),
         ("accueil_saisie_refusee", "/", {**BASE, "liquidation": "12"}),
+        # Une carrière en trois métiers : le formulaire porte alors trois lignes
+        # remplies et une quatrième vide, et la page récapitule le parcours.
+        ("accueil_plusieurs_metiers", "/", {
+            **BASE, "naissance": "1968", "liquidation": "64",
+            "metier2_debut": "34", "metier2_statut": "contractuel_public",
+            "metier2_salaire": "0.8",
+            "metier3_debut": "47", "metier3_statut": "artisan",
+            "metier3_salaire": "1.5",
+        }),
+        # Une ligne de métier laissée à moitié remplie : la page doit le dire,
+        # et dire ce qui manque.
+        ("accueil_metier_incomplet", "/", {**BASE, "metier2_debut": "40"}),
         ("cas_types", "/cas-types", {}),
         ("methode", "/methode", {}),
         ("donnees", "/donnees", {}),

@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from retraite_notionnelle.carriere import AnneeCarriere, Carriere
+from retraite_notionnelle.carriere import AnneeCarriere, Carriere, Metier
 from retraite_notionnelle.config import (
     AgeConversionDroitsAcquis,
     PartCotisation,
@@ -52,6 +52,140 @@ def test_interruptions_ne_produisent_aucune_cotisation(simulateur):
     for annee in range(2000, 2005):
         ligne = carriere.ligne(annee)
         assert ligne is not None and not ligne.cotise and ligne.revenu == 0.0
+
+
+# -- plusieurs métiers dans une vie ------------------------------------------
+
+
+def test_un_seul_metier_donne_exactement_la_carriere_simple(simulateur):
+    """Le chemin général et le raccourci ne peuvent pas diverger.
+
+    ``carriere_simple`` n'est plus qu'un appel à ``carriere_parcours`` avec un
+    métier unique : si les deux ne rendaient pas la même carrière au centime
+    près, tout le passé du modèle aurait bougé sans que personne le demande.
+    """
+    commun = dict(annee_naissance=1975, sexe="H", age_liquidation=64)
+    simple = simulateur.carriere_simple(
+        affiliation="salarie_prive_non_cadre", age_debut=21,
+        niveau_salaire=1.3, profil_carriere="ascendant", **commun,
+    )
+    parcours = simulateur.carriere_parcours(
+        metiers=[Metier("salarie_prive_non_cadre", 21, 1.3)],
+        profil_carriere="ascendant", **commun,
+    )
+    assert [ligne.revenu for ligne in parcours.lignes] == [
+        ligne.revenu for ligne in simple.lignes
+    ]
+    assert parcours.lignes == simple.lignes
+
+
+def test_chaque_metier_couvre_ses_annees(simulateur):
+    carriere = simulateur.carriere_parcours(
+        annee_naissance=1975, sexe="H", age_liquidation=64,
+        metiers=[
+            Metier("salarie_prive_non_cadre", 21),
+            Metier("fonctionnaire_etat", 40),
+            Metier("artisan", 55),
+        ],
+    )
+    assert carriere.ligne(1996).affiliation == "salarie_prive_non_cadre"
+    assert carriere.ligne(2014).affiliation == "salarie_prive_non_cadre"
+    assert carriere.ligne(2015).affiliation == "fonctionnaire_etat"
+    assert carriere.ligne(2029).affiliation == "fonctionnaire_etat"
+    assert carriere.ligne(2030).affiliation == "artisan"
+    assert carriere.affiliations_utilisees() == (
+        "salarie_prive_non_cadre", "fonctionnaire_etat", "artisan",
+    )
+
+
+def test_l_annee_du_changement_additionne_les_deux_revenus(simulateur):
+    """Un an à deux métiers paie ce que les deux ont versé, au prorata des mois.
+
+    Le moteur ne connaît qu'une ligne par année civile : le STATUT de l'année
+    est celui qui l'occupe le plus longtemps, mais le REVENU reste la somme.
+    Rattacher l'année entière au nouveau métier ferait apparaître un salaire
+    qui n'a jamais été perçu.
+    """
+    commun = dict(annee_naissance=1975, sexe="H", mois_naissance=5,
+                  age_liquidation=64, profil_carriere="plat")
+    carriere = simulateur.carriere_parcours(
+        metiers=[Metier("salarie_prive_non_cadre", 21, 1.0),
+                 Metier("artisan", 42, 3.0)], **commun)
+    # Né en mai 1975, il change de métier en mai 2017 : quatre mois au premier
+    # niveau, huit au second. Les deux carrières de référence n'ont ni le même
+    # statut ni le même niveau, mais la même année et le même profil : ce qui
+    # les sépare est exactement ce que le prorata doit retrouver.
+    premier = simulateur.carriere_parcours(
+        metiers=[Metier("salarie_prive_non_cadre", 21, 1.0)], **commun)
+    second = simulateur.carriere_parcours(
+        metiers=[Metier("artisan", 21, 3.0)], **commun)
+    attendu = (premier.ligne(2017).revenu * 4 / 12
+               + second.ligne(2017).revenu * 8 / 12)
+
+    assert carriere.ligne(2017).revenu == pytest.approx(attendu)
+    assert carriere.ligne(2017).affiliation == "artisan"
+    assert carriere.ligne(2017).fraction_annee == 1.0
+
+
+def test_l_annee_partagee_en_deux_revient_au_metier_qui_l_ouvre(simulateur):
+    """Six mois contre six mois : l'égalité va au métier qui commence l'année.
+
+    Il faut bien trancher — une année n'a qu'un statut —, et la convention est
+    écrite ici pour qu'elle ne se découvre pas par surprise.
+    """
+    carriere = simulateur.carriere_parcours(
+        annee_naissance=1975, sexe="H", mois_naissance=7, age_liquidation=64,
+        metiers=[
+            Metier("salarie_prive_non_cadre", 21),
+            Metier("artisan", 42),
+        ],
+    )
+    assert carriere.ligne(2017).affiliation == "salarie_prive_non_cadre"
+    assert carriere.ligne(2018).affiliation == "artisan"
+
+
+def test_changer_pour_un_regime_plus_cotise_remplit_davantage_le_compte(simulateur):
+    """C'est ce que la carrière multiple sert à mesurer.
+
+    Un artisan verse une cotisation retraite plus lourde qu'un salarié non
+    cadre, part patronale mise à part : une seconde moitié de carrière sous ce
+    statut porte donc plus au compte notionnel qu'une carrière entière sous le
+    premier.
+    """
+    commun = dict(annee_naissance=1975, sexe="H", age_liquidation=64)
+    salarie = simulateur.simuler(simulateur.carriere_parcours(
+        metiers=[Metier("salarie_prive_non_cadre", 21)], **commun))
+    reconverti = simulateur.simuler(simulateur.carriere_parcours(
+        metiers=[Metier("salarie_prive_non_cadre", 21),
+                 Metier("artisan", 42)], **commun))
+    artisan = simulateur.simuler(simulateur.carriere_parcours(
+        metiers=[Metier("artisan", 21)], **commun))
+
+    cotise = lambda resultat: resultat.notionnel_retroactif.compte.cotisations_versees
+    assert cotise(salarie) < cotise(reconverti) < cotise(artisan)
+
+
+def test_des_metiers_qui_ne_se_suivent_pas_sont_rejetes(simulateur):
+    commun = dict(annee_naissance=1975, sexe="H", age_liquidation=64)
+    with pytest.raises(ValueError, match="se suivre"):
+        simulateur.carriere_parcours(
+            metiers=[Metier("salarie_prive_non_cadre", 21),
+                     Metier("artisan", 20)], **commun)
+    with pytest.raises(ValueError, match="après la liquidation"):
+        simulateur.carriere_parcours(
+            metiers=[Metier("salarie_prive_non_cadre", 21),
+                     Metier("artisan", 70)], **commun)
+    with pytest.raises(ValueError, match="au moins un métier"):
+        simulateur.carriere_parcours(metiers=[], **commun)
+
+
+def test_un_metier_de_statut_inconnu_est_rejete(simulateur):
+    with pytest.raises(KeyError, match="affiliation inconnue"):
+        simulateur.carriere_parcours(
+            annee_naissance=1975, sexe="H", age_liquidation=64,
+            metiers=[Metier("salarie_prive_non_cadre", 21),
+                     Metier("boulanger_lunaire", 40)],
+        )
 
 
 def test_affiliation_inconnue_est_rejetee(simulateur):
@@ -1552,7 +1686,7 @@ def test_le_dernier_traitement_ne_recoit_pas_les_coefficients_du_regime_general(
     catégorie — le contrôle porte sur le fait que le montant liquidé reste le
     dernier traitement, sans coefficient d'aucune sorte.
     """
-    from retraite_notionnelle.carriere import AnneeCarriere, Carriere
+    from retraite_notionnelle.carriere import AnneeCarriere, Carriere, Metier
 
     lignes = [
         AnneeCarriere(annee=annee, revenu=30000.0,
@@ -2161,7 +2295,7 @@ def test_le_salaire_de_reference_ne_retient_que_les_annees_du_regime(simulateur)
     prorata de durée, lui, restait celui du régime. Le modèle rapportait donc
     une part de carrière publique à une assiette qui ne l'était pas.
     """
-    from retraite_notionnelle.carriere import AnneeCarriere, Carriere
+    from retraite_notionnelle.carriere import AnneeCarriere, Carriere, Metier
 
     publiques = [AnneeCarriere(annee=a, revenu=20_000.0,
                                affiliation="fonctionnaire_etat")
@@ -2201,7 +2335,7 @@ def test_les_annees_posterieures_a_la_liquidation_n_ouvrent_rien(simulateur):
     années postérieures achetaient des points et validaient des trimestres,
     ce qui annulait jusqu'à la décote de qui, précisément, part tôt.
     """
-    from retraite_notionnelle.carriere import AnneeCarriere, Carriere
+    from retraite_notionnelle.carriere import AnneeCarriere, Carriere, Metier
 
     avant = [AnneeCarriere(annee=a, revenu=40_000.0,
                            affiliation="salarie_prive_non_cadre")

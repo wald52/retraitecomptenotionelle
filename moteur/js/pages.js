@@ -71,6 +71,19 @@ export const PROJECTIONS = [
 ];
 
 /**
+ * Nombre maximal de métiers d'une carrière, le premier compris. Le formulaire
+ * affiche toujours une ligne vide de plus que les métiers saisis : c'est ainsi
+ * qu'on en ajoute un, sans une ligne de JavaScript. La borne n'est pas une
+ * limite du moteur mais celle du formulaire : au-delà, ce n'est plus une suite
+ * de métiers qu'on décrit, c'est un relevé de carrière année par année.
+ */
+export const METIERS_MAXIMUM = 6;
+
+/** Rang de chaque métier, tel que le formulaire l'annonce. */
+export const RANGS_METIER = ["premier", "deuxième", "troisième", "quatrième",
+  "cinquième", "sixième", "septième", "huitième"];
+
+/**
  * Mois de naissance. Le droit coupe deux générations en cours d'année — au
  * 1er juillet 1951, au 1er septembre 1961 — et l'âge à la liquidation ne se lit
  * qu'à partir de lui.
@@ -97,6 +110,10 @@ const DEFAUTS = Object.freeze({
   debut: 21,
   liquidation: 64,
   salaire: 1.0,
+  //: Les métiers exercés APRÈS le premier. Le premier, lui, est décrit par
+  //: ``statut``, ``debut`` et ``salaire`` : une adresse d'avant les carrières
+  //: multiples reste donc valide, et décrit la carrière d'un seul métier.
+  metiers: Object.freeze([]),
   profil: "ascendant",
   primes: 0.0,
   enfants: 0,
@@ -121,14 +138,19 @@ export class Saisie {
   }
 
   static depuisRequete(parametres) {
+    // Le premier métier se lit d'abord : les suivants héritent de son niveau de
+    // revenu quand ils n'en portent pas.
+    const statut = parametres.statut || DEFAUTS.statut;
+    const salaire = reel(parametres, "salaire", DEFAUTS.salaire);
     const saisie = new Saisie({
       naissance: entier(parametres, "naissance", DEFAUTS.naissance),
       naissance_mois: entier(parametres, "naissance_mois", DEFAUTS.naissance_mois),
       sexe: parametres.sexe === "F" ? "F" : "H",
-      statut: parametres.statut || DEFAUTS.statut,
+      statut,
       debut: ageSaisi(parametres, "debut", DEFAUTS.debut),
       liquidation: ageSaisi(parametres, "liquidation", DEFAUTS.liquidation),
-      salaire: reel(parametres, "salaire", DEFAUTS.salaire),
+      salaire,
+      metiers: metiersSaisis(parametres, salaire),
       profil: parmi(parametres, "profil", PROFILS, DEFAUTS.profil),
       primes: reel(parametres, "primes", DEFAUTS.primes),
       enfants: entier(parametres, "enfants", DEFAUTS.enfants),
@@ -188,6 +210,52 @@ export class Saisie {
         + "(1 = aucun lissage).",
       );
     }
+    // Les métiers se suivent sans se recouvrir : chacun commence après le
+    // précédent et avant le départ à la retraite.
+    let precedent = this.debut;
+    this.metiers.forEach((metier, index) => {
+      const rang = index + 2;
+      if (!(metier.debut >= 14 && metier.debut <= 75)) {
+        throw new ErreurSaisie(
+          `Métier n° ${rang} : âge de début attendu entre 14 et 75 ans.`,
+        );
+      }
+      if (metier.debut <= precedent) {
+        throw new ErreurSaisie(
+          `Métier n° ${rang} : il doit commencer après le précédent, qui débute `
+          + `à ${age(precedent)}.`,
+        );
+      }
+      if (metier.debut >= this.liquidation) {
+        throw new ErreurSaisie(
+          `Métier n° ${rang} : il doit commencer avant le départ à la retraite, `
+          + `fixé à ${age(this.liquidation)}.`,
+        );
+      }
+      if (!(metier.salaire >= 0.1 && metier.salaire <= 10)) {
+        throw new ErreurSaisie(
+          `Métier n° ${rang} : niveau de revenu attendu entre 0,1 et 10 fois le `
+          + "salaire moyen.",
+        );
+      }
+      precedent = metier.debut;
+    });
+  }
+
+  /**
+   * La carrière comme suite de métiers, le premier compris. C'est sous cette
+   * forme que le modèle la reçoit ; le formulaire, lui, garde le premier métier
+   * dans ses champs historiques.
+   */
+  get parcours() {
+    return [
+      { affiliation: this.statut, age_debut: this.debut, niveau_salaire: this.salaire },
+      ...this.metiers.map((metier) => ({
+        affiliation: metier.statut,
+        age_debut: metier.debut,
+        niveau_salaire: metier.salaire,
+      })),
+    ];
   }
 
   parametres(base) {
@@ -257,13 +325,58 @@ export class Saisie {
       conversion_acquis: this.conversion_acquis,
       part_cotisation: this.part_cotisation,
       projection: this.projection, bascule: this.bascule, euros: this.euros,
-      ...remplacements,
     };
+    // Les métiers qui suivent le premier, un groupe de trois champs chacun. Une
+    // ligne vide du formulaire n'en produit aucun : l'adresse ne porte que ce
+    // qui a été saisi.
+    this.metiers.forEach((metier, index) => {
+      const rang = index + 2;
+      champs[`metier${rang}_debut`] = nombreBrut(metier.debut);
+      champs[`metier${rang}_statut`] = metier.statut;
+      champs[`metier${rang}_salaire`] = nombreBrut(metier.salaire);
+    });
+    Object.assign(champs, remplacements);
     return Object.entries(champs)
       .map(([cle, valeur]) => `${encodeURIComponent(cle).replace(/%20/g, "+")}`
         + `=${encodeURIComponent(String(valeur)).replace(/%20/g, "+")}`)
       .join("&");
   }
+}
+
+/**
+ * Les métiers qui suivent le premier, lus dans « metier2_… », « metier3_… ».
+ *
+ * Le formulaire affiche toujours une ligne de plus qu'il n'y a de métiers : tant
+ * qu'elle reste vide, elle ne décrit rien. Une ligne partiellement remplie, en
+ * revanche, est une intention manquée — elle est refusée, avec ce qui lui manque.
+ */
+function metiersSaisis(parametres, salairePrecedent) {
+  const metiers = [];
+  let salaire = salairePrecedent;
+  for (let rang = 2; rang <= METIERS_MAXIMUM; rang += 1) {
+    const debutBrut = String(parametres[`metier${rang}_debut`] ?? "").trim();
+    const statut = String(parametres[`metier${rang}_statut`] ?? "").trim();
+    const salaireBrut = String(parametres[`metier${rang}_salaire`] ?? "").trim();
+    if (!debutBrut && !statut && !salaireBrut) {
+      continue;
+    }
+    if (!debutBrut) {
+      throw new ErreurSaisie(
+        `Métier n° ${rang} : indiquer l'âge auquel il commence, ou laisser sa `
+        + "ligne entièrement vide.",
+      );
+    }
+    if (!statut) {
+      throw new ErreurSaisie(`Métier n° ${rang} : indiquer le statut d'affiliation.`);
+    }
+    salaire = reel(parametres, `metier${rang}_salaire`, salaire);
+    metiers.push({
+      debut: reel(parametres, `metier${rang}_debut`, 0.0),
+      statut,
+      salaire,
+    });
+  }
+  return metiers;
 }
 
 function cleEnum(enumeration, valeur) {
@@ -377,17 +490,20 @@ export class Contexte {
 
   simuler(saisie) {
     const simulateur = this.simulateur(saisie.parametres(this.base));
-    if (!simulateur.affiliations.contient(saisie.statut)) {
-      throw new ErreurSaisie(`Statut d'affiliation inconnu : « ${saisie.statut} ».`);
+    const parcours = saisie.parcours;
+    for (const metier of parcours) {
+      if (!simulateur.affiliations.contient(metier.affiliation)) {
+        throw new ErreurSaisie(
+          `Statut d'affiliation inconnu : « ${metier.affiliation} ».`,
+        );
+      }
     }
-    const carriere = simulateur.carriereSimple({
+    const carriere = simulateur.carriereParcours({
       annee_naissance: saisie.naissance,
       mois_naissance: saisie.naissance_mois,
       sexe: saisie.sexe,
-      affiliation: saisie.statut,
-      age_debut: saisie.debut,
+      metiers: parcours,
       age_liquidation: saisie.liquidation,
-      niveau_salaire: saisie.salaire,
       profil_carriere: saisie.profil,
       interruptions: saisie.interruptionsAnalysees(),
       nombre_enfants: saisie.enfants,
@@ -482,7 +598,7 @@ function formulaire(saisie, contexte) {
   const affiliations = contexte.simulateur().affiliations;
   const listeStatuts = affiliations.codes.map((code) => [code, affiliations.libelle(code)]);
 
-  const principal = [
+  const identite = [
     g.champ("naissance", "Année de naissance", saisie.naissance, "", "number",
       { min: "1900", max: "2020", step: "1" }),
     g.liste("naissance_mois", "Mois de naissance", MOIS_NAISSANCE,
@@ -490,12 +606,6 @@ function formulaire(saisie, contexte) {
       "deux générations sont coupées en cours d'année par les textes"),
     g.liste("sexe", "Sexe", [["H", "Homme"], ["F", "Femme"]], saisie.sexe,
       "table de mortalité unisexe par défaut"),
-    g.liste("statut", "Statut d'affiliation", listeStatuts, saisie.statut),
-    g.champ("debut", "Âge de début d'activité",
-      Math.floor(enMois(saisie.debut) / 12), "", "number",
-      { min: "14", max: "40", step: "1" }),
-    g.liste("debut_mois", "…et mois", MOIS_AGE, String(saisie.debut_mois),
-      "l'année d'entrée n'est complète que si l'on entre en janvier"),
     g.champ("liquidation", "Âge de départ à la retraite",
       Math.floor(enMois(saisie.liquidation) / 12),
       "effectif si retraité, souhaité si actif", "number",
@@ -503,9 +613,6 @@ function formulaire(saisie, contexte) {
     g.liste("liquidation_mois", "…et mois", MOIS_AGE,
       String(saisie.liquidation_mois),
       "la pension prend effet le premier du mois"),
-    g.champ("salaire", "Niveau de revenu", nombreBrut(saisie.salaire),
-      "en multiples du salaire moyen : 0,55 ≈ SMIC, 1 = salaire moyen", "number",
-      { min: "0.1", max: "10", step: "0.05" }),
   ].join("");
 
   const avance = [
@@ -544,7 +651,14 @@ function formulaire(saisie, contexte) {
   return `
 <form class="carte" method="get" action="${g.lien("/")}">
   <h2 style="margin-top:0">Simuler une carrière</h2>
-  <div class="grille">${principal}</div>
+  <div class="grille">${identite}</div>
+  <h3>Les métiers exercés</h3>
+  <p class="discret">On faisait autrefois le même métier toute sa vie ; c'est
+  devenu l'exception. Chaque changement fait passer d'un régime à un autre, donc
+  d'un taux de cotisation et d'un barème à un autre — et c'est exactement ce
+  qu'un compte notionnel enregistre. Ajouter un métier, c'est remplir la
+  dernière ligne ; une carrière d'un seul métier la laisse vide.</p>
+  ${metiersFormulaire(saisie, listeStatuts)}
   <details>
     <summary>Options de modélisation (profil, indexation, âge de référence, projection)</summary>
     <div class="grille">${avance}</div>
@@ -552,6 +666,103 @@ function formulaire(saisie, contexte) {
   <p style="margin-top:1.4rem"><button type="submit">Calculer les cinq scénarios</button></p>
 </form>
 `;
+}
+
+/**
+ * Une ligne par métier, plus une ligne vide pour en ajouter un.
+ *
+ * C'est ce qui permet d'allonger la carrière sans une ligne de JavaScript : la
+ * ligne vide est renvoyée avec le reste du formulaire, et devient un métier dès
+ * qu'on la remplit. Une ligne de plus apparaît alors à sa suite, jusqu'à
+ * ``METIERS_MAXIMUM``.
+ */
+function metiersFormulaire(saisie, statuts) {
+  const lignes = [ligneMetier(
+    1,
+    g.champ("debut", "Âge de début d'activité",
+      Math.floor(enMois(saisie.debut) / 12), "", "number",
+      { min: "14", max: "40", step: "1" })
+    + g.liste("debut_mois", "…et mois", MOIS_AGE, String(saisie.debut_mois),
+      "l'année d'entrée n'est complète que si l'on entre en janvier")
+    + g.liste("statut", "Statut d'affiliation", statuts, saisie.statut)
+    + g.champ("salaire", "Niveau de revenu", nombreBrut(saisie.salaire),
+      "en multiples du salaire moyen : 0,55 ≈ SMIC, 1 = salaire moyen", "number",
+      { min: "0.1", max: "10", step: "0.05" }),
+  )];
+
+  saisie.metiers.forEach((metier, index) => {
+    const rang = index + 2;
+    lignes.push(ligneMetier(rang, champsMetier(
+      rang, nombreBrut(metier.debut), metier.statut,
+      nombreBrut(metier.salaire), statuts,
+    )));
+  });
+
+  // La ligne vide : elle n'existe que tant qu'il reste de la place, et son
+  // statut n'est pas présélectionné — un statut choisi par défaut ferait naître
+  // un métier que personne n'a demandé.
+  const rang = saisie.metiers.length + 2;
+  if (rang <= METIERS_MAXIMUM) {
+    lignes.push(ligneMetier(rang, champsMetier(rang, "", "", "", statuts), true));
+  }
+
+  return `<div class="metiers">${lignes.join("")}</div>`;
+}
+
+/**
+ * Les trois champs d'un métier qui suit le premier.
+ *
+ * Le mois du changement n'est pas demandé : ce qui se date au mois, c'est
+ * l'entrée dans la vie active et le départ à la retraite, parce que ces deux
+ * bornes tronquent une année civile. Un changement de métier, lui, ne fait que
+ * déplacer des mois d'un statut à l'autre à l'intérieur de la carrière.
+ */
+function champsMetier(rang, debut, statut, salaire, statuts) {
+  return g.champ(`metier${rang}_debut`, "Âge du changement", debut,
+    "âge auquel ce métier commence", "number",
+    { min: "14", max: "75", step: "1" })
+    + g.liste(`metier${rang}_statut`, "Statut d'affiliation",
+      [["", "— aucun —"], ...statuts], statut)
+    + g.champ(`metier${rang}_salaire`, "Niveau de revenu", salaire,
+      "en multiples du salaire moyen", "number",
+      { min: "0.1", max: "10", step: "0.05" });
+}
+
+function ligneMetier(rang, champs, vide = false) {
+  const titre = vide
+    ? "Un autre métier ?"
+    : `${majuscule(RANGS_METIER[rang - 1])} métier`;
+  const classe = vide ? "metier facultatif" : "metier";
+  return `<div class="${classe}"><p class="rang">${echapper(titre)}</p>`
+    + `<div class="grille">${champs}</div></div>`;
+}
+
+function majuscule(texte) {
+  return texte.charAt(0).toUpperCase() + texte.slice(1);
+}
+
+/**
+ * La suite des métiers, en une phrase — et la convention qui la borne. Muet
+ * pour une carrière d'un seul métier : il n'y a rien à récapituler, le
+ * formulaire juste au-dessus le dit déjà.
+ */
+function resumeParcours(contexte, saisie) {
+  const parcours = saisie.parcours;
+  if (parcours.length < 2) {
+    return "";
+  }
+  const affiliations = contexte.simulateur().affiliations;
+  const bornes = [...parcours.map((metier) => metier.age_debut), saisie.liquidation];
+  const etapes = parcours.map((metier, rang) => (
+    `${echapper(affiliations.libelle(metier.affiliation))} de ${age(bornes[rang])} `
+    + `à ${age(bornes[rang + 1])}`
+  ));
+  return `<p class="discret">Carrière en ${parcours.length} métiers : `
+    + etapes.join(", puis ")
+    + ". L'année d'un changement revient au métier qui en occupe le plus de "
+    + "mois — les régimes liquident à l'année, et une année n'a qu'un statut — "
+    + "mais le revenu porté au compte reste la somme de ce que les deux ont "
+    + "payé.</p>";
 }
 
 function resultats(contexte, saisie) {
@@ -668,6 +879,7 @@ function resultats(contexte, saisie) {
 <h2>Résultats</h2>
 <div class="carte">
   <div class="fiches">${fiches}</div>
+  ${resumeParcours(contexte, saisie)}
 </div>
 <div class="carte">
   ${scenarios}
@@ -1262,6 +1474,23 @@ l'ensemble : ouverture à ${age(fusionne.age_ouverture)}, taux plein à
 ${age(fusionne.age_taux_plein)}, ${fusionne.duree_requise_trimestres} trimestres
 requis, cotisation de ${g.pourcentage(fusionne.taux_cotisation_retraite, false, 2)}
 sur assiette déplafonnée.</p>
+
+<h3>Une carrière, plusieurs métiers</h3>
+<p>Une carrière se décrit comme une <strong>suite de métiers</strong> : chacun
+porte un statut d'affiliation, un âge de début et un niveau de revenu, et court
+jusqu'au début du suivant. On faisait autrefois le même métier toute sa vie ;
+c'est devenu l'exception, et chaque changement fait passer d'un régime à un
+autre — donc d'un taux de cotisation, d'une assiette et d'un barème à un autre.
+C'est précisément ce que les cinq scénarios mesurent.</p>
+<p>Deux conventions le bornent, imposées l'une et l'autre par la maille des
+données. Le <strong>profil de carrière</strong> vaut pour la vie active entière,
+changements compris : c'est une progression de carrière et non d'emploi, et le
+niveau propre à chaque métier s'y superpose au lieu de la remettre à zéro. Et
+une <strong>année civile n'a qu'un statut</strong> — un salaire est déclaré à
+l'année, les régimes liquident à l'année : l'année d'un changement revient au
+métier qui en occupe le plus de mois, et à égalité à celui qui l'ouvre, tandis
+que le revenu porté au compte reste la somme de ce que les deux ont
+réellement payé.</p>
 
 <h3>Périmètre</h3>
 <p>Origine 1941 (allocation aux vieux travailleurs salariés), premier dispositif

@@ -5,7 +5,7 @@
  * testé et documenté. Ce fichier vérifie que le JavaScript qui fait tourner le
  * site en retrouve les chiffres — et le HTML — sur un jeu de cas figé par
  * ``scripts/construire_temoins.py``. Toute divergence, sur n'importe quelle
- * valeur d'un des soixante-et-onze cas, fait échouer le test.
+ * valeur de l'un des cas, fait échouer le test.
  *
  *     node --test tests/js/
  */

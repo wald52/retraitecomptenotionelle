@@ -22,6 +22,7 @@ from retraite_notionnelle.web.pages import (
     AGES_REFERENCE,
     INDEXATIONS,
     LISSAGE_MAXIMUM,
+    METIERS_MAXIMUM,
     PROFILS,
     PROJECTIONS,
     TABLES,
@@ -209,6 +210,121 @@ def test_interruptions_analysees():
 def test_interruption_mal_formee_est_refusee():
     with pytest.raises(ErreurSaisie):
         Saisie(interruptions="1995-1997").interruptions_analysees()
+
+
+# -- plusieurs métiers -------------------------------------------------------
+
+
+def test_les_metiers_suivants_sont_lus_dans_la_requete():
+    saisie = Saisie.depuis_requete({
+        "statut": "salarie_prive_non_cadre", "salaire": "0.9",
+        "metier2_debut": "35", "metier2_statut": "fonctionnaire_etat",
+        "metier2_salaire": "1.2",
+        "metier3_debut": "50", "metier3_statut": "artisan",
+    })
+    assert [(m.debut, m.statut, m.salaire) for m in saisie.metiers] == [
+        (35.0, "fonctionnaire_etat", 1.2),
+        # Le niveau non renseigné est celui du métier précédent : changer de
+        # statut n'est pas changer de revenu.
+        (50.0, "artisan", 1.2),
+    ]
+    parcours = saisie.parcours
+    assert len(parcours) == 3
+    assert parcours[0].affiliation == "salarie_prive_non_cadre"
+    assert parcours[0].niveau_salaire == 0.9
+    assert parcours[2].affiliation == "artisan"
+
+
+def test_une_adresse_sans_metier_decrit_une_carriere_d_un_seul_metier():
+    """Toutes les adresses déjà partagées doivent continuer de valoir."""
+    saisie = Saisie.depuis_requete({"naissance": "1960", "statut": "mineur"})
+    assert saisie.metiers == []
+    assert [metier.affiliation for metier in saisie.parcours] == ["mineur"]
+
+
+def test_une_ligne_de_metier_a_moitie_remplie_est_refusee():
+    """La ligne vide du formulaire ne décrit rien ; à moitié remplie, elle ment."""
+    with pytest.raises(ErreurSaisie, match="âge auquel il commence"):
+        Saisie.depuis_requete({"metier2_statut": "artisan"})
+    with pytest.raises(ErreurSaisie, match="statut d'affiliation"):
+        Saisie.depuis_requete({"metier2_debut": "40"})
+
+
+@pytest.mark.parametrize("champs", [
+    # Un métier antérieur au précédent : les périodes se recouvriraient.
+    {"debut": "21", "metier2_debut": "20", "metier2_statut": "artisan"},
+    # Un métier postérieur au départ à la retraite.
+    {"liquidation": "64", "metier2_debut": "70", "metier2_statut": "artisan"},
+    # Deux métiers commençant la même année.
+    {"metier2_debut": "40", "metier2_statut": "artisan",
+     "metier3_debut": "40", "metier3_statut": "marin"},
+    # Un niveau de revenu hors bornes.
+    {"metier2_debut": "40", "metier2_statut": "artisan", "metier2_salaire": "40"},
+])
+def test_metiers_incoherents_sont_refuses(champs):
+    with pytest.raises(ErreurSaisie):
+        Saisie.depuis_requete(champs)
+
+
+def test_un_metier_de_statut_inconnu_est_refuse(contexte):
+    saisie = Saisie.depuis_requete({
+        "naissance": "1975", "metier2_debut": "40", "metier2_statut": "astronaute",
+    })
+    with pytest.raises(ErreurSaisie, match="astronaute"):
+        contexte.simuler(saisie)
+
+
+def test_changer_de_metier_change_le_resultat(contexte):
+    commun = {"naissance": "1975", "debut": "21", "liquidation": "64"}
+    seul = contexte.simuler(Saisie.depuis_requete(commun)).dictionnaire()
+    reconverti = contexte.simuler(Saisie.depuis_requete({
+        **commun, "metier2_debut": "42", "metier2_statut": "artisan",
+    })).dictionnaire()
+
+    assert reconverti["assure"]["affiliations"] == [
+        "salarie_prive_non_cadre", "artisan",
+    ]
+    assert (reconverti["scenarios"]["notionnel_retroactif"]["pension_annuelle"]
+            != seul["scenarios"]["notionnel_retroactif"]["pension_annuelle"])
+
+
+def test_le_formulaire_offre_toujours_une_ligne_de_metier_de_plus(page):
+    """C'est ainsi qu'on ajoute un métier : sans une ligne de JavaScript."""
+    vierge = page("/")
+    assert vierge.count('<p class="rang">') == 2
+    assert 'name="metier2_debut" value=""' in vierge
+
+    rempli = page("/", naissance=1975, metier2_debut=40, metier2_statut="artisan")
+    assert rempli.count('<p class="rang">') == 3
+    assert 'name="metier3_debut" value=""' in rempli
+
+
+def test_le_formulaire_s_arrete_au_nombre_maximal_de_metiers(page):
+    champs = {"naissance": 1960, "liquidation": 64}
+    for rang in range(2, METIERS_MAXIMUM + 1):
+        champs[f"metier{rang}_debut"] = 30 + rang
+        champs[f"metier{rang}_statut"] = "artisan"
+    texte = page("/", **champs)
+    assert texte.count('<p class="rang">') == METIERS_MAXIMUM
+    assert f'name="metier{METIERS_MAXIMUM + 1}_debut"' not in texte
+
+
+def test_la_page_recapitule_le_parcours(page):
+    texte = page("/", naissance=1975, debut=21, liquidation=64,
+                 metier2_debut=42, metier2_statut="artisan")
+    assert "Carrière en 2 métiers" in texte
+    assert "Artisan de 42 ans à 64 ans" in texte
+
+
+def test_requete_reconstruit_les_metiers():
+    requete = Saisie.depuis_requete({
+        "metier2_debut": "40", "metier2_statut": "artisan",
+        "metier2_salaire": "1.5",
+    }).requete()
+    assert "metier2_debut=40" in requete
+    assert "metier2_statut=artisan" in requete
+    assert "metier2_salaire=1.5" in requete
+    assert "metier3_debut" not in requete
 
 
 def test_requete_reconstruit_les_parametres():
@@ -469,6 +585,18 @@ def test_le_portage_javascript_concorde_sur_des_carrieres_tirees_au_hasard():
             "interruptions": alea.choice(["", f"{alea.randint(1985, 2005)}:"
                                           f"{alea.randint(2006, 2015)}:education_enfant"]),
         }
+        # Plusieurs métiers : la carrière se coupe en tranches, chacune sous son
+        # statut. C'est le découpage qui est tiré au hasard ici — combien de
+        # changements, à quels âges, vers quels régimes —, parce que c'est là
+        # que les deux implémentations peuvent se séparer sans qu'on le voie.
+        possibles = range(debut // 12 + 1, liquidation // 12)
+        changements = sorted(alea.sample(
+            possibles, min(alea.randint(0, 3), len(possibles))
+        ))
+        for rang, age_changement in enumerate(changements, start=2):
+            requete[f"metier{rang}_debut"] = str(age_changement)
+            requete[f"metier{rang}_statut"] = alea.choice(statuts)
+            requete[f"metier{rang}_salaire"] = f"{alea.uniform(0.1, 9):.3f}"
         nom = f"aleatoire_{numero}"
         try:
             resultat = contexte.simuler(Saisie.depuis_requete(requete)).dictionnaire()

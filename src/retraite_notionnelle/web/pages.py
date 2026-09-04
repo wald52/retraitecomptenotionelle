@@ -15,6 +15,7 @@ from html import escape
 from urllib.parse import urlencode
 
 from ..calendrier import en_mois, formater_age
+from ..carriere import Metier
 from ..castypes import CAS_TYPES, GENERATIONS, calculer_cas_types
 from ..config import (
     AgeConversionDroitsAcquis,
@@ -86,6 +87,19 @@ PROJECTIONS = [
 ]
 
 
+#: Nombre maximal de métiers d'une carrière, le premier compris. Le formulaire
+#: affiche toujours une ligne vide de plus que les métiers saisis : c'est ainsi
+#: qu'on en ajoute un, sans une ligne de JavaScript. La borne n'est pas une
+#: limite du moteur — il en accepterait autant qu'on veut — mais celle du
+#: formulaire : au-delà, ce n'est plus une suite de métiers qu'on décrit, c'est
+#: un relevé de carrière année par année, et il se saisit autrement.
+METIERS_MAXIMUM = 6
+
+#: Rang de chaque métier, tel que le formulaire l'annonce.
+RANGS_METIER = ("premier", "deuxième", "troisième", "quatrième", "cinquième",
+                "sixième", "septième", "huitième")
+
+
 #: Mois de naissance. Le droit coupe deux générations en cours d'année — au
 #: 1er juillet 1951, au 1er septembre 1961 — et l'âge à la liquidation ne se
 #: lit qu'à partir de lui.
@@ -104,6 +118,18 @@ class ErreurSaisie(ValueError):
 
 
 @dataclass
+class MetierSaisi:
+    """Un métier tel que le formulaire le porte : un âge, un statut, un niveau."""
+
+    #: Âge auquel ce métier commence.
+    debut: float
+    #: Statut d'affiliation sous lequel il est exercé.
+    statut: str
+    #: Niveau de revenu, en multiples du salaire moyen.
+    salaire: float
+
+
+@dataclass
 class Saisie:
     """Paramètres d'une simulation, tels que l'utilisateur les a saisis."""
 
@@ -114,6 +140,10 @@ class Saisie:
     debut: float = 21
     liquidation: float = 64
     salaire: float = 1.0
+    #: Les métiers exercés APRÈS le premier. Le premier, lui, est décrit par
+    #: ``statut``, ``debut`` et ``salaire`` : une adresse d'avant les carrières
+    #: multiples reste donc valide, et décrit la carrière d'un seul métier.
+    metiers: list[MetierSaisi] = field(default_factory=list)
     profil: str = "ascendant"
     primes: float = 0.0
     enfants: int = 0
@@ -133,16 +163,21 @@ class Saisie:
     @classmethod
     def depuis_requete(cls, parametres: dict[str, str]) -> "Saisie":
         defauts = cls()
+        # Le premier métier se lit d'abord : les suivants héritent de son niveau
+        # de revenu quand ils n'en portent pas.
+        statut = parametres.get("statut") or defauts.statut
+        salaire = _reel(parametres, "salaire", defauts.salaire)
         saisie = cls(
             naissance=_entier(parametres, "naissance", defauts.naissance),
             naissance_mois=_entier(
                 parametres, "naissance_mois", defauts.naissance_mois
             ),
             sexe="F" if parametres.get("sexe") == "F" else "H",
-            statut=parametres.get("statut") or defauts.statut,
+            statut=statut,
             debut=_age_saisi(parametres, "debut", defauts.debut),
             liquidation=_age_saisi(parametres, "liquidation", defauts.liquidation),
-            salaire=_reel(parametres, "salaire", defauts.salaire),
+            salaire=salaire,
+            metiers=_metiers_saisis(parametres, salaire),
             profil=_parmi(parametres, "profil", PROFILS, defauts.profil),
             primes=_reel(parametres, "primes", defauts.primes),
             enfants=_entier(parametres, "enfants", defauts.enfants),
@@ -196,6 +231,48 @@ class Saisie:
                 f"Fenêtre de lissage attendue entre 1 et {LISSAGE_MAXIMUM} ans "
                 "(1 = aucun lissage)."
             )
+        # Les métiers se suivent sans se recouvrir : chacun commence après le
+        # précédent et avant le départ à la retraite. C'est la seule chose que
+        # le moteur exige, et elle se dit ici plutôt que par une exception
+        # remontée du modèle.
+        precedent = self.debut
+        for rang, metier in enumerate(self.metiers, start=2):
+            if not 14 <= metier.debut <= 75:
+                raise ErreurSaisie(
+                    f"Métier n° {rang} : âge de début attendu entre 14 et 75 ans."
+                )
+            if metier.debut <= precedent:
+                raise ErreurSaisie(
+                    f"Métier n° {rang} : il doit commencer après le précédent, "
+                    f"qui débute à {_age(precedent)}."
+                )
+            if metier.debut >= self.liquidation:
+                raise ErreurSaisie(
+                    f"Métier n° {rang} : il doit commencer avant le départ à la "
+                    f"retraite, fixé à {_age(self.liquidation)}."
+                )
+            if not 0.1 <= metier.salaire <= 10:
+                raise ErreurSaisie(
+                    f"Métier n° {rang} : niveau de revenu attendu entre 0,1 et "
+                    "10 fois le salaire moyen."
+                )
+            precedent = metier.debut
+
+    @property
+    def parcours(self) -> list[Metier]:
+        """La carrière comme suite de métiers, le premier compris.
+
+        C'est sous cette forme que le modèle la reçoit ; le formulaire, lui,
+        garde le premier métier dans ses champs historiques.
+        """
+        return [
+            Metier(affiliation=self.statut, age_debut=self.debut,
+                   niveau_salaire=self.salaire)
+        ] + [
+            Metier(affiliation=metier.statut, age_debut=metier.debut,
+                   niveau_salaire=metier.salaire)
+            for metier in self.metiers
+        ]
 
     @property
     def liquidation_mois(self) -> int:
@@ -261,8 +338,51 @@ class Saisie:
             "part_cotisation": self.part_cotisation,
             "projection": self.projection, "bascule": self.bascule, "euros": self.euros,
         }
+        # Les métiers qui suivent le premier, un groupe de trois champs chacun.
+        # Une ligne vide du formulaire n'en produit aucun : l'adresse ne porte
+        # que ce qui a été saisi.
+        for rang, metier in enumerate(self.metiers, start=2):
+            champs[f"metier{rang}_debut"] = _nombre(metier.debut)
+            champs[f"metier{rang}_statut"] = metier.statut
+            champs[f"metier{rang}_salaire"] = _nombre(metier.salaire)
         champs.update(remplacements)
         return urlencode(champs)
+
+
+def _metiers_saisis(parametres: dict[str, str],
+                    salaire_precedent: float) -> list[MetierSaisi]:
+    """Les métiers qui suivent le premier, lus dans « metier2_… », « metier3_… ».
+
+    Le formulaire affiche toujours une ligne de plus qu'il n'y a de métiers :
+    tant qu'elle reste vide, elle ne décrit rien. Une ligne partiellement
+    remplie, en revanche, est une intention manquée — elle est refusée, avec ce
+    qui lui manque.
+    """
+    metiers: list[MetierSaisi] = []
+    for rang in range(2, METIERS_MAXIMUM + 1):
+        debut = (parametres.get(f"metier{rang}_debut") or "").strip()
+        statut = (parametres.get(f"metier{rang}_statut") or "").strip()
+        salaire = (parametres.get(f"metier{rang}_salaire") or "").strip()
+        if not (debut or statut or salaire):
+            continue
+        if not debut:
+            raise ErreurSaisie(
+                f"Métier n° {rang} : indiquer l'âge auquel il commence, ou "
+                "laisser sa ligne entièrement vide."
+            )
+        if not statut:
+            raise ErreurSaisie(
+                f"Métier n° {rang} : indiquer le statut d'affiliation."
+            )
+        salaire_precedent = _reel(
+            parametres, f"metier{rang}_salaire", salaire_precedent
+        )
+        metiers.append(MetierSaisi(
+            debut=_reel(parametres, f"metier{rang}_debut", 0.0),
+            statut=statut,
+            salaire=salaire_precedent,
+        ))
+    return metiers
 
 
 def _entier(parametres: dict[str, str], nom: str, defaut: int) -> int:
@@ -348,16 +468,18 @@ class Contexte:
 
     def simuler(self, saisie: Saisie) -> Comparaison:
         simulateur = self.simulateur(saisie.parametres(self.base))
-        if saisie.statut not in simulateur.affiliations:
-            raise ErreurSaisie(f"Statut d'affiliation inconnu : « {saisie.statut} ».")
-        carriere = simulateur.carriere_simple(
+        parcours = saisie.parcours
+        for metier in parcours:
+            if metier.affiliation not in simulateur.affiliations:
+                raise ErreurSaisie(
+                    f"Statut d'affiliation inconnu : « {metier.affiliation} »."
+                )
+        carriere = simulateur.carriere_parcours(
             annee_naissance=saisie.naissance,
             sexe=saisie.sexe,
-            affiliation=saisie.statut,
-            age_debut=saisie.debut,
+            metiers=parcours,
             mois_naissance=saisie.naissance_mois,
             age_liquidation=saisie.liquidation,
-            niveau_salaire=saisie.salaire,
             profil_carriere=saisie.profil,
             interruptions=saisie.interruptions_analysees(),
             nombre_enfants=saisie.enfants,
@@ -443,7 +565,7 @@ def _formulaire(saisie: Saisie, contexte: Contexte) -> str:
     affiliations = contexte.simulateur().affiliations
     statuts = [(code, affiliations.libelle(code)) for code in affiliations.codes]
 
-    principal = "".join([
+    identite = "".join([
         g.champ("naissance", "Année de naissance", saisie.naissance,
                 type_="number", min="1900", max="2020", step="1"),
         g.liste("naissance_mois", "Mois de naissance", MOIS_NAISSANCE,
@@ -451,11 +573,6 @@ def _formulaire(saisie: Saisie, contexte: Contexte) -> str:
                 "deux générations sont coupées en cours d'année par les textes"),
         g.liste("sexe", "Sexe", [("H", "Homme"), ("F", "Femme")], saisie.sexe,
                 "table de mortalité unisexe par défaut"),
-        g.liste("statut", "Statut d'affiliation", statuts, saisie.statut),
-        g.champ("debut", "Âge de début d'activité", en_mois(saisie.debut) // 12,
-                type_="number", min="14", max="40", step="1"),
-        g.liste("debut_mois", "…et mois", MOIS_AGE, str(saisie.debut_mois),
-                "l'année d'entrée n'est complète que si l'on entre en janvier"),
         g.champ("liquidation", "Âge de départ à la retraite",
                 en_mois(saisie.liquidation) // 12,
                 "effectif si retraité, souhaité si actif",
@@ -463,9 +580,6 @@ def _formulaire(saisie: Saisie, contexte: Contexte) -> str:
         g.liste("liquidation_mois", "…et mois", MOIS_AGE,
                 str(saisie.liquidation_mois),
                 "la pension prend effet le premier du mois"),
-        g.champ("salaire", "Niveau de revenu", _nombre(saisie.salaire),
-                "en multiples du salaire moyen : 0,55 ≈ SMIC, 1 = salaire moyen",
-                type_="number", min="0.1", max="10", step="0.05"),
     ])
 
     avance = "".join([
@@ -504,7 +618,14 @@ def _formulaire(saisie: Saisie, contexte: Contexte) -> str:
     return f"""
 <form class="carte" method="get" action="{g.lien('/')}">
   <h2 style="margin-top:0">Simuler une carrière</h2>
-  <div class="grille">{principal}</div>
+  <div class="grille">{identite}</div>
+  <h3>Les métiers exercés</h3>
+  <p class="discret">On faisait autrefois le même métier toute sa vie ; c'est
+  devenu l'exception. Chaque changement fait passer d'un régime à un autre, donc
+  d'un taux de cotisation et d'un barème à un autre — et c'est exactement ce
+  qu'un compte notionnel enregistre. Ajouter un métier, c'est remplir la
+  dernière ligne ; une carrière d'un seul métier la laisse vide.</p>
+  {_metiers(saisie, statuts)}
   <details>
     <summary>Options de modélisation (profil, indexation, âge de référence, projection)</summary>
     <div class="grille">{avance}</div>
@@ -512,6 +633,97 @@ def _formulaire(saisie: Saisie, contexte: Contexte) -> str:
   <p style="margin-top:1.4rem"><button type="submit">Calculer les cinq scénarios</button></p>
 </form>
 """
+
+
+def _metiers(saisie: Saisie, statuts: list[tuple[str, str]]) -> str:
+    """Une ligne par métier, plus une ligne vide pour en ajouter un.
+
+    C'est ce qui permet d'allonger la carrière sans une ligne de JavaScript :
+    la ligne vide est renvoyée avec le reste du formulaire, et devient un métier
+    dès qu'on la remplit. Une ligne de plus apparaît alors à sa suite, jusqu'à
+    ``METIERS_MAXIMUM``.
+    """
+    lignes = [_ligne_metier(
+        1,
+        g.champ("debut", "Âge de début d'activité", en_mois(saisie.debut) // 12,
+                type_="number", min="14", max="40", step="1")
+        + g.liste("debut_mois", "…et mois", MOIS_AGE, str(saisie.debut_mois),
+                  "l'année d'entrée n'est complète que si l'on entre en janvier")
+        + g.liste("statut", "Statut d'affiliation", statuts, saisie.statut)
+        + g.champ("salaire", "Niveau de revenu", _nombre(saisie.salaire),
+                  "en multiples du salaire moyen : 0,55 ≈ SMIC, 1 = salaire moyen",
+                  type_="number", min="0.1", max="10", step="0.05"),
+    )]
+
+    for rang, metier in enumerate(saisie.metiers, start=2):
+        lignes.append(_ligne_metier(
+            rang, _champs_metier(rang, _nombre(metier.debut), metier.statut,
+                                 _nombre(metier.salaire), statuts)))
+
+    # La ligne vide : elle n'existe que tant qu'il reste de la place, et son
+    # statut n'est pas présélectionné — un statut choisi par défaut ferait
+    # naître un métier que personne n'a demandé.
+    rang = len(saisie.metiers) + 2
+    if rang <= METIERS_MAXIMUM:
+        lignes.append(_ligne_metier(
+            rang, _champs_metier(rang, "", "", "", statuts), vide=True))
+
+    return f'<div class="metiers">{"".join(lignes)}</div>'
+
+
+def _champs_metier(rang: int, debut: str, statut: str, salaire: str,
+                   statuts: list[tuple[str, str]]) -> str:
+    """Les trois champs d'un métier qui suit le premier.
+
+    Le mois du changement n'est pas demandé : ce qui se date au mois, c'est
+    l'entrée dans la vie active et le départ à la retraite, parce que ces deux
+    bornes tronquent une année civile. Un changement de métier, lui, ne fait que
+    déplacer des mois d'un statut à l'autre à l'intérieur de la carrière.
+    """
+    return (
+        g.champ(f"metier{rang}_debut", "Âge du changement", debut,
+                "âge auquel ce métier commence", type_="number",
+                min="14", max="75", step="1")
+        + g.liste(f"metier{rang}_statut", "Statut d'affiliation",
+                  [("", "— aucun —")] + statuts, statut)
+        + g.champ(f"metier{rang}_salaire", "Niveau de revenu", salaire,
+                  "en multiples du salaire moyen", type_="number",
+                  min="0.1", max="10", step="0.05")
+    )
+
+
+def _ligne_metier(rang: int, champs: str, vide: bool = False) -> str:
+    titre = (f"{RANGS_METIER[rang - 1].capitalize()} métier" if not vide
+             else "Un autre métier ?")
+    classe = "metier facultatif" if vide else "metier"
+    return (f'<div class="{classe}"><p class="rang">{escape(titre)}</p>'
+            f'<div class="grille">{champs}</div></div>')
+
+
+def _resume_parcours(contexte: Contexte, saisie: Saisie) -> str:
+    """La suite des métiers, en une phrase — et la convention qui la borne.
+
+    Muet pour une carrière d'un seul métier : il n'y a rien à récapituler, le
+    formulaire juste au-dessus le dit déjà.
+    """
+    parcours = saisie.parcours
+    if len(parcours) < 2:
+        return ""
+
+    affiliations = contexte.simulateur().affiliations
+    bornes = [metier.age_debut for metier in parcours] + [saisie.liquidation]
+    etapes = [
+        f"{escape(affiliations.libelle(metier.affiliation))} de {_age(bornes[rang])} "
+        f"à {_age(bornes[rang + 1])}"
+        for rang, metier in enumerate(parcours)
+    ]
+    return (
+        f'<p class="discret">Carrière en {len(parcours)} métiers : '
+        + ", puis ".join(etapes) + ". L'année d'un changement revient au métier "
+        "qui en occupe le plus de mois — les régimes liquident à l'année, et une "
+        "année n'a qu'un statut — mais le revenu porté au compte reste la somme "
+        "de ce que les deux ont payé.</p>"
+    )
 
 
 def _resultats(contexte: Contexte, saisie: Saisie) -> str:
@@ -641,6 +853,7 @@ def _resultats(contexte: Contexte, saisie: Saisie) -> str:
 <h2>Résultats</h2>
 <div class="carte">
   <div class="fiches">{fiches}</div>
+  {_resume_parcours(contexte, saisie)}
 </div>
 <div class="carte">
   {scenarios}
@@ -1233,6 +1446,23 @@ l'ensemble : ouverture à {_age(fusionne.age_ouverture)}, taux plein à
 {_age(fusionne.age_taux_plein)}, {fusionne.duree_requise_trimestres} trimestres
 requis, cotisation de {g.pourcentage(fusionne.taux_cotisation_retraite, decimales=2)}
 sur assiette déplafonnée.</p>
+
+<h3>Une carrière, plusieurs métiers</h3>
+<p>Une carrière se décrit comme une <strong>suite de métiers</strong> : chacun
+porte un statut d'affiliation, un âge de début et un niveau de revenu, et court
+jusqu'au début du suivant. On faisait autrefois le même métier toute sa vie ;
+c'est devenu l'exception, et chaque changement fait passer d'un régime à un
+autre — donc d'un taux de cotisation, d'une assiette et d'un barème à un autre.
+C'est précisément ce que les cinq scénarios mesurent.</p>
+<p>Deux conventions le bornent, imposées l'une et l'autre par la maille des
+données. Le <strong>profil de carrière</strong> vaut pour la vie active entière,
+changements compris : c'est une progression de carrière et non d'emploi, et le
+niveau propre à chaque métier s'y superpose au lieu de la remettre à zéro. Et
+une <strong>année civile n'a qu'un statut</strong> — un salaire est déclaré à
+l'année, les régimes liquident à l'année : l'année d'un changement revient au
+métier qui en occupe le plus de mois, et à égalité à celui qui l'ouvre, tandis
+que le revenu porté au compte reste la somme de ce que les deux ont
+réellement payé.</p>
 
 <h3>Périmètre</h3>
 <p>Origine 1941 (allocation aux vieux travailleurs salariés), premier dispositif

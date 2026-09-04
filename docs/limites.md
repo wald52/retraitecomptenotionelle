@@ -224,6 +224,21 @@ la raison pour laquelle les caisses conseillent de liquider au 1<sup>er</sup>
 janvier. Les trimestres de cette même année, eux, comptent bien : ce sont deux
 règles distinctes, et le modèle les applique séparément.
 
+**L'année du changement de métier relève d'un seul régime.** Une carrière se
+décrit comme une suite de métiers, et la maille annuelle vaut ici comme
+ailleurs : le moteur ne connaît qu'une ligne, donc **un statut**, par année
+civile. L'année d'un changement revient donc au métier qui en occupe le plus de
+mois — à égalité, à celui qui l'ouvre —, et ses cotisations sont calculées au
+barème de ce seul régime plutôt qu'au barème partagé des deux. Le **revenu**,
+lui, reste la somme de ce que les deux métiers ont réellement payé, au prorata
+de leurs mois : c'est le montant porté au compte qui est juste, c'est le taux
+qui lui est appliqué qui est approché. L'écart ne porte que sur une année par
+changement, et il est nul quand le changement tombe au 1<sup>er</sup> janvier —
+c'est-à-dire quand l'assuré est né en janvier et change à un âge entier. Le
+séparer demanderait de scinder l'année en deux lignes, ce que le reste du
+modèle — salaire de référence, plafond, trimestres, proratisation — ne sait pas
+lire, et ce que le relevé de carrière lui-même ne porte pas.
+
 ### Ce qui reste hors du modèle, et pourquoi
 
 Ces lignes ne sont pas des oublis : chacune demande une information que le

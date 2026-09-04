@@ -1037,3 +1037,39 @@ Le modèle les cumule à partir d'un point d'ancrage — 40 000 € bruts annuel
 2024 — documenté dans `carriere.py`. Ce point déplace proportionnellement tous
 les revenus reconstitués, donc toutes les pensions, mais il est **sans effet sur
 les rapports entre scénarios**, qui sont l'objet du modèle.
+
+### Une carrière, plusieurs métiers
+
+On faisait autrefois le même métier toute sa vie, et le modèle n'a longtemps su
+décrire que celui-là. Une carrière se décrit désormais comme une **suite de
+métiers** (`Carriere.depuis_parcours`) : chacun porte un statut d'affiliation, un
+âge de début et un niveau de revenu, court jusqu'au début du suivant, et le
+dernier jusqu'à la liquidation. La carrière d'un seul métier en est le cas
+particulier — `depuis_profil` n'est plus qu'un appel à un métier, ce qui garantit
+que le passé du modèle n'a pas bougé d'un centime.
+
+Ce que le découpage change est exactement ce que le modèle mesure : chaque
+changement fait passer d'un régime à un autre, donc d'un taux de cotisation, d'une
+assiette et d'un barème à un autre. Un salarié devenu artisan cotise davantage à
+sa charge et acquiert moins de droits gratuits ; le compte notionnel enregistre
+l'un et le scénario 1 l'autre.
+
+Deux conventions le bornent, l'une et l'autre imposées par la maille des données :
+
+* **le profil de rémunération vaut pour la carrière entière**, changements
+  compris. `profil_carriere` décrit une progression de *carrière*, pas d'emploi :
+  le niveau propre à chaque métier s'y superpose, il ne remet pas la progression à
+  zéro. Un métier deux fois mieux payé que le précédent double le revenu au point
+  du changement, il ne renvoie pas l'assuré au bas de sa grille ;
+* **une année civile n'a qu'un statut.** Le moteur ne connaît qu'une ligne par
+  année — un salaire est déclaré à l'année, les régimes liquident à l'année. L'année
+  d'un changement revient donc au métier qui en occupe le plus de mois, et à
+  égalité à celui qui l'ouvre ; le **revenu**, lui, reste la somme de ce que les
+  deux métiers ont réellement payé, au prorata des mois. C'est la seule
+  approximation du découpage, et elle ne porte que sur une année par changement :
+  ses cotisations sont calculées au barème d'un régime plutôt qu'au barème
+  partagé des deux.
+
+Le formulaire du site en accepte six, ce qui n'est pas une limite du moteur :
+au-delà, ce n'est plus une suite de métiers qu'on décrit mais un relevé de
+carrière année par année, et celui-ci se saisit par `Carriere.depuis_lignes`.

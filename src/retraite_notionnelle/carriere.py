@@ -6,9 +6,11 @@ niveaux d'entrée sont proposés, du plus précis au plus sommaire :
 
 1. :meth:`Carriere.depuis_lignes` — une ligne par année, telle qu'on la lit sur
    un relevé de carrière Info-Retraite ;
-2. :meth:`Carriere.depuis_profil` — statut, années de début et de fin, et un
-   profil de rémunération exprimé en multiples du salaire moyen ;
-3. :func:`carriere_type` — cas types prédéfinis (cf. :mod:`castypes`).
+2. :meth:`Carriere.depuis_parcours` — la suite des métiers exercés, chacun avec
+   son statut et son niveau de revenu ;
+3. :meth:`Carriere.depuis_profil` — le cas d'un seul métier, exercé de bout en
+   bout : c'est :meth:`depuis_parcours` avec un métier unique ;
+4. :func:`carriere_type` — cas types prédéfinis (cf. :mod:`castypes`).
 """
 
 from __future__ import annotations
@@ -20,6 +22,7 @@ from pathlib import Path
 from .donnees.chargement import charger_periodes_non_travaillees, charger_yaml
 from .donnees.macro import DonneesMacro
 from .calendrier import (
+    MOIS_PAR_AN,
     DateMois,
     en_mois,
     fraction_annee,
@@ -100,6 +103,29 @@ class AnneeCarriere:
         if self.fraction_annee <= 0:
             return 0.0
         return self.revenu / self.fraction_annee
+
+
+@dataclass(frozen=True)
+class Metier:
+    """Un métier de la carrière : un statut, un niveau de revenu, une date.
+
+    On faisait autrefois le même métier toute sa vie, et le modèle n'a longtemps
+    su décrire que celui-là. Aujourd'hui la carrière se compose : un salarié
+    devient artisan, un contractuel passe fonctionnaire, un indépendant revient
+    au salariat. Chaque changement fait basculer l'assuré d'un régime à un autre,
+    donc d'un taux de cotisation et d'un barème à un autre — c'est exactement ce
+    que les comptes notionnels mesurent.
+
+    Le métier court de ``age_debut`` jusqu'au début du suivant ; le dernier
+    jusqu'à la liquidation.
+    """
+
+    #: Statut d'affiliation (clé de ``legislation/affiliations.yaml``).
+    affiliation: str
+    #: Âge auquel ce métier commence, en années décimales.
+    age_debut: float
+    #: Niveau de revenu, en multiples du salaire moyen par tête de l'année.
+    niveau_salaire: float = 1.0
 
 
 @dataclass
@@ -281,7 +307,48 @@ class Carriere:
         part_primes: float = 0.0,
         identifiant: str = "assuré",
     ) -> "Carriere":
-        """Construit une carrière à partir de quelques paramètres.
+        """Carrière d'un seul métier, exercé du premier au dernier jour.
+
+        C'est le cas particulier de :meth:`depuis_parcours` à un métier, et il
+        se construit par elle : les deux chemins ne peuvent donc pas diverger.
+        """
+        return cls.depuis_parcours(
+            annee_naissance=annee_naissance,
+            sexe=sexe,
+            metiers=[Metier(affiliation=affiliation, age_debut=age_debut,
+                            niveau_salaire=niveau_salaire)],
+            age_liquidation=age_liquidation,
+            macro=macro,
+            mois_naissance=mois_naissance,
+            profil_carriere=profil_carriere,
+            interruptions=interruptions,
+            nombre_enfants=nombre_enfants,
+            part_primes=part_primes,
+            identifiant=identifiant,
+        )
+
+    @classmethod
+    def depuis_parcours(
+        cls,
+        annee_naissance: int,
+        sexe: str,
+        metiers: list["Metier"],
+        age_liquidation: float,
+        macro: DonneesMacro,
+        mois_naissance: int = 1,
+        profil_carriere: str = "plat",
+        interruptions: dict[int, str] | None = None,
+        nombre_enfants: int = 0,
+        part_primes: float = 0.0,
+        identifiant: str = "assuré",
+    ) -> "Carriere":
+        """Construit une carrière à partir de la suite des métiers exercés.
+
+        Chaque :class:`Metier` porte un statut d'affiliation, l'âge auquel il
+        commence et un niveau de revenu ; il court jusqu'au début du suivant, et
+        le dernier jusqu'à la liquidation. Une carrière d'un seul métier est le
+        cas particulier auquel se réduisait tout le modèle : on faisait autrefois
+        le même métier toute sa vie, c'est devenu l'exception.
 
         ``niveau_salaire`` s'exprime en multiples du salaire moyen par tête de
         l'année considérée : 1,0 = salaire moyen, 0,6 ≈ niveau du SMIC,
@@ -289,12 +356,17 @@ class Carriere:
         convertir des francs de 1975 en euros.
 
         ``profil_carriere`` décrit la déformation du salaire relatif au cours de
-        la vie active :
+        la vie active, et il vaut pour la carrière ENTIÈRE, changements de métier
+        compris — c'est une progression de carrière, pas d'emploi :
 
         * ``plat`` — le salaire suit exactement le salaire moyen ;
         * ``ascendant`` — le salaire relatif croît de 60 % à 130 % du niveau
           cible (profil ouvrier/employé) ;
         * ``fortement_ascendant`` — de 50 % à 190 % (profil cadre).
+
+        Le niveau de revenu propre à chaque métier se superpose à cette
+        déformation : changer de métier déplace le niveau, il ne remet pas la
+        progression à zéro.
 
         ``interruptions`` associe une année à un type de période non cotisée.
 
@@ -305,13 +377,32 @@ class Carriere:
         pour une, selon un arrondi — d'où une marche de plusieurs pour cent au
         milieu de l'année.
         """
+        if not metiers:
+            raise ValueError("une carrière compte au moins un métier")
+
         date_naissance = DateMois(annee_naissance, mois_naissance)
-        debut = date_naissance.plus_mois(en_mois(age_debut))
+        bornes = [date_naissance.plus_mois(en_mois(metier.age_debut))
+                  for metier in metiers]
+        debut = bornes[0]
         # La pension prend effet ce mois-là : il n'est plus travaillé, la borne
         # est donc EXCLUE.
         fin = date_naissance.plus_mois(en_mois(age_liquidation))
         if fin.rang <= debut.rang:
             raise ValueError("âge de liquidation antérieur à l'âge de début d'activité")
+        # Chaque métier s'arrête où commence le suivant : les périodes se
+        # touchent bout à bout et couvrent la carrière exactement une fois. Un
+        # métier qui commencerait avant le précédent, ou après la liquidation,
+        # laisserait un trou ou un recouvrement — donc des mois comptés deux
+        # fois, ou pas du tout.
+        for precedente, suivante in zip(bornes, bornes[1:]):
+            if suivante.rang <= precedente.rang:
+                raise ValueError(
+                    "les métiers doivent se suivre : chacun commence après le "
+                    "précédent"
+                )
+        if bornes[-1].rang >= fin.rang:
+            raise ValueError("le dernier métier commence après la liquidation")
+        periodes = list(zip(metiers, bornes, bornes[1:] + [fin]))
 
         annee_debut = debut.annee
         annees = [
@@ -339,8 +430,24 @@ class Carriere:
             avancement = (max(DateMois(annee, 1).rang, debut.rang)
                           - debut.rang) / duree_mois
             deformation = _deformation(profil_carriere, avancement)
-            revenu = (niveau_salaire * deformation
-                      * salaire_moyen_reference[annee] * part)
+            # Ce que chaque métier a occupé de l'année. La somme vaut les mois
+            # travaillés de l'année : les périodes la découpent sans reste.
+            mois_par_metier = [mois_travailles(annee, ouverture, cloture)
+                               for _, ouverture, cloture in periodes]
+            revenu = sum(
+                metier.niveau_salaire * deformation
+                * salaire_moyen_reference[annee] * (mois / MOIS_PAR_AN)
+                for (metier, _, _), mois in zip(periodes, mois_par_metier)
+                if mois > 0
+            )
+            # Le moteur ne connaît qu'une ligne, donc qu'un statut, par année
+            # civile : les régimes liquident à l'année. L'année d'un changement
+            # de métier est donc rattachée à celui qui en occupe le plus de
+            # mois — et, à égalité, à celui qui l'ouvre. Le revenu, lui, reste
+            # la somme de ce que les deux ont réellement payé.
+            affiliation = periodes[
+                max(range(len(periodes)), key=mois_par_metier.__getitem__)
+            ][0].affiliation
 
             type_periode = interruptions.get(annee, "emploi")
             cotise = type_periode == "emploi"

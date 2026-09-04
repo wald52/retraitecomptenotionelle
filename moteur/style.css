@@ -100,6 +100,15 @@ button {
   border: 1px solid var(--accent); border-radius: 4px;
 }
 button:hover { opacity: 0.9; }
+/* Les métiers de la carrière : une boîte par métier, la dernière en pointillé
+   parce qu'elle n'en décrit encore aucun — c'est celle qui sert à en ajouter. */
+.metiers { display: grid; gap: 0.9rem; margin: 0.9rem 0 0; }
+.metier { border: 1px solid var(--trait); border-radius: 4px; padding: 0.9rem 1rem; }
+.metier.facultatif { border-style: dashed; }
+.metier > .rang {
+  margin: 0 0 0.7rem; font-size: 0.78rem; letter-spacing: 0.05em;
+  text-transform: uppercase; color: var(--texte-doux);
+}
 details { margin-top: 1.25rem; }
 summary { cursor: pointer; color: var(--texte-doux); font-size: 0.92rem; }
 summary:hover { color: var(--accent); }

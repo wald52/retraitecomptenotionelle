@@ -95,7 +95,7 @@ quitte votre machine, puisqu'il n'y a pas de serveur de calcul. Le premier
 chargement transfère 221 Ko compressés (812 Ko bruts) et prend quelques dixièmes
 de seconde ; les suivants sont immédiats.
 
-Quatre pages : **Simuler** (une carrière, avec le détail du calcul, la
+Quatre pages : **Simuler** (une carrière — en un ou plusieurs métiers —, avec le détail du calcul, la
 décomposition de l'écart règle par règle et la cascade qui mène du scénario 1 au
 scénario 3), **Cas types** (la grille 12 carrières × 7 générations),
 **Méthode**, **Données** (l'état de fiabilité des séries).
@@ -123,11 +123,11 @@ poids de ce qu'on voulait exécuter.
 
 Le risque d'un portage, c'est qu'il déplace un chiffre sans que rien n'échoue.
 Il est traité de front : **le Python de `src/` reste la référence**, et
-`scripts/construire_temoins.py` fige depuis lui 86 simulations complètes et le
+`scripts/construire_temoins.py` fige depuis lui 122 simulations complètes et le
 HTML des quatre pages, dans `tests/temoins/`. `node --test` rejoue le tout côté
-JavaScript et compare valeur par valeur — 7 167 nombres, dont 98,2 % identiques
-au bit près, l'écart maximal étant d'un *ulp* (3 · 10⁻¹⁶, la précision d'un
-flottant). Les pages, elles, sont comparées caractère par caractère : le
+JavaScript et compare valeur par valeur — 10 526 nombres, dont 97,7 % identiques
+au bit près, l'écart maximal étant de quelques *ulp* (2 · 10⁻¹⁵ ; un *ulp* vaut
+2 · 10⁻¹⁶, la précision d'un flottant). Les pages, elles, sont comparées caractère par caractère : le
 formatage à la française reproduit jusqu'à l'arrondi au pair de Python, faute de
 quoi un « −12,5 % » deviendrait « −13 % » d'un côté et « −12 % » de l'autre.
 
@@ -186,6 +186,19 @@ simulateur.carriere_simple(
     age_debut=20 + 6 / 12, age_liquidation=64 + 7 / 12,
 )
 
+# Plusieurs métiers dans une vie : chacun court jusqu'au début du suivant,
+# le dernier jusqu'à la liquidation
+from retraite_notionnelle.carriere import Metier
+
+print(simulateur.simuler(simulateur.carriere_parcours(
+    annee_naissance=1975, sexe="H", age_liquidation=64,
+    metiers=[
+        Metier("salarie_prive_non_cadre", age_debut=21, niveau_salaire=0.9),
+        Metier("contractuel_public", age_debut=34, niveau_salaire=0.8),
+        Metier("artisan", age_debut=47, niveau_salaire=1.5),
+    ],
+)).tableau())
+
 # Le cas général : grille cas type × génération
 print(calculer_cas_types(simulateur).tableau())
 
@@ -242,12 +255,13 @@ print(simulateur.simuler(carriere).tableau())
 | Suppression des minima | Ni minimum contributif, ni minimum garanti, ni ASPA : peu cotisé, peu de retraite |
 | Suppression des avantages | Ni majorations enfants, ni MDA, ni AVPF, ni bonifications, ni réversion, ni trimestres gratuits |
 | Tout le monde peut simuler | 22 statuts d'affiliation, cinq informations suffisent |
+| Une carrière, plusieurs métiers | On faisait autrefois le même métier toute sa vie, c'est devenu l'exception : la carrière se décrit comme une suite de métiers, chacun avec son statut et son niveau de revenu, et chaque changement fait passer d'un régime à un autre. L'année du changement revient au métier qui en occupe le plus de mois — les régimes liquident à l'année —, mais le revenu porté au compte reste la somme de ce que les deux ont payé |
 | Utilisable sans rien installer | Le modèle s'exécute dans le navigateur, sur une simple adresse |
 | Étalon confronté à une seconde implémentation | Le régime général du scénario 1 est rejoué par **OpenFisca-France-Pension**, écrit par d'autres à partir des mêmes textes : durée d'assurance, trimestres de décote, taux et proratisation concordent exactement sur dix profils, et la confrontation a fait trouver une erreur de chaque côté |
 | Salaires revalorisés par la circulaire, pas par une règle | Les coefficients qui revalorisent les salaires portés au compte sont LUS dans les circulaires de la Cnav — dix colonnes publiées, perceptions depuis 1930 : la règle « les salaires jusqu'en 1986, les prix depuis » les sur-revaluait de 12 % sur quarante ans, et le salaire de référence retient les N *meilleures* années — changer les coefficients change lesquelles |
 | Deux durées là où le droit en a deux | La durée requise pour le taux plein (L. 161-17-3) et la durée maximale prise en compte par la proratisation (R. 351-6), que le modèle confondait |
 | Points convertis à leur vraie unité | Les coefficients des fusions sont LUS dans les accords — un point Arrco vaut un point Agirc-Arrco, un point Agirc en vaut 0,347798289 —, et l'unification Arrco de 1999 est traitée comme le changement d'unité qu'elle est |
-| Portage vérifié, pas cru sur parole | Le site rejoue 86 simulations témoins figées depuis le modèle Python |
+| Portage vérifié, pas cru sur parole | Le site rejoue 122 simulations témoins figées depuis le modèle Python |
 
 ---
 
