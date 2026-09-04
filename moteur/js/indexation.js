@@ -21,13 +21,6 @@ import { Fiabilite } from "./serie.js";
  * Modes qui comparent les trois taux tels qu'ils sont publiés — deux nominaux,
  * un réel. Ils ne diffèrent que par la statistique retenue, pas par les termes.
  */
-/**
- * Longueur de la fenêtre de lissage de la règle italienne, en années : c'est
- * elle, et elle seule, qui distingue la règle italienne d'une indexation sur le
- * PIB de l'année.
- */
-const FENETRE_LISSAGE_ITALIENNE = 5;
-
 const MODES_TROIS_TAUX_REELS = new Set([
   ModeIndexation.TRIPLE_LOCK_INVERSE,
   ModeIndexation.MEDIANE_TROIS_TAUX,
@@ -39,12 +32,63 @@ export class Indexation {
   constructor(macro, parametres) {
     this.macro = macro;
     this.parametres = parametres;
+    this._brut = new Map();
     this._taux = new Map();
   }
 
-  /** Taux retenu pour une année, avec le terme qui l'a emporté. */
+  /** Fenêtre de la moyenne glissante, en années. 1 = aucun lissage. */
+  get lissage() {
+    return Math.max(1, Number(this.parametres.lissage_indexation ?? 1));
+  }
+
+  /**
+   * Taux effectivement appliqué : la règle, puis le lissage, puis le plancher.
+   *
+   * L'ordre n'est pas indifférent. Le lissage porte sur ce que la RÈGLE produit,
+   * et le plancher sur ce qui est FINALEMENT appliqué : un plancher qu'une
+   * moyenne pourrait repasser sous le seuil ne serait pas un plancher.
+   */
   taux(annee) {
     const memorise = this._taux.get(annee);
+    if (memorise !== undefined) {
+      return memorise;
+    }
+
+    const brut = this._tauxBrut(annee);
+    let { taux, terme_retenu: terme } = brut;
+
+    if (this.lissage > 1) {
+      // Fenêtre tronquée au début des séries plutôt qu'indisponible : au-delà,
+      // la série répéterait sa première valeur, ce serait inventer.
+      const debut = Math.max(annee - this.lissage + 1, this._premiereAnnee());
+      let produit = 1.0;
+      for (let a = debut; a <= annee; a += 1) {
+        produit *= 1 + this._tauxBrut(a).taux;
+      }
+      taux = produit ** (1 / (annee - debut + 1)) - 1;
+    }
+
+    const plancher = this.parametres.plancher_indexation;
+    if (plancher !== null && plancher !== undefined && taux < plancher) {
+      taux = plancher;
+      terme = "plancher";
+    }
+
+    const resultat = (taux === brut.taux && terme === brut.terme_retenu)
+      ? brut
+      : { ...brut, taux, terme_retenu: terme };
+    this._taux.set(annee, resultat);
+    return resultat;
+  }
+
+  /** Première année où une règle d'indexation a de quoi se calculer. */
+  _premiereAnnee() {
+    return this.macro.inflation.premiereAnnee;
+  }
+
+  /** Taux que la règle produit pour l'année, sans lissage ni plancher. */
+  _tauxBrut(annee) {
+    const memorise = this._brut.get(annee);
     if (memorise !== undefined) {
       return memorise;
     }
@@ -67,8 +111,8 @@ export class Indexation {
         ["salaire_moyen", salaire],
         ["productivite_nominale", this.macro.productiviteNominale(annee)],
       ];
-    } else if (mode === ModeIndexation.PIB_NOMINAL_LISSE) {
-      candidats = [["pib_nominal_lisse", this._pibLisse(annee)]];
+    } else if (mode === ModeIndexation.PIB_NOMINAL) {
+      candidats = [["pib_nominal", this.macro.pib_nominal.valeur(annee)]];
     } else if (mode === ModeIndexation.MASSE_SALARIALE) {
       candidats = [["masse_salariale", this.macro.masse_salariale.valeur(annee)]];
     } else if (mode === ModeIndexation.REVALORISATION_PORTEE_AU_COMPTE) {
@@ -113,12 +157,6 @@ export class Indexation {
       }
     }
 
-    const plancher = this.parametres.plancher_indexation;
-    if (plancher !== null && plancher !== undefined && taux < plancher) {
-      taux = plancher;
-      terme = "plancher";
-    }
-
     const resultat = {
       annee,
       taux,
@@ -132,27 +170,8 @@ export class Indexation {
         this.macro.productivite.fiabilite(annee),
       ),
     };
-    this._taux.set(annee, resultat);
+    this._brut.set(annee, resultat);
     return resultat;
-  }
-
-  /**
-   * Moyenne géométrique du PIB nominal sur la fenêtre italienne.
-   *
-   * Fenêtre tronquée au début de la série plutôt qu'indisponible : la première
-   * année publiée n'a pas quatre années derrière elle. Deux écarts assumés avec
-   * la règle italienne — l'Italie décale la fenêtre de deux ans, le temps que
-   * les comptes nationaux soient arrêtés, et l'applique à un système dont ce
-   * modèle ne reprend ni les coefficients de transformation ni les planchers.
-   */
-  _pibLisse(annee) {
-    const serie = this.macro.pib_nominal;
-    const debut = Math.max(annee - FENETRE_LISSAGE_ITALIENNE + 1, serie.premiereAnnee);
-    let produit = 1.0;
-    for (let a = debut; a <= annee; a += 1) {
-      produit *= 1 + serie.valeur(a);
-    }
-    return produit ** (1 / (annee - debut + 1)) - 1;
   }
 
   /**

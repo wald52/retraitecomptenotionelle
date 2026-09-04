@@ -115,9 +115,16 @@ def _cas() -> list[dict]:
     # Règles de modélisation, une par une.
     for mode in ("triple_lock_inverse", "triple_lock_inverse_nominal",
                  "mediane_trois_taux", "moyenne_trois_taux",
-                 "revalorisation_portee_au_compte", "pib_nominal_lisse",
+                 "revalorisation_portee_au_compte", "pib_nominal",
                  "prix", "salaires"):
         cas.append((f"indexation_{mode}", {"indexation": mode}))
+    # Le lissage est orthogonal à la règle : on fige les deux fenêtres offertes
+    # sur le défaut, et la règle italienne — PIB nominal lissé sur cinq ans —
+    # qui est la raison d'être du paramètre.
+    for fenetre in ("3", "5"):
+        cas.append((f"lissage_{fenetre}", {"lissage": fenetre}))
+    cas.append(("lissage_regle_italienne",
+                {"indexation": "pib_nominal", "lissage": "5"}))
     for mode in ("cliquet_puis_esperance_vie", "legal_sans_cliquet"):
         cas.append((f"age_reference_{mode}", {"age_reference": mode}))
     cas.append(("table_par_sexe", {"table": "par_sexe"}))

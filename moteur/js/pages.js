@@ -32,9 +32,17 @@ export const INDEXATIONS = [
   ["triple_lock_inverse_nominal", "Triple lock inversé, tout en nominal"],
   ["mediane_trois_taux", "Médiane des trois taux"],
   ["moyenne_trois_taux", "Moyenne des trois taux"],
-  ["pib_nominal_lisse", "PIB nominal lissé sur 5 ans (règle italienne)"],
+  ["pib_nominal", "PIB nominal (assiette la plus large)"],
   ["prix", "Prix"],
   ["salaires", "Salaire moyen"],
+];
+
+// Le lissage s'applique au taux que la règle produit, quelle que soit la règle :
+// ce qu'il vise est la loterie de cohorte.
+export const LISSAGES = [
+  ["1", "Aucun — le taux de l'année"],
+  ["3", "Moyenne glissante sur 3 ans"],
+  ["5", "Moyenne glissante sur 5 ans (comme l'Italie)"],
 ];
 
 export const AGES_REFERENCE = [
@@ -95,6 +103,7 @@ const DEFAUTS = Object.freeze({
   enfants: 0,
   interruptions: "",
   indexation: "masse_salariale",
+  lissage: 1,
   age_reference: "cliquet_legal",
   table: "unisexe",
   conversion_acquis: "reference",
@@ -126,6 +135,7 @@ export class Saisie {
       enfants: entier(parametres, "enfants", DEFAUTS.enfants),
       interruptions: (parametres.interruptions || "").trim(),
       indexation: parmi(parametres, "indexation", INDEXATIONS, DEFAUTS.indexation),
+      lissage: Number(parmi(parametres, "lissage", LISSAGES, String(DEFAUTS.lissage))),
       age_reference: parmi(parametres, "age_reference", AGES_REFERENCE, DEFAUTS.age_reference),
       table: parmi(parametres, "table", TABLES, DEFAUTS.table),
       conversion_acquis: parmi(
@@ -178,6 +188,7 @@ export class Saisie {
   parametres(base) {
     return avec(base, {
       mode_indexation: ModeIndexation[cleEnum(ModeIndexation, this.indexation)],
+      lissage_indexation: this.lissage,
       mode_age_reference: ModeAgeReference[cleEnum(ModeAgeReference, this.age_reference)],
       table_conversion: TableConversion[cleEnum(TableConversion, this.table)],
       age_conversion_droits_acquis:
@@ -236,6 +247,7 @@ export class Saisie {
       salaire: nombreBrut(this.salaire), profil: this.profil,
       primes: nombreBrut(this.primes), enfants: this.enfants,
       interruptions: this.interruptions, indexation: this.indexation,
+      lissage: this.lissage,
       age_reference: this.age_reference, table: this.table,
       conversion_acquis: this.conversion_acquis,
       part_cotisation: this.part_cotisation,
@@ -504,6 +516,8 @@ function formulaire(saisie, contexte) {
       "« 1995:1999:education_enfant », séparées par des virgules"),
     g.liste("indexation", "Règle d'indexation", INDEXATIONS, saisie.indexation,
       "revalorisation des comptes et des pensions"),
+    g.liste("lissage", "Lissage de l'indexation", LISSAGES, String(saisie.lissage),
+      "moyenne glissante appliquée à la règle choisie"),
     g.liste("age_reference", "Âge de référence", AGES_REFERENCE, saisie.age_reference),
     g.liste("table", "Table de conversion", TABLES, saisie.table),
     g.liste("part_cotisation", "Part de la cotisation portée au compte",
@@ -801,10 +815,18 @@ tableau, et de loin. Elle a sa propre incohérence, à
 garder en tête : elle crédite le compte du rendement que le système ENTIER
 dégage, alors que les scénarios 2 et 3 n'y versent que la part salariale de la
 cotisation. C'est aux scénarios 4 et 5, qui portent la cotisation entière,
-qu'elle se compare sans biais. La ligne « PIB nominal lissé » est la même idée
-poussée à l'assiette la plus large — c'est la règle italienne, moyenne
-géométrique sur cinq ans —, donnée à titre indicatif : le modèle n'en reprend
-que le taux, pas le reste du système italien.</p>
+qu'elle se compare sans biais. La ligne « PIB nominal » est la même idée poussée
+à l'assiette la plus large : elle capte le déplacement de la valeur ajoutée vers
+les revenus non salariaux, que la masse salariale subit.</p>
+<p class="discret">Le <strong>lissage</strong>, dans les options, est
+indépendant de la règle : il applique une moyenne glissante au taux que la règle
+produit, quelle qu'elle soit, et s'applique donc à toutes les lignes de ce
+tableau à la fois. Ce qu'il vise n'est pas le niveau mais la loterie de cohorte :
+sur le PIB nominal brut, une cotisation de 1980 vaut ×5,44 à une liquidation de
+2019 et ×5,18 en 2020 — attendre un an fait perdre, parce que l'année traversée
+s'est mal passée. Lissée sur cinq ans, la même cotisation vaut ×6,64 puis ×6,71,
+et le recul disparaît. « PIB nominal » lissé sur cinq ans, c'est la règle
+italienne ; le modèle en reprend le taux, pas le reste du système italien.</p>
 `;
 }
 
@@ -1105,6 +1127,7 @@ ${g.tableau(
       ["Médiane des trois taux", "×397,6", "×322,2", "123,4 %"],
       ["Revalorisation réellement pratiquée", "×1 538,2", "×322,2", "477,4 %"],
       ["Masse salariale (règle d'équilibre)", "×3 685,1", "×322,2", "1 143,7 %"],
+      ["PIB nominal", "×3 442,3", "×322,2", "1 068,6 %"],
       ["PIB nominal lissé sur 5 ans (Italie)", "×4 152,7", "×322,2", "1 288,8 %"],
     ],
     ["", "nombre", "nombre", "nombre"],
@@ -1137,18 +1160,29 @@ prix : l'emploi salarié a doublé depuis 1950, et cette croissance-là s'ajoute
 chaque année à celle des salaires. Une réserve : ce rendement est celui du
 système ENTIER, alors que les scénarios 2 et 3 ne portent au compte que la part
 salariale de la cotisation. C'est aux scénarios 4 et 5 qu'il faut le comparer.</p>
-<p>La ligne suivante est la même idée poussée à l'assiette la plus large : le
-<strong>PIB nominal</strong>, lissé sur cinq ans comme le fait l'Italie pour ses
-propres comptes notionnels. L'assiette y gagne ce que la masse salariale perd
-quand la valeur ajoutée se déplace vers les revenus non salariaux, et le lissage
-supprime la loterie de cohorte — deux carrières identiques à un an d'écart ne
-divergent plus parce qu'une année d'inflation est tombée d'un côté ou de
-l'autre. Elle est donnée <em>à titre indicatif</em> : le modèle en reprend le
-taux, pas le reste du système italien (décalage de publication de deux ans,
-coefficients de transformation, planchers). Sur une carrière, elle s'écarte de
-deux à trois points de la règle par défaut ; l'écart plus large du tableau
-ci-dessus tient à la moyenne mobile, qui recule la base de référence de deux ans
-sur une période de quatre-vingts ans.</p>
+<p>Les deux dernières lignes sont la même idée poussée à l'assiette la plus
+large : le <strong>PIB nominal</strong>, qui gagne ce que la masse salariale
+perd quand la valeur ajoutée se déplace vers les revenus non salariaux. La
+seconde y ajoute un <strong>lissage sur cinq ans</strong>, comme le fait
+l'Italie pour ses propres comptes notionnels.</p>
+<p>Le lissage n'est pas une règle : c'est un réglage à part, qui applique une
+moyenne glissante au taux que la règle produit — n'importe laquelle. Ce qu'il
+vise n'est pas le niveau mais la <strong>loterie de cohorte</strong> : sur le PIB
+nominal brut, une cotisation de 1980 vaut ×5,44 à une liquidation de 2019 et
+×5,18 en 2020 — attendre un an fait <em>perdre</em>, parce que l'année traversée
+s'est mal passée. Lissée sur cinq ans, elle vaut ×6,64 puis ×6,71 : le trou de
+2020 est absorbé par les quatre années qui l'entourent au lieu d'être porté en
+entier par qui a eu le tort de liquider cette année-là. Sur 1950-2025, le PIB
+nominal brut compte deux années où liquider plus tard rapporte moins ; lissé sur
+trois ou cinq ans, aucune.</p>
+<p>Une réserve pour lire le tableau : sur quatre-vingts ans, une moyenne
+glissante n'est pas neutre. Elle revient à mesurer la croissance depuis une base
+reculée d'environ la moitié de la fenêtre, ce qui gonfle le cumul d'une
+vingtaine de pour cent à cinq ans — sans qu'aucune série ait changé. Sur une
+carrière, l'écart entre lissé et non lissé reste d'un à deux points. Et la règle
+italienne n'est reprise ici que par son taux, pas par le reste du système
+italien (décalage de publication de deux ans, coefficients de transformation,
+planchers).</p>
 <p>Le minimum n'est pas la seule statistique possible sur ces trois séries. Deux
 variantes gardent les <em>mêmes</em> termes et ne changent que ce qu'on en
 retient : la <strong>médiane</strong> — le taux du milieu — et la

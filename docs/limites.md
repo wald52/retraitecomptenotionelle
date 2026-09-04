@@ -989,14 +989,20 @@ même ordre :
   qu'en rétrospective, et l'écart entre générations anciennes et récentes en
   vient pour partie de là, non d'un effet de la réforme simulée.
 
-La variante italienne — `--indexation pib_nominal_lisse` — est fournie à titre
-indicatif et n'est pas une reproduction du système italien : elle en reprend le
-taux (moyenne géométrique du PIB nominal sur cinq ans), pas le décalage de
-publication de deux ans, ni les coefficients de transformation, ni les
-planchers. Sa moyenne mobile a en outre un effet propre sur les cumuls longs :
-elle recule la base de référence d'environ deux ans, ce qui gonfle d'une
-vingtaine de pour cent le coefficient affiché sur 1941-2025. Sur une carrière,
-l'écart à la règle par défaut reste de deux à trois points.
+Le **lissage pluriannuel** (`--lissage N`) s'applique à n'importe laquelle des
+neuf règles, et appelle deux réserves distinctes :
+
+- **sur les cumuls longs, une moyenne glissante n'est pas neutre.** Le produit
+  des moyennes revient à mesurer la croissance depuis une base reculée d'environ
+  la moitié de la fenêtre, ce qui gonfle d'une vingtaine de pour cent le
+  coefficient affiché sur 1941-2025 à cinq ans — sans qu'aucune série ait
+  changé. Les tableaux de cumul lissé se lisent avec cette précaution ; sur une
+  carrière, l'effet retombe à un ou deux points ;
+- **la règle italienne n'est reprise que par son taux.** `--indexation
+  pib_nominal --lissage 5` est bien la formule de revalorisation des comptes
+  notionnels italiens, mais le modèle n'en reprend ni le décalage de publication
+  de deux ans, ni les coefficients de transformation, ni les planchers. C'est
+  une indication, pas une reproduction du système italien.
 
 ---
 

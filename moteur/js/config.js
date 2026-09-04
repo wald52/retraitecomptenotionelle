@@ -34,10 +34,11 @@ export const ModeIndexation = Object.freeze({
   //: cotisation. Salaire moyen + emploi salarié : nettement plus généreux que
   //: toutes les autres règles, l'emploi salarié ayant doublé depuis 1950.
   MASSE_SALARIALE: "masse_salariale",
-  //: PIB nominal lissé sur cinq ans — la règle italienne. Assiette plus large
-  //: que la masse salariale, et lissage qui supprime la loterie de cohorte.
-  //: Indicative : le modèle ne reproduit pas le reste du système italien.
-  PIB_NOMINAL_LISSE: "pib_nominal_lisse",
+  //: Croissance du PIB nominal. Assiette plus large que la masse salariale.
+  //: L'Italie la LISSE sur cinq ans, et le lissage n'est pas un mode mais le
+  //: paramètre `lissage_indexation`, applicable à n'importe quelle règle : la
+  //: règle italienne s'écrit `pib_nominal` + lissage 5.
+  PIB_NOMINAL: "pib_nominal",
   //: Revalorisation RÉELLEMENT PRATIQUÉE par le régime général : les
   //: coefficients des arrêtés annuels, ceux-là mêmes que le scénario 1
   //: applique aux salaires portés au compte. C'est ce mode, et non ``PRIX``,
@@ -152,6 +153,10 @@ export const PARAMETRES_DEFAUT = Object.freeze({
   //: son cahier des charges au modèle : un défaut doit être ce qu'on retient
   //: faute d'instruction contraire, pas ce qu'on veut démontrer.
   mode_indexation: ModeIndexation.MASSE_SALARIALE,
+  //: Fenêtre de la moyenne glissante appliquée au taux d'indexation, en années.
+  //: 1 = aucun lissage. Orthogonal à la règle : ce qu'il vise est la loterie de
+  //: cohorte, pas le niveau. La règle italienne, c'est PIB nominal + 5.
+  lissage_indexation: 1,
   //: ``null`` = aucun plancher : le triple lock inversé peut être négatif, ce
   //: qui est sa conséquence logique et non un défaut.
   plancher_indexation: null,

@@ -67,6 +67,8 @@ def _parametres(arguments: argparse.Namespace) -> Parametres:
     modifications = {}
     if getattr(arguments, "indexation", None):
         modifications["mode_indexation"] = ModeIndexation(arguments.indexation)
+    if getattr(arguments, "lissage", None):
+        modifications["lissage_indexation"] = arguments.lissage
     if getattr(arguments, "age_reference", None):
         modifications["mode_age_reference"] = ModeAgeReference(arguments.age_reference)
     if getattr(arguments, "conversion_acquis", None):
@@ -186,7 +188,10 @@ def commande_indexation(arguments: argparse.Namespace) -> int:
     simulateur = Simulateur(_parametres(arguments))
     indexation = simulateur.indexation
     debut, fin = arguments.de, arguments.a
-    print(f"Indexation « {simulateur.parametres.mode_indexation.value} », {debut}-{fin}\n")
+    lissage = simulateur.parametres.lissage_indexation
+    precision = "" if lissage <= 1 else f", lissée sur {lissage} ans"
+    print(f"Indexation « {simulateur.parametres.mode_indexation.value} »"
+          f"{precision}, {debut}-{fin}\n")
     entete = (
         f"{'année':>6} {'retenu':>8} {'terme':<22} {'inflation':>10} "
         f"{'salaires':>10} {'productiv.':>11} {'réel':>8}"
@@ -304,6 +309,13 @@ def _ajouter_options_communes(analyseur: argparse.ArgumentParser) -> None:
         "--indexation", choices=[m.value for m in ModeIndexation],
         help="règle d'indexation (défaut : masse_salariale, le taux d'équilibre "
         "de la répartition ; la règle demandée est triple_lock_inverse)",
+    )
+    analyseur.add_argument(
+        "--lissage", type=int, metavar="ANNÉES",
+        help="moyenne glissante appliquée au taux d'indexation, en années "
+        "(défaut : 1, aucun lissage). S'applique à la règle choisie, quelle "
+        "qu'elle soit : « --indexation pib_nominal --lissage 5 » est la règle "
+        "italienne",
     )
     analyseur.add_argument(
         "--age-reference", dest="age_reference",

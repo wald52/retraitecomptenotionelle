@@ -22,6 +22,7 @@ from retraite_notionnelle.donnees.chargement import DonneeInsuffisante
 from retraite_notionnelle.web.pages import (
     AGES_REFERENCE,
     INDEXATIONS,
+    LISSAGES,
     PROFILS,
     PROJECTIONS,
     TABLES,
@@ -465,6 +466,7 @@ def test_le_portage_javascript_concorde_sur_des_carrieres_tirees_au_hasard():
             "primes": f"{alea.uniform(0, 0.6):.3f}",
             "enfants": str(alea.randint(0, 6)),
             "indexation": alea.choice([code for code, _ in INDEXATIONS]),
+            "lissage": alea.choice([code for code, _ in LISSAGES]),
             "age_reference": alea.choice([code for code, _ in AGES_REFERENCE]),
             "table": alea.choice([code for code, _ in TABLES]),
             "projection": alea.choice([code for code, _ in PROJECTIONS]),

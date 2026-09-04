@@ -35,18 +35,12 @@ le prix à payer pour que la comparaison porte sur la seule statistique.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
+from functools import cached_property
 
 from ..config import ModeIndexation, Parametres
 from ..donnees.chargement import Fiabilite
 from ..donnees.macro import DonneesMacro
-
-
-#: Longueur de la fenêtre de lissage de la règle italienne, en années. L'Italie
-#: revalorise sur la moyenne géométrique du PIB nominal des CINQ dernières
-#: années — c'est ce chiffre, et lui seul, qui distingue la règle italienne
-#: d'une indexation sur le PIB de l'année.
-FENETRE_LISSAGE_ITALIENNE = 5
 
 
 #: Modes qui comparent les trois taux tels qu'ils sont publiés — deux nominaux,
@@ -82,8 +76,65 @@ class Indexation:
     def __init__(self, macro: DonneesMacro, parametres: Parametres) -> None:
         self.macro = macro
         self.parametres = parametres
+        #: Le lissage fait relire chaque année autant de fois que la fenêtre est
+        #: longue. Sans mémoire, une carrière de quarante ans lissée sur cinq
+        #: recalculerait cinq fois chaque taux — et le mode « revalorisation
+        #: légale » relit une table à chaque appel.
+        self._memoire: dict[int, TauxIndexation] = {}
+
+    @property
+    def lissage(self) -> int:
+        """Fenêtre de la moyenne glissante, en années. 1 = aucun lissage."""
+        return max(1, int(self.parametres.lissage_indexation))
 
     def taux(self, annee: int) -> TauxIndexation:
+        """Taux effectivement appliqué : la règle, puis le lissage, puis le plancher.
+
+        L'ordre n'est pas indifférent. Le lissage porte sur ce que la RÈGLE
+        produit — c'est une moyenne de taux d'indexation, pas une moyenne de
+        séries —, et le plancher porte sur ce qui est FINALEMENT appliqué : un
+        plancher qu'une moyenne pourrait repasser sous le seuil ne serait pas un
+        plancher.
+        """
+        brut = self._taux_brut(annee)
+        taux, terme = brut.taux, brut.terme_retenu
+
+        if self.lissage > 1:
+            # Fenêtre tronquée au début des séries plutôt qu'indisponible : les
+            # premières années n'ont pas de passé, et refuser de calculer y
+            # ferait échouer toute carrière ancienne. Au-delà de cette borne, la
+            # série répéterait sa première valeur — ce serait inventer.
+            debut = max(annee - self.lissage + 1, self._premiere_annee)
+            produit = 1.0
+            for a in range(debut, annee + 1):
+                produit *= 1 + self._taux_brut(a).taux
+            taux = produit ** (1 / (annee - debut + 1)) - 1
+
+        plancher = self.parametres.plancher_indexation
+        if plancher is not None and taux < plancher:
+            taux, terme = plancher, "plancher"
+
+        if (taux, terme) == (brut.taux, brut.terme_retenu):
+            return brut
+        return replace(brut, taux=taux, terme_retenu=terme)
+
+    @cached_property
+    def _premiere_annee(self) -> int:
+        """Première année où une règle d'indexation a de quoi se calculer.
+
+        Les quatre séries de référence commencent la même année ; celle de
+        l'inflation en tient lieu. En deçà, ``SerieAnnuelle`` répète sa première
+        valeur, ce qu'une moyenne glissante ne doit pas faire passer pour une
+        observation.
+        """
+        return self.macro.inflation.premiere_annee
+
+    def _taux_brut(self, annee: int) -> TauxIndexation:
+        """Taux que la règle produit pour l'année, sans lissage ni plancher."""
+        memorise = self._memoire.get(annee)
+        if memorise is not None:
+            return memorise
+
         inflation = self.macro.inflation(annee)
         salaire = self.macro.salaire_moyen(annee)
         productivite = self.macro.productivite(annee)
@@ -101,8 +152,8 @@ class Indexation:
                 "salaire_moyen": salaire,
                 "productivite_nominale": self.macro.productivite_nominale(annee),
             }
-        elif mode is ModeIndexation.PIB_NOMINAL_LISSE:
-            candidats = {"pib_nominal_lisse": self._pib_lisse(annee)}
+        elif mode is ModeIndexation.PIB_NOMINAL:
+            candidats = {"pib_nominal": self.macro.pib_nominal(annee)}
         elif mode is ModeIndexation.MASSE_SALARIALE:
             candidats = {"masse_salariale": self.macro.masse_salariale(annee)}
         elif mode is ModeIndexation.REVALORISATION_PORTEE_AU_COMPTE:
@@ -142,16 +193,12 @@ class Indexation:
         else:
             terme, taux = min(candidats.items(), key=lambda couple: couple[1])
 
-        plancher = self.parametres.plancher_indexation
-        if plancher is not None and taux < plancher:
-            taux, terme = plancher, "plancher"
-
         fiabilite = min(
             self.macro.inflation.fiabilite(annee),
             self.macro.salaire_moyen.fiabilite(annee),
             self.macro.productivite.fiabilite(annee),
         )
-        return TauxIndexation(
+        resultat = TauxIndexation(
             annee=annee,
             taux=taux,
             terme_retenu=terme,
@@ -160,29 +207,8 @@ class Indexation:
             productivite=productivite,
             fiabilite=fiabilite,
         )
-
-    def _pib_lisse(self, annee: int) -> float:
-        """Moyenne géométrique du PIB nominal sur la fenêtre italienne.
-
-        Fenêtre tronquée au début de la série plutôt qu'indisponible : la
-        première année publiée n'a pas quatre années derrière elle, et refuser
-        de calculer y ferait échouer toute carrière ancienne. Une moyenne sur
-        moins de cinq ans reste une moyenne ; ce qu'elle a de moins lissé est
-        couvert par la fiabilité `estimee` que portent ces années-là.
-
-        Deux écarts assumés avec la règle italienne, qui font que ce mode est
-        indicatif et non une reproduction : l'Italie décale la fenêtre de deux
-        ans, le temps que les comptes nationaux soient arrêtés, et l'applique à
-        un système dont ce modèle ne reprend ni les coefficients de
-        transformation ni les planchers. Ici la fenêtre se termine sur l'année
-        courante, le modèle travaillant sur une série déjà arrêtée.
-        """
-        serie = self.macro.pib_nominal
-        debut = max(annee - FENETRE_LISSAGE_ITALIENNE + 1, serie.premiere_annee)
-        produit = 1.0
-        for a in range(debut, annee + 1):
-            produit *= 1 + serie(a)
-        return produit ** (1 / (annee - debut + 1)) - 1
+        self._memoire[annee] = resultat
+        return resultat
 
     def coefficient(self, annee_depart: int, annee_arrivee: int) -> float:
         """Coefficient de revalorisation cumulée entre deux années.

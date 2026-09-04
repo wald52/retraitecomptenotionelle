@@ -28,6 +28,12 @@ RACINE_PROJET = Path(__file__).resolve().parents[2]
 RACINE_DONNEES = RACINE_PROJET / "data"
 
 
+#: Fenêtre de lissage de la règle italienne, en années. Ce n'est pas un défaut
+#: du modèle : c'est la valeur qu'il faut donner à ``lissage_indexation``, avec
+#: ``ModeIndexation.PIB_NOMINAL``, pour reproduire la règle italienne.
+LISSAGE_ITALIEN = 5
+
+
 class ModeIndexation(str, Enum):
     """Règle de revalorisation des comptes et des pensions."""
 
@@ -72,17 +78,15 @@ class ModeIndexation(str, Enum):
     #: une règle d'austérité, c'est une règle d'équilibre.
     MASSE_SALARIALE = "masse_salariale"
 
-    #: PIB nominal lissé sur cinq ans — la règle italienne. L'Italie revalorise
-    #: les comptes notionnels sur la moyenne géométrique de la croissance du PIB
-    #: nominal des cinq dernières années. L'assiette est plus large que la masse
-    #: salariale : elle capte le déplacement de la valeur ajoutée vers les
-    #: revenus non salariaux, que la masse salariale, elle, subit. Le lissage
-    #: supprime la loterie de cohorte — deux carrières identiques à un an
-    #: d'écart ne doivent pas diverger parce qu'une année d'inflation est tombée
-    #: d'un côté ou de l'autre. Fournie à titre indicatif : le modèle ne
-    #: reproduit pas le reste du système italien (décalage de publication de
-    #: deux ans, coefficients de transformation, plancher).
-    PIB_NOMINAL_LISSE = "pib_nominal_lisse"
+    #: Croissance du PIB nominal. Assiette plus large que la masse salariale :
+    #: elle capte le déplacement de la valeur ajoutée vers les revenus non
+    #: salariaux, que la masse salariale, elle, subit. C'est l'assiette que
+    #: retient l'Italie pour ses comptes notionnels — mais l'Italie la LISSE sur
+    #: cinq ans, et le lissage n'est pas un mode : c'est le paramètre
+    #: ``lissage_indexation``, qui s'applique à n'importe laquelle de ces
+    #: règles. La règle italienne s'écrit donc
+    #: ``--indexation pib_nominal --lissage 5``.
+    PIB_NOMINAL = "pib_nominal"
 
     #: Revalorisation RÉELLEMENT PRATIQUÉE par le régime général : les
     #: coefficients des arrêtés annuels, tels que le scénario 1 les applique
@@ -325,6 +329,24 @@ class Parametres:
     #: contraire, pas ce qu'on veut démontrer. La règle demandée reste à un
     #: paramètre de distance : ``--indexation triple_lock_inverse``.
     mode_indexation: ModeIndexation = ModeIndexation.MASSE_SALARIALE
+
+    #: Nombre d'années de la moyenne glissante appliquée au taux d'indexation.
+    #: 1 = aucun lissage, le taux de l'année est appliqué tel quel.
+    #:
+    #: Le lissage est ORTHOGONAL à la règle : il s'applique au taux que la règle
+    #: produit, quelle que soit la règle. Ce qu'il vise n'est pas le niveau mais
+    #: la LOTERIE DE COHORTE — deux carrières identiques à un an d'écart ne
+    #: doivent pas diverger parce qu'une année d'inflation, ou un trou comme
+    #: 2020, est tombé d'un côté ou de l'autre de la liquidation. C'est le
+    #: mécanisme de la règle italienne (cinq ans sur le PIB nominal), et rien
+    #: n'oblige à le réserver à elle.
+    #:
+    #: Une réserve, écrite dans docs/methodologie.md : sur un cumul de plusieurs
+    #: décennies, une moyenne glissante n'est pas neutre. Elle revient à mesurer
+    #: la croissance depuis une base reculée d'environ la moitié de la fenêtre,
+    #: ce qui gonfle le coefficient cumulé. Sur une carrière l'effet est faible ;
+    #: sur les tableaux 1941-2025, il vaut une vingtaine de pour cent à cinq ans.
+    lissage_indexation: int = 1
 
     #: Plancher éventuel appliqué au taux d'indexation. ``None`` = aucun
     #: plancher : le triple lock inversé peut être négatif, ce qui est sa

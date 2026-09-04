@@ -259,7 +259,8 @@ productivité qui l'emporte.
 | Médiane des trois taux | ×397,6 | ×322,2 | 123,4 % |
 | **Revalorisation réellement pratiquée** | **×1 538,2** | ×322,2 | **477,4 %** |
 | Masse salariale (règle d'équilibre) | ×3 685,1 | ×322,2 | 1 143,7 % |
-| PIB nominal lissé sur 5 ans (Italie) | ×4 152,7 | ×322,2 | 1 288,8 % |
+| PIB nominal | ×3 442,3 | ×322,2 | 1 068,6 % |
+| PIB nominal, lissé sur 5 ans (Italie) | ×4 152,7 | ×322,2 | 1 288,8 % |
 
 Une cotisation de 1950 ne conserve donc que 1,5 % de sa valeur réelle. Dans le
 scénario rétroactif, **l'essentiel de la baisse affichée vient de la règle
@@ -360,18 +361,38 @@ Deux réserves, à lire avant de s'en servir :
   supposent l'emploi salarié constant et reprennent la variation du salaire
   moyen. La fiabilité `estimee` le dit et se propage jusqu'au résultat.
 
-Pour les curieux, une neuvième règle : **`--indexation pib_nominal_lisse`**,
-la variante italienne — moyenne géométrique du PIB nominal sur cinq ans.
-L'assiette y est plus large (elle capte ce que la masse salariale perd quand la
-valeur ajoutée se déplace vers les revenus non salariaux) et le lissage supprime
-la loterie de cohorte : le trou de 2020 y est absorbé par les quatre années qui
-l'entourent au lieu d'être porté en entier par la génération liquidée cette
-année-là. Elle est donnée **à titre indicatif** — le modèle en reprend le taux,
-pas le reste du système italien — et s'écarte de deux à trois points de la règle
-par défaut sur une carrière. Une réserve de lecture : son cumul de tableau
-dépasse celui de la masse salariale alors que le PIB nominal croît *moins* vite
-qu'elle ; c'est un effet de la moyenne mobile, qui recule la base de référence
-d'environ deux ans, et non une assiette plus dynamique.
+Pour les curieux, une neuvième règle : **`--indexation pib_nominal`**,
+l'assiette la plus large — elle capte ce que la masse salariale perd quand la
+valeur ajoutée se déplace vers les revenus non salariaux.
+
+### 1 quater. Le lissage pluriannuel, qui n'est pas une règle
+
+`--lissage N` applique une moyenne glissante de N années au taux que la règle
+produit — **n'importe laquelle des neuf**. Ce n'est donc pas une dixième règle
+mais un réglage orthogonal, et il répond à une question que le choix de la règle
+ne pose pas : la **loterie de cohorte**.
+
+Sur le PIB nominal brut, une cotisation de 1980 vaut ×5,44 à une liquidation de
+2019 et **×5,18 en 2020** : attendre un an fait *perdre*, parce que l'année
+traversée s'est mal passée. Rien dans la carrière ne le justifie — c'est le
+calendrier qui tranche. Avec `--lissage 5`, le recul disparaît (×6,64 puis
+×6,71) : le trou de 2020 est absorbé par les quatre années qui l'entourent. Sur
+1950-2025, le PIB nominal brut compte deux années où liquider plus tard rapporte
+moins ; lissé sur trois ou cinq ans, aucune.
+
+C'est le mécanisme des comptes notionnels italiens — `--indexation pib_nominal
+--lissage 5` **est** la règle italienne, dont le modèle ne reprend que le taux,
+pas le reste du système (décalage de publication de deux ans, coefficients de
+transformation, planchers). Mais rien n'oblige à le réserver au PIB : le lissage
+s'applique aussi bien au triple lock inversé qu'à la masse salariale.
+
+Une réserve de lecture, valable pour toutes les lignes lissées du tableau
+ci-dessus : sur quatre-vingts ans, une moyenne glissante **n'est pas neutre**.
+Elle revient à mesurer la croissance depuis une base reculée d'environ la moitié
+de la fenêtre, ce qui gonfle le cumul d'une vingtaine de pour cent à cinq ans —
+sans qu'aucune série ait changé. Sur une carrière, l'écart entre lissé et non
+lissé reste d'un à deux points (règle par défaut, génération 1930 : -81,5 % sans
+lissage, -80,2 % à trois ans, -79,1 % à cinq).
 
 Et un résultat qui recadre tout le reste : même sous cette règle, le scénario
 rétroactif reste 70 à 81 % en dessous du système actuel (scénario 2), et 28 à
@@ -597,8 +618,10 @@ sous « Options de modélisation ».
 --indexation      triple_lock_inverse | triple_lock_inverse_nominal
                   | mediane_trois_taux | moyenne_trois_taux
                   | revalorisation_portee_au_compte | prix | salaires
-                  | masse_salariale | pib_nominal_lisse
-                                          (masse_salariale par défaut)
+                  | masse_salariale | pib_nominal   (défaut : masse_salariale)
+--lissage ANNÉES  moyenne glissante appliquée à la règle choisie (défaut 1,
+                  aucun lissage). « --indexation pib_nominal --lissage 5 »
+                  est la règle italienne
 --age-reference   cliquet_legal | cliquet_puis_esperance_vie | legal_sans_cliquet
 --conversion-acquis  reference | liquidation
 --part-cotisation      salariale | totale | totale_alignee

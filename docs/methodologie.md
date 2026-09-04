@@ -118,7 +118,8 @@ Mesure sur la période complète (`retraite-notionnelle indexation --de 1941 --a
 | Médiane des trois taux | ×397,6 | ×322,2 | 123,4 % |
 | Revalorisation réellement pratiquée | ×1 538,2 | ×322,2 | 477,4 % |
 | Masse salariale (règle d'équilibre) | ×3 685,1 | ×322,2 | 1 143,7 % |
-| PIB nominal lissé sur 5 ans (Italie) | ×4 152,7 | ×322,2 | 1 288,8 % |
+| PIB nominal | ×3 442,3 | ×322,2 | 1 068,6 % |
+| PIB nominal, lissé sur 5 ans (Italie) | ×4 152,7 | ×322,2 | 1 288,8 % |
 
 Ces chiffres sont ceux que produit la commande citée ci-dessus, et le
 tableau les a longtemps donnés périmés — ×243,7 et ×318,6, valeurs d'une
@@ -242,37 +243,56 @@ part salariale de la cotisation. Adosser un rendement collectif à une cotisatio
 partielle mélange deux périmètres ; les scénarios 4 et 5, qui portent la
 cotisation entière, sont ceux auxquels cette règle se compare sans biais.
 
-### La variante italienne : le PIB nominal lissé
+### L'assiette la plus large : le PIB nominal
 
-`--indexation pib_nominal_lisse` sert la règle des comptes notionnels italiens :
-la moyenne géométrique de la croissance du PIB nominal sur cinq ans, depuis le
-PIB approche produit en prix courants (idbank 011779992,
-`data/reference/macro/pib_nominal.csv`, certifié 1950-2025 ; 1930-1949 estimé
-selon la même convention que la masse salariale). Deux idées y sont
-intéressantes indépendamment du reste :
+`--indexation pib_nominal` sert le PIB approche produit en prix courants
+(idbank 011779992, `data/reference/macro/pib_nominal.csv`, certifié 1950-2025 ;
+1930-1949 estimé selon la même convention que la masse salariale). Son intérêt
+sur la masse salariale : l'assiette capte le déplacement de la valeur ajoutée
+vers les revenus non salariaux, que la masse salariale, elle, subit. Son cumul
+sur 1941-2025 vaut ×3 442,3, un peu en dessous de la masse salariale.
 
-- **l'assiette est plus large** que la masse salariale : elle capte le
-  déplacement de la valeur ajoutée vers les revenus non salariaux, que la masse
-  salariale, elle, subit ;
-- **le lissage supprime la loterie de cohorte.** Deux carrières identiques à un
-  an d'écart ne doivent pas diverger parce qu'une année d'inflation, ou un trou
-  comme 2020, est tombé d'un côté ou de l'autre de la liquidation. Le PIB
-  nominal recule en 2020 ; le taux lissé de cette année-là reste positif.
+### Le lissage pluriannuel, qui n'est pas une règle
 
-Le mode est **indicatif**. Le lissage est appliqué par le moteur
-(`FENETRE_LISSAGE_ITALIENNE`), la série restant la variation annuelle brute —
-seule grandeur que l'INSEE publie, donc seule grandeur certifiable. Et le modèle
-ne reprend du système italien que ce taux : ni le décalage de publication de
-deux ans, ni les coefficients de transformation, ni les planchers.
+`--lissage N` (paramètre `lissage_indexation`) applique une moyenne géométrique
+glissante de N années au taux que la règle produit — **n'importe laquelle des
+neuf**. C'est un réglage orthogonal, et non une dixième règle : il ne change pas
+ce qu'on mesure, il change la façon dont une année isolée se répercute.
 
-Une réserve de lecture sur le tableau ci-dessus : le cumul du PIB lissé y
-dépasse celui de la masse salariale (×4 152,7 contre ×3 685,1) alors que le PIB
-nominal croît **moins** vite qu'elle sur la période (×2 917 contre ×3 123, à
-fenêtre égale). Le produit des moyennes glissantes revient à mesurer la
-croissance depuis une base reculée d'environ deux ans, ce qui vaut une vingtaine
-de pour cent sur quatre-vingts ans. Le lissage reste ce qu'on en attend d'une
-année sur l'autre ; c'est le cumul qui demande cette précaution, et sur une
-carrière réelle l'écart retombe à deux ou trois points.
+Ce qu'il vise est la **loterie de cohorte**. Une cotisation de 1980 vaut, à la
+liquidation, ×5,44 en 2019 et ×5,18 en 2020 : sur le PIB nominal brut, attendre
+un an fait *perdre*, parce que l'année traversée s'est mal passée. Sur
+1950-2025, deux années sont dans ce cas ; lissées sur trois ou cinq ans, plus
+aucune (×6,64 puis ×6,71 pour les deux mêmes liquidations). Rien dans la
+carrière ne justifiait l'écart : c'est le calendrier qui tranchait, et le
+lissage lui retire ce pouvoir.
+
+L'ordre des opérations compte, et il est fixé dans `Indexation.taux` :
+
+1. la **règle** produit le taux de l'année ;
+2. le **lissage** en prend la moyenne géométrique sur la fenêtre ;
+3. le **plancher**, s'il y en a un, s'applique au résultat — un plancher qu'une
+   moyenne pourrait repasser sous le seuil ne serait pas un plancher.
+
+La fenêtre est tronquée au début des séries plutôt qu'indisponible : en deçà de
+la première année publiée, `SerieAnnuelle` répète sa première valeur, et une
+moyenne glissante qui l'avalerait ferait passer une extrapolation pour une
+observation.
+
+**La règle italienne s'écrit donc `--indexation pib_nominal --lissage 5`** —
+c'est exactement ce que l'Italie applique à ses comptes notionnels. Le modèle
+n'en reprend que le taux : ni le décalage de publication de deux ans, ni les
+coefficients de transformation, ni les planchers.
+
+Une réserve, à connaître avant de lire un cumul lissé : sur quatre-vingts ans,
+une moyenne glissante n'est pas neutre. Le produit des moyennes glissantes
+revient à mesurer la croissance depuis une base reculée d'environ la moitié de
+la fenêtre, ce qui gonfle le coefficient d'une vingtaine de pour cent à cinq ans
+— sans qu'aucune série ait changé. C'est ce qui fait passer le PIB nominal de
+×3 442,3 à ×4 152,7 dans le tableau plus haut, alors qu'il croît *moins* vite
+que la masse salariale (×3 685,1). Sur une carrière, l'écart entre lissé et non
+lissé retombe à un ou deux points : règle par défaut, génération 1930, -81,5 %
+sans lissage, -80,2 % à trois ans, -79,1 % à cinq.
 
 Aucun plancher n'est appliqué par défaut : le taux peut être négatif, ce qui est
 la conséquence logique de la règle (`plancher_indexation`).
