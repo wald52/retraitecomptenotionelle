@@ -8,8 +8,8 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>📈</text></svg>">
 
 <!-- La feuille de style est extraite du module Python par
-     scripts/construire_donnees.py : elle n'existe qu'en un seul endroit, et le
-     serveur Python comme le site en JavaScript affichent la même chose. -->
+     scripts/construire_donnees.py : elle n'existe qu'en un seul endroit, celui
+     où le modèle de référence décrit son propre rendu. -->
 <link rel="stylesheet" href="moteur/style.css">
 <link rel="preload" href="moteur/donnees.json" as="fetch" crossorigin>
 
@@ -71,7 +71,6 @@ async function preparer() {
   }
   const paquet = await reponse.json();
 
-  gabarit.etat.mode = "navigateur";
   contexte = new Contexte(paquet);
   // Construit le simulateur du jeu de paramètres par défaut — séries, tables de
   // mortalité et catalogue des régimes. C'est la seule opération qui coûte, et

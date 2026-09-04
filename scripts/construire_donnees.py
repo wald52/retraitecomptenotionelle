@@ -15,8 +15,8 @@ peut pas diverger de ce que calcule la référence.
 
 La feuille de style suit le même chemin : elle est écrite une seule fois, dans
 ``web/gabarit.py``, et extraite ici vers ``moteur/style.css`` que la page charge
-directement. Le serveur Python et le site en JavaScript ne peuvent donc pas
-diverger d'apparence.
+directement. Le rendu de référence et le site ne peuvent donc pas diverger
+d'apparence.
 
     python scripts/construire_donnees.py            # reconstruit les deux fichiers
     python scripts/construire_donnees.py --verifier # échoue s'ils sont périmés

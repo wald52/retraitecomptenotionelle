@@ -193,13 +193,6 @@ body.calcul-en-cours main { opacity: 0.45; transition: opacity 0.2s; }
 
 DEPOT = "https://github.com/wald52/retraitecomptenotionelle"
 
-#: « serveur » : les pages sont servies par FastAPI, une adresse par page.
-#: « navigateur » : la navigation se fait par l'ancre de l'adresse
-#: (``#/cas-types``), comme sur le site. Le rendu est identique dans les deux
-#: cas ; seuls les liens changent. Le second mode sert à produire les témoins
-#: que doit retrouver le portage JavaScript.
-MODE = "serveur"
-
 LIENS = (
     ("/", "Simuler"),
     ("/cas-types", "Cas types"),
@@ -208,15 +201,15 @@ LIENS = (
 )
 
 
-def dans_le_navigateur() -> bool:
-    return MODE == "navigateur"
-
-
 def lien(chemin: str, ancre: str = "") -> str:
-    """Adresse d'une page interne, selon le mode de service."""
-    if dans_le_navigateur():
-        return "#" + chemin
-    return chemin + (f"#{ancre}" if ancre else "")
+    """Adresse d'une page interne.
+
+    Le site tient dans une seule page : la navigation passe par l'ancre de
+    l'adresse (``#/cas-types``). L'ancre de section, elle, ne peut pas s'y
+    ajouter — la place est prise — et n'est acceptée que pour que les appels
+    disent vers quoi ils pointent.
+    """
+    return "#" + chemin
 
 
 def navigation(chemin_actif: str = "/") -> str:
@@ -242,26 +235,6 @@ def pied() -> str:
   Les séries d'avant 1950 et les paramètres de régime restent saisis à la main :
   <a href="{DEPOT}/blob/main/docs/limites.md">lire les limites</a> avant de citer un chiffre.</p>
 </footer>"""
-
-
-def page(titre: str, corps: str, chemin_actif: str = "/") -> str:
-    """Document complet — utilisé par le serveur ; le navigateur n'en prend que le corps."""
-    return f"""<!doctype html>
-<html lang="fr">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{escape(titre)} — Retraite en comptes notionnels</title>
-<style>{FEUILLE_DE_STYLE}</style>
-</head>
-<body>
-{entete(chemin_actif)}
-<main>
-{corps}
-{pied()}
-</main>
-</body>
-</html>"""
 
 
 # -- fragments ---------------------------------------------------------------

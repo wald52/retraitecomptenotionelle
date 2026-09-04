@@ -682,7 +682,7 @@ function resultats(contexte, saisie) {
 ${decomposition(contexte, saisie, comparaison)}
 ${contributionEmployeur(comparaison)}
 ${cascade(comparaison, saisie)}
-${detail(contexte, comparaison, saisie)}
+${detail(contexte, comparaison)}
 `;
 }
 
@@ -920,7 +920,7 @@ dispositif transitoire.</p>
 `;
 }
 
-function detail(contexte, comparaison, saisie) {
+function detail(contexte, comparaison) {
   const retro = comparaison.notionnel_retroactif;
   const catalogue = contexte.simulateur().catalogue;
   const pensions = comparaison.actuel.pensions_par_regime;
@@ -990,11 +990,6 @@ function detail(contexte, comparaison, saisie) {
     ["", "nombre"],
   );
 
-  const api = g.dansLeNavigateur() ? "" : (
-    "Ces mêmes résultats sur l'API : "
-    + `<a href="/api/simuler?${echapper(saisie.requete())}">/api/simuler</a>. `
-  );
-
   return `
 <h2>Le détail du calcul</h2>
 <h3>Scénario 1 — de quoi votre pension actuelle est faite</h3>
@@ -1009,7 +1004,7 @@ ${compte}
   <summary>Les résultats complets en JSON</summary>
   <pre class="json">${echapper(JSON.stringify(comparaison.dictionnaire(), null, 2))}</pre>
 </details>
-<p class="discret">${api}L'adresse de cette page contient tous les paramètres :
+<p class="discret">L'adresse de cette page contient tous les paramètres :
 elle peut être citée ou partagée telle quelle.</p>
 `;
 }

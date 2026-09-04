@@ -1,9 +1,8 @@
-"""Tests de l'interface web, dans ses deux modes.
+"""Tests du contenu du site.
 
-Le contenu des pages (:mod:`retraite_notionnelle.web.pages`) ne dépend que de la
-bibliothèque standard : il est testé sans condition. Les tests du serveur
-FastAPI sont ignorés si les dépendances optionnelles sont absentes
-(``pip install -e ".[web]"``).
+Le site tourne entièrement dans le navigateur ; ce qu'il affiche est produit ici
+par :mod:`retraite_notionnelle.web.pages`, qui ne dépend que de la bibliothèque
+standard et sert de référence au portage JavaScript.
 """
 
 from __future__ import annotations
@@ -40,107 +39,97 @@ def contexte() -> Contexte:
 
 
 @pytest.fixture(scope="module")
-def client():
-    fastapi = pytest.importorskip("fastapi", reason="dépendances web absentes")
-    pytest.importorskip("httpx", reason="client de test absent")
-    from fastapi.testclient import TestClient
+def page(contexte):
+    """Rend une page entière, comme le fait ``index.html`` dans le navigateur.
 
-    from retraite_notionnelle.web import creer_application
+    Le site n'assemble jamais autre chose : l'en-tête, le corps rendu, le pied.
+    """
+    def rendu(chemin: str = "/", **parametres: object) -> str:
+        _, corps = rendre(contexte, chemin,
+                          {nom: str(valeur) for nom, valeur in parametres.items()})
+        return g.entete(chemin) + corps + g.pied()
 
-    assert fastapi
-    return TestClient(creer_application())
+    return rendu
 
 
 # -- pages -------------------------------------------------------------------
 
 
 @pytest.mark.parametrize("chemin", ["/", "/cas-types", "/methode", "/donnees"])
-def test_les_pages_repondent(client, chemin):
-    reponse = client.get(chemin)
-    assert reponse.status_code == 200
-    assert "text/html" in reponse.headers["content-type"]
-    assert "Retraite à comptes notionnels" in reponse.text
+def test_les_pages_repondent(page, chemin):
+    texte = page(chemin)
+    assert "Retraite à comptes notionnels" in texte
 
 
-def test_accueil_sans_parametres_ne_calcule_rien(client):
+def test_accueil_sans_parametres_ne_calcule_rien(page):
     """Une visite nue montre le formulaire, pas des résultats surgis de nulle part."""
-    texte = client.get("/").text
+    texte = page("/")
     assert "Simuler une carrière" in texte
     assert "Résultats" not in texte
 
 
-def test_simulation_affiche_les_trois_scenarios(client):
-    reponse = client.get(
-        "/", params={"naissance": 1960, "statut": "agent_sncf",
-                     "debut": 20, "liquidation": 52}
-    )
-    assert reponse.status_code == 200
+def test_simulation_affiche_les_trois_scenarios(page):
+    texte = page("/", naissance=1960, statut="agent_sncf",
+                 debut=20, liquidation=52)
     for attendu in ("Système actuel", "rétroactifs depuis 1941",
                     "à compter de 2026", "Résultats"):
-        assert attendu in reponse.text
+        assert attendu in texte
 
 
-def test_la_saisie_est_reinjectee_dans_le_formulaire(client):
+def test_la_saisie_est_reinjectee_dans_le_formulaire(page):
     """L'adresse porte les paramètres : la page doit être rechargeable telle quelle."""
-    texte = client.get(
-        "/", params={"naissance": 1955, "statut": "mineur",
-                     "debut": 18, "liquidation": 55}
-    ).text
+    texte = page("/", naissance=1955, statut="mineur",
+                 debut=18, liquidation=55)
     assert 'value="1955"' in texte
     assert '<option value="mineur" selected>' in texte
 
 
-def test_saisie_invalide_affiche_un_message_et_pas_de_trace(client):
-    reponse = client.get("/", params={"naissance": 1700})
-    assert reponse.status_code == 200
-    assert "Saisie refusée" in reponse.text
-    assert "Traceback" not in reponse.text
+def test_saisie_invalide_affiche_un_message_et_pas_de_trace(page):
+    texte = page("/", naissance=1700)
+    assert "Saisie refusée" in texte
+    assert "Traceback" not in texte
 
 
-def test_carriere_impossible_est_signalee_sans_planter(client):
-    reponse = client.get(
-        "/", params={"naissance": 1990, "statut": "salarie_prive_non_cadre",
-                     "debut": 30, "liquidation": 45}
-    )
-    assert reponse.status_code == 200
-    assert "Traceback" not in reponse.text
+def test_carriere_impossible_est_signalee_sans_planter(page):
+    texte = page("/", naissance=1990, statut="salarie_prive_non_cadre",
+                 debut=30, liquidation=45)
+    assert "Traceback" not in texte
 
 
-def test_la_decomposition_par_regle_d_indexation_est_presente(client):
+def test_la_decomposition_par_regle_d_indexation_est_presente(page):
     """Le point le plus contre-intuitif du modèle doit être exposé, pas caché."""
-    texte = client.get(
-        "/", params={"naissance": 1960, "statut": "salarie_prive_non_cadre",
-                     "debut": 20, "liquidation": 62}
-    ).text
+    texte = page("/", naissance=1960, statut="salarie_prive_non_cadre",
+                 debut=20, liquidation=62)
     assert "D'où vient l'écart" in texte
     assert "Triple lock inversé, tout en nominal" in texte
     assert texte.count("Rendement cumulé") >= 1
 
 
-def test_pas_de_decomposition_si_l_indexation_est_deja_choisie(client):
-    texte = client.get(
-        "/", params={"naissance": 1960, "statut": "salarie_prive_non_cadre",
-                     "debut": 20, "liquidation": 62, "indexation": "prix"}
-    ).text
+def test_pas_de_decomposition_si_l_indexation_est_deja_choisie(page):
+    texte = page("/", naissance=1960, statut="salarie_prive_non_cadre",
+                 debut=20, liquidation=62, indexation="prix")
     assert "D'où vient l'écart" not in texte
 
 
-# -- API ---------------------------------------------------------------------
+# -- résultats bruts ---------------------------------------------------------
+#
+# Ce que la page publie sous « Les résultats complets en JSON », et que le
+# portage JavaScript doit retrouver à l'identique.
 
 
-def test_api_statuts(client):
-    donnees = client.get("/api/statuts").json()
+def test_statuts_proposes(contexte):
+    donnees = statuts(contexte)
     codes = {entree["code"] for entree in donnees}
     assert "salarie_prive_non_cadre" in codes
     assert all(entree["libelle"] for entree in donnees)
 
 
-def test_api_simuler(client):
-    donnees = client.get(
-        "/api/simuler",
-        params={"naissance": 1975, "statut": "fonctionnaire_etat",
-                "debut": 23, "liquidation": 64, "primes": 0.2},
-    ).json()
+def test_simulation_en_dictionnaire(contexte):
+    saisie = Saisie.depuis_requete(
+        {"naissance": "1975", "statut": "fonctionnaire_etat",
+         "debut": "23", "liquidation": "64", "primes": "0.2"}
+    )
+    donnees = contexte.simuler(saisie).dictionnaire()
     assert donnees["assure"]["annee_naissance"] == 1975
     scenarios = donnees["scenarios"]
     assert scenarios["actuel"]["pension_annuelle"] > 0
@@ -148,19 +137,14 @@ def test_api_simuler(client):
     assert donnees["fiabilite"]
 
 
-def test_api_refuse_une_saisie_invalide(client):
-    reponse = client.get("/api/simuler", params={"naissance": 1700})
-    assert reponse.status_code == 422
-    assert "erreur" in reponse.json()
-
-
-def test_api_refuse_un_statut_inconnu(client):
-    reponse = client.get(
-        "/api/simuler",
-        params={"naissance": 1975, "statut": "astronaute",
-                "debut": 23, "liquidation": 64},
+def test_statut_inconnu_est_refuse(contexte):
+    """La saisie est bien formée : c'est le catalogue des régimes qui tranche."""
+    saisie = Saisie.depuis_requete(
+        {"naissance": "1975", "statut": "astronaute",
+         "debut": "23", "liquidation": "64"}
     )
-    assert reponse.status_code == 422
+    with pytest.raises(ErreurSaisie):
+        contexte.simuler(saisie)
 
 
 # -- saisie ------------------------------------------------------------------
@@ -248,8 +232,8 @@ def test_franciser_les_libelles_du_moteur():
     )
 
 
-def test_l_echappement_protege_des_injections(client):
-    texte = client.get("/", params={"interruptions": "<script>alert(1)</script>"}).text
+def test_l_echappement_protege_des_injections(page):
+    texte = page("/", interruptions="<script>alert(1)</script>")
     assert "<script>alert(1)</script>" not in texte
     assert "&lt;script&gt;" in texte
 
@@ -310,19 +294,10 @@ def test_statuts(contexte):
     assert "salarie_prive_non_cadre" in codes
 
 
-# -- mode navigateur ---------------------------------------------------------
+# -- liens -------------------------------------------------------------------
 
 
-@pytest.fixture
-def mode_navigateur():
-    """Bascule le rendu en mode navigateur, et le remet en place ensuite."""
-    precedent = g.MODE
-    g.MODE = "navigateur"
-    yield
-    g.MODE = precedent
-
-
-def test_les_liens_passent_par_l_ancre_dans_le_navigateur(mode_navigateur, contexte):
+def test_les_liens_passent_par_l_ancre(contexte):
     """Sur GitHub Pages le site est servi dans un sous-chemin : pas de lien absolu."""
     _, corps = rendre(contexte, "/")
     entete = g.entete("/")
@@ -331,12 +306,12 @@ def test_les_liens_passent_par_l_ancre_dans_le_navigateur(mode_navigateur, conte
     assert 'action="#/"' in corps
 
 
-def test_pas_de_renvoi_vers_l_api_dans_le_navigateur(mode_navigateur, contexte):
+def test_aucun_renvoi_vers_un_service_qui_n_existe_pas(contexte):
     """Il n'y a pas de serveur : proposer une adresse d'API serait un lien mort."""
     _, corps = rendre(contexte, "/", {"naissance": "1960",
                                       "statut": "salarie_prive_non_cadre",
                                       "debut": "20", "liquidation": "62"})
-    assert "/api/simuler" not in corps
+    assert "/api/" not in corps
     assert "Les résultats complets en JSON" in corps
 
 

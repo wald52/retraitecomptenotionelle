@@ -17,7 +17,6 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
 import { Contexte, Saisie, rendre } from "../../moteur/js/pages.js";
-import * as gabarit from "../../moteur/js/gabarit.js";
 
 const RACINE = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -26,8 +25,6 @@ const lire = (chemin) => JSON.parse(readFileSync(join(RACINE, chemin), "utf8"));
 const paquet = lire("moteur/donnees.json");
 const temoinsSimulations = lire("tests/temoins/simulations.json");
 const temoinsPages = lire("tests/temoins/pages.json");
-
-gabarit.etat.mode = "navigateur";
 
 /**
  * Tolérance relative. Python et JavaScript s'appuient sur la libm de leur

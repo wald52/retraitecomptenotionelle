@@ -1,9 +1,9 @@
 """Contenu des pages : formulaire, résultats, cas types, méthode, données.
 
-Ce module ne dépend que de la bibliothèque standard et du moteur. Il est utilisé
-tel quel par le serveur FastAPI (:mod:`.application`), et sert de référence au
-portage JavaScript qui fait tourner le site (``moteur/js/pages.js``) : les deux
-rendus sont comparés caractère par caractère par ``tests/js/moteur.test.js``.
+Ce module ne dépend que de la bibliothèque standard et du moteur. Il sert de
+référence au portage JavaScript qui fait tourner le site
+(``moteur/js/pages.js``) : les deux rendus sont comparés caractère par caractère
+par ``tests/js/moteur.test.js``.
 """
 
 from __future__ import annotations
@@ -380,10 +380,9 @@ def rendre(contexte: Contexte, chemin: str,
            parametres: dict[str, str] | None = None) -> tuple[str, str]:
     """Contenu d'une page : ``(titre, corps HTML)``.
 
-    Point d'entrée unique du rendu. Le serveur l'enveloppe dans un document
-    complet, le navigateur en remplace le contenu de ``<main>``. Les erreurs de
-    saisie sont rendues dans la page, jamais levées : une adresse mal formée
-    doit afficher un message, pas une trace d'exécution.
+    Point d'entrée unique du rendu : le navigateur en remplace le contenu de
+    ``<main>``. Les erreurs de saisie sont rendues dans la page, jamais levées :
+    une adresse mal formée doit afficher un message, pas une trace d'exécution.
     """
     if chemin == "/cas-types":
         return TITRES[chemin], _cas_types(contexte)
@@ -656,7 +655,7 @@ def _resultats(contexte: Contexte, saisie: Saisie) -> str:
 {_decomposition(contexte, saisie, comparaison)}
 {_contribution_employeur(comparaison)}
 {_cascade(comparaison, saisie)}
-{_detail(contexte, comparaison, saisie)}
+{_detail(contexte, comparaison)}
 """
 
 
@@ -895,7 +894,7 @@ dispositif transitoire.</p>
 """
 
 
-def _detail(contexte: Contexte, comparaison: Comparaison, saisie: Saisie) -> str:
+def _detail(contexte: Contexte, comparaison: Comparaison) -> str:
     retro = comparaison.notionnel_retroactif
     catalogue = contexte.simulateur().catalogue
     pensions = comparaison.actuel.pensions_par_regime
@@ -966,11 +965,6 @@ def _detail(contexte: Contexte, comparaison: Comparaison, saisie: Saisie) -> str
         ["", "nombre"],
     )
 
-    api = "" if g.dans_le_navigateur() else (
-        f'Ces mêmes résultats sur l\'API : '
-        f'<a href="/api/simuler?{escape(saisie.requete())}">/api/simuler</a>. '
-    )
-
     return f"""
 <h2>Le détail du calcul</h2>
 <h3>Scénario 1 — de quoi votre pension actuelle est faite</h3>
@@ -985,7 +979,7 @@ scénario 1.</p>
   <summary>Les résultats complets en JSON</summary>
   <pre class="json">{escape(json.dumps(comparaison.dictionnaire(), ensure_ascii=False, indent=2))}</pre>
 </details>
-<p class="discret">{api}L'adresse de cette page contient tous les paramètres :
+<p class="discret">L'adresse de cette page contient tous les paramètres :
 elle peut être citée ou partagée telle quelle.</p>
 """
 

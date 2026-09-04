@@ -137,19 +137,19 @@ en un seul endroit. Le test `test_le_paquet_est_a_jour` échoue si l'un des deux
 
 </details>
 
-## En local, avec un serveur
+## Ouvrir le site en local
 
-Utile pour développer, ou pour disposer de l'API JSON (`/api/simuler`,
-`/api/cas-types`, `/api/statuts`, documentation OpenAPI sur `/api/docs`).
+Le site est un ensemble de fichiers statiques, servis depuis la racine du dépôt.
+N'importe quel serveur de fichiers suffit — il n'y a pas de serveur de calcul,
+et rien à construire au préalable :
 
 ```bash
-pip install -e ".[web]"
-retraite-notionnelle web            # puis http://127.0.0.1:8000
+python -m http.server 8000        # puis http://127.0.0.1:8000
 ```
 
 ## En ligne de commande
 
-Sans l'interface web, la seule dépendance est PyYAML.
+La seule dépendance est PyYAML.
 
 ```bash
 pip install -e .
@@ -588,7 +588,6 @@ src/retraite_notionnelle/
   web/
     pages.py                    contenu des pages — sans autre dépendance que le moteur
     gabarit.py                  rendu HTML et feuille de style
-    application.py              serveur FastAPI et API JSON (dépendances optionnelles)
 
 index.html                      le site : charge les données, puis le moteur JavaScript
 .nojekyll                       servir les fichiers sans transformation
@@ -642,14 +641,12 @@ sous « Options de modélisation ».
 python -m pytest tests
 ```
 
-249 tests couvrant le chargement et la fiabilité des données, la règle de
+282 tests couvrant le chargement et la fiabilité des données, la règle de
 certification, la calibration des tables de mortalité et sa concordance avec les
 tables observées, les propriétés du moteur
 (monotonie du diviseur, cliquet de l'âge de référence, règles de fusion), le
-comportement des scénarios, le rendu des pages dans les deux modes et la
-fraîcheur de ce que charge le site. Aucun test n'accède au réseau : les
-sources sont simulées. Les tests du serveur sont ignorés si ses dépendances
-optionnelles ne sont pas installées.
+comportement des scénarios, le rendu des pages et la fraîcheur de ce que charge
+le site. Aucun test n'accède au réseau : les sources sont simulées.
 
 Deux d'entre eux lancent `node` pour rejouer le calcul côté JavaScript — les
 cas-témoins figés, puis des carrières tirées au hasard ; ils sont ignorés si

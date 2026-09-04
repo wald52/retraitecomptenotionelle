@@ -30,12 +30,7 @@ from pathlib import Path
 RACINE = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(RACINE / "src"))
 
-from retraite_notionnelle.web import gabarit as g  # noqa: E402
 from retraite_notionnelle.web.pages import Contexte, Saisie, rendre  # noqa: E402
-
-# Les témoins servent à contrôler le site, qui tourne entièrement dans le
-# navigateur : c'est donc ce mode-là qu'on fige, liens en ancre compris.
-g.MODE = "navigateur"
 
 DOSSIER = RACINE / "tests" / "temoins"
 SIMULATIONS = DOSSIER / "simulations.json"

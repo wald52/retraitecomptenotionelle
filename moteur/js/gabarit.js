@@ -18,13 +18,6 @@ export const DEPOT = "https://github.com/wald52/retraitecomptenotionelle";
 /** Espace insécable fin, séparateur de milliers à la française. */
 const FINE = "\u202f";
 
-/**
- * « serveur » : une adresse par page, servie par FastAPI. « navigateur » : tout
- * tourne dans le navigateur et la navigation se fait par l'ancre de l'adresse.
- * Le rendu est identique ; seuls les liens changent.
- */
-export const etat = { mode: "navigateur" };
-
 export const LIENS = [
   ["/", "Simuler"],
   ["/cas-types", "Cas types"],
@@ -32,16 +25,16 @@ export const LIENS = [
   ["/donnees", "Données"],
 ];
 
-export function dansLeNavigateur() {
-  return etat.mode === "navigateur";
-}
-
-/** Adresse d'une page interne, selon le mode de service. */
+/**
+ * Adresse d'une page interne.
+ *
+ * Le site tient dans une seule page : la navigation passe par l'ancre de
+ * l'adresse (`#/cas-types`). L'ancre de section, elle, ne peut pas s'y ajouter
+ * — la place est prise — et n'est acceptée que pour que les appels disent vers
+ * quoi ils pointent.
+ */
 export function lien(chemin, ancre = "") {
-  if (dansLeNavigateur()) {
-    return `#${chemin}`;
-  }
-  return chemin + (ancre ? `#${ancre}` : "");
+  return `#${chemin}`;
 }
 
 export function navigation(cheminActif = "/") {
