@@ -121,7 +121,7 @@ def _cas() -> list[dict]:
     # Le lissage est orthogonal à la règle : on fige les deux fenêtres offertes
     # sur le défaut, et la règle italienne — PIB nominal lissé sur cinq ans —
     # qui est la raison d'être du paramètre.
-    for fenetre in ("3", "5"):
+    for fenetre in ("2", "5", "17"):
         cas.append((f"lissage_{fenetre}", {"lissage": fenetre}))
     cas.append(("lissage_regle_italienne",
                 {"indexation": "pib_nominal", "lissage": "5"}))

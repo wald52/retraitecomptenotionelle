@@ -368,7 +368,8 @@ valeur ajoutée se déplace vers les revenus non salariaux.
 ### 1 quater. Le lissage pluriannuel, qui n'est pas une règle
 
 `--lissage N` applique une moyenne glissante de N années au taux que la règle
-produit — **n'importe laquelle des neuf**. Ce n'est donc pas une dixième règle
+produit — **n'importe laquelle des neuf**, et N est libre (1 à 30 ans, dans le
+formulaire comme en ligne de commande). Ce n'est donc pas une dixième règle
 mais un réglage orthogonal, et il répond à une question que le choix de la règle
 ne pose pas : la **loterie de cohorte**.
 

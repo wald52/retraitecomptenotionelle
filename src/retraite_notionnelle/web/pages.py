@@ -49,13 +49,15 @@ INDEXATIONS = [
     ("salaires", "Salaire moyen"),
 ]
 
-#: Fenêtres de lissage proposées. Le lissage s'applique au taux que la règle
-#: produit, quelle que soit la règle : ce qu'il vise est la loterie de cohorte.
-LISSAGES = [
-    ("1", "Aucun — le taux de l'année"),
-    ("3", "Moyenne glissante sur 3 ans"),
-    ("5", "Moyenne glissante sur 5 ans (comme l'Italie)"),
-]
+#: Fenêtre de lissage maximale acceptée par le formulaire, en années. Le
+#: lissage s'applique au taux que la règle produit, quelle que soit la règle :
+#: ce qu'il vise est la loterie de cohorte. La fenêtre se saisit librement — 1
+#: pour aucun lissage, 5 pour la règle italienne, ce qu'on veut entre les deux
+#: et au-delà. La borne n'est pas une limite du moteur mais un garde-fou de
+#: sens : au-delà d'une trentaine d'années, la moyenne couvre presque toute une
+#: carrière, tous les millésimes reçoivent à peu près le même taux, et ce n'est
+#: plus un lissage mais un taux fixe reconstitué.
+LISSAGE_MAXIMUM = 30
 
 AGES_REFERENCE = [
     ("cliquet_legal", "Cliquet légal (défaut)"),
@@ -146,7 +148,7 @@ class Saisie:
             enfants=_entier(parametres, "enfants", defauts.enfants),
             interruptions=(parametres.get("interruptions") or "").strip(),
             indexation=_parmi(parametres, "indexation", INDEXATIONS, defauts.indexation),
-            lissage=int(_parmi(parametres, "lissage", LISSAGES, str(defauts.lissage))),
+            lissage=_entier(parametres, "lissage", defauts.lissage),
             age_reference=_parmi(
                 parametres, "age_reference", AGES_REFERENCE, defauts.age_reference
             ),
@@ -189,6 +191,11 @@ class Saisie:
             )
         if not 0 <= self.primes <= 0.6:
             raise ErreurSaisie("Part de primes attendue entre 0 et 0,6.")
+        if not 1 <= self.lissage <= LISSAGE_MAXIMUM:
+            raise ErreurSaisie(
+                f"Fenêtre de lissage attendue entre 1 et {LISSAGE_MAXIMUM} ans "
+                "(1 = aucun lissage)."
+            )
 
     @property
     def liquidation_mois(self) -> int:
@@ -475,8 +482,10 @@ def _formulaire(saisie: Saisie, contexte: Contexte) -> str:
                 "« 1995:1999:education_enfant », séparées par des virgules"),
         g.liste("indexation", "Règle d'indexation", INDEXATIONS, saisie.indexation,
                 "revalorisation des comptes et des pensions"),
-        g.liste("lissage", "Lissage de l'indexation", LISSAGES, str(saisie.lissage),
-                "moyenne glissante appliquée à la règle choisie"),
+        g.champ("lissage", "Lissage de l'indexation", saisie.lissage,
+                "moyenne glissante sur la règle choisie, en années : "
+                "1 = aucun, 5 = comme l'Italie",
+                type_="number", min="1", max=str(LISSAGE_MAXIMUM), step="1"),
         g.liste("age_reference", "Âge de référence", AGES_REFERENCE, saisie.age_reference),
         g.liste("table", "Table de conversion", TABLES, saisie.table),
         g.liste("part_cotisation", "Part de la cotisation portée au compte",

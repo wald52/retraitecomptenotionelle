@@ -274,6 +274,12 @@ L'ordre des opérations compte, et il est fixé dans `Indexation.taux` :
 3. le **plancher**, s'il y en a un, s'applique au résultat — un plancher qu'une
    moyenne pourrait repasser sous le seuil ne serait pas un plancher.
 
+La fenêtre se saisit librement, en ligne de commande comme dans le formulaire :
+n'importe quel entier de 1 à 30 ans. La borne haute n'est pas une limite du
+moteur mais un garde-fou de sens — au-delà d'une trentaine d'années la moyenne
+couvre presque toute une carrière, tous les millésimes reçoivent à peu près le
+même taux, et ce n'est plus un lissage mais un taux fixe reconstitué.
+
 La fenêtre est tronquée au début des séries plutôt qu'indisponible : en deçà de
 la première année publiée, `SerieAnnuelle` répète sa première valeur, et une
 moyenne glissante qui l'avalerait ferait passer une extrapolation pour une

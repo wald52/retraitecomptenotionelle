@@ -22,7 +22,7 @@ from retraite_notionnelle.donnees.chargement import DonneeInsuffisante
 from retraite_notionnelle.web.pages import (
     AGES_REFERENCE,
     INDEXATIONS,
-    LISSAGES,
+    LISSAGE_MAXIMUM,
     PROFILS,
     PROJECTIONS,
     TABLES,
@@ -189,6 +189,23 @@ def test_valeur_non_numerique_est_refusee_proprement():
 
 def test_virgule_decimale_acceptee():
     assert Saisie.depuis_requete({"salaire": "1,5"}).salaire == 1.5
+
+
+def test_la_fenetre_de_lissage_se_saisit_librement_mais_reste_bornee():
+    """Fenêtre libre, et non plus un choix entre trois valeurs.
+
+    La borne haute est un garde-fou de sens, pas une limite du moteur : au-delà
+    d'une trentaine d'années la moyenne couvre presque toute une carrière.
+    """
+    for annees in (1, 2, 7, 17, LISSAGE_MAXIMUM):
+        assert Saisie.depuis_requete({"lissage": str(annees)}).lissage == annees
+    assert Saisie.depuis_requete({}).lissage == 1
+
+    for refusee in ("0", "-3", str(LISSAGE_MAXIMUM + 1)):
+        with pytest.raises(ErreurSaisie):
+            Saisie.depuis_requete({"lissage": refusee})
+    with pytest.raises(ErreurSaisie):
+        Saisie.depuis_requete({"lissage": "au jugé"})
 
 
 def test_option_inconnue_retombe_sur_le_defaut():
@@ -466,7 +483,9 @@ def test_le_portage_javascript_concorde_sur_des_carrieres_tirees_au_hasard():
             "primes": f"{alea.uniform(0, 0.6):.3f}",
             "enfants": str(alea.randint(0, 6)),
             "indexation": alea.choice([code for code, _ in INDEXATIONS]),
-            "lissage": alea.choice([code for code, _ in LISSAGES]),
+            # Fenêtre quelconque, et non plus l'une des trois autrefois
+            # proposées : c'est la saisie libre qu'il s'agit de contrôler.
+            "lissage": str(alea.randint(1, LISSAGE_MAXIMUM)),
             "age_reference": alea.choice([code for code, _ in AGES_REFERENCE]),
             "table": alea.choice([code for code, _ in TABLES]),
             "projection": alea.choice([code for code, _ in PROJECTIONS]),

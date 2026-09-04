@@ -37,13 +37,12 @@ export const INDEXATIONS = [
   ["salaires", "Salaire moyen"],
 ];
 
-// Le lissage s'applique au taux que la règle produit, quelle que soit la règle :
-// ce qu'il vise est la loterie de cohorte.
-export const LISSAGES = [
-  ["1", "Aucun — le taux de l'année"],
-  ["3", "Moyenne glissante sur 3 ans"],
-  ["5", "Moyenne glissante sur 5 ans (comme l'Italie)"],
-];
+// Fenêtre de lissage maximale acceptée par le formulaire, en années. La fenêtre
+// se saisit librement — 1 pour aucun lissage, 5 pour la règle italienne. La
+// borne est un garde-fou de sens, pas une limite du moteur : au-delà d'une
+// trentaine d'années la moyenne couvre presque toute une carrière, et ce n'est
+// plus un lissage mais un taux fixe reconstitué.
+export const LISSAGE_MAXIMUM = 30;
 
 export const AGES_REFERENCE = [
   ["cliquet_legal", "Cliquet légal (défaut)"],
@@ -135,7 +134,7 @@ export class Saisie {
       enfants: entier(parametres, "enfants", DEFAUTS.enfants),
       interruptions: (parametres.interruptions || "").trim(),
       indexation: parmi(parametres, "indexation", INDEXATIONS, DEFAUTS.indexation),
-      lissage: Number(parmi(parametres, "lissage", LISSAGES, String(DEFAUTS.lissage))),
+      lissage: entier(parametres, "lissage", DEFAUTS.lissage),
       age_reference: parmi(parametres, "age_reference", AGES_REFERENCE, DEFAUTS.age_reference),
       table: parmi(parametres, "table", TABLES, DEFAUTS.table),
       conversion_acquis: parmi(
@@ -182,6 +181,12 @@ export class Saisie {
     }
     if (!(this.primes >= 0 && this.primes <= 0.6)) {
       throw new ErreurSaisie("Part de primes attendue entre 0 et 0,6.");
+    }
+    if (!(this.lissage >= 1 && this.lissage <= LISSAGE_MAXIMUM)) {
+      throw new ErreurSaisie(
+        `Fenêtre de lissage attendue entre 1 et ${LISSAGE_MAXIMUM} ans `
+        + "(1 = aucun lissage).",
+      );
     }
   }
 
@@ -516,8 +521,10 @@ function formulaire(saisie, contexte) {
       "« 1995:1999:education_enfant », séparées par des virgules"),
     g.liste("indexation", "Règle d'indexation", INDEXATIONS, saisie.indexation,
       "revalorisation des comptes et des pensions"),
-    g.liste("lissage", "Lissage de l'indexation", LISSAGES, String(saisie.lissage),
-      "moyenne glissante appliquée à la règle choisie"),
+    g.champ("lissage", "Lissage de l'indexation", saisie.lissage,
+      "moyenne glissante sur la règle choisie, en années : 1 = aucun, "
+      + "5 = comme l'Italie",
+      "number", { min: "1", max: String(LISSAGE_MAXIMUM), step: "1" }),
     g.liste("age_reference", "Âge de référence", AGES_REFERENCE, saisie.age_reference),
     g.liste("table", "Table de conversion", TABLES, saisie.table),
     g.liste("part_cotisation", "Part de la cotisation portée au compte",
