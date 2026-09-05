@@ -549,6 +549,7 @@ COR pour ce qu'il **décide**.
 | Inflation, salaire moyen, masse salariale, productivité | 1950-2025 | INSEE, Banque de données macroéconomiques |
 | Espérance de vie à 0 et 60 ans | 1946-2025 | INSEE |
 | Espérance de vie à 65 ans | 1960-2024 | OCDE (l'INSEE ne la publie pas) |
+| Espérances de vie projetées | 2026-2125 | INSEE, projections de population 2026 (dérivées de ses quotients par âge) |
 | Quotients de mortalité par âge | 1986-2024 | Eurostat |
 | Quotients de mortalité par âge | 1899-1985, et 95-104 ans jusqu'en 1997 | INED, tables de Vallin et Meslé |
 | Plafond de la Sécurité sociale | 2002-2025 | INSEE |

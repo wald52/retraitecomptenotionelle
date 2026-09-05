@@ -240,6 +240,7 @@ def test_journal_de_certification_decrit_les_series_certifiees():
         "plafond_ancien": "macro/plafond_securite_sociale.csv",
         "esperances_vie": "mortalite/esperances_vie.csv",
         "esperance_65_derivee": "mortalite/esperances_vie.csv",
+        "esperances_projetees": "mortalite/esperances_vie.csv",
         "minimum_contributif": "legislation/minimum_contributif.csv",
         "age_ouverture_requis": "legislation/age_ouverture_requis.csv",
         "duree_assurance_requise": "legislation/duree_assurance_requise.csv",

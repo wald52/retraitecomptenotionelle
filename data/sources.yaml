@@ -229,12 +229,28 @@ institutions:
           ni Melodi ne l'exposent. Pour 1986-2024, la table vient d'Eurostat
           (eurostat_mlifetable).
 
-      - id: insee_projections
-        titre: Projections de population 2021-2070
-        url: https://www.insee.fr/fr/statistiques/6652873
+      - id: insee_projections_mortalite
+        titre: >-
+          Projections de population 2026 — hypothèses de mortalité jusqu'en 2125
+        url: https://www.insee.fr/fr/statistiques/8990899
         acces: fichier
-        statut_integration: saisi
-        cible: data/reference/mortalite/gains_esperance_vie.csv
+        statut_integration: automatise
+        cible: data/reference/mortalite/esperances_vie.csv
+        recuperation: scripts/fetch/insee_projections_mortalite.py
+        millesime: 2026
+        note: >-
+          Quotients de mortalité par âge (0 à 120 ans) et par année (2023 à
+          2125), pour les hypothèses d'espérance de vie centrale, basse et
+          haute. Le dépôt reprend la centrale et en DÉRIVE e0, e60 et e65 de
+          2026 à 2125 — dont e65, que l'INSEE ne publie jamais. Les années 2023
+          à 2025 sont ignorées : elles sont observées, et l'observé prime sur le
+          projeté même quand les deux viennent du même producteur. La somme des
+          survies se fait sans le demi-an usuel, ce classeur indexant ses
+          quotients par âge atteint dans l'année ; le récupérateur contrôle la
+          convention contre l'espérance de vie à la naissance que l'INSEE
+          publie pour 2070 (89,5 et 86,7 ans) et échoue si elle casse. Remplace
+          l'exercice 2021-2070, dont six valeurs étaient saisies aux années
+          rondes et une, 2080, dépassait l'horizon.
 
   cor:
     nom: Conseil d'orientation des retraites

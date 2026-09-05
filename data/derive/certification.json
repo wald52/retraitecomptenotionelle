@@ -1,5 +1,5 @@
 {
- "certifie_le": "2026-09-04",
+ "certifie_le": "2026-09-05",
  "series": {
   "age_ouverture_requis": {
    "ajoutees": 0,
@@ -90,6 +90,15 @@
    "niveau": "haute",
    "source": "dérivée des quotients INED de Vallin et Meslé",
    "valeurs": 28
+  },
+  "esperances_projetees": {
+   "ajoutees": 564,
+   "corrigees": 36,
+   "empreinte": "78b7c81e9c34c206",
+   "identiques": 0,
+   "niveau": "projetee",
+   "source": "dérivée des quotients projetés de l'INSEE, projections 2026",
+   "valeurs": 600
   },
   "esperances_vie": {
    "ajoutees": 0,

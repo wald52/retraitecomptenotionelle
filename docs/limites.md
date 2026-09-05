@@ -333,6 +333,7 @@ La page **Données** du site affiche l'état exact. En résumé :
 | Espérance de vie à 0 et 60 ans | 1946-2025 | **certifiée** | INSEE BDM, quatre idbanks, annuel par sexe |
 | Espérance de vie à 65 ans | 1960-2024 | **certifiée** | OCDE `DSD_HEALTH_STAT@DF_LE` |
 | Espérance de vie à 65 ans | 1946-1959 | haute | **dérivée** des quotients INED, recalculée à chaque exécution |
+| Espérances de vie e0, e60, e65 | 2026-2125 | projetée | **dérivée** des quotients projetés par l'INSEE, projections 2026 |
 | Quotients de mortalité par âge | 1986-2024 | **certifiée** | Eurostat `demo_mlifetable`, âges 0-94 |
 | Quotients de mortalité par âge | 1899-1985 | **certifiée** | INED, tables de Vallin et Meslé, âges 0-104 |
 | Quotients de mortalité par âge | 1986-1997, 95 à 104 ans | **certifiée** | INED, là où Eurostat s'arrête |
@@ -384,6 +385,7 @@ python scripts/fetch/dila_legi_minimum_contributif.py  # minimum contributif et 
 python scripts/fetch/dila_legi_parametres_retraite.py   # âges, durées, décotes par génération (lent aussi)
 python scripts/fetch/openfisca_point_indice.py  # point d'indice et barème du minimum garanti
 python scripts/fetch/ined_vallin_mesle.py      # quotients de mortalité d'avant 1986
+python scripts/fetch/insee_projections_mortalite.py  # espérances de vie projetées, jusqu'en 2125
 python scripts/fetch/eurostat_hicp.py          # contrôle croisé de l'inflation
 
 python scripts/verifier_donnees.py             # confronte, sans rien écrire
@@ -542,6 +544,34 @@ plus volontiers.
   quatre valeurs saisies s'en écartaient — 1946 pour les deux sexes, d'un
   demi-an chez les hommes — et l'interpolation effaçait les creux réels de 1949
   et de 1951, deux années de surmortalité.
+
+* *Espérances de vie projetées* — **dérivées, et poussées jusqu'en 2125.**
+  Elles étaient saisies à la main, aux six années rondes de 2030 à 2080, depuis
+  les projections de population 2021-2070 — dont 2080 dépassait l'horizon tout
+  en s'en réclamant. Au-delà, la série était **gelée** : l'espérance de vie
+  cessait de progresser vingt ans avant la fin de la projection, dans un modèle
+  qui liquide jusqu'en 2100.
+
+  Les projections de population **2026** de l'INSEE publient les quotients de
+  mortalité par âge et par année, de 0 à 120 ans et jusqu'en 2125. Le dépôt en
+  dérive e0, e60 et e65 année par année, par la méthode qui sert déjà aux années
+  d'avant 1960 — y compris e65, que l'INSEE ne publie jamais. Plus
+  d'interpolation entre années rondes, plus d'extrapolation muette, plus de gel.
+
+  **Le contrôle qui autorise la méthode porte sur la convention d'âge.** Ce
+  classeur indexe ses quotients par âge atteint dans l'année, non par âge exact :
+  le demi-an que la formule usuelle ajoute y est déjà compris. Deux mesures le
+  établissent, et le récupérateur les refait à chaque exécution — la somme des
+  survies retrouve l'espérance de vie à la naissance que l'INSEE publie pour
+  2070, 89,5 ans et 86,7 ans, au centième ; et la série projetée rejoint
+  l'observée sans marche, 85,90 an certifié en 2025 contre 85,93 dérivé en 2026.
+
+  **Ce que le nouveau millésime déplace.** L'INSEE révise l'espérance de vie à
+  la baisse : le diviseur de conversion recule de 0,6 % en médiane sur les cas
+  témoins, jusqu'à 4,3 % pour la génération 2000, et les pensions notionnelles
+  montent d'autant — jusqu'à +4,5 %. Le scénario « système actuel » ne bouge
+  pas d'un centime : il n'utilise pas de table de mortalité, et c'est un
+  contrôle de plus.
 
 * *Quotients de mortalité au-delà de 94 ans* — **complétés jusqu'en 1997, et
   mesurés au-delà.** Eurostat s'arrête à 94 ans et ses classes ouvertes (85 et

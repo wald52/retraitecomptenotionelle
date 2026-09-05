@@ -368,6 +368,37 @@ def source_quotients() -> dict[tuple, float]:
     }
 
 
+def source_esperances_projetees() -> dict[tuple, float]:
+    """Espérances de vie d'APRÈS 2025, dérivées des quotients projetés de l'INSEE.
+
+    Ces années étaient saisies à la main aux seules années rondes, depuis un
+    exercice de projection périmé, jusqu'à une année — 2080 — qui dépassait
+    l'horizon de la source dont elle se réclamait ; au-delà, la série était
+    gelée, ce qui revenait à supposer l'espérance de vie arrêtée vingt ans avant
+    la fin de la projection.
+
+    Les projections de population 2026 de l'INSEE publient les quotients de
+    mortalité par âge et par année jusqu'en 2125 : on en dérive e0, e60 et e65
+    année par année, par la méthode qui sert déjà aux années d'avant 1960. Plus
+    d'interpolation entre années rondes, plus d'extrapolation muette, plus de
+    gel — la projection du modèle s'arrête en 2100, la source va vingt-cinq ans
+    plus loin.
+
+    Niveau ``projetee``, qui vaut ``estimee`` dans le modèle : la valeur vient
+    du producteur, mais elle décrit un avenir. Une projection ne se fait jamais
+    passer pour une observation, fût-elle publiée par l'INSEE.
+    """
+    serie = _serie_json("insee_projections_mortalite.json",
+                        "scripts/fetch/insee_projections_mortalite.py")
+    return {
+        tuple(cle.split("|")): valeur
+        for cle, valeur in sorted(serie.items(),
+                                  key=lambda kv: (int(kv[0].split("|")[0]),
+                                                  kv[0].split("|")[1],
+                                                  kv[0].split("|")[2]))
+    }
+
+
 def source_quotients_anciens() -> dict[tuple, float]:
     """Quotients de mortalité par âge d'AVANT 1986, reconstitués par l'INED.
 
@@ -1283,6 +1314,18 @@ CERTIFICATIONS = (
         decimales=4,
         tolerance=5e-5,
         niveau="haute",
+    ),
+    Certification(
+        nom="esperances_projetees",
+        chemin=REFERENCE / "mortalite" / "esperances_vie.csv",
+        cles=("annee", "sexe", "mesure"),
+        colonne="valeur",
+        source=source_esperances_projetees,
+        origine="dérivée des quotients projetés de l'INSEE, projections 2026",
+        decimales=2,
+        tolerance=0.005,
+        unite=" ans",
+        niveau="projetee",
     ),
     Certification(
         nom="esperance_65_derivee",

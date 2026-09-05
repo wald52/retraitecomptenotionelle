@@ -1059,6 +1059,21 @@ Ce partage donne la bonne mortalité aux âges qui pilotent le diviseur sans
 prétendre décrire la mortalité aux âges jeunes, qui n'entrent pas dans le
 calcul.
 
+**Les années projetées viennent de l'INSEE, année par année, jusqu'en 2125.**
+Ce sont les projections de population **2026**, qui publient les quotients de
+mortalité par âge (0 à 120 ans) et par année : le dépôt en dérive e0, e60 et
+e65, y compris donc l'espérance à 65 ans que l'INSEE ne publie jamais, et la
+calibration s'appuie dessus comme sur n'importe quelle autre année. Elles
+étaient auparavant saisies à six années rondes depuis un exercice antérieur,
+interpolées entre elles et gelées après 2080 — un gel qui arrêtait l'espérance
+de vie vingt ans avant la fin de la projection.
+
+La somme des survies se fait **sans le demi-an usuel** : ce classeur indexe ses
+quotients par âge atteint dans l'année, qui le comprend déjà. Deux contrôles
+l'établissent et le récupérateur les refait à chaque exécution — l'espérance de
+vie à la naissance publiée par l'INSEE pour 2070 est retrouvée au centième
+(89,5 et 86,7 ans), et la série projetée rejoint l'observée sans marche.
+
 ### Unité de compte
 
 Tous les montants sont produits en euros courants de l'année de liquidation
