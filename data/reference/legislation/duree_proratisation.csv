@@ -37,18 +37,26 @@
 # la fiche du régime qui la porte, et le drapeau `duree_requise_par_generation`
 # qui dit quand la table prend le relais.
 #
-# D'OÙ VIENNENT CES VALEURS. De l'article R. 351-6 du code de la sécurité
-# sociale, et de la fiche « Durée d'assurance maximum » de l'Assurance retraite,
-# qui donne la même échelle génération par génération. Le contrôle indépendant
-# est venu d'OpenFisca-France-Pension, dont le fichier `prorat.yaml` porte cette
-# table sous le nom explicite de « nombre de trimestres maximal pris en compte
-# pour la proratisation », séparé de `trimtp.yaml` qui porte la durée cible du
-# taux plein. Niveau `haute` : transcription d'un texte, non recontrôlée
-# automatiquement contre la base LEGI.
+# D'OÙ VIENNENT CES VALEURS. Du II de l'article R. 351-6 du code de la sécurité
+# sociale, LU dans la base LEGI de la DILA par
+# `scripts/fetch/dila_legi_parametres_retraite.py` : « 152 trimestres pour les
+# assurés nés en 1944 ». Niveau `certifiee`, et les cinq valeurs saisies s'y
+# sont retrouvées à l'identique. Elles étaient déjà recoupées à la fiche
+# « Durée d'assurance maximum » de l'Assurance retraite et au fichier
+# `prorat.yaml` d'OpenFisca-France-Pension, qui porte cette table sous le nom
+# explicite de « nombre de trimestres maximal pris en compte pour la
+# proratisation », séparé de `trimtp.yaml` qui porte la durée cible du taux
+# plein.
+#
+# LA LIGNE 1948 N'EST PAS DANS LE TEXTE. L'article s'arrête à la génération
+# 1947 et renvoie, pour celles d'après, à la durée du troisième alinéa de
+# l'article L. 351-1 — c'est-à-dire à la durée requise, que porte
+# `duree_assurance_requise.csv`. Cette dernière ligne est donc la jonction
+# entre les deux tables, et reste au niveau `haute` : aucun article ne l'écrit.
 generation,trimestres,fiabilite
-1900,150,haute
-1944,152,haute
-1945,154,haute
-1946,156,haute
-1947,158,haute
+1900,150,certifiee
+1944,152,certifiee
+1945,154,certifiee
+1946,156,certifiee
+1947,158,certifiee
 1948,160,haute

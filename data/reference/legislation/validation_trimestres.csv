@@ -16,6 +16,14 @@
 #
 # Le plafond de quatre trimestres par année civile n'a jamais varié : une
 # année ne peut pas en valider davantage, quel que soit le revenu.
+#
+# D'OÙ VIENNENT CES VALEURS. De l'article R. 351-9 du code de la sécurité
+# sociale, LU dans la base LEGI de la DILA par
+# `scripts/fetch/dila_legi_parametres_retraite.py` : « Pour la période comprise
+# entre le 1er janvier 1972 et le 31 décembre 2013 […] calculé sur la base de
+# 200 heures », puis « Pour la période postérieure au 31 décembre 2013 […] sur
+# la base de 150 heures ». Niveau `certifiee` : les deux valeurs saisies s'y
+# sont retrouvées, et l'année d'effet avec elles.
 annee,heures,fiabilite
-1972,200,haute
-2014,150,haute
+1972,200,certifiee
+2014,150,certifiee

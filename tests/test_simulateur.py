@@ -1295,6 +1295,46 @@ def test_le_producteur_prime_sur_la_transcription(simulateur):
     assert Fiabilite.depuis_texte("certifiee") > Fiabilite.depuis_texte("haute")
 
 
+def test_les_baremes_d_avant_la_fusion_viennent_de_la_federation(simulateur):
+    """L'Agirc, l'Arrco et l'UNIRS sont lus dans la compilation Agirc-Arrco.
+
+    Ces barèmes pèsent, dans la pension d'un salarié du privé, plus lourd que
+    tous les autres réunis, et ils venaient d'une transcription. La fédération
+    publie les siens depuis 1947 : ce qu'elle couvre est certifié.
+
+    Les lignes `arrco` d'avant 1999 font exception, et c'est voulu : leur
+    VALEUR est celle de l'UNIRS, certifiée sous ce nom, mais la substitution
+    d'une caisse au régime est une décision du dépôt, que nulle source ne
+    porte. Elles restent donc au niveau « moyenne », à la valeur près, qui doit
+    être exactement celle du producteur.
+    """
+    import csv
+
+    chemin = (simulateur.parametres.racine_donnees / "reference" / "regimes"
+              / "valeurs_point.csv")
+    with chemin.open(encoding="utf-8") as flux:
+        lignes = [l for l in csv.DictReader(
+            x for x in flux if not x.lstrip().startswith("#"))]
+    table = {(l["regime"], int(l["annee"]), l["mesure"]): l for l in lignes}
+
+    for cle in (("agirc", 1947, "valeur_service"), ("agirc", 2018, "valeur_service"),
+                ("arrco", 1999, "salaire_reference"), ("unirs", 1961, "valeur_service"),
+                ("unirs", 1998, "salaire_reference")):
+        assert table[cle]["fiabilite"] == "certifiee", cle
+
+    for annee in (1961, 1998):
+        for mesure in ("valeur_service", "salaire_reference"):
+            substituee = table[("arrco", annee, mesure)]
+            assert substituee["fiabilite"] == "moyenne"
+            assert substituee["valeur"] == table[("unirs", annee, mesure)]["valeur"]
+
+    # 26,00 anciens francs de 1947, à la parité irrévocable : la conversion est
+    # exacte, et c'est elle qui distingue la lecture du producteur de l'arrondi
+    # à quatre décimales que portait la transcription.
+    assert float(table[("agirc", 1947, "salaire_reference")]["valeur"]) == pytest.approx(
+        0.26 / 6.55957, abs=5e-7)
+
+
 def test_valeurs_du_point_des_avocats_sont_sourcees(simulateur):
     """Les barèmes de la CNBF, seule source qui porte la valeur du point des avocats.
 

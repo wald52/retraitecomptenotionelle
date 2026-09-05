@@ -536,7 +536,8 @@ institutions:
           (openfisca_points), reprise au niveau `haute`.
 
       - id: agirc_arrco_valeurs_point
-        titre: Valeurs de service et d'achat du point, 2019-2026
+        titre: Valeurs de service et d'achat du point — régime unifié 2019-2026,
+          Agirc 1947-2018, Arrco 1999-2018, UNIRS 1961-1998
         url: https://www.agirc-arrco.fr/storage/2024/10/Compilation_valeurs_de_point_novembre_2025.pdf
         acces: document
         statut_integration: automatise
@@ -564,9 +565,25 @@ institutions:
           1er novembre, et la règle du dépôt retient celle du 31 décembre :
           celle de 2026 est donc reconduite au niveau `haute`, la décision de
           novembre pouvant encore la déplacer.
-          Périmètre : le régime unifié depuis 2019. Les barèmes de l'Agirc et de
-          l'Arrco d'avant la fusion figurent dans le même document sous une
-          présentation différente, et restent transcrits d'OpenFisca.
+          PÉRIMÈTRE, ÉLARGI AUX TABLES D'AVANT LA FUSION. Cette note disait que
+          les barèmes de l'Agirc et de l'Arrco d'avant 2019 « figurent dans le
+          même document sous une présentation différente, et restent transcrits
+          d'OpenFisca ». La présentation diffère en effet — une ligne par année,
+          une ou deux valeurs de point selon que le barème a bougé en cours
+          d'année, des francs jusqu'en 2001 et des anciens francs jusqu'en
+          1959 — mais ce n'est pas une raison de préférer une transcription au
+          producteur. Sont donc lues aussi : l'Agirc de 1947 à 2018, l'Arrco de
+          1999 à 2018, et l'UNIRS de 1961 à 1998, la caisse dont le barème tient
+          lieu de point Arrco avant l'unification. Ces 260 valeurs confirment la
+          transcription à 5 · 10⁻⁵ € près, l'écart tenant à l'arrondi de la
+          conversion en euros. Deux contrôles autorisent la lecture, tous deux
+          fondés sur ce que le document publie en regard de chaque valeur : son
+          évolution en pourcentage, recalculée depuis les valeurs lues et
+          exigée à un dixième de point près — y compris au passage de l'ancien
+          franc au nouveau, en 1960.
+          Ce que la source ne donne pas : l'Arrco d'avant 1961, et la série
+          reconstituée du salaire de référence Arrco depuis 1948, qui ne porte
+          pas la valeur de service correspondante.
 
       - id: agirc_arrco_coefficients
         titre: Coefficients d'anticipation et plafond des majorations familiales
@@ -868,7 +885,8 @@ institutions:
           caisses à 0,03 % près.
 
       - id: dila_legi_parametres_retraite
-        titre: Âge d'ouverture, durée requise et coefficient de minoration, par génération
+        titre: Âge d'ouverture, durée requise, coefficient de minoration,
+          proratisation et assiette du trimestre
         url: https://echanges.dila.gouv.fr/OPENDATA/LEGI/
         acces: api
         statut_integration: certifie
@@ -895,6 +913,15 @@ institutions:
           saisie laissait implicites. Alimente aussi
           data/reference/legislation/duree_assurance_requise.csv et
           coefficient_minoration.csv.
+          DEUX ARTICLES DE PLUS, POUR DEUX TABLES QU'ON N'ÉTAIT PAS ALLÉ
+          CHERCHER. Le II de l'article R. 351-6 porte la durée maximale prise en
+          compte par la PRORATISATION — « 152 trimestres pour les assurés nés en
+          1944 » —, qui n'est pas la durée requise pour le taux plein et que le
+          modèle a confondue avec elle. L'article R. 351-9 porte l'assiette d'un
+          trimestre, en heures de SMIC : 200 depuis 1972, 150 depuis 2014. Sept
+          valeurs de plus, toutes retrouvées identiques à la saisie. La ligne
+          1948 de la proratisation reste hors certification : l'article s'arrête
+          à 1947 et renvoie ensuite à la durée requise.
           Même coût que les autres passes LEGI : 9 Go décompressés en flux, un
           quart d'heure, une exécution par an.
 

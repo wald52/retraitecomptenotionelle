@@ -33,7 +33,8 @@ Ce qui suit est le recensement complet de ses paramètres et de leur état.
 | Trimestres accordés au titre des enfants | MDA à 4 puis 8 trimestres par enfant (1972, 1975) ; bonification de la fonction publique à 4 puis 2 (2004) | reprise des textes, non recontrôlée |
 | Surcote parentale | 1,25 % par trimestre entre 63 ans et l'âge légal, quatre au plus | reprise des textes (L. 351-1-2-1), non recontrôlée |
 | Durée requise par génération | table 1934-1975, 151 → 172 trimestres | **certifiée** depuis 1958 (L. 161-17-3) ; 1934-1957 transcrite |
-| Durée de proratisation par génération | table 1900-1948, 150 → 160 trimestres | transcrite (R. 351-6), confirmée par une seconde implémentation |
+| Durée de proratisation par génération | table 1900-1948, 150 → 160 trimestres | **certifiée** (R. 351-6 II) jusqu'à 1947 ; la ligne 1948 est la jonction avec la durée requise, que l'article ne fixe pas |
+| Heures de SMIC pour valider un trimestre | 200 depuis 1972, 150 depuis 2014 | **certifiée** (R. 351-9) |
 | Revalorisation des salaires portés au compte | 10 colonnes publiées, effets d'octobre 2017 à janvier 2026 | circulaires de la Cnav ; ailleurs, ancrage sur la plus proche |
 | Âge légal par génération | table 1900-1975, 60 → 64 ans | **certifié** (D. 161-2-1-9), recontrôlé à chaque exécution |
 | Âge d'annulation de la décote par génération | table 1930-1955, 65 → 67 ans | reprise des textes, non recontrôlée |
@@ -345,6 +346,8 @@ La page **Données** du site affiche l'état exact. En résumé :
 | Coefficient de minoration par génération | 1900-1975 | **certifiée** | DILA, base LEGI, code de la sécurité sociale `R. 351-27` |
 | Bornes de la carrière longue | 2023- | **certifiée** | DILA, base LEGI, `L. 351-1-1` et `D. 351-1-1` |
 | Bornes de la carrière longue | 2004 et 2012 | moyenne / haute | versions abrogées des mêmes articles, transcrites |
+| Durée maximale prise en compte par la proratisation | avant 1944 à 1947 | **certifiée** | DILA, base LEGI, code de la sécurité sociale `R. 351-6` II |
+| Heures de SMIC à cotiser pour valider un trimestre | 1972 et 2014 | **certifiée** | DILA, base LEGI, code de la sécurité sociale `R. 351-9` |
 | Point d'indice de la fonction publique | 1960-2027 | haute | OpenFisca-France, `point_indice_en_euros` |
 | Plafond Sécurité sociale | 2002-2025 | **certifiée** | INSEE BDM, idbank 000822494 |
 | Plafond Sécurité sociale | 1931-2001 | haute | OpenFisca-France, daté décret par décret |
@@ -359,8 +362,11 @@ La page **Données** du site affiche l'état exact. En résumé :
 | Contribution employeur, CNRACL | 1948-2025 | haute | OpenFisca-France, décrets et barèmes de la Caisse des dépôts |
 | Contribution employeur, SNCF (T1 + T2) | 2007-2018 | haute | OpenFisca-France, arrêtés annuels |
 | Valeurs d'achat et de service du point, Ircantec | 1971-2021 | **certifiée** | Caisse des dépôts, qui gère le régime |
-| Valeurs d'achat et de service du point, autres | Agirc 1947-2018, Arrco 1949-2018, Agirc-Arrco 2019-2025, RAFP 2005-2021, RCI 2013-2023 | haute | OpenFisca-France-Pension, recoupé à l'INSEE depuis 2001 |
-| Valeurs du point, Arrco avant 1999 | 1949-1998 | moyenne | UNIRS, la plus grosse caisse Arrco |
+| Valeurs d'achat et de service du point, Agirc | 1947-2018 | **certifiée** | Fédération Agirc-Arrco, sa compilation des valeurs de point |
+| Valeurs d'achat et de service du point, Arrco | 1999-2018 | **certifiée** | Fédération Agirc-Arrco, la même compilation |
+| Valeurs d'achat et de service du point, UNIRS | 1961-1998 | **certifiée** | Fédération Agirc-Arrco, la même compilation |
+| Valeurs du point, Arrco avant 1999 | 1949-1998 | moyenne | l'UNIRS tenant lieu d'Arrco : la valeur est certifiée, la substitution reste une décision du dépôt |
+| Valeurs d'achat et de service du point, autres | RAFP 2005-2021, RCI 2013-2023, IGRANTE et IPACTE 1947-2022 | haute | OpenFisca-France-Pension |
 | Valeurs du point, complémentaire des avocats | 2017-2026 | **certifiée** | CNBF, ses barèmes annuels |
 | Valeur du point et taux, base des professions libérales | 2021-2025 | **certifiée** | CNAVPL, ses recueils statistiques |
 | Valeur de service du point, complémentaire agricole | 2005-2024 | **certifiée** | DILA, base LEGI, code rural `D. 732-166` |
@@ -446,24 +452,56 @@ d'entre eux ne se compense pas : elle se transmet telle quelle au résultat.
 **Et une confirmation, qui compte autant.** Les barèmes de l'Agirc et de
 l'Arrco pèsent, dans la pension d'un salarié du privé, plus lourd que tous les
 autres réunis, et leur seule source était OpenFisca — c'est-à-dire une
-transcription qu'on ne savait pas vérifier, la caisse ne publiant pas de série.
-L'INSEE, lui, diffuse la valeur de service du point depuis 2001, mensuelle,
-sous trois idbanks (`000849395` pour l'Arrco, `000822495` pour l'Agirc,
-`010593202` pour l'Agirc-Arrco). **Sur les 42 années où les deux se recouvrent,
-elles ne divergent pas une fois.** Ces valeurs restent au niveau `haute` — deux
-transcriptions ne font pas un producteur — mais leur accord est désormais
-recontrôlé à chaque exécution. Le recoupement a en outre comblé un trou : la
-valeur de service 2025 de l'Agirc-Arrco manquait, la transcription s'arrêtant à
-2024, si bien qu'une liquidation de 2025 convertissait ses points au barème de
+transcription qu'on ne savait pas vérifier. L'INSEE, lui, diffuse la valeur de
+service du point depuis 2001, mensuelle, sous trois idbanks (`000849395` pour
+l'Arrco, `000822495` pour l'Agirc, `010593202` pour l'Agirc-Arrco). **Sur les 42
+années où les deux se recouvrent, elles ne divergent pas une fois.** Deux
+transcriptions ne font pas un producteur : ce recoupement ne certifiait rien, et
+son accord reste recontrôlé à chaque exécution. Il a en outre comblé un trou :
+la valeur de service 2025 de l'Agirc-Arrco manquait, la transcription s'arrêtant
+à 2024, si bien qu'une liquidation de 2025 convertissait ses points au barème de
 l'année précédente.
+
+**Le producteur, lui, publiait bien une série — et cette page disait le
+contraire.** Elle écrivait « la caisse ne publiant pas de série », et le
+récupérateur du régime unifié ajoutait que les barèmes d'avant la fusion étaient
+« sous une présentation différente et avec des conventions de date qui leur sont
+propres ». La fédération publie chaque automne, dans un seul document, ses
+valeurs de point et salaires de référence depuis 1947 : le régime unifié, l'Agirc,
+l'Arrco, et les cinquante caisses qu'elle a fédérées — dont l'UNIRS, dont le
+barème tient lieu de point Arrco avant l'unification de 1999. Les 260 valeurs qui
+venaient d'OpenFisca sont désormais lues là, et **elles s'y retrouvent toutes** :
+l'écart maximal est de 5 · 10⁻⁵ €, et il tient à ce que la transcription
+arrondissait la conversion en euros à quatre décimales quand le document donne le
+franc exact. Ce qui change n'est donc pas un chiffre mais son statut — et le fait
+qu'une refonte du barème sera désormais vue. Mesuré sur les témoins : 2 209 des
+10 438 nombres figés bougent, d'au plus **2,3 · 10⁻⁷ en relatif**, soit un
+centime sur quarante mille euros de pension.
+
+Deux contrôles autorisent cette lecture, et ils ne coûtent rien puisque le
+document les porte lui-même : en regard de chaque valeur, il publie son
+évolution en pourcentage. Le récupérateur la recalcule depuis ce qu'il vient de
+lire — le salaire de référence d'une année sur l'autre, chaque valeur de point
+sur la précédente — et refuse d'écrire si l'écart dépasse un dixième de point.
+Le contrôle vaut jusque sur les changements de monnaie : 142,00 anciens francs
+en 1959 et 1,52 nouveau franc en 1960 donnent les 7,04 % publiés, ce qu'une
+conversion fautive ne rendrait pas.
+
+Ce que cette source ne donne pas : les valeurs de l'Arrco d'avant 1961 — sa
+table de caisse s'ouvre là où le dépôt remonte à 1949 —, et la **série
+reconstituée du salaire de référence Arrco depuis 1948**, que la fédération
+publie mais qu'on ne peut pas utiliser : elle ne porte que le salaire de
+référence, sans la valeur de service correspondante, et un rendement ne se
+calcule pas avec deux barèmes qui ne parlent pas du même point (68,11 F en 1998
+pour l'Arrco reconstituée, 26,43 F pour l'UNIRS).
 
 **Ce qui reste hors de portée, et pourquoi.** La liste vaut recensement de ce
 qui a été cherché, pour éviter de le rechercher deux fois — et elle est tenue
 dans les deux sens : une limite qui se referme n'est pas effacée, elle est
-réécrite avec ce qui l'a levée et ce qu'elle a fini par coûter. Sur les dix
-entrées qui suivent, **sept ont été refermées par une source trouvée** et
+réécrite avec ce qui l'a levée et ce qu'elle a fini par coûter. Sur les douze
+entrées qui suivent, **huit ont été refermées par une source trouvée** et
 **deux par la mesure du biais** qu'elles laissent — un biais chiffré n'est plus
-une inconnue, il se retranche. Une seule reste ouverte, faute de source. Les
+une inconnue, il se retranche. Deux restent ouvertes, faute de source. Les
 phrases qui déclaraient ces limites inaccessibles sont citées telles quelles,
 parce qu'une conclusion fausse tirée de prémisses vraies est ce qui se répète le
 plus volontiers.
@@ -946,6 +984,43 @@ plus volontiers.
   la décote ; le nombre d'années retenues au salaire annuel moyen ; et les
   portes de carrière longue de 2004 et de 2012, qui sont dans des versions
   abrogées.
+
+* *Durée de proratisation, et assiette du trimestre* — **certifiées, par la
+  même clé encore.** Ces deux tables étaient saisies, et cette page les rangeait
+  parmi les paramètres « repris des textes, non recontrôlés » : elles ne
+  ressemblent pas à des tables par génération, et l'on n'était pas allé les
+  chercher. Elles sont pourtant écrites en toutes lettres, dans deux articles
+  que le même flux de 9 Go traverse :
+
+  > « 152 trimestres pour les assurés nés en 1944 » (`R. 351-6` II)
+  >
+  > « […] calculé sur la base de 200 heures » (`R. 351-9`)
+
+  La première commande le DÉNOMINATEUR de toute carrière incomplète des
+  générations 1944 à 1948 — la confondre avec la durée requise retire 2,5 % de
+  pension à qui est né en 1945 —, la seconde le nombre de trimestres que valide
+  une année de petit salaire. Les sept valeurs saisies s'y sont retrouvées
+  identiques. L'article de proratisation s'arrête à la génération 1947 et
+  renvoie au-delà à la durée requise : la ligne 1948 de la table est cette
+  jonction, et reste hors de la certification — elle n'est pas dans le texte.
+
+* *Montants servis du minimum vieillesse* — **cherchés dans le code, et le code
+  ne les porte plus.** L'article `D. 815-1` fixe bien le montant maximum de
+  l'ASPA, et la base LEGI en garde huit versions datées : 7 323,48 € au
+  1er janvier 2006, 8 125,59 € au 1er avril 2009, puis un calendrier jusqu'à
+  10 838,40 € au 1er janvier 2020. Les trois dernières valeurs sont exactement
+  celles que le dépôt porte pour 2018, 2019 et 2020.
+
+  **Et l'article n'a pas bougé depuis.** La revalorisation de l'ASPA est devenue
+  automatique — l'article `L. 816-2` la lie à celle des pensions —, si bien que
+  le texte du code a cessé de suivre le montant réellement servi : il resterait à
+  9 600 € en 2016 quand la caisse en payait 9 609,60, et à 10 838,40 € en 2026
+  quand elle en paie 12 523,08. Certifier depuis `D. 815-1` reviendrait donc à
+  remplacer un montant servi par un montant périmé, ce que la règle du dépôt
+  interdit : **le montant SERVI prime sur toute autre source.** Les treize
+  valeurs restent des transcriptions de publications, et c'est ici le bon
+  niveau. La même remarque vaut pour le minimum garanti de la fonction publique,
+  dont l'article `L. 17` ne fixe qu'une référence de 2004.
 
 **Ce que cela veut dire concrètement.** Les carrières entamées après 1950 —
 c'est-à-dire les générations nées à partir de 1930 environ, soit la quasi-totalité

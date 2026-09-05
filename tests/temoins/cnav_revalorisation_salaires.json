@@ -897,7 +897,7 @@
       "2025": 1.009
     }
   },
-  "recupere_le": "2026-09-01",
+  "recupere_le": "2026-09-05",
   "role": "Colonnes PUBLIÉES par la Cnav, une par date d'effet. Le modèle sert la colonne de l'année quand elle existe et reconstruit les autres par rapport d'indices : ce témoin lui oppose ce que la caisse a réellement opposé aux assurés, et mesure la dérive de la reconstruction.",
   "sources": {
     "2017-10-01": "https://legislation.lassuranceretraite.fr/Pdf/circulaire_cnav_2017_32_26092017.pdf",

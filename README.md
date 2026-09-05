@@ -561,16 +561,28 @@ COR pour ce qu'il **décide**.
 | Âge d'ouverture et coefficient de minoration, par génération | 1900-1975 | code de la sécurité sociale `D. 161-2-1-9` et `R. 351-27`, base LEGI |
 | Durée d'assurance requise, par génération | 1958-1975 | code de la sécurité sociale `L. 161-17-3`, base LEGI |
 | Bornes du départ pour carrière longue | depuis 2023 | code de la sécurité sociale `L. 351-1-1` et `D. 351-1-1`, base LEGI |
+| Valeurs du point de l'Agirc | 1947-2018 | Agirc-Arrco, sa compilation des valeurs de point |
+| Valeurs du point de l'Arrco, et de l'UNIRS qui en tient lieu avant 1999 | 1999-2018 et 1961-1998 | Agirc-Arrco, la même compilation |
+| Durée maximale prise en compte par la proratisation, par génération | avant 1944 à 1947 | code de la sécurité sociale `R. 351-6`, base LEGI |
+| Heures de SMIC à cotiser pour valider un trimestre | 1972 et 2014 | code de la sécurité sociale `R. 351-9`, base LEGI |
 
-Trois séries de plus sont reprises automatiquement d'**OpenFisca-France**, le
+Deux séries de plus sont reprises automatiquement d'**OpenFisca-France**, le
 modèle socio-fiscal de l'administration — le plafond de la Sécurité sociale
-depuis 1931, les valeurs d'achat et de service du point depuis 1947, et le point
-d'indice de la fonction publique depuis 1960 avec le barème du minimum garanti.
-Ce sont des transcriptions du *Journal officiel* et des circulaires, pas des
-sources primaires : elles plafonnent au niveau `haute`. Le point de l'Agirc et de
-l'Arrco, qui pèse le plus lourd des deux, est en outre recoupé à la série que
-l'INSEE publie depuis 2001 : sur les 42 années communes, les deux ne divergent
-pas une fois.
+depuis 1931, et le point d'indice de la fonction publique depuis 1960 avec le
+barème du minimum garanti. Ce sont des transcriptions du *Journal officiel* et
+des circulaires, pas des sources primaires : elles plafonnent au niveau `haute`.
+
+**Les valeurs du point de l'Agirc et de l'Arrco en venaient aussi, et elles
+viennent désormais de la caisse qui les a décidées.** Elles pèsent, dans la
+pension d'un salarié du privé, plus lourd que tous les autres barèmes réunis, et
+la fédération publie chaque automne l'historique complet des siens — le régime
+unifié depuis 2019, l'Agirc depuis 1947, l'Arrco depuis 1999, et les caisses
+qu'elle a fédérées, dont l'UNIRS dont le barème tient lieu de point Arrco avant
+l'unification. Ces 260 valeurs sont donc lues chez le producteur, et le
+recontrôle a confirmé la transcription à cinq centièmes de millime près — l'écart
+tenant à ce qu'elle arrondissait la conversion en euros quand le document donne
+le franc exact. Elles restent en outre recoupées à la série que l'INSEE publie
+depuis 2001 : sur les 42 années communes, les deux ne divergent pas une fois.
 
 ```bash
 python scripts/fetch/insee_bdm.py               # séries longues INSEE (BDM)

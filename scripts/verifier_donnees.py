@@ -462,11 +462,15 @@ def source_valeurs_point_ircantec() -> dict[tuple, float]:
 
 
 def source_valeurs_point_agirc_arrco() -> dict[tuple, float]:
-    """Barèmes du régime unifié, publiés par la fédération Agirc-Arrco.
+    """Barèmes publiés par la fédération Agirc-Arrco, qui les fixe.
 
     Producteur de la donnée, donc seule source de ces lignes qui puisse être
-    certifiée. Elle couvre le régime depuis sa création en 2019 ; l'Agirc et
-    l'Arrco d'avant la fusion restent transcrits d'OpenFisca.
+    certifiée. Sa compilation porte le régime unifié depuis 2019, mais aussi les
+    tables d'avant la fusion — l'Agirc de 1947 à 2018, l'Arrco de 1999 à 2018 et
+    l'UNIRS de 1961 à 1998, la caisse dont le barème tient lieu de point Arrco
+    avant l'unification. Ces 260 valeurs venaient d'OpenFisca ; elles viennent
+    désormais de qui les a décidées, et la transcription les rendait juste, à
+    cinq centièmes de millime près.
 
     La valeur d'achat y va un an plus loin que la valeur de service : la
     fédération la publie par année civile, quand la valeur de service dépend de
@@ -531,9 +535,25 @@ def source_valeurs_point_substituees() -> dict[tuple, float]:
     """Valeurs de l'UNIRS servant de point Arrco avant l'unification de 1999.
 
     Publiées, mais pour une autre caisse que celle que le modèle appelle
-    « arrco » — d'où un niveau en retrait.
+    « arrco » — d'où un niveau en retrait, que la fédération publie ces valeurs
+    ou non. Ce qui est certifié, c'est le barème de l'UNIRS, qui figure sous ce
+    nom dans le fichier ; la SUBSTITUTION, elle, est une décision de
+    modélisation, et aucune source ne la porte.
+
+    La valeur, en revanche, est celle du producteur dès qu'il la publie : ce
+    serait écrire le même franc de deux façons que de laisser la ligne
+    ``arrco`` sur l'arrondi d'OpenFisca quand la ligne ``unirs`` porte la
+    conversion exacte.
     """
-    return _cles_points("serie", substituees=True)
+    substituees = _cles_points("serie", substituees=True)
+    try:
+        producteur = source_valeurs_point_agirc_arrco()
+    except SourceAbsente:
+        return substituees
+    return {
+        cle: producteur.get(("unirs", *cle[1:]), valeur)
+        for cle, valeur in substituees.items()
+    }
 
 
 def source_valeurs_point_cnbf() -> dict[tuple, float]:
@@ -658,6 +678,31 @@ def source_duree_requise() -> dict[tuple, float]:
 def source_coefficient_minoration() -> dict[tuple, float]:
     """Coefficient de minoration par génération — R. 351-27 II."""
     return _table_legi("coefficient_minoration")
+
+
+def source_duree_proratisation() -> dict[tuple, float]:
+    """Durée maximale prise en compte par la proratisation — R. 351-6 II.
+
+    À ne pas confondre avec la durée REQUISE, et le modèle les a confondues :
+    la loi de 1993 a fait monter la première de deux trimestres par génération
+    sur les seules générations 1944-1948, quand la seconde montait de dix
+    trimestres sur dix générations. Un assuré né en 1945 se voyait diviser par
+    160 là où l'article divise par 154.
+
+    L'article couvre les générations d'avant 1944 à 1947 et renvoie au-delà à
+    la durée du troisième alinéa de L. 351-1 : la ligne 1948 de la table du
+    dépôt est cette jonction, et reste hors de portée de la certification.
+    """
+    return _table_legi("duree_proratisation")
+
+
+def source_heures_par_trimestre() -> dict[tuple, float]:
+    """Heures de SMIC à cotiser pour valider un trimestre — R. 351-9.
+
+    200 heures depuis 1972, 150 depuis 2014. C'est ce qui décide du nombre de
+    trimestres qu'une année de petit salaire valide, donc de la décote.
+    """
+    return _table_legi("heures_par_trimestre")
 
 
 def source_carriere_longue() -> dict[tuple, float]:
@@ -1166,7 +1211,8 @@ CERTIFICATIONS = (
         cles=("regime", "annee", "mesure"),
         colonne="valeur",
         source=source_valeurs_point_agirc_arrco,
-        origine="Fédération Agirc-Arrco, compilation des valeurs de point",
+        origine="Fédération Agirc-Arrco, compilation des valeurs de point "
+                "(régime unifié, Agirc, Arrco et UNIRS)",
         decimales=6,
         tolerance=5e-7,
     ),
@@ -1244,7 +1290,8 @@ CERTIFICATIONS = (
         cles=("regime", "annee", "mesure"),
         colonne="valeur",
         source=source_valeurs_point_substituees,
-        origine="OpenFisca-France-Pension, UNIRS tenant lieu de point Arrco avant 1999",
+        origine="UNIRS tenant lieu de point Arrco avant 1999 — barème de la "
+                "fédération Agirc-Arrco, substitution du dépôt",
         decimales=6,
         tolerance=5e-7,
         niveau="moyenne",
@@ -1303,6 +1350,28 @@ CERTIFICATIONS = (
         decimales=0,
         tolerance=0.5,
         unite=" ans",
+    ),
+    Certification(
+        nom="duree_proratisation",
+        chemin=REFERENCE / "legislation" / "duree_proratisation.csv",
+        cles=("generation",),
+        colonne="trimestres",
+        source=source_duree_proratisation,
+        origine="DILA, base LEGI, code de la sécurité sociale R. 351-6 II",
+        decimales=0,
+        tolerance=0.5,
+        unite=" trimestres",
+    ),
+    Certification(
+        nom="validation_trimestres",
+        chemin=REFERENCE / "legislation" / "validation_trimestres.csv",
+        cles=("annee",),
+        colonne="heures",
+        source=source_heures_par_trimestre,
+        origine="DILA, base LEGI, code de la sécurité sociale R. 351-9",
+        decimales=0,
+        tolerance=0.5,
+        unite=" heures",
     ),
     Certification(
         nom="point_indice_fonction_publique",

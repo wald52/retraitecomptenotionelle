@@ -1685,12 +1685,12 @@ ${g.tableau(["Série", "Valeurs", "Niveau", "Source"], certifications,
 <p class="discret">Une valeur n'est « certifiée » que si elle a été confrontée au
 fichier téléchargé depuis le <em>producteur</em> de la donnée. Une transcription
 tierce, même sourcée et reprise automatiquement, plafonne à « haute ». Hors de
-cette liste : les séries d'avant 1950, l'espérance de vie à 65 ans d'avant 1960,
-les quotients de mortalité d'avant 1986, les taux de cotisation d'avant 1967, les
-montants servis du minimum contributif, du minimum garanti et du minimum
-vieillesse — transcrits de leur publication, et préférés à toute projection
-parce qu'ils disent ce qui a été payé —, et les âges, durées et coefficients
-propres à chaque régime, repris des textes.</p>
+cette liste : les séries d'avant 1950, les taux de cotisation d'avant 1967, le
+plafond d'avant 2002 et le point d'indice de la fonction publique, repris
+d'OpenFisca, les montants servis du minimum contributif, du minimum garanti et
+du minimum vieillesse — transcrits de leur publication, et préférés à toute
+projection parce qu'ils disent ce qui a été payé —, et les âges, durées et
+coefficients propres à chaque régime, repris des textes.</p>
 
 <h3>Fiabilité des séries macroéconomiques, par décennie</h3>
 ${g.tableau(

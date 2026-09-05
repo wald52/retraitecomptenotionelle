@@ -370,3 +370,104 @@ def test_lecture_d_un_classeur_excel_97():
     import struct
     brut = struct.unpack("<Q", struct.pack("<d", 0.5))[0] >> 32
     assert module._rk(brut & 0xFFFFFFFC) == pytest.approx(0.5)
+
+
+# -- barèmes du point, lus chez la fédération Agirc-Arrco ---------------------
+
+#: Deux lignes de la table de l'Agirc, prises de part et d'autre du passage à
+#: l'ancien franc — c'est le seul endroit du document où une conversion fautive
+#: se voie, et son évolution publiée le dit : 1,52 NF après 142,00 anciens
+#: francs, soit les 7,04 % imprimés en regard.
+TABLE_AGIRC = """1960 0,21 NF 5,00% 0,220 NF 4,76% 10,30% 1,52 NF 7,04%
+1959 19,00 F 5,56% 20,00 F 5,26% 13,00% 142,00 F 9,23%
+Agirc
+-
+Valeurs de point et salaires de référence
+"""
+
+
+def test_la_valeur_du_point_retenue_est_celle_du_31_decembre():
+    """Deux valeurs dans l'année : c'est la seconde qui vaut, et en euros."""
+    module = _charger_script("agirc_arrco_valeurs_point", "scripts", "fetch",
+                             "agirc_arrco_valeurs_point.py")
+    valeurs, griefs = module.table_avec_monnaie(TABLE_AGIRC)
+    assert griefs == []
+    # 20,00 anciens francs de juillet 1959, et non les 19,00 de janvier.
+    assert valeurs[(1959, "valeur_service")] == pytest.approx(20.0 / 100 / 6.55957)
+    assert valeurs[(1959, "salaire_reference")] == pytest.approx(142.0 / 100 / 6.55957)
+    # 1960 est en nouveaux francs : cent fois moins de division.
+    assert valeurs[(1960, "valeur_service")] == pytest.approx(0.220 / 6.55957)
+    assert valeurs[(1960, "salaire_reference")] == pytest.approx(1.52 / 6.55957)
+
+
+def test_une_evolution_publiee_qui_ne_se_retrouve_pas_arrete_le_recuperateur():
+    """Le document publie ses hausses : c'est lui qui contrôle sa propre lecture."""
+    module = _charger_script("agirc_arrco_valeurs_point", "scripts", "fetch",
+                             "agirc_arrco_valeurs_point.py")
+    fausse = TABLE_AGIRC.replace("1,52 NF 7,04%", "1,62 NF 7,04%")
+    _, griefs = module.table_avec_monnaie(fausse)
+    assert any("salaire de référence" in grief for grief in griefs)
+
+
+def test_une_annee_sans_decision_garde_la_valeur_precedente():
+    """1953 et 1954 n'ont pas de valeur de point : celle de 1952 reste en vigueur."""
+    module = _charger_script("agirc_arrco_valeurs_point", "scripts", "fetch",
+                             "agirc_arrco_valeurs_point.py")
+    valeurs, _ = module.table_avec_monnaie(
+        "1953 2,00% 78,00 F 2,63%\n"
+        "1952 12,00 F 9,09% 12,50 F 4,17% 22,50% 76,00 F 20,63%\n"
+    )
+    assert valeurs[(1953, "valeur_service")] == valeurs[(1952, "valeur_service")]
+    assert valeurs[(1953, "salaire_reference")] == pytest.approx(78.0 / 100 / 6.55957)
+
+
+def test_une_table_sans_intitule_qui_redonne_les_memes_annees_n_est_pas_une_suite():
+    """Après l'Arrco vient sa série reconstituée, sans intitulé et sur les mêmes années.
+
+    Une table longue déborde bien sur une page sans intitulé — c'est le cas de
+    l'Agirc —, mais une page qui revient sur une année déjà lue n'est pas une
+    suite : c'est une autre table.
+    """
+    module = _charger_script("agirc_arrco_valeurs_point", "scripts", "fetch",
+                             "agirc_arrco_valeurs_point.py")
+    pages = [
+        "2018 1,2588 €\nArrco\n-\nValeurs de point et salaires de référence\n",
+        "2018 3,30% 16,7226 €\nSérie reconstituée\n",
+        "2017 1,2513 €\n",
+    ]
+    assert module.table_de("Arrco", pages) == pages[0]
+
+
+# -- deux tables de plus, lues dans le code de la sécurité sociale ------------
+
+
+def test_la_duree_de_proratisation_se_lit_dans_l_article():
+    """R. 351-6 II écrit sa table en toutes lettres, génération par génération."""
+    module = _charger_script("dila_legi_parametres_retraite", "scripts", "fetch",
+                             "dila_legi_parametres_retraite.py")
+    texte = (
+        "II.-Pour les pensions prenant effet après le 31 décembre 2003, la durée "
+        "maximum d'assurance est fixée à : 150 trimestres pour les assurés nés "
+        "avant 1944 ; 152 trimestres pour les assurés nés en 1944 ; 154 "
+        "trimestres pour les assurés nés en 1945."
+    )
+    assert module.duree_proratisation([("2007-04-27", texte)]) == {
+        1900: 150.0, 1944: 152.0, 1945: 154.0,
+    }
+
+
+def test_l_assiette_du_trimestre_se_lit_dans_l_article():
+    """R. 351-9 date ses périodes de deux façons, et l'une commence l'année d'après."""
+    module = _charger_script("dila_legi_parametres_retraite", "scripts", "fetch",
+                             "dila_legi_parametres_retraite.py")
+    texte = (
+        "Pour la période comprise entre le 1er janvier 1972 et le 31 décembre "
+        "2013, il y a lieu de retenir autant de trimestres que le salaire annuel "
+        "représente de fois le montant du salaire minimum de croissance calculé "
+        "sur la base de 200 heures. "
+        "Pour la période postérieure au 31 décembre 2013, il y a lieu de retenir "
+        "autant de trimestres que ce salaire calculé sur la base de 150 heures."
+    )
+    assert module.heures_par_trimestre([("2014-03-21", texte)]) == {
+        1972: 200.0, 2014: 150.0,
+    }

@@ -37,6 +37,15 @@
    "source": "DILA, base LEGI, code de la sécurité sociale L. 161-17-3",
    "valeurs": 19
   },
+  "duree_proratisation": {
+   "ajoutees": 0,
+   "corrigees": 0,
+   "empreinte": "88a705f1e8ec84bd",
+   "identiques": 5,
+   "niveau": "certifiee",
+   "source": "DILA, base LEGI, code de la sécurité sociale R. 351-6 II",
+   "valeurs": 5
+  },
   "employeur_public_cnracl": {
    "ajoutees": 0,
    "corrigees": 0,
@@ -92,10 +101,10 @@
    "valeurs": 28
   },
   "esperances_projetees": {
-   "ajoutees": 564,
-   "corrigees": 36,
+   "ajoutees": 0,
+   "corrigees": 0,
    "empreinte": "78b7c81e9c34c206",
-   "identiques": 0,
+   "identiques": 600,
    "niveau": "projetee",
    "source": "dérivée des quotients projetés de l'INSEE, projections 2026",
    "valeurs": 600
@@ -137,10 +146,10 @@
    "valeurs": 6
   },
   "pib_nominal": {
-   "ajoutees": 76,
+   "ajoutees": 0,
    "corrigees": 0,
    "empreinte": "e4e5db4f2d0dabe0",
-   "identiques": 0,
+   "identiques": 76,
    "niveau": "certifiee",
    "source": "INSEE BDM, idbank 011779992",
    "valeurs": 76
@@ -211,20 +220,20 @@
   "valeurs_point": {
    "ajoutees": 0,
    "corrigees": 0,
-   "empreinte": "67ac511dabbb13d3",
-   "identiques": 600,
+   "empreinte": "dd31e3e1d8662aaa",
+   "identiques": 340,
    "niveau": "haute",
    "source": "OpenFisca-France-Pension, paramètres des régimes en points",
-   "valeurs": 600
+   "valeurs": 340
   },
   "valeurs_point_agirc_arrco": {
    "ajoutees": 0,
    "corrigees": 0,
-   "empreinte": "32197a6757a8d239",
-   "identiques": 15,
+   "empreinte": "b3071e53b07b541a",
+   "identiques": 275,
    "niveau": "certifiee",
-   "source": "Fédération Agirc-Arrco, compilation des valeurs de point",
-   "valeurs": 15
+   "source": "Fédération Agirc-Arrco, compilation des valeurs de point (régime unifié, Agirc, Arrco et UNIRS)",
+   "valeurs": 275
   },
   "valeurs_point_agirc_arrco_en_cours": {
    "ajoutees": 0,
@@ -263,10 +272,10 @@
    "valeurs": 153
   },
   "valeurs_point_msa": {
-   "ajoutees": 20,
+   "ajoutees": 0,
    "corrigees": 0,
    "empreinte": "fcfafd64be80c849",
-   "identiques": 0,
+   "identiques": 20,
    "niveau": "certifiee",
    "source": "DILA, base LEGI, code rural D. 732-166",
    "valeurs": 20
@@ -286,8 +295,17 @@
    "empreinte": "f456045e1b51f980",
    "identiques": 123,
    "niveau": "moyenne",
-   "source": "OpenFisca-France-Pension, UNIRS tenant lieu de point Arrco avant 1999",
+   "source": "UNIRS tenant lieu de point Arrco avant 1999 — barème de la fédération Agirc-Arrco, substitution du dépôt",
    "valeurs": 123
+  },
+  "validation_trimestres": {
+   "ajoutees": 0,
+   "corrigees": 0,
+   "empreinte": "37614b2a66b3bf4e",
+   "identiques": 2,
+   "niveau": "certifiee",
+   "source": "DILA, base LEGI, code de la sécurité sociale R. 351-9",
+   "valeurs": 2
   }
  }
 }

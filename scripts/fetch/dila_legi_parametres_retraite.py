@@ -26,7 +26,21 @@ est une TABLE, écrite en toutes lettres, article par article :
   1944 […] 1,25 % pour l'assuré né après 1952 » ;
 * `D. 351-1-1` — les portes du départ anticipé pour carrière longue : « A
   cinquante-huit ans pour les assurés qui ont débuté leur activité avant l'âge
-  de seize ans ».
+  de seize ans » ;
+* `R. 351-6` II — la durée maximale d'assurance prise en compte par la
+  PRORATISATION, qu'il ne faut pas confondre avec la durée requise pour le taux
+  plein : « 152 trimestres pour les assurés nés en 1944 » ;
+* `R. 351-9` — le nombre d'heures de SMIC qu'il faut avoir cotisé pour valider
+  un trimestre : « calculé sur la base de 200 heures », puis de 150 pour la
+  période postérieure au 31 décembre 2013.
+
+Ces deux dernières étaient saisies, et c'est la même leçon une fois de plus :
+elles étaient réputées hors de portée parce qu'elles ne ressemblent pas à des
+paramètres, alors qu'elles sont écrites en toutes lettres dans l'article. Elles
+commandent pourtant, la première le dénominateur de toute carrière incomplète
+liquidée par les générations 1944-1948, la seconde le nombre de trimestres que
+valide une année de petit salaire — deux endroits où une erreur ne se voit pas
+et se paie en pension.
 
 Il n'y avait donc rien à demander à personne : il fallait lire. La leçon est la
 même que pour la valeur du point agricole et pour le minimum contributif —
@@ -68,6 +82,8 @@ ARTICLES = {
     "L161-17-3": "sécurité sociale",
     "R351-27": "sécurité sociale",
     "D351-1-1": "sécurité sociale",
+    "R351-6": "sécurité sociale",
+    "R351-9": "sécurité sociale",
 }
 
 #: Nombres écrits en lettres, tels que le Journal officiel les emploie pour les
@@ -328,6 +344,74 @@ PORTE = re.compile(
     re.I)
 
 
+#: « 152 trimestres pour les assurés nés en 1944 », « 150 trimestres pour les
+#: assurés nés avant 1944 » — la table de proratisation de l'article R. 351-6.
+PRORATISATION = re.compile(
+    r"(\d{3})\s+trimestres\s+pour\s+les\s+assur[ée]s\s+n[ée]s\s+"
+    r"(avant|en)\s+(\d{4})",
+    re.I)
+
+#: « sur la base de 200 heures » — l'assiette d'un trimestre, à l'article
+#: R. 351-9. L'alinéa qui la porte dit sur quelle période elle vaut, de deux
+#: façons : « comprise entre le 1er janvier 1972 et le 31 décembre 2013 » ou
+#: « postérieure au 31 décembre 2013 ».
+ASSIETTE = re.compile(r"sur\s+la\s+base\s+de\s+(\d{2,3})\s+heures", re.I)
+PERIODE_ENTRE = re.compile(r"comprise\s+entre\s+le\s+1er\s+janvier\s+(\d{4})", re.I)
+PERIODE_APRES = re.compile(r"post[ée]rieure\s+au\s+31\s+d[ée]cembre\s+(\d{4})", re.I)
+
+
+def duree_proratisation(versions: list[tuple[str, str]]) -> dict[int, float]:
+    """Durée maximale d'assurance prise en compte par la proratisation.
+
+    C'est le DÉNOMINATEUR du rapport qui réduit la pension d'une carrière
+    incomplète, et la loi du 22 juillet 1993 l'a fait monter de 150 à 160
+    trimestres pour les seules générations 1944 à 1948 — deux trimestres par
+    génération, quand la durée REQUISE, elle, montait de dix trimestres sur
+    dix générations. Confondre les deux retire 2,5 % de pension à un assuré né
+    en 1945 qui a validé 156 trimestres.
+
+    L'article s'arrête à la génération 1947 et renvoie, au-delà, à la durée du
+    troisième alinéa de l'article L. 351-1 : la table du dépôt porte donc une
+    dernière ligne, pour 1948, que cet article-ci ne fixe pas et que la
+    certification ne touche pas.
+
+    Version en vigueur seulement : les rédactions antérieures à 2004 ne
+    portaient pas de table par génération, mais une durée unique.
+    """
+    table: dict[int, float] = {}
+    for _, texte in sorted(versions)[-1:]:
+        for trimestres, portee, generation in PRORATISATION.findall(texte):
+            debut = PREMIERE_GENERATION if portee.lower() == "avant" else int(generation)
+            table[debut] = float(trimestres)
+    return table
+
+
+def heures_par_trimestre(versions: list[tuple[str, str]]) -> dict[int, float]:
+    """Heures de SMIC qu'il faut avoir cotisé pour valider un trimestre.
+
+    Un trimestre d'assurance ne s'acquiert pas par le temps passé mais par un
+    montant cotisé, que l'article exprime en multiples du SMIC horaire de
+    l'année : 200 heures depuis 1972, 150 depuis 2014 — l'abaissement destiné
+    aux temps très partiels et aux carrières hachées.
+
+    Chaque alinéa porte sa période, et la clé est l'année où elle s'ouvre : une
+    période « postérieure au 31 décembre 2013 » commence en 2014.
+    """
+    table: dict[int, float] = {}
+    for _, texte in sorted(versions)[-1:]:
+        for alinea in re.split(r"(?=Pour la période)", texte):
+            heures = ASSIETTE.search(alinea)
+            if heures is None:
+                continue
+            entre = PERIODE_ENTRE.search(alinea)
+            apres = PERIODE_APRES.search(alinea)
+            if entre is not None:
+                table[int(entre.group(1))] = float(heures.group(1))
+            elif apres is not None:
+                table[int(apres.group(1)) + 1] = float(heures.group(1))
+    return table
+
+
 def carriere_longue(versions: list[tuple[str, str]]) -> list[dict]:
     """Portes du départ anticipé — D. 351-1-1.
 
@@ -466,6 +550,8 @@ def main() -> int:
         "duree_requise": duree_requise(versions["L161-17-3"]),
         "coefficient_minoration": coefficient_minoration(versions["R351-27"]),
         "carriere_longue": carriere_longue(versions["D351-1-1"]),
+        "duree_proratisation": duree_proratisation(versions["R351-6"]),
+        "heures_par_trimestre": heures_par_trimestre(versions["R351-9"]),
     }
 
     # Garde-fous : une table lue de travers ne doit pas s'écrire en silence.
@@ -486,6 +572,18 @@ def main() -> int:
               f"{sorted(set(coefficients.values()))}", file=sys.stderr)
         return 1
 
+    proratisation = tables["duree_proratisation"]
+    if not (proratisation and min(proratisation.values()) == 150.0
+            and max(proratisation.values()) == 158.0):
+        print(f"\nÉCHEC   durées de proratisation invraisemblables : "
+              f"{sorted(set(proratisation.values()))}", file=sys.stderr)
+        return 1
+    heures = tables["heures_par_trimestre"]
+    if sorted(heures.items()) != [(1972, 200.0), (2014, 150.0)]:
+        print(f"\nÉCHEC   assiette du trimestre invraisemblable : "
+              f"{sorted(heures.items())}", file=sys.stderr)
+        return 1
+
     SORTIE.parent.mkdir(parents=True, exist_ok=True)
     SORTIE.write_text(
         json.dumps({
@@ -501,7 +599,8 @@ def main() -> int:
             "serie": {
                 f"{nom}|{cle}": valeur
                 for nom in ("age_ouverture", "duree_requise",
-                            "coefficient_minoration")
+                            "coefficient_minoration", "duree_proratisation",
+                            "heures_par_trimestre")
                 for cle, valeur in tables[nom].items()
             },
             "carriere_longue": tables["carriere_longue"],
@@ -516,6 +615,12 @@ def main() -> int:
     print(f"Coefficient minoration {len(coefficients)} segments, "
           f"{max(coefficients.values()):.3%} -> {min(coefficients.values()):.3%}")
     print(f"Carrière longue        {len(tables['carriere_longue'])} portes")
+    print(f"Durée proratisation    {len(proratisation)} segments, "
+          f"{min(proratisation.values()):g} -> {max(proratisation.values()):g} "
+          f"trimestres")
+    print(f"Assiette du trimestre  "
+          + ", ".join(f"{heure:g} heures depuis {annee}"
+                      for annee, heure in sorted(heures.items())))
     print(f"Écrit dans {SORTIE}")
     return 0
 

@@ -258,6 +258,8 @@ def test_journal_de_certification_decrit_les_series_certifiees():
         "duree_assurance_requise": "legislation/duree_assurance_requise.csv",
         "coefficient_minoration": "legislation/coefficient_minoration.csv",
         "carriere_longue": "legislation/carriere_longue.csv",
+        "duree_proratisation": "legislation/duree_proratisation.csv",
+        "validation_trimestres": "legislation/validation_trimestres.csv",
         "point_indice_fonction_publique":
             "legislation/point_indice_fonction_publique.csv",
         "quotients_mortalite": "mortalite/quotients_periode.csv",
@@ -378,6 +380,37 @@ def test_les_tables_par_generation_disent_le_droit_en_vigueur():
         for avant, apres in zip(valeurs, valeurs[1:]):
             assert (apres >= avant) if croissante else (apres <= avant)
 
+
+
+def test_la_proratisation_et_l_assiette_du_trimestre_sont_lues_dans_le_code():
+    """Deux tables de plus lues dans LEGI, et une ligne qui n'y est pas.
+
+    R. 351-6 II donne la durée maximale prise en compte par la proratisation —
+    à ne pas confondre avec la durée requise — et s'arrête à la génération
+    1947 : la ligne 1948 est la jonction avec `duree_assurance_requise.csv`,
+    qu'aucun article n'écrit, et reste donc au niveau `haute`. R. 351-9 donne
+    l'assiette d'un trimestre, en heures de SMIC.
+    """
+    import csv
+
+    def lire(nom, cle, colonne):
+        chemin = RACINE_DONNEES / "reference" / "legislation" / nom
+        with chemin.open(encoding="utf-8") as flux:
+            lignes = (l for l in flux if not l.lstrip().startswith("#"))
+            return {
+                float(ligne[cle]): (float(ligne[colonne]), ligne["fiabilite"])
+                for ligne in csv.DictReader(lignes)
+            }
+
+    proratisation = lire("duree_proratisation.csv", "generation", "trimestres")
+    assert proratisation[1900] == (150.0, "certifiee")   # « nés avant 1944 »
+    assert proratisation[1945] == (154.0, "certifiee")
+    assert proratisation[1947] == (158.0, "certifiee")
+    assert proratisation[1948] == (160.0, "haute")       # la jonction, hors texte
+
+    trimestre = lire("validation_trimestres.csv", "annee", "heures")
+    assert trimestre[1972] == (200.0, "certifiee")
+    assert trimestre[2014] == (150.0, "certifiee")
 
 
 # -- catalogue des régimes ---------------------------------------------------
