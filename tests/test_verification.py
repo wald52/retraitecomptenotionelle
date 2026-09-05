@@ -610,3 +610,27 @@ def test_les_annees_du_salaire_de_reference_se_lisent_en_toutes_lettres():
     assert module.annees_salaire_reference([("2007-04-27", texte)]) == {
         1900: 10.0, 1944: 21.0, 1947: 24.0, 1948: 25.0,
     }
+
+
+def test_la_decote_de_la_fonction_publique_se_lit_dans_le_tableau_de_la_loi():
+    """Le tableau est rendu à plat, et sa dernière ligne perd ses repères."""
+    module = _charger_script("dila_legi_decote_fonction_publique", "scripts", "fetch",
+                             "dila_legi_decote_fonction_publique.py")
+    texte = (
+        "III. - Jusqu'au 31 décembre 2019, sont fixés comme indiqué dans le "
+        "tableau suivant : I : 2006 II : 0,125 % III : Limite d'âge moins 16 "
+        "trimestres I : 2007 II : 0,25 % III : Limite d'âge moins 14 trimestres "
+        "2019 1,25 % Limite d'âge moins 1 trimestre"
+    )
+    table = module.montee_en_charge([("2004-01-01", texte)])
+    assert table[2006] == {"coefficient": 0.00125, "trimestres_avant_limite": 16.0}
+    assert table[2007] == {"coefficient": 0.0025, "trimestres_avant_limite": 14.0}
+    # La dernière ligne du tableau n'a plus ses « I : », « II : », « III : ».
+    assert table[2019] == {"coefficient": 0.0125, "trimestres_avant_limite": 1.0}
+
+
+def test_l_age_d_annulation_suit_l_age_d_ouverture(verificateur):
+    """La règle de L. 351-8 : l'âge d'ouverture majoré de cinq ans, plafonné à 67."""
+    messages = verificateur.controle_vraisemblance_age_annulation()
+    assert messages[0].startswith("OK")
+    assert not [m for m in messages if m.startswith("SUSPECT")]

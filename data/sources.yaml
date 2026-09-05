@@ -1050,6 +1050,26 @@ institutions:
           Les taux d'avant 1993 sont dans les décrets abrogés que celui de 1991
           a remplacés, et restent transcrits.
 
+      - id: dila_legi_decote_fonction_publique
+        titre: Décote de la fonction publique, montée en charge 2006-2019
+        url: https://echanges.dila.gouv.fr/OPENDATA/LEGI/
+        acces: api
+        statut_integration: certifie
+        cible: data/reference/legislation/decote_fonction_publique.csv
+        recuperation: scripts/fetch/dila_legi_decote_fonction_publique.py
+        note: >-
+          Article 66 III de la loi n° 2003-775 du 21 août 2003, qui déroge à
+          l'article L. 14 du code des pensions le temps de la montée en charge.
+          Son tableau porte les deux colonnes à la fois — « I : 2006 II :
+          0,125 % III : Limite d'âge moins 16 trimestres » —, soit vingt-huit
+          valeurs, toutes identiques à la saisie. La ligne 2020 du dépôt n'y est
+          pas : la dérogation court jusqu'au 31 décembre 2019 et L. 14
+          s'applique en plein ensuite ; elle reste au niveau `haute`.
+          Le même article porte à son II une autre table — le nombre de
+          trimestres nécessaires au pourcentage maximum de la pension civile —
+          que le motif de lecture écarte de lui-même : ses lignes ne portent ni
+          pourcentage ni limite d'âge.
+
       - id: dila_legi_msa
         titre: Valeur de service du point de la RCO agricole, 2005-2024
         url: https://echanges.dila.gouv.fr/OPENDATA/LEGI/

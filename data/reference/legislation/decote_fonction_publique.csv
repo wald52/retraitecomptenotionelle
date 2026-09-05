@@ -32,19 +32,32 @@
 #
 # Avant 2006 : aucune ligne, donc aucune décote. Après 2020 : la dernière
 # ligne vaut, l'âge d'annulation est la limite d'âge elle-même.
+#
+# D'OÙ VIENNENT CES VALEURS. Du III de l'article 66 de la loi n° 2003-775 du
+# 21 août 2003, LU dans la base LEGI de la DILA par
+# `scripts/fetch/dila_legi_decote_fonction_publique.py`. La loi y déroge à
+# l'article L. 14 le temps de la montée en charge, et son tableau porte les deux
+# colonnes à la fois : « I : 2006 II : 0,125 % III : Limite d'âge moins 16
+# trimestres ». Niveau `certifiee` de 2006 à 2019, et les vingt-huit valeurs
+# saisies s'y sont retrouvées à l'identique.
+#
+# LA LIGNE 2020 N'EST PAS DANS LE TABLEAU : la dérogation court « jusqu'au
+# 31 décembre 2019 », et c'est l'article L. 14 qui s'applique en plein ensuite —
+# coefficient de 1,25 %, âge d'annulation égal à la limite d'âge. Cette ligne est
+# la jonction entre deux textes, et reste au niveau `haute`.
 annee,trimestres_avant_limite,coefficient,fiabilite
-2006,16,0.00125,haute
-2007,14,0.0025,haute
-2008,12,0.00375,haute
-2009,11,0.005,haute
-2010,10,0.00625,haute
-2011,9,0.0075,haute
-2012,8,0.00875,haute
-2013,7,0.01,haute
-2014,6,0.01125,haute
-2015,5,0.0125,haute
-2016,4,0.0125,haute
-2017,3,0.0125,haute
-2018,2,0.0125,haute
-2019,1,0.0125,haute
+2006,16,0.00125,certifiee
+2007,14,0.00250,certifiee
+2008,12,0.00375,certifiee
+2009,11,0.00500,certifiee
+2010,10,0.00625,certifiee
+2011,9,0.00750,certifiee
+2012,8,0.00875,certifiee
+2013,7,0.01000,certifiee
+2014,6,0.01125,certifiee
+2015,5,0.01250,certifiee
+2016,4,0.01250,certifiee
+2017,3,0.01250,certifiee
+2018,2,0.01250,certifiee
+2019,1,0.01250,certifiee
 2020,0,0.0125,haute

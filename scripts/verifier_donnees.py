@@ -95,6 +95,17 @@ JOURNAL = DONNEES / "derive" / "certification.json"
 # ---------------------------------------------------------------------------
 
 
+def _table_reference(nom: str, cle: str, colonne: str) -> dict[float, float]:
+    """Une table par génération ou par année, lue dans data/reference/legislation."""
+    chemin = REFERENCE / "legislation" / nom
+    if not chemin.exists():
+        return {}
+    return {
+        float(ligne[cle]): float(ligne[colonne])
+        for ligne in charger_csv(chemin)
+    }
+
+
 def charger_csv(chemin: Path) -> list[dict[str, str]]:
     with chemin.open(encoding="utf-8") as flux:
         lignes = (l for l in flux if not l.lstrip().startswith("#"))
@@ -786,6 +797,37 @@ def source_heures_par_trimestre() -> dict[tuple, float]:
     return _table_legi("heures_par_trimestre")
 
 
+def _decote_fonction_publique(mesure: str) -> dict[tuple, float]:
+    serie = _serie_json("dila_legi_decote_fonction_publique.json",
+                        "scripts/fetch/dila_legi_decote_fonction_publique.py")
+    return {
+        (cle.split("|")[1],): valeur
+        for cle, valeur in sorted(serie.items())
+        if cle.startswith(f"{mesure}|")
+    }
+
+
+def source_decote_fp_coefficient() -> dict[tuple, float]:
+    """Coefficient de minoration de la fonction publique, année par année.
+
+    Article 66 III de la loi du 21 août 2003, qui déroge à l'article L. 14 du
+    code des pensions le temps de la montée en charge : un huitième de point
+    par trimestre en 2006, un et quart à compter de 2015. Opposer la cible à
+    une liquidation de 2008 décote dix fois trop.
+    """
+    return _decote_fonction_publique("coefficient")
+
+
+def source_decote_fp_trimestres() -> dict[tuple, float]:
+    """Trimestres retranchés à la limite d'âge, année par année.
+
+    L'âge d'annulation de la décote n'est pas un âge en propre dans la fonction
+    publique : c'est la limite d'âge du grade, diminuée de seize trimestres en
+    2006 et d'un seul en 2019. Le même tableau les porte.
+    """
+    return _decote_fonction_publique("trimestres_avant_limite")
+
+
 def source_carriere_longue() -> dict[tuple, float]:
     """Âge de départ anticipé par borne d'entrée dans la vie active.
 
@@ -1122,6 +1164,12 @@ class Certification:
         journal = {
             "source": self.origine,
             "niveau": self.niveau,
+            # Deux contrôles peuvent porter sur les mêmes LIGNES et des COLONNES
+            # différentes — la décote de la fonction publique, dont un article
+            # fixe le coefficient et l'âge d'annulation dans le même tableau.
+            # Sans le nom de la colonne, on ne saurait pas si deux traces
+            # comptent deux fois les mêmes lignes.
+            "colonne": self.colonne,
             "valeurs": len(attendu),
             "identiques": identiques,
             "corrigees": len(corrigees),
@@ -1529,6 +1577,27 @@ CERTIFICATIONS = (
         unite=" €",
     ),
     Certification(
+        nom="decote_fonction_publique_coefficient",
+        chemin=REFERENCE / "legislation" / "decote_fonction_publique.csv",
+        cles=("annee",),
+        colonne="coefficient",
+        source=source_decote_fp_coefficient,
+        origine="DILA, base LEGI, loi n° 2003-775 du 21 août 2003, article 66 III",
+        decimales=5,
+        tolerance=5e-6,
+    ),
+    Certification(
+        nom="decote_fonction_publique_trimestres",
+        chemin=REFERENCE / "legislation" / "decote_fonction_publique.csv",
+        cles=("annee",),
+        colonne="trimestres_avant_limite",
+        source=source_decote_fp_trimestres,
+        origine="DILA, base LEGI, loi n° 2003-775 du 21 août 2003, article 66 III",
+        decimales=0,
+        tolerance=0.5,
+        unite=" trimestres",
+    ),
+    Certification(
         nom="point_indice_fonction_publique",
         chemin=REFERENCE / "legislation" / "point_indice_fonction_publique.csv",
         cles=("annee",),
@@ -1913,6 +1982,53 @@ def controle_vraisemblance_esperance_65() -> list[str]:
         f"OK      vraisemblance espérance à 65 ans : {len(communes)} valeurs "
         f"comparées OCDE / Eurostat, écart maximal {maximum:.2f} an",
     ] + depassements
+
+
+#: L'article L. 351-8 1° définit l'âge d'annulation de la décote par rapport à
+#: l'âge d'ouverture : « augmenté de cinq années » jusqu'à la réforme de 2023,
+#: « de trois années » depuis — et la cible est la même, 67 ans.
+ANNULATION_APRES_OUVERTURE = 5.0
+AGE_ANNULATION_CIBLE = 67.0
+
+
+def controle_vraisemblance_age_annulation() -> list[str]:
+    """Recalcule l'âge d'annulation de la décote depuis l'âge d'ouverture.
+
+    Cette table-là n'est pas certifiable : aucun texte ne l'écrit génération par
+    génération. Ce que le code écrit, c'est une RÈGLE — l'article L. 351-8 1°
+    donne « l'âge prévu à l'article L. 161-17-2 augmenté de cinq années »,
+    devenu trois années quand la réforme de 2023 a porté l'âge d'ouverture à
+    64 ans, la cible restant 67. La table du dépôt est donc la table certifiée
+    des âges d'ouverture, décalée et plafonnée.
+
+    On ne la certifie pas pour autant — une valeur calculée n'est pas une valeur
+    confrontée, et c'est la règle qui vaut pour l'espérance de vie dérivée. Mais
+    on la recontrôle : si une réforme déplaçait l'âge d'ouverture sans que
+    celui-ci suive, l'écart se verrait ici plutôt que dans une pension.
+    """
+    ouverture = _table_reference("age_ouverture_requis.csv", "generation", "age")
+    annulation = _table_reference("age_annulation_decote.csv", "generation", "age")
+    if not ouverture or not annulation:
+        return ["IGNORÉ  vraisemblance âge d'annulation : table absente"]
+
+    bornes = sorted(ouverture)
+    ecarts = []
+    for generation, age in sorted(annulation.items()):
+        applicables = [b for b in bornes if b <= generation]
+        if not applicables:
+            continue
+        attendu = min(ouverture[applicables[-1]] + ANNULATION_APRES_OUVERTURE,
+                      AGE_ANNULATION_CIBLE)
+        if abs(attendu - age) > 0.01:
+            ecarts.append(
+                f"SUSPECT âge d'annulation, génération {generation:g} : table "
+                f"{age:g} ans, règle de L. 351-8 {attendu:g} ans"
+            )
+    return [
+        f"OK      vraisemblance âge d'annulation : {len(annulation)} générations "
+        f"comparées à l'âge d'ouverture certifié majoré de "
+        f"{ANNULATION_APRES_OUVERTURE:g} ans, {len(ecarts)} en désaccord",
+    ] + ecarts
 
 
 def controle_vraisemblance_cotisations() -> list[str]:
@@ -2311,6 +2427,7 @@ def main(argv: list[str] | None = None) -> int:
     messages.extend(controle_vraisemblance_inflation())
     messages.extend(controle_vraisemblance_prix_anciens())
     messages.extend(controle_vraisemblance_esperance_65())
+    messages.extend(controle_vraisemblance_age_annulation())
     messages.extend(controle_vraisemblance_plafond())
     messages.extend(controle_vraisemblance_cotisations())
     messages.extend(controle_vraisemblance_rendements())

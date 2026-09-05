@@ -16,6 +16,20 @@
 # COUPE AUSSI : la ligne `1951.5` désigne les assurés nés à compter du
 # 1er juillet 1951, comme dans age_ouverture_requis.csv. Ceux nés avant gardent
 # les 65 ans du droit antérieur, que le modèle leur refusait.
+#
+# POURQUOI CETTE TABLE RESTE `haute`, ET COMMENT ELLE EST TOUT DE MÊME
+# RECONTRÔLÉE. Aucun texte ne l'écrit génération par génération : ce que le code
+# écrit est une RÈGLE. L'article L. 351-8 1° donne « l'âge prévu à l'article
+# L. 161-17-2 augmenté de cinq années », devenu trois années quand la réforme du
+# 14 avril 2023 a porté l'âge d'ouverture à 64 ans — la cible restant 67. Cette
+# table est donc celle des âges d'ouverture, certifiée, décalée de cinq ans et
+# plafonnée à 67.
+#
+# Une valeur calculée n'est pas une valeur confrontée, et le dépôt applique ici
+# la règle qui vaut pour l'espérance de vie dérivée : niveau `haute`. Mais
+# `scripts/verifier_donnees.py` la recalcule à chaque exécution depuis la table
+# certifiée — si une réforme déplaçait l'âge d'ouverture sans que celui-ci
+# suive, l'écart se verrait là plutôt que dans une pension.
 generation,age,fiabilite
 1930,65,haute
 1950,65,haute

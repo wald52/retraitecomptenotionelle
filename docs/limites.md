@@ -28,7 +28,7 @@ Ce qui suit est le recensement complet de ses paramètres et de leur état.
 | Minimum garanti, référence | 997,96 €/mois au 1er janvier 2004 ; montants servis 2020, 2023-2025 | transcrit, recoupé au point d'indice |
 | Point d'indice de la fonction publique | série datée 1960-2027 | OpenFisca-France, **recontrôlé à chaque exécution** |
 | Minimum vieillesse (ASPA) | montants servis 2007, 2010, 2016-2026 | transcrit des publications |
-| Décote de la fonction publique | article L. 14, montée en charge 2006-2020 | reprise des textes, non recontrôlée |
+| Décote de la fonction publique | article L. 14, montée en charge 2006-2020 | **certifiée** (loi de 2003, article 66 III) jusqu'à 2019 ; la ligne 2020 est la jonction avec L. 14 |
 | Carrière longue | trois étapes, 2004, 2012, 2023 | **certifiée** pour 2023 (L. 351-1-1, D. 351-1-1) ; 2004 et 2012 transcrites |
 | Trimestres accordés au titre des enfants | MDA à 4 puis 8 trimestres par enfant (1972, 1975) ; bonification de la fonction publique à 4 puis 2 (2004) | reprise des textes, non recontrôlée |
 | Surcote parentale | 1,25 % par trimestre entre 63 ans et l'âge légal, quatre au plus | reprise des textes (L. 351-1-2-1), non recontrôlée |
@@ -37,7 +37,7 @@ Ce qui suit est le recensement complet de ses paramètres et de leur état.
 | Heures de SMIC pour valider un trimestre | 200 depuis 1972, 150 depuis 2014 | **certifiée** (R. 351-9) |
 | Revalorisation des salaires portés au compte | 10 colonnes publiées, effets d'octobre 2017 à janvier 2026 | circulaires de la Cnav ; ailleurs, ancrage sur la plus proche |
 | Âge légal par génération | table 1900-1975, 60 → 64 ans | **certifié** (D. 161-2-1-9), recontrôlé à chaque exécution |
-| Âge d'annulation de la décote par génération | table 1930-1955, 65 → 67 ans | reprise des textes, non recontrôlée |
+| Âge d'annulation de la décote par génération | table 1930-1955, 65 → 67 ans | calculée depuis l'âge d'ouverture certifié, selon la règle de `L. 351-8` ; recontrôlée à chaque exécution |
 | Coefficient de minoration par génération | table 1900-1975, 2,5 → 1,25 % | **certifié** (R. 351-27 II), recoupé à la DREES |
 | Années retenues au salaire de référence | table 1934-1948, 10 → 25 années | **certifiée** (R. 351-29-1) |
 | Coefficients d'anticipation Agirc-Arrco | deux tables, 1 → 0,78 et 1 → 0,43 | barème publié par la caisse, saisi |
@@ -350,6 +350,8 @@ La page **Données** du site affiche l'état exact. En résumé :
 | Durée maximale prise en compte par la proratisation | avant 1944 à 1947 | **certifiée** | DILA, base LEGI, code de la sécurité sociale `R. 351-6` II |
 | Heures de SMIC à cotiser pour valider un trimestre | 1972 et 2014 | **certifiée** | DILA, base LEGI, code de la sécurité sociale `R. 351-9` |
 | Années retenues au salaire annuel moyen, par génération | avant 1934 à 1948 | **certifiée** | DILA, base LEGI, code de la sécurité sociale `R. 351-29-1` |
+| Décote de la fonction publique, coefficient et âge d'annulation | 2006-2019 | **certifiée** | DILA, base LEGI, loi n° 2003-775 du 21 août 2003, article 66 III |
+| Âge d'annulation de la décote, régime général | 1930-1955 | haute | calculé — l'âge d'ouverture certifié majoré de cinq ans, comme l'écrit `L. 351-8` ; recontrôlé à chaque exécution |
 | Point d'indice de la fonction publique | 1996-2027 | **certifiée** | DILA, base LEGI, décret n° 85-1148 du 24 octobre 1985, article 3 |
 | Point d'indice de la fonction publique | 1960-1995 | haute | OpenFisca-France, `point_indice_en_euros` — deux versions manquent au dump avant 1996 |
 | SMIC horaire | 1997-2017, sauf 2002 | **certifiée** | DILA, base LEGI, décrets portant relèvement du SMIC |
@@ -401,6 +403,7 @@ python scripts/fetch/dila_legi_point_indice.py # point d'indice, dans son décre
 python scripts/fetch/dila_legi_smic.py         # SMIC, dans ses décrets de relèvement (lent)
 python scripts/fetch/dila_legi_duree_requise.py # durée requise des générations 1953-1957 (lent)
 python scripts/fetch/dila_legi_cnracl.py       # contribution employeur de la CNRACL (lent)
+python scripts/fetch/dila_legi_decote_fonction_publique.py  # décote de la fonction publique (lent)
 python scripts/fetch/erafp_valeurs_point.py    # valeurs du point du RAFP, par l'ERAFP
 python scripts/fetch/ined_vallin_mesle.py      # quotients de mortalité d'avant 1986
 python scripts/fetch/insee_projections_mortalite.py  # espérances de vie projetées, jusqu'en 2125
@@ -510,10 +513,10 @@ pour l'Arrco reconstituée, 26,43 F pour l'UNIRS).
 **Ce qui reste hors de portée, et pourquoi.** La liste vaut recensement de ce
 qui a été cherché, pour éviter de le rechercher deux fois — et elle est tenue
 dans les deux sens : une limite qui se referme n'est pas effacée, elle est
-réécrite avec ce qui l'a levée et ce qu'elle a fini par coûter. Sur les quinze
-entrées qui suivent, **onze ont été refermées par une source trouvée** et
+réécrite avec ce qui l'a levée et ce qu'elle a fini par coûter. Sur les dix-sept
+entrées qui suivent, **douze ont été refermées par une source trouvée** et
 **deux par la mesure du biais** qu'elles laissent — un biais chiffré n'est plus
-une inconnue, il se retranche. Deux restent ouvertes, faute de source. Les
+une inconnue, il se retranche. Trois restent ouvertes, faute de source. Les
 phrases qui déclaraient ces limites inaccessibles sont citées telles quelles,
 parce qu'une conclusion fausse tirée de prémisses vraies est ce qui se répète le
 plus volontiers.
@@ -1139,6 +1142,55 @@ plus volontiers.
   décret de relèvement paraît fin janvier avec effet au 1er janvier, quand la
   version consolidée s'ouvre au 1er février — sans quoi 2024 porterait le taux
   de 2023.
+
+* *Décote de la fonction publique, et âge d'annulation de la décote* — **l'une
+  lue dans la loi, l'autre calculée et désormais recontrôlée.** Ces deux tables
+  figuraient au tableau des paramètres du scénario 1 avec la même mention :
+  « reprise des textes, non recontrôlée ». Elles ne sont pourtant pas de même
+  nature, et c'est ce que la recherche a établi.
+
+  **La décote de la fonction publique est écrite, et dans un seul tableau** :
+  le III de l'article 66 de la loi du 21 août 2003, que la base garde comme
+  texte consolidé et que le dépouillement rend à plat, ligne à ligne :
+
+  > « I : 2006 II : 0,125 % III : Limite d'âge moins 16 trimestres »
+
+  Quatorze années, deux colonnes — le coefficient par trimestre et le nombre de
+  trimestres retranchés à la limite d'âge —, vingt-huit valeurs identiques à la
+  saisie. Le tableau s'arrête à 2019, la dérogation courant « jusqu'au
+  31 décembre 2019 » : la ligne 2020 du dépôt est la jonction avec l'article
+  L. 14, qui s'applique en plein ensuite, et reste `haute`.
+
+  **L'âge d'annulation du régime général, lui, n'est écrit nulle part**
+  génération par génération, et il n'y a rien à chercher de plus : ce que le
+  code écrit est une RÈGLE. L'article `L. 351-8` 1° donne « l'âge prévu à
+  l'article L. 161-17-2 augmenté de cinq années », devenu trois années quand la
+  réforme de 2023 a porté l'âge d'ouverture à 64 ans — la cible restant 67. La
+  table du dépôt est donc la table certifiée des âges d'ouverture, décalée et
+  plafonnée.
+
+  Elle reste au niveau `haute` : une valeur calculée n'est pas une valeur
+  confrontée, et c'est la règle que le dépôt applique déjà à l'espérance de vie
+  dérivée. Mais elle est désormais RECALCULÉE à chaque exécution depuis la table
+  certifiée — si une réforme déplaçait l'âge d'ouverture sans que celui-ci
+  suive, l'écart se verrait là plutôt que dans une pension.
+
+* *Contribution employeur de la CNRACL d'avant 1993* — **cherchée, et la chaîne
+  est trouée.** Les taux de 1993 à 2028 sont désormais lus dans l'article 5 du
+  décret de 1991. Ceux d'avant sont dans les décrets que ce dernier a remplacés,
+  et la base ne les garde pas tous : sur les six textes que l'article consolidé
+  cite en note — 83-36, 83-1193, 84-1157, 86-1381, 87-1118, 88-1249, 91-159 —,
+  un seul porte encore sa phrase, celui du 24 janvier 1983 :
+
+  > « Au deuxième alinéa du 1 de l'article 3 du décret du 19 septembre 1947
+  > modifié susvisé, le taux de 13 p. 100 est remplacé par le taux de
+  > 11,20 p. 100. »
+
+  Reconstituer la série d'un taux à l'autre suppose la chaîne entière : il
+  manque un maillon et la série est plate là où le taux a bougé, sans que rien
+  ne le dise. C'est exactement ce qui a fait renoncer au point d'indice d'avant
+  1996, et la même mesure s'applique — ces quarante-cinq années restent
+  transcrites d'OpenFisca, au niveau `haute`.
 
 **Ce que cela veut dire concrètement.** Les carrières entamées après 1950 —
 c'est-à-dire les générations nées à partir de 1930 environ, soit la quasi-totalité

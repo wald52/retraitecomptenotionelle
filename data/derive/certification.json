@@ -3,6 +3,7 @@
  "series": {
   "age_ouverture_requis": {
    "ajoutees": 0,
+   "colonne": "age",
    "corrigees": 0,
    "empreinte": "87324cfad7650683",
    "identiques": 78,
@@ -12,6 +13,7 @@
   },
   "annees_salaire_reference": {
    "ajoutees": 0,
+   "colonne": "annees",
    "corrigees": 0,
    "empreinte": "6e131b394a4502fe",
    "identiques": 16,
@@ -21,6 +23,7 @@
   },
   "carriere_longue": {
    "ajoutees": 0,
+   "colonne": "age_depart",
    "corrigees": 0,
    "empreinte": "60d9bb150a95f66c",
    "identiques": 4,
@@ -30,6 +33,7 @@
   },
   "coefficient_minoration": {
    "ajoutees": 0,
+   "colonne": "coefficient",
    "corrigees": 0,
    "empreinte": "4b9bcbfdd6753594",
    "identiques": 76,
@@ -37,8 +41,29 @@
    "source": "DILA, base LEGI, code de la sécurité sociale R. 351-27",
    "valeurs": 76
   },
+  "decote_fonction_publique_coefficient": {
+   "ajoutees": 0,
+   "colonne": "coefficient",
+   "corrigees": 0,
+   "empreinte": "afaf067a8d867ac7",
+   "identiques": 14,
+   "niveau": "certifiee",
+   "source": "DILA, base LEGI, loi n° 2003-775 du 21 août 2003, article 66 III",
+   "valeurs": 14
+  },
+  "decote_fonction_publique_trimestres": {
+   "ajoutees": 0,
+   "colonne": "trimestres_avant_limite",
+   "corrigees": 0,
+   "empreinte": "0d89630d58f3899d",
+   "identiques": 14,
+   "niveau": "certifiee",
+   "source": "DILA, base LEGI, loi n° 2003-775 du 21 août 2003, article 66 III",
+   "valeurs": 14
+  },
   "duree_assurance_requise": {
    "ajoutees": 0,
+   "colonne": "trimestres",
    "corrigees": 0,
    "empreinte": "eb9e393edaf923f5",
    "identiques": 19,
@@ -48,6 +73,7 @@
   },
   "duree_assurance_requise_decrets": {
    "ajoutees": 0,
+   "colonne": "trimestres",
    "corrigees": 0,
    "empreinte": "14397446493bf12c",
    "identiques": 5,
@@ -57,6 +83,7 @@
   },
   "duree_proratisation": {
    "ajoutees": 0,
+   "colonne": "trimestres",
    "corrigees": 0,
    "empreinte": "88a705f1e8ec84bd",
    "identiques": 5,
@@ -66,6 +93,7 @@
   },
   "employeur_public_cnracl": {
    "ajoutees": 0,
+   "colonne": "taux",
    "corrigees": 0,
    "empreinte": "838ceb5b99cc8a78",
    "identiques": 45,
@@ -75,6 +103,7 @@
   },
   "employeur_public_cnracl_journal_officiel": {
    "ajoutees": 0,
+   "colonne": "taux",
    "corrigees": 0,
    "empreinte": "f431b3a995a8cd30",
    "identiques": 36,
@@ -84,6 +113,7 @@
   },
   "employeur_public_etat": {
    "ajoutees": 0,
+   "colonne": "taux",
    "corrigees": 0,
    "empreinte": "adce04ab61f245f8",
    "identiques": 21,
@@ -93,6 +123,7 @@
   },
   "employeur_public_etat_implicite": {
    "ajoutees": 0,
+   "colonne": "taux",
    "corrigees": 0,
    "empreinte": "f388868c5194a5a4",
    "identiques": 11,
@@ -102,6 +133,7 @@
   },
   "employeur_public_sncf": {
    "ajoutees": 0,
+   "colonne": "taux",
    "corrigees": 0,
    "empreinte": "c1d8e81d6f45f365",
    "identiques": 12,
@@ -111,6 +143,7 @@
   },
   "esperance_65_derivee": {
    "ajoutees": 0,
+   "colonne": "valeur",
    "corrigees": 0,
    "empreinte": "eb9ed5da75656a7a",
    "identiques": 28,
@@ -120,6 +153,7 @@
   },
   "esperances_projetees": {
    "ajoutees": 0,
+   "colonne": "valeur",
    "corrigees": 0,
    "empreinte": "78b7c81e9c34c206",
    "identiques": 600,
@@ -129,6 +163,7 @@
   },
   "esperances_vie": {
    "ajoutees": 0,
+   "colonne": "valeur",
    "corrigees": 0,
    "empreinte": "0ddd59a38e01cfd9",
    "identiques": 450,
@@ -138,6 +173,7 @@
   },
   "inflation": {
    "ajoutees": 0,
+   "colonne": "variation",
    "corrigees": 0,
    "empreinte": "545d9a49df7d26b5",
    "identiques": 76,
@@ -147,6 +183,7 @@
   },
   "masse_salariale": {
    "ajoutees": 0,
+   "colonne": "variation_nominale",
    "corrigees": 0,
    "empreinte": "79ffd6c89abaa812",
    "identiques": 76,
@@ -156,6 +193,7 @@
   },
   "minimum_contributif": {
    "ajoutees": 0,
+   "colonne": "valeur",
    "corrigees": 0,
    "empreinte": "86693c4efe70d0d7",
    "identiques": 6,
@@ -165,6 +203,7 @@
   },
   "pib_nominal": {
    "ajoutees": 0,
+   "colonne": "variation_nominale",
    "corrigees": 0,
    "empreinte": "e4e5db4f2d0dabe0",
    "identiques": 76,
@@ -174,6 +213,7 @@
   },
   "plafond": {
    "ajoutees": 0,
+   "colonne": "pass_eur",
    "corrigees": 0,
    "empreinte": "4ff3567f49e62767",
    "identiques": 25,
@@ -183,6 +223,7 @@
   },
   "plafond_ancien": {
    "ajoutees": 0,
+   "colonne": "pass_eur",
    "corrigees": 0,
    "empreinte": "e2958be9531f7b78",
    "identiques": 71,
@@ -192,6 +233,7 @@
   },
   "point_indice_fonction_publique": {
    "ajoutees": 0,
+   "colonne": "valeur",
    "corrigees": 0,
    "empreinte": "aff9e1938730bd29",
    "identiques": 36,
@@ -201,6 +243,7 @@
   },
   "point_indice_journal_officiel": {
    "ajoutees": 0,
+   "colonne": "valeur",
    "corrigees": 0,
    "empreinte": "e2ce048367b5e2b0",
    "identiques": 32,
@@ -210,6 +253,7 @@
   },
   "productivite": {
    "ajoutees": 0,
+   "colonne": "variation_reelle",
    "corrigees": 0,
    "empreinte": "9c69741a05c75be3",
    "identiques": 76,
@@ -219,6 +263,7 @@
   },
   "quotients_mortalite": {
    "ajoutees": 0,
+   "colonne": "qx",
    "corrigees": 0,
    "empreinte": "428254319c1001b4",
    "identiques": 6850,
@@ -228,6 +273,7 @@
   },
   "quotients_mortalite_anciens": {
    "ajoutees": 0,
+   "colonne": "qx",
    "corrigees": 0,
    "empreinte": "ccd29a507d00e837",
    "identiques": 18466,
@@ -237,6 +283,7 @@
   },
   "salaire_moyen": {
    "ajoutees": 0,
+   "colonne": "variation_nominale",
    "corrigees": 0,
    "empreinte": "1b8332a5465c4c4c",
    "identiques": 76,
@@ -246,6 +293,7 @@
   },
   "smic_horaire": {
    "ajoutees": 0,
+   "colonne": "smic_horaire",
    "corrigees": 0,
    "empreinte": "1e664f4810d8ce5f",
    "identiques": 20,
@@ -255,6 +303,7 @@
   },
   "valeurs_point": {
    "ajoutees": 0,
+   "colonne": "valeur",
    "corrigees": 0,
    "empreinte": "b40e79d63ac553de",
    "identiques": 306,
@@ -264,6 +313,7 @@
   },
   "valeurs_point_agirc_arrco": {
    "ajoutees": 0,
+   "colonne": "valeur",
    "corrigees": 0,
    "empreinte": "b3071e53b07b541a",
    "identiques": 275,
@@ -273,6 +323,7 @@
   },
   "valeurs_point_agirc_arrco_en_cours": {
    "ajoutees": 0,
+   "colonne": "valeur",
    "corrigees": 0,
    "empreinte": "e398b564f1c064df",
    "identiques": 1,
@@ -282,6 +333,7 @@
   },
   "valeurs_point_cnavpl": {
    "ajoutees": 0,
+   "colonne": "valeur",
    "corrigees": 0,
    "empreinte": "d7c41cf89ee07d82",
    "identiques": 13,
@@ -291,6 +343,7 @@
   },
   "valeurs_point_cnbf": {
    "ajoutees": 0,
+   "colonne": "valeur",
    "corrigees": 0,
    "empreinte": "988dba33ad15f670",
    "identiques": 18,
@@ -300,6 +353,7 @@
   },
   "valeurs_point_ircantec": {
    "ajoutees": 0,
+   "colonne": "valeur",
    "corrigees": 0,
    "empreinte": "08dba684ba1976e6",
    "identiques": 153,
@@ -309,6 +363,7 @@
   },
   "valeurs_point_msa": {
    "ajoutees": 0,
+   "colonne": "valeur",
    "corrigees": 0,
    "empreinte": "fcfafd64be80c849",
    "identiques": 20,
@@ -318,6 +373,7 @@
   },
   "valeurs_point_rafp": {
    "ajoutees": 0,
+   "colonne": "valeur",
    "corrigees": 0,
    "empreinte": "105e66ec7c4bbe5d",
    "identiques": 44,
@@ -327,6 +383,7 @@
   },
   "valeurs_point_texte": {
    "ajoutees": 0,
+   "colonne": "valeur",
    "corrigees": 0,
    "empreinte": "33772abba31cf52b",
    "identiques": 1,
@@ -336,6 +393,7 @@
   },
   "valeurs_point_unirs": {
    "ajoutees": 0,
+   "colonne": "valeur",
    "corrigees": 0,
    "empreinte": "f456045e1b51f980",
    "identiques": 123,
@@ -345,6 +403,7 @@
   },
   "validation_trimestres": {
    "ajoutees": 0,
+   "colonne": "heures",
    "corrigees": 0,
    "empreinte": "37614b2a66b3bf4e",
    "identiques": 2,

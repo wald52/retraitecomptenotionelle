@@ -264,6 +264,10 @@ def test_journal_de_certification_decrit_les_series_certifiees():
         "annees_salaire_reference": "legislation/annees_salaire_reference.csv",
         "validation_trimestres": "legislation/validation_trimestres.csv",
         "smic_horaire": "macro/smic_horaire.csv",
+        "decote_fonction_publique_coefficient":
+            "legislation/decote_fonction_publique.csv",
+        "decote_fonction_publique_trimestres":
+            "legislation/decote_fonction_publique.csv",
         "point_indice_fonction_publique":
             "legislation/point_indice_fonction_publique.csv",
         "point_indice_journal_officiel":
@@ -308,9 +312,19 @@ def test_journal_de_certification_decrit_les_series_certifiees():
     # le plafond en est le cas : INSEE certifie 2002-2025, OpenFisca renseigne
     # tout ce qui précède au niveau « haute ». On compare donc par (fichier,
     # niveau), pas contrôle par contrôle.
-    attendu: dict[tuple[str, str], int] = collections.Counter()
+    #
+    # Et deux contrôles peuvent viser les mêmes LIGNES par des COLONNES
+    # différentes : l'article 66 de la loi de 2003 fixe, dans le même tableau,
+    # le coefficient de la décote de la fonction publique et son âge
+    # d'annulation. Leurs valeurs ne s'additionnent pas — c'est la colonne la
+    # mieux couverte qui dit combien de lignes le fichier doit porter.
+    par_colonne: dict[tuple[str, str, str], int] = collections.Counter()
     for nom, trace in journal["series"].items():
-        attendu[(fichiers[nom], trace["niveau"])] += trace["valeurs"]
+        par_colonne[(fichiers[nom], trace["niveau"], trace["colonne"])] += \
+            trace["valeurs"]
+    attendu: dict[tuple[str, str], int] = {}
+    for (fichier, niveau, _), valeurs in par_colonne.items():
+        attendu[(fichier, niveau)] = max(attendu.get((fichier, niveau), 0), valeurs)
 
     constate: dict[tuple[str, str], int] = collections.Counter()
     for chemin_relatif in set(fichiers.values()):
