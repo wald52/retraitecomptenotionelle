@@ -56,6 +56,13 @@ qu'elle se compte en euros n'est donc pas écrite, et reste à la transcription.
 les décrets récents n'y sont pas entrés. La couverture s'arrête donc à 2018 —
 l'année que commande le dernier décret connu — et les suivantes restent
 transcrites d'OpenFisca, au niveau `haute`.
+
+Et ce n'est pas une particularité de LEGI : le dump **JORF** de la même DILA,
+qui porte le *Journal officiel* lui-même et remonte à 1946, s'arrête au même
+point pour ces décrets — vingt-trois relèvements, de juillet 1996 à janvier
+2017, et rien après, alors qu'il contient bien des textes de 2024. Les deux
+voies ont été essayées ; c'est écrit ici pour ne pas l'essayer une troisième
+fois.
 """
 
 from __future__ import annotations

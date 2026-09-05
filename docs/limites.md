@@ -515,12 +515,13 @@ pour l'Arrco reconstituée, 26,43 F pour l'UNIRS).
 **Ce qui reste hors de portée, et pourquoi.** La liste vaut recensement de ce
 qui a été cherché, pour éviter de le rechercher deux fois — et elle est tenue
 dans les deux sens : une limite qui se referme n'est pas effacée, elle est
-réécrite avec ce qui l'a levée et ce qu'elle a fini par coûter. Sur les dix-huit
+réécrite avec ce qui l'a levée et ce qu'elle a fini par coûter. Sur les dix-neuf
 entrées qui suivent, **douze ont été refermées par une source trouvée** et
 **deux par la mesure du biais** qu'elles laissent — un biais chiffré n'est plus
-une inconnue, il se retranche. Quatre restent ouvertes : trois faute de source,
-et une parce que la source ne suffirait pas — la ligne y mêle un nombre de la
-loi et une convention de modélisation. Les
+une inconnue, il se retranche. Cinq restent ouvertes : trois faute de source,
+une parce que la source ne suffirait pas — la ligne y mêle un nombre de la loi
+et une convention de modélisation —, et une dont la source est localisée mais
+pas encore lue. Les
 phrases qui déclaraient ces limites inaccessibles sont citées telles quelles,
 parce qu'une conclusion fausse tirée de prémisses vraies est ce qui se répète le
 plus volontiers.
@@ -1219,6 +1220,18 @@ plus volontiers.
   l'article : il n'énonce plus un taux mais un abaissement d'un an de l'âge de
   la surcote ordinaire. Certifier la ligne du dépôt contre une rédaction abrogée
   serait le contraire d'une certification.
+
+* *Contribution employeur de la SNCF* — **localisée, pas encore lue.** Le taux
+  du fichier est la somme de deux composantes que le décret n° 2007-1056 du
+  28 juin 2007 définit à son article 2 : **T1**, arrêté chaque année — « le taux
+  T1 définitif […] est fixé à 23,81 % pour l'année 2022 » —, et **T2**, fixé
+  par le IV du même article, « 13,85 % à partir du 1er mai 2017 ». Les arrêtés
+  T1 sont dans le dump JORF, de 2009 à 2024 ; les valeurs de T2 sont dans les
+  versions de l'article, dans LEGI. Deux sources, deux passes, une somme à
+  faire et une distinction à respecter — le taux d'une année est le DÉFINITIF,
+  publié l'année suivante, non le provisionnel publié en décembre. Douze lignes
+  y gagneraient leur certification et cinq années s'y ajouteraient ; le travail
+  est écrit ici plutôt que fait, faute d'avoir tranché la convention de date.
 
 * *Contribution employeur de la CNRACL d'avant 1993* — **cherchée, et la chaîne
   est trouée.** Les taux de 1993 à 2028 sont désormais lus dans l'article 5 du
