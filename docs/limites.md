@@ -39,7 +39,7 @@ Ce qui suit est le recensement complet de ses paramètres et de leur état.
 | Âge légal par génération | table 1900-1975, 60 → 64 ans | **certifié** (D. 161-2-1-9), recontrôlé à chaque exécution |
 | Âge d'annulation de la décote par génération | table 1930-1955, 65 → 67 ans | reprise des textes, non recontrôlée |
 | Coefficient de minoration par génération | table 1900-1975, 2,5 → 1,25 % | **certifié** (R. 351-27 II), recoupé à la DREES |
-| Années retenues au salaire de référence | table 1934-1948, 10 → 25 années | reprise des textes, non recontrôlée |
+| Années retenues au salaire de référence | table 1934-1948, 10 → 25 années | **certifiée** (R. 351-29-1) |
 | Coefficients d'anticipation Agirc-Arrco | deux tables, 1 → 0,78 et 1 → 0,43 | barème publié par la caisse, saisi |
 | Plafond de la majoration familiale Agirc-Arrco | 2 367 €/an (novembre 2025) | publié par la caisse, saisi |
 | Garantie minimale de points de l'Agirc | 120 points par an, 1989-2018 | accord du 9 février 1988, saisi |
@@ -342,12 +342,14 @@ La page **Données** du site affiche l'état exact. En résumé :
 | Minimum contributif et plafond d'écrêtement | ancres de 2007 à 2014 | **certifiée** | DILA, base LEGI, code de la sécurité sociale |
 | Âge d'ouverture des droits par génération | 1900-1975 | **certifiée** | DILA, base LEGI, code de la sécurité sociale `D. 161-2-1-9` |
 | Durée d'assurance requise par génération | 1958-1975 | **certifiée** | DILA, base LEGI, code de la sécurité sociale `L. 161-17-3` |
-| Durée d'assurance requise par génération | 1934-1957 | haute | décrets de montée en charge, non codifiés |
+| Durée d'assurance requise par génération | 1953-1957 | **certifiée** | DILA, base LEGI, décrets d'application des lois de 2003 et de 2010 |
+| Durée d'assurance requise par génération | 1934-1952 | haute | lois de 1993 et de 2003, dont les tableaux ne sont pas des textes consolidés |
 | Coefficient de minoration par génération | 1900-1975 | **certifiée** | DILA, base LEGI, code de la sécurité sociale `R. 351-27` |
 | Bornes de la carrière longue | 2023- | **certifiée** | DILA, base LEGI, `L. 351-1-1` et `D. 351-1-1` |
 | Bornes de la carrière longue | 2004 et 2012 | moyenne / haute | versions abrogées des mêmes articles, transcrites |
 | Durée maximale prise en compte par la proratisation | avant 1944 à 1947 | **certifiée** | DILA, base LEGI, code de la sécurité sociale `R. 351-6` II |
 | Heures de SMIC à cotiser pour valider un trimestre | 1972 et 2014 | **certifiée** | DILA, base LEGI, code de la sécurité sociale `R. 351-9` |
+| Années retenues au salaire annuel moyen, par génération | avant 1934 à 1948 | **certifiée** | DILA, base LEGI, code de la sécurité sociale `R. 351-29-1` |
 | Point d'indice de la fonction publique | 1996-2027 | **certifiée** | DILA, base LEGI, décret n° 85-1148 du 24 octobre 1985, article 3 |
 | Point d'indice de la fonction publique | 1960-1995 | haute | OpenFisca-France, `point_indice_en_euros` — deux versions manquent au dump avant 1996 |
 | SMIC horaire | 1997-2017, sauf 2002 | **certifiée** | DILA, base LEGI, décrets portant relèvement du SMIC |
@@ -362,7 +364,8 @@ La page **Données** du site affiche l'état exact. En résumé :
 | Répartition salarié/employeur, autres régimes de salariés | toutes | moyenne / estimée | OpenFisca et textes ; règle 40-60 pour les complémentaires |
 | Contribution employeur, État | 2006-2026 | **certifiée** | Service des retraites de l'État, fiche « Historique des taux de cotisations » |
 | Contribution employeur, État (implicite) | 1995-2005 | haute | OpenFisca-France, jaune « pensions » du PLF 2011 |
-| Contribution employeur, CNRACL | 1948-2025 | haute | OpenFisca-France, décrets et barèmes de la Caisse des dépôts |
+| Contribution employeur, CNRACL | 1993-2028 | **certifiée** | DILA, base LEGI, décret n° 91-613 du 28 juin 1991, article 5 II |
+| Contribution employeur, CNRACL | 1948-1992 | haute | OpenFisca-France, décrets abrogés et barèmes de la Caisse des dépôts |
 | Contribution employeur, SNCF (T1 + T2) | 2007-2018 | haute | OpenFisca-France, arrêtés annuels |
 | Valeurs d'achat et de service du point, Ircantec | 1971-2021 | **certifiée** | Caisse des dépôts, qui gère le régime |
 | Valeurs d'achat et de service du point, Agirc | 1947-2018 | **certifiée** | Fédération Agirc-Arrco, sa compilation des valeurs de point |
@@ -396,6 +399,8 @@ python scripts/fetch/dila_legi_parametres_retraite.py   # âges, durées, décot
 python scripts/fetch/openfisca_point_indice.py  # point d'indice et barème du minimum garanti
 python scripts/fetch/dila_legi_point_indice.py # point d'indice, dans son décret (lent)
 python scripts/fetch/dila_legi_smic.py         # SMIC, dans ses décrets de relèvement (lent)
+python scripts/fetch/dila_legi_duree_requise.py # durée requise des générations 1953-1957 (lent)
+python scripts/fetch/dila_legi_cnracl.py       # contribution employeur de la CNRACL (lent)
 python scripts/fetch/erafp_valeurs_point.py    # valeurs du point du RAFP, par l'ERAFP
 python scripts/fetch/ined_vallin_mesle.py      # quotients de mortalité d'avant 1986
 python scripts/fetch/insee_projections_mortalite.py  # espérances de vie projetées, jusqu'en 2125
@@ -505,8 +510,8 @@ pour l'Arrco reconstituée, 26,43 F pour l'UNIRS).
 **Ce qui reste hors de portée, et pourquoi.** La liste vaut recensement de ce
 qui a été cherché, pour éviter de le rechercher deux fois — et elle est tenue
 dans les deux sens : une limite qui se referme n'est pas effacée, elle est
-réécrite avec ce qui l'a levée et ce qu'elle a fini par coûter. Sur les quatorze
-entrées qui suivent, **dix ont été refermées par une source trouvée** et
+réécrite avec ce qui l'a levée et ce qu'elle a fini par coûter. Sur les quinze
+entrées qui suivent, **onze ont été refermées par une source trouvée** et
 **deux par la mesure du biais** qu'elles laissent — un biais chiffré n'est plus
 une inconnue, il se retranche. Deux restent ouvertes, faute de source. Les
 phrases qui déclaraient ces limites inaccessibles sont citées telles quelles,
@@ -986,30 +991,37 @@ plus volontiers.
     l'on ne s'en aperçoit pas, puisqu'il en reste trois.
 
   Ce que cette voie ne donne pas, et qui reste transcrit : les générations 1934
-  à 1957 de la durée requise, fixées par des décrets de montée en charge non
-  codifiés que LEGI n'expose sous aucun numéro d'article ; l'âge d'annulation de
-  la décote ; le nombre d'années retenues au salaire annuel moyen ; et les
-  portes de carrière longue de 2004 et de 2012, qui sont dans des versions
-  abrogées.
+  à 1952 de la durée requise, fixées par les lois de 1993 et de 2003, dont les
+  tableaux ne sont pas des textes consolidés séparés — celles de 1953 à 1957,
+  elles, ont été retrouvées dans leurs décrets, par la phrase et non par le
+  numéro ; l'âge d'annulation de la décote ; et les portes de carrière longue de
+  2004 et de 2012, qui sont dans des versions abrogées. Le nombre d'années retenues au salaire annuel moyen y
+  figurait aussi, à tort : l'article R. 351-29-1 le porte, génération par
+  génération, et il est désormais lu comme les autres.
 
-* *Durée de proratisation, et assiette du trimestre* — **certifiées, par la
-  même clé encore.** Ces deux tables étaient saisies, et cette page les rangeait
-  parmi les paramètres « repris des textes, non recontrôlés » : elles ne
-  ressemblent pas à des tables par génération, et l'on n'était pas allé les
-  chercher. Elles sont pourtant écrites en toutes lettres, dans deux articles
-  que le même flux de 9 Go traverse :
+* *Durée de proratisation, assiette du trimestre, années du salaire de
+  référence* — **certifiées, par la même clé encore.** Ces trois tables étaient
+  saisies, et cette page les rangeait parmi les paramètres « repris des textes,
+  non recontrôlés » : elles ne ressemblent pas à des tables par génération, et
+  l'on n'était pas allé les chercher. Elles sont pourtant écrites en toutes
+  lettres, dans trois articles que le même flux de 9 Go traverse :
 
   > « 152 trimestres pour les assurés nés en 1944 » (`R. 351-6` II)
   >
   > « […] calculé sur la base de 200 heures » (`R. 351-9`)
+  >
+  > « Vingt et une années pour l'assuré né en 1944 » (`R. 351-29-1` II)
 
   La première commande le DÉNOMINATEUR de toute carrière incomplète des
   générations 1944 à 1948 — la confondre avec la durée requise retire 2,5 % de
   pension à qui est né en 1945 —, la seconde le nombre de trimestres que valide
-  une année de petit salaire. Les sept valeurs saisies s'y sont retrouvées
-  identiques. L'article de proratisation s'arrête à la génération 1947 et
-  renvoie au-delà à la durée requise : la ligne 1948 de la table est cette
-  jonction, et reste hors de la certification — elle n'est pas dans le texte.
+  une année de petit salaire, la troisième le nombre d'années sur lesquelles se
+  calcule le salaire annuel moyen — dix jusqu'à la génération 1933,
+  vingt-cinq à partir de 1948. Les vingt-trois valeurs saisies s'y sont
+  retrouvées identiques. L'article de proratisation s'arrête à la génération
+  1947 et renvoie au-delà à la durée requise : la ligne 1948 de cette table-là
+  est cette jonction, et reste hors de la certification — elle n'est pas dans le
+  texte.
 
 * *Montants servis du minimum vieillesse* — **cherchés dans le code, et le code
   ne les porte plus.** L'article `D. 815-1` fixe bien le montant maximum de
@@ -1085,6 +1097,48 @@ plus volontiers.
   valeur de service a monté de 5,7 % en 2023 et de 6,8 % en 2024. Le RAFP est
   servi à part, à l'identique dans les cinq scénarios : cela ne déplace aucun
   écart, seulement le montant affiché à un fonctionnaire.
+
+* *Durée requise des générations 1953-1957, et contribution employeur de la
+  CNRACL* — **trouvées par la phrase, faute de numéro d'article.** Ces deux
+  séries étaient rangées ici comme inaccessibles, et pour la même raison : ce
+  qui les porte n'est pas un article de code. Cette page écrivait des
+  générations 1934-1957 que « leur durée a été fixée par des décrets pris sous
+  l'ancien article L. 351-1, textes abrogés ou non codifiés que la base LEGI
+  n'expose pas sous un numéro d'article unique. La voie automatisable s'arrête
+  là. » Elle s'arrête en effet — si l'on cherche par numéro. Ces décrets n'ont
+  pas de numéro utile, mais ils ont une phrase :
+
+  > « […] sont fixées à 166 trimestres pour les assurés nés en 1955. »
+
+  Quatre décrets couvrent les générations 1953 à 1957, cinq valeurs de moins
+  dans la colonne des transcriptions. Restent les générations 1934 à 1952 :
+  leur montée en charge vient des lois de 1993 et de 2003, dont les tableaux ne
+  sont pas des textes consolidés séparés.
+
+  **Un piège, et il est gros** : Saint-Pierre-et-Miquelon a son propre régime,
+  et sa loi du 17 juillet 1987 écrit sa table de durées dans les mêmes termes —
+  152 trimestres pour la génération 1956, quand le régime général en exige 166.
+  Un dépouillement qui ne l'écarterait pas remplacerait la table du modèle par
+  celle d'un archipel de six mille habitants.
+
+  **La contribution employeur de la CNRACL**, elle, est dans l'article 5 du
+  décret n° 91-613 du 28 juin 1991, dont la base garde vingt versions datées.
+  Trente-six valeurs, de 1993 à 2028, toutes identiques à la transcription — et
+  parmi elles les trois marches de 2026, 2027 et 2028 que le dépôt tenait pour
+  une saisie « non recoupée », alors qu'elles sont au *Journal officiel* depuis
+  janvier 2025. C'est le plus gros bloc du fichier : pour un agent territorial,
+  cette contribution vaut aujourd'hui trois fois sa retenue, et c'est elle qui
+  décide de ce que les scénarios 4 et 5 lui portent au compte.
+
+  Trois difficultés de lecture, notées pour qui reprendra le fil : le même
+  article fixe d'abord la retenue de l'agent, ensuite la contribution de
+  l'employeur, et une contribution supplémentaire après — trois taux dans le
+  même texte ; une version en porte plusieurs, chacun daté par ce qui le SUIT
+  (« 30,40 % pour l'année 2014 ; b) 30,45 % pour l'année 2015 »), si bien que
+  lire la première date rencontrée décale toute la table d'un cran ; et le
+  décret de relèvement paraît fin janvier avec effet au 1er janvier, quand la
+  version consolidée s'ouvre au 1er février — sans quoi 2024 porterait le taux
+  de 2023.
 
 **Ce que cela veut dire concrètement.** Les carrières entamées après 1950 —
 c'est-à-dire les générations nées à partir de 1930 environ, soit la quasi-totalité
@@ -1224,8 +1278,8 @@ l'Institut des politiques publiques (PENSIPP). Écarts connus :
   heures de SMIC pour valider un trimestre. Ce qui commande la MONTÉE EN CHARGE
   est lu à la génération : durée requise, âge d'ouverture, âge d'annulation de
   la décote, coefficient de minoration et nombre d'années retenues au salaire de
-  référence — trois de ces cinq tables sont lues dans le texte même des articles
-  du code, et recontrôlées à chaque exécution. Ce qui LIQUIDE est lu à l'année
+  référence — quatre de ces cinq tables sont lues dans le texte même des
+  articles du code, et recontrôlées à chaque exécution. Ce qui LIQUIDE est lu à l'année
   de liquidation : formule du régime, valeur de service du point, décote de la
   fonction publique et barème du minimum garanti, comme leurs articles
   l'écrivent. Reste approchée la montée en charge propre à chaque régime

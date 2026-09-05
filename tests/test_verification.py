@@ -592,3 +592,21 @@ def test_le_traitement_de_l_indice_100_se_lit_en_francs_puis_en_euros():
     ])
     assert versions[date(2001, 9, 29)] == pytest.approx(33990 / 6.55957)
     assert versions[date(2002, 1, 1)] == pytest.approx(5181.75)
+
+
+def test_les_annees_du_salaire_de_reference_se_lisent_en_toutes_lettres():
+    """« Vingt et une années » : le féminin, et la cible dans un autre alinéa."""
+    module = _charger_script("dila_legi_parametres_retraite", "scripts", "fetch",
+                             "dila_legi_parametres_retraite.py")
+    texte = (
+        "I.-Les durées de vingt-cinq années fixées aux premier et troisième "
+        "alinéas de l'article R. 351-29 sont applicables aux assurés nés après "
+        "1947, quelle que soit la date d'effet de leur pension. "
+        "II.-Le nombre d'années mentionné aux premier et troisième alinéas de "
+        "l'article R. 351-29 est de : Dix années pour l'assuré né avant le "
+        "1er janvier 1934 ; Vingt et une années pour l'assuré né en 1944 ; "
+        "Vingt-quatre années pour l'assuré né en 1947."
+    )
+    assert module.annees_salaire_reference([("2007-04-27", texte)]) == {
+        1900: 10.0, 1944: 21.0, 1947: 24.0, 1948: 25.0,
+    }

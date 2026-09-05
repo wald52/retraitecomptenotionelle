@@ -1,5 +1,6 @@
 # Contribution EMPLOYEUR des régimes publics et spéciaux, par année
-# source_id: sre_historique_taux, openfisca_contribution_employeur_public
+# source_id: sre_historique_taux, dila_legi_cnracl,
+#            openfisca_contribution_employeur_public
 # unite: fraction de l'assiette de la retenue pour pension (traitement
 #        indiciaire brut et NBI ; les primes en sont exclues, elles relèvent
 #        du RAFP depuis 2005)
@@ -14,6 +15,20 @@
 # dont le taux est déjà un total : c'est son champ `part_salariale` qui dit
 # combien l'employeur y met. Ce fichier n'existe que parce que les fiches
 # publiques, elles, s'arrêtent à la retenue.
+#
+# D'OÙ VIENNENT CES TAUX.
+#
+#   État, 2006-2026        fiche « Historique des taux de cotisations » du
+#                          Service des retraites de l'État — `certifiee`.
+#   CNRACL, 1993-2028      article 5 II du décret n° 91-613 du 28 juin 1991,
+#                          LU dans la base LEGI (`dila_legi_cnracl.py`) :
+#                          « Le taux de la contribution sur les traitements
+#                          […] est fixé à 31,65 % ». `certifiee`, montée en
+#                          charge 2026-2028 comprise — elle est au Journal
+#                          officiel, pas dans une projection.
+#   CNRACL avant 1993,     transcription d'OpenFisca-France — `haute`. Les taux
+#   État 1995-2005,        d'avant 1993 sont dans les décrets abrogés que
+#   SNCF 2007-2018         celui de 1991 a remplacés.
 #
 # nature :
 #   appelee    : taux effectivement appelé, fixé par décret ou par arrêté
@@ -97,83 +112,83 @@ annee,regime,taux,nature,fiabilite
 1990,cnracl,0.197000,appelee,haute
 1991,cnracl,0.197000,appelee,haute
 1992,cnracl,0.213000,appelee,haute
-1993,cnracl,0.213000,appelee,haute
-1994,cnracl,0.213000,appelee,haute
-1995,cnracl,0.251000,appelee,haute
+1993,cnracl,0.213000,appelee,certifiee
+1994,cnracl,0.213000,appelee,certifiee
+1995,cnracl,0.251000,appelee,certifiee
 1995,fonction_publique_etat,0.486000,implicite,haute
-1996,cnracl,0.251000,appelee,haute
+1996,cnracl,0.251000,appelee,certifiee
 1996,fonction_publique_etat,0.462000,implicite,haute
-1997,cnracl,0.251000,appelee,haute
+1997,cnracl,0.251000,appelee,certifiee
 1997,fonction_publique_etat,0.474000,implicite,haute
-1998,cnracl,0.251000,appelee,haute
+1998,cnracl,0.251000,appelee,certifiee
 1998,fonction_publique_etat,0.474000,implicite,haute
-1999,cnracl,0.251000,appelee,haute
+1999,cnracl,0.251000,appelee,certifiee
 1999,fonction_publique_etat,0.486000,implicite,haute
-2000,cnracl,0.256000,appelee,haute
+2000,cnracl,0.256000,appelee,certifiee
 2000,fonction_publique_etat,0.492000,implicite,haute
-2001,cnracl,0.261000,appelee,haute
+2001,cnracl,0.261000,appelee,certifiee
 2001,fonction_publique_etat,0.487000,implicite,haute
-2002,cnracl,0.261000,appelee,haute
+2002,cnracl,0.261000,appelee,certifiee
 2002,fonction_publique_etat,0.523000,implicite,haute
-2003,cnracl,0.265000,appelee,haute
+2003,cnracl,0.265000,appelee,certifiee
 2003,fonction_publique_etat,0.527000,implicite,haute
-2004,cnracl,0.269000,appelee,haute
+2004,cnracl,0.269000,appelee,certifiee
 2004,fonction_publique_etat,0.568000,implicite,haute
-2005,cnracl,0.273000,appelee,haute
+2005,cnracl,0.273000,appelee,certifiee
 2005,fonction_publique_etat,0.594000,implicite,haute
-2006,cnracl,0.273000,appelee,haute
+2006,cnracl,0.273000,appelee,certifiee
 2006,fonction_publique_etat,0.499000,appelee,certifiee
-2007,cnracl,0.273000,appelee,haute
+2007,cnracl,0.273000,appelee,certifiee
 2007,fonction_publique_etat,0.507400,appelee,certifiee
 2007,sncf,0.344800,appelee,haute
-2008,cnracl,0.273000,appelee,haute
+2008,cnracl,0.273000,appelee,certifiee
 2008,fonction_publique_etat,0.557100,appelee,certifiee
 2008,sncf,0.348300,appelee,haute
-2009,cnracl,0.273000,appelee,haute
+2009,cnracl,0.273000,appelee,certifiee
 2009,fonction_publique_etat,0.601400,appelee,certifiee
 2009,sncf,0.350600,appelee,haute
-2010,cnracl,0.273000,appelee,haute
+2010,cnracl,0.273000,appelee,certifiee
 2010,fonction_publique_etat,0.621400,appelee,certifiee
 2010,sncf,0.348900,appelee,haute
-2011,cnracl,0.273000,appelee,haute
+2011,cnracl,0.273000,appelee,certifiee
 2011,fonction_publique_etat,0.653900,appelee,certifiee
 2011,sncf,0.337200,appelee,haute
-2012,cnracl,0.273000,appelee,haute
+2012,cnracl,0.273000,appelee,certifiee
 2012,fonction_publique_etat,0.685900,appelee,certifiee
 2012,sncf,0.341700,appelee,haute
-2013,cnracl,0.288500,appelee,haute
+2013,cnracl,0.288500,appelee,certifiee
 2013,fonction_publique_etat,0.742800,appelee,certifiee
 2013,sncf,0.345400,appelee,haute
-2014,cnracl,0.304000,appelee,haute
+2014,cnracl,0.304000,appelee,certifiee
 2014,fonction_publique_etat,0.742800,appelee,certifiee
 2014,sncf,0.351800,appelee,haute
-2015,cnracl,0.305000,appelee,haute
+2015,cnracl,0.305000,appelee,certifiee
 2015,fonction_publique_etat,0.742800,appelee,certifiee
 2015,sncf,0.351400,appelee,haute
-2016,cnracl,0.306000,appelee,haute
+2016,cnracl,0.306000,appelee,certifiee
 2016,fonction_publique_etat,0.742800,appelee,certifiee
 2016,sncf,0.355400,appelee,haute
-2017,cnracl,0.306500,appelee,haute
+2017,cnracl,0.306500,appelee,certifiee
 2017,fonction_publique_etat,0.742800,appelee,certifiee
 2017,sncf,0.353700,appelee,haute
-2018,cnracl,0.306500,appelee,haute
+2018,cnracl,0.306500,appelee,certifiee
 2018,fonction_publique_etat,0.742800,appelee,certifiee
 2018,sncf,0.371000,appelee,haute
-2019,cnracl,0.306500,appelee,haute
+2019,cnracl,0.306500,appelee,certifiee
 2019,fonction_publique_etat,0.742800,appelee,certifiee
-2020,cnracl,0.306500,appelee,haute
+2020,cnracl,0.306500,appelee,certifiee
 2020,fonction_publique_etat,0.742800,appelee,certifiee
-2021,cnracl,0.306500,appelee,haute
+2021,cnracl,0.306500,appelee,certifiee
 2021,fonction_publique_etat,0.742800,appelee,certifiee
-2022,cnracl,0.306500,appelee,haute
+2022,cnracl,0.306500,appelee,certifiee
 2022,fonction_publique_etat,0.742800,appelee,certifiee
-2023,cnracl,0.306500,appelee,haute
+2023,cnracl,0.306500,appelee,certifiee
 2023,fonction_publique_etat,0.742800,appelee,certifiee
-2024,cnracl,0.316500,appelee,haute
+2024,cnracl,0.316500,appelee,certifiee
 2024,fonction_publique_etat,0.742800,appelee,certifiee
-2025,cnracl,0.346500,appelee,haute
+2025,cnracl,0.346500,appelee,certifiee
 2025,fonction_publique_etat,0.782800,appelee,certifiee
-2026,cnracl,0.376500,appelee,moyenne
+2026,cnracl,0.376500,appelee,certifiee
 2026,fonction_publique_etat,0.822800,appelee,certifiee
-2027,cnracl,0.406500,appelee,moyenne
-2028,cnracl,0.436500,appelee,moyenne
+2027,cnracl,0.406500,appelee,certifiee
+2028,cnracl,0.436500,appelee,certifiee

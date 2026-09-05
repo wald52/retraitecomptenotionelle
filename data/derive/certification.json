@@ -10,6 +10,15 @@
    "source": "DILA, base LEGI, code de la sécurité sociale D. 161-2-1-9",
    "valeurs": 78
   },
+  "annees_salaire_reference": {
+   "ajoutees": 0,
+   "corrigees": 0,
+   "empreinte": "6e131b394a4502fe",
+   "identiques": 16,
+   "niveau": "certifiee",
+   "source": "DILA, base LEGI, code de la sécurité sociale R. 351-29-1",
+   "valeurs": 16
+  },
   "carriere_longue": {
    "ajoutees": 0,
    "corrigees": 0,
@@ -37,6 +46,15 @@
    "source": "DILA, base LEGI, code de la sécurité sociale L. 161-17-3",
    "valeurs": 19
   },
+  "duree_assurance_requise_decrets": {
+   "ajoutees": 0,
+   "corrigees": 0,
+   "empreinte": "14397446493bf12c",
+   "identiques": 5,
+   "niveau": "certifiee",
+   "source": "DILA, base LEGI, décrets pris pour l'application de la loi du 21 août 2003 et de celle du 9 novembre 2010",
+   "valeurs": 5
+  },
   "duree_proratisation": {
    "ajoutees": 0,
    "corrigees": 0,
@@ -49,11 +67,20 @@
   "employeur_public_cnracl": {
    "ajoutees": 0,
    "corrigees": 0,
-   "empreinte": "5f73b6f1ee98c804",
-   "identiques": 78,
+   "empreinte": "838ceb5b99cc8a78",
+   "identiques": 45,
    "niveau": "haute",
    "source": "OpenFisca-France, décrets CNRACL et barèmes de la Caisse des dépôts",
-   "valeurs": 78
+   "valeurs": 45
+  },
+  "employeur_public_cnracl_journal_officiel": {
+   "ajoutees": 0,
+   "corrigees": 0,
+   "empreinte": "f431b3a995a8cd30",
+   "identiques": 36,
+   "niveau": "certifiee",
+   "source": "DILA, base LEGI, décret n° 91-613 du 28 juin 1991, article 5 II",
+   "valeurs": 36
   },
   "employeur_public_etat": {
    "ajoutees": 0,
@@ -81,15 +108,6 @@
    "niveau": "haute",
    "source": "OpenFisca-France, arrêtés annuels fixant les composantes T1 et T2",
    "valeurs": 12
-  },
-  "employeur_public_texte": {
-   "ajoutees": 0,
-   "corrigees": 0,
-   "empreinte": "b2da1c2e568a8529",
-   "identiques": 3,
-   "niveau": "moyenne",
-   "source": "Décret n° 2025-86 du 30 janvier 2025 (montée en charge CNRACL)",
-   "valeurs": 3
   },
   "esperance_65_derivee": {
    "ajoutees": 0,
@@ -183,9 +201,9 @@
   },
   "point_indice_journal_officiel": {
    "ajoutees": 0,
-   "corrigees": 2,
+   "corrigees": 0,
    "empreinte": "e2ce048367b5e2b0",
-   "identiques": 30,
+   "identiques": 32,
    "niveau": "certifiee",
    "source": "DILA, base LEGI, décret n° 85-1148 du 24 octobre 1985, article 3",
    "valeurs": 32

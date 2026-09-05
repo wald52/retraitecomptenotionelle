@@ -906,7 +906,7 @@ institutions:
 
       - id: dila_legi_parametres_retraite
         titre: Âge d'ouverture, durée requise, coefficient de minoration,
-          proratisation et assiette du trimestre
+          proratisation, assiette du trimestre et années du salaire de référence
         url: https://echanges.dila.gouv.fr/OPENDATA/LEGI/
         acces: api
         statut_integration: certifie
@@ -933,7 +933,7 @@ institutions:
           saisie laissait implicites. Alimente aussi
           data/reference/legislation/duree_assurance_requise.csv et
           coefficient_minoration.csv.
-          DEUX ARTICLES DE PLUS, POUR DEUX TABLES QU'ON N'ÉTAIT PAS ALLÉ
+          TROIS ARTICLES DE PLUS, POUR TROIS TABLES QU'ON N'ÉTAIT PAS ALLÉ
           CHERCHER. Le II de l'article R. 351-6 porte la durée maximale prise en
           compte par la PRORATISATION — « 152 trimestres pour les assurés nés en
           1944 » —, qui n'est pas la durée requise pour le taux plein et que le
@@ -942,6 +942,11 @@ institutions:
           valeurs de plus, toutes retrouvées identiques à la saisie. La ligne
           1948 de la proratisation reste hors certification : l'article s'arrête
           à 1947 et renvoie ensuite à la durée requise.
+          L'article R. 351-29-1 porte la troisième : le nombre d'années retenues
+          au salaire annuel moyen, génération par génération — « Vingt et une
+          années pour l'assuré né en 1944 » —, avec sa cible au I, « les durées
+          de vingt-cinq années […] applicables aux assurés nés après 1947 ».
+          Seize valeurs, elles aussi identiques à la saisie.
           Même coût que les autres passes LEGI : 9 Go décompressés en flux, un
           quart d'heure, une exécution par an.
 
@@ -992,6 +997,58 @@ institutions:
           d'un coup. La série qu'on en tirerait serait plate là où le point a
           monté — fausse de 1,0 % en 1992 —, et c'est la confrontation à la
           transcription, année par année, qui l'a établi.
+
+      - id: dila_legi_duree_requise
+        titre: Durée d'assurance requise, générations 1953-1957
+        url: https://echanges.dila.gouv.fr/OPENDATA/LEGI/
+        acces: api
+        statut_integration: certifie
+        cible: data/reference/legislation/duree_assurance_requise.csv
+        recuperation: scripts/fetch/dila_legi_duree_requise.py
+        note: >-
+          L'article L. 161-17-3 ne porte la table qu'à compter de la génération
+          1958 ; celles d'avant relèvent de décrets pris sous l'ancien article
+          L. 351-1. Le dépôt les tenait pour hors de portée, « textes abrogés ou
+          non codifiés que la base LEGI n'expose pas sous un numéro d'article
+          unique ». Ils n'ont en effet pas de numéro utile — mais ils ont une
+          phrase : « […] sont fixées à 166 trimestres pour les assurés nés en
+          1955 ». Quatre décrets couvrent 1953 à 1957, et leurs cinq valeurs
+          sont identiques à la saisie.
+          UN PIÈGE : Saint-Pierre-et-Miquelon a son propre régime et sa loi du
+          17 juillet 1987 écrit sa table dans les mêmes termes, avec d'autres
+          valeurs — 152 trimestres pour la génération 1956 contre 166 au régime
+          général. Elle est écartée sur le nom du territoire.
+          Les générations 1934 à 1952 restent transcrites : leur montée en
+          charge vient des lois de 1993 et de 2003, dont les tableaux ne sont
+          pas des textes consolidés séparés.
+
+      - id: dila_legi_cnracl
+        titre: Contribution employeur de la CNRACL, 1993-2028
+        url: https://echanges.dila.gouv.fr/OPENDATA/LEGI/
+        acces: api
+        statut_integration: certifie
+        cible: data/reference/legislation/contribution_employeur_public.csv
+        recuperation: scripts/fetch/dila_legi_cnracl.py
+        note: >-
+          Article 5 II du décret n° 91-613 du 28 juin 1991, dont la base garde
+          vingt versions datées : « Le taux de la contribution sur les
+          traitements […] est fixé à 31,65 % ». Trente-six valeurs quittent la
+          transcription d'OpenFisca, dont les trois marches de 2026, 2027 et
+          2028 que le dépôt tenait pour une saisie non recoupée — elles sont au
+          Journal officiel depuis janvier 2025. Pour un agent territorial, cette
+          contribution vaut trois fois sa retenue : c'est elle qui décide de ce
+          que les scénarios 4 et 5 lui portent au compte.
+          TROIS DIFFICULTÉS DE LECTURE. Le même article fixe d'abord la retenue
+          de l'agent, puis la contribution de l'employeur, puis une contribution
+          supplémentaire : seul le II est lu. Une version porte plusieurs taux,
+          chacun daté par ce qui le SUIT — « 30,40 % pour l'année 2014 ; b)
+          30,45 % pour l'année 2015 » —, si bien que retenir la première date
+          rencontrée décale toute la table d'un cran. Enfin le décret de
+          relèvement paraît fin janvier avec effet au 1er janvier quand la
+          version consolidée s'ouvre au 1er février : une version ouverte avant
+          le 1er mars sans autre date vaut donc pour l'année entière.
+          Les taux d'avant 1993 sont dans les décrets abrogés que celui de 1991
+          a remplacés, et restent transcrits.
 
       - id: dila_legi_msa
         titre: Valeur de service du point de la RCO agricole, 2005-2024

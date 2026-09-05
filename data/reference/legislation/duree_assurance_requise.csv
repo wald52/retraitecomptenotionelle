@@ -25,13 +25,19 @@
 #     saisies à la main s'y sont retrouvées IDENTIQUES, et dix générations
 #     absentes de la saisie — 1966 à 1975, que l'article fixe à 172 — ont été
 #     ajoutées.
-#   * générations 1934 à 1957 — `haute`, et elles le resteront. L'article
-#     L. 161-17-3 ne les porte pas : leur durée a été fixée, génération par
-#     génération, par des décrets pris sous l'ancien article L. 351-1 (décrets
-#     du 30 décembre 2010, du 29 juillet 2011, du 26 décembre 2012 …), textes
-#     abrogés ou non codifiés que la base LEGI n'expose pas sous un numéro
-#     d'article unique. La voie automatisable s'arrête là ; ces vingt-quatre
-#     valeurs restent une transcription, recoupée sur les circulaires CNAV.
+#   * générations 1953 à 1957 — `certifiee` elles aussi, mais par une autre
+#     voie. L'article L. 161-17-3 ne les porte pas : leur durée a été fixée par
+#     des décrets pris sous l'ancien article L. 351-1. Cette page les tenait
+#     pour hors de portée, « textes abrogés ou non codifiés que la base LEGI
+#     n'expose pas sous un numéro d'article unique ». Ils n'ont en effet pas de
+#     numéro utile — mais ils ont une phrase, et c'est par elle qu'on les
+#     trouve : « […] sont fixées à 166 trimestres pour les assurés nés en
+#     1955 ». Quatre décrets couvrent ces cinq générations, et
+#     `scripts/fetch/dila_legi_duree_requise.py` les lit.
+#   * générations 1934 à 1952 — `haute`. Leur montée en charge vient des lois
+#     du 22 juillet 1993 et du 21 août 2003, dont les tableaux ne sont pas des
+#     textes consolidés séparés : ces dix-neuf valeurs restent une
+#     transcription, recoupée sur les circulaires CNAV.
 #
 # La génération 1961 est coupée au 1er septembre par la loi de 2023 ; le modèle
 # ne connaît que l'année de naissance et retient la valeur de la fraction la
@@ -59,11 +65,11 @@ generation,trimestres,fiabilite
 1950,162,haute
 1951,163,haute
 1952,164,haute
-1953,165,haute
-1954,165,haute
-1955,166,haute
-1956,166,haute
-1957,166,haute
+1953,165,certifiee
+1954,165,certifiee
+1955,166,certifiee
+1956,166,certifiee
+1957,166,certifiee
 1958,167,certifiee
 1959,167,certifiee
 1960,167,certifiee

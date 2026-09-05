@@ -1,6 +1,6 @@
 # Nombre d'années retenues au salaire annuel moyen, PAR GÉNÉRATION
 # -----------------------------------------------------------------
-# source_id: legifrance_textes, cnav_circulaires
+# source_id: dila_legi_parametres_retraite, legifrance_textes
 #
 # La loi du 22 juillet 1993 fait passer le salaire de référence des dix aux
 # vingt-cinq meilleures années, à raison d'une année par génération, de 1934 à
@@ -12,20 +12,28 @@
 # appliquait vingt-cinq années à des générations auxquelles la loi n'en a
 # jamais opposé plus de dix — et minorait leur pension d'autant, puisque
 # étendre la moyenne aux années les plus faibles ne peut que l'abaisser.
+#
+# D'OÙ VIENNENT CES VALEURS. De l'article R. 351-29-1 du code de la sécurité
+# sociale, LU dans la base LEGI de la DILA par
+# `scripts/fetch/dila_legi_parametres_retraite.py`. Son II écrit la table en
+# toutes lettres — « Vingt et une années pour l'assuré né en 1944 » — et son I
+# donne la cible : « Les durées de vingt-cinq années […] sont applicables aux
+# assurés nés après 1947 ». Niveau `certifiee`, et les seize valeurs saisies
+# s'y sont retrouvées à l'identique.
 generation,annees,fiabilite
-1900,10,haute
-1934,11,haute
-1935,12,haute
-1936,13,haute
-1937,14,haute
-1938,15,haute
-1939,16,haute
-1940,17,haute
-1941,18,haute
-1942,19,haute
-1943,20,haute
-1944,21,haute
-1945,22,haute
-1946,23,haute
-1947,24,haute
-1948,25,haute
+1900,10,certifiee
+1934,11,certifiee
+1935,12,certifiee
+1936,13,certifiee
+1937,14,certifiee
+1938,15,certifiee
+1939,16,certifiee
+1940,17,certifiee
+1941,18,certifiee
+1942,19,certifiee
+1943,20,certifiee
+1944,21,certifiee
+1945,22,certifiee
+1946,23,certifiee
+1947,24,certifiee
+1948,25,certifiee

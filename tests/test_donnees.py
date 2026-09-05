@@ -256,9 +256,12 @@ def test_journal_de_certification_decrit_les_series_certifiees():
         "minimum_contributif": "legislation/minimum_contributif.csv",
         "age_ouverture_requis": "legislation/age_ouverture_requis.csv",
         "duree_assurance_requise": "legislation/duree_assurance_requise.csv",
+        "duree_assurance_requise_decrets":
+            "legislation/duree_assurance_requise.csv",
         "coefficient_minoration": "legislation/coefficient_minoration.csv",
         "carriere_longue": "legislation/carriere_longue.csv",
         "duree_proratisation": "legislation/duree_proratisation.csv",
+        "annees_salaire_reference": "legislation/annees_salaire_reference.csv",
         "validation_trimestres": "legislation/validation_trimestres.csv",
         "smic_horaire": "macro/smic_horaire.csv",
         "point_indice_fonction_publique":
@@ -288,6 +291,8 @@ def test_journal_de_certification_decrit_les_series_certifiees():
             "legislation/contribution_employeur_public.csv",
         "employeur_public_cnracl":
             "legislation/contribution_employeur_public.csv",
+        "employeur_public_cnracl_journal_officiel":
+            "legislation/contribution_employeur_public.csv",
         "employeur_public_sncf":
             "legislation/contribution_employeur_public.csv",
         "employeur_public_texte":
@@ -295,7 +300,7 @@ def test_journal_de_certification_decrit_les_series_certifiees():
     }
     # Les séries d'APPOINT — celles qui ne comblent que ce que les autres ne
     # couvrent pas — peuvent n'avoir rien à dire, et sont alors absentes.
-    appoint = {"valeurs_point_insee"}
+    appoint = {"valeurs_point_insee", "employeur_public_texte"}
     assert set(journal["series"]) <= set(fichiers)
     assert set(fichiers) - set(journal["series"]) <= appoint
 
@@ -415,6 +420,13 @@ def test_la_proratisation_et_l_assiette_du_trimestre_sont_lues_dans_le_code():
     trimestre = lire("validation_trimestres.csv", "annee", "heures")
     assert trimestre[1972] == (200.0, "certifiee")
     assert trimestre[2014] == (150.0, "certifiee")
+
+    # R. 351-29-1 : le II donne les générations 1934 à 1947, le I la cible et
+    # la première génération qu'elle vise, « nés après 1947 ».
+    salaire = lire("annees_salaire_reference.csv", "generation", "annees")
+    assert salaire[1900] == (10.0, "certifiee")
+    assert salaire[1944] == (21.0, "certifiee")   # « Vingt et une années »
+    assert salaire[1948] == (25.0, "certifiee")
 
 
 # -- catalogue des régimes ---------------------------------------------------

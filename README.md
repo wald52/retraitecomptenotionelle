@@ -567,6 +567,9 @@ COR pour ce qu'il **décide**.
 | SMIC horaire | 1997-2017, sauf 2002 | décrets de relèvement du SMIC, base LEGI |
 | Valeurs du point de l'Arrco, et de l'UNIRS qui en tient lieu avant 1999 | 1999-2018 et 1961-1998 | Agirc-Arrco, la même compilation |
 | Durée maximale prise en compte par la proratisation, par génération | avant 1944 à 1947 | code de la sécurité sociale `R. 351-6`, base LEGI |
+| Années retenues au salaire annuel moyen, par génération | avant 1934 à 1948 | code de la sécurité sociale `R. 351-29-1`, base LEGI |
+| Durée d'assurance requise, générations 1953-1957 | 1953-1957 | décrets d'application des lois de 2003 et de 2010, base LEGI |
+| Contribution employeur de la CNRACL | 1993-2028 | décret n° 91-613, article 5 II, base LEGI |
 | Heures de SMIC à cotiser pour valider un trimestre | 1972 et 2014 | code de la sécurité sociale `R. 351-9`, base LEGI |
 
 Ce qu'**OpenFisca-France** garde, ce sont les périodes que le *Journal officiel*
@@ -607,6 +610,8 @@ python scripts/fetch/openfisca_points.py        # valeurs du point, depuis 1947
 python scripts/fetch/openfisca_point_indice.py  # point d'indice, minimum garanti
 python scripts/fetch/dila_legi_point_indice.py  # point d'indice, dans son décret (lent)
 python scripts/fetch/dila_legi_smic.py          # SMIC, dans ses décrets (lent)
+python scripts/fetch/dila_legi_duree_requise.py # durée requise 1953-1957 (lent)
+python scripts/fetch/dila_legi_cnracl.py        # contribution employeur CNRACL (lent)
 python scripts/fetch/erafp_valeurs_point.py     # valeurs du point du RAFP, par l'ERAFP
 python scripts/fetch/cdc_ircantec.py            # barèmes Ircantec, par son gestionnaire
 python scripts/fetch/cnbf_baremes.py            # valeurs du point des avocats
@@ -628,8 +633,8 @@ python scripts/verifier_donnees.py --appliquer  # aligne sur la source et certif
 > d'avant 1950, les taux de cotisation d'avant 1967 et ceux des régimes autres
 > que le privé, les montants servis des trois minima — transcrits de leur
 > publication, et préférés à toute projection parce qu'ils disent ce qui a été
-> payé —, l'âge d'annulation de la décote, le nombre d'années retenues au
-> salaire de référence, et les barèmes que personne ne publie en série.
+> payé —, l'âge d'annulation de la décote, et les barèmes que personne ne publie
+> en série.
 > Les autres tables par génération, elles, ne sont plus saisies : elles sont
 > lues dans le texte des articles du code, dans la base LEGI de la DILA.
 > `docs/limites.md` dit, pour chaque limite restante, dans quel sens elle joue

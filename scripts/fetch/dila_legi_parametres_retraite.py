@@ -32,7 +32,9 @@ est une TABLE, écrite en toutes lettres, article par article :
   plein : « 152 trimestres pour les assurés nés en 1944 » ;
 * `R. 351-9` — le nombre d'heures de SMIC qu'il faut avoir cotisé pour valider
   un trimestre : « calculé sur la base de 200 heures », puis de 150 pour la
-  période postérieure au 31 décembre 2013.
+  période postérieure au 31 décembre 2013 ;
+* `R. 351-29-1` — le nombre d'années retenues au salaire annuel moyen,
+  génération par génération : « Vingt et une années pour l'assuré né en 1944 ».
 
 Ces deux dernières étaient saisies, et c'est la même leçon une fois de plus :
 elles étaient réputées hors de portée parce qu'elles ne ressemblent pas à des
@@ -84,12 +86,14 @@ ARTICLES = {
     "D351-1-1": "sécurité sociale",
     "R351-6": "sécurité sociale",
     "R351-9": "sécurité sociale",
+    "R351-29-1": "sécurité sociale",
 }
 
 #: Nombres écrits en lettres, tels que le Journal officiel les emploie pour les
 #: âges. Au-delà de soixante-neuf, la retraite n'a plus de barème.
 MOTS = {
-    "un": 1, "deux": 2, "trois": 3, "quatre": 4, "cinq": 5, "six": 6,
+    # « Vingt et une années » : le féminin, que le nombre d'années impose.
+    "un": 1, "une": 1, "deux": 2, "trois": 3, "quatre": 4, "cinq": 5, "six": 6,
     "sept": 7, "huit": 8, "neuf": 9, "dix": 10, "onze": 11, "douze": 12,
     "treize": 13, "quatorze": 14, "quinze": 15, "seize": 16, "vingt": 20,
     "trente": 30, "quarante": 40, "cinquante": 50, "soixante": 60,
@@ -412,6 +416,53 @@ def heures_par_trimestre(versions: list[tuple[str, str]]) -> dict[int, float]:
     return table
 
 
+#: « Vingt et une années pour l'assuré né en 1944 », « Dix années pour l'assuré
+#: né avant le 1er janvier 1934 » — la table du salaire de référence.
+ANNEES_RETENUES = re.compile(
+    r"([\w-]+(?:\s+et\s+[\w-]+)?)\s+ann[ée]es?\s+pour\s+l['’]assur[ée]\s+n[ée]\s+"
+    r"(?:en\s+(\d{4})|avant\s+le\s+\d{1,2}e?r?\s+\w+\s+(\d{4}))",
+    re.I)
+
+#: « Les durées de vingt-cinq années fixées aux premier et troisième alinéas de
+#: l'article R. 351-29 sont applicables aux assurés nés après 1947 » — la cible,
+#: et la génération à partir de laquelle elle vaut. Le point qui sépare les deux
+#: moitiés de la phrase n'en est pas un : « R. 351-29 » en porte un.
+ANNEES_CIBLE = re.compile(
+    r"dur[ée]es?\s+de\s+([\w-]+(?:\s+et\s+[\w-]+)?)\s+ann[ée]es?"
+    r".{0,200}?assur[ée]s\s+n[ée]s\s+apr[èe]s\s+(\d{4})",
+    re.I)
+
+
+def annees_salaire_reference(versions: list[tuple[str, str]]) -> dict[int, float]:
+    """Nombre d'années retenues au salaire annuel moyen, par génération.
+
+    La loi du 22 juillet 1993 fait passer le salaire de référence des dix aux
+    vingt-cinq meilleures années, à raison d'une année par génération de 1934 à
+    1948, et l'article l'écrit en toutes lettres. Le paramètre se lit à l'ANNÉE
+    DE NAISSANCE : le lire à l'année de liquidation opposait vingt-cinq années à
+    des générations auxquelles la loi n'en a jamais opposé plus de dix, et
+    minorait leur pension d'autant — étendre une moyenne aux années les plus
+    faibles ne peut que l'abaisser.
+
+    Le II donne les générations 1934 à 1947 et le plancher d'avant 1934 ; le I
+    donne la cible et la première génération qu'elle vise, « nés après 1947 ».
+    """
+    table: dict[int, float] = {}
+    for _, texte in sorted(versions)[-1:]:
+        for lettres, en_annee, avant_annee in ANNEES_RETENUES.findall(texte):
+            annees = nombre_en_lettres(lettres)
+            if annees is None:
+                continue
+            generation = int(en_annee) if en_annee else PREMIERE_GENERATION
+            table[generation] = float(annees)
+        cible = ANNEES_CIBLE.search(texte)
+        if cible is not None:
+            annees = nombre_en_lettres(cible.group(1))
+            if annees is not None:
+                table[int(cible.group(2)) + 1] = float(annees)
+    return table
+
+
 def carriere_longue(versions: list[tuple[str, str]]) -> list[dict]:
     """Portes du départ anticipé — D. 351-1-1.
 
@@ -552,6 +603,7 @@ def main() -> int:
         "carriere_longue": carriere_longue(versions["D351-1-1"]),
         "duree_proratisation": duree_proratisation(versions["R351-6"]),
         "heures_par_trimestre": heures_par_trimestre(versions["R351-9"]),
+        "annees_salaire_reference": annees_salaire_reference(versions["R351-29-1"]),
     }
 
     # Garde-fous : une table lue de travers ne doit pas s'écrire en silence.
@@ -578,6 +630,12 @@ def main() -> int:
         print(f"\nÉCHEC   durées de proratisation invraisemblables : "
               f"{sorted(set(proratisation.values()))}", file=sys.stderr)
         return 1
+    annees_salaire = tables["annees_salaire_reference"]
+    if not (annees_salaire and min(annees_salaire.values()) == 10.0
+            and max(annees_salaire.values()) == 25.0):
+        print(f"\nÉCHEC   années du salaire de référence invraisemblables : "
+              f"{sorted(set(annees_salaire.values()))}", file=sys.stderr)
+        return 1
     heures = tables["heures_par_trimestre"]
     if sorted(heures.items()) != [(1972, 200.0), (2014, 150.0)]:
         print(f"\nÉCHEC   assiette du trimestre invraisemblable : "
@@ -600,7 +658,7 @@ def main() -> int:
                 f"{nom}|{cle}": valeur
                 for nom in ("age_ouverture", "duree_requise",
                             "coefficient_minoration", "duree_proratisation",
-                            "heures_par_trimestre")
+                            "heures_par_trimestre", "annees_salaire_reference")
                 for cle, valeur in tables[nom].items()
             },
             "carriere_longue": tables["carriere_longue"],
@@ -618,6 +676,8 @@ def main() -> int:
     print(f"Durée proratisation    {len(proratisation)} segments, "
           f"{min(proratisation.values()):g} -> {max(proratisation.values()):g} "
           f"trimestres")
+    print(f"Années salaire réf.    {len(annees_salaire)} générations, "
+          f"{min(annees_salaire.values()):g} -> {max(annees_salaire.values()):g} années")
     print(f"Assiette du trimestre  "
           + ", ".join(f"{heure:g} heures depuis {annee}"
                       for annee, heure in sorted(heures.items())))

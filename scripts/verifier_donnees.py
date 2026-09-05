@@ -729,6 +729,21 @@ def source_duree_requise() -> dict[tuple, float]:
     return _table_legi("duree_requise")
 
 
+def source_duree_requise_decrets() -> dict[tuple, float]:
+    """Durée requise des générations 1953 à 1957, dans leurs décrets.
+
+    L'article L. 161-17-3 ne porte la table qu'à compter de la génération
+    1958 ; celles d'avant relèvent de décrets pris sous l'ancien article
+    L. 351-1, que `docs/limites.md` tenait pour hors de portée parce que « LEGI
+    ne les expose sous aucun numéro d'article ». Ils n'ont pas de numéro utile,
+    mais ils ont une phrase : « […] sont fixées à 166 trimestres pour les
+    assurés nés en 1955 ». Quatre décrets couvrent 1953 à 1957.
+    """
+    serie = _serie_json("dila_legi_duree_requise.json",
+                        "scripts/fetch/dila_legi_duree_requise.py")
+    return {(generation,): valeur for generation, valeur in sorted(serie.items())}
+
+
 def source_coefficient_minoration() -> dict[tuple, float]:
     """Coefficient de minoration par génération — R. 351-27 II."""
     return _table_legi("coefficient_minoration")
@@ -748,6 +763,18 @@ def source_duree_proratisation() -> dict[tuple, float]:
     dépôt est cette jonction, et reste hors de portée de la certification.
     """
     return _table_legi("duree_proratisation")
+
+
+def source_annees_salaire_reference() -> dict[tuple, float]:
+    """Années retenues au salaire annuel moyen, par génération — R. 351-29-1.
+
+    Dix années jusqu'à la génération 1933, vingt-cinq à partir de 1948, et une
+    de plus par génération entre les deux. Le paramètre se lit à l'année de
+    NAISSANCE : le lire à l'année de liquidation, comme le faisait le modèle,
+    opposait vingt-cinq années à des générations auxquelles la loi n'en a jamais
+    opposé plus de dix.
+    """
+    return _table_legi("annees_salaire_reference")
 
 
 def source_heures_par_trimestre() -> dict[tuple, float]:
@@ -907,11 +934,37 @@ def source_employeur_public_texte() -> dict[tuple, float]:
     """
     charge = _lire_json("contribution_employeur_public.json",
                         "scripts/fetch/contribution_employeur_public.py")
+    couvertes = _annees_cnracl_du_journal_officiel()
     return {
         (annee, regime): taux
         for cle, taux in sorted(charge.get("complements", {}).items())
         for regime, annee in [cle.split("|")]
+        if (annee, regime) not in couvertes
     }
+
+
+def source_employeur_cnracl_jo() -> dict[tuple, float]:
+    """Contribution employeur à la CNRACL, lue dans le décret qui la fixe.
+
+    Article 5 II du décret n° 91-613 du 28 juin 1991, dont la base LEGI garde
+    vingt versions datées : « Le taux de la contribution sur les traitements
+    […] est fixé à 31,65 % ». Elle couvre 1993 à 2028 — y compris les trois
+    marches que le décret du 30 janvier 2025 programme jusqu'en 2028, et que le
+    dépôt tenait pour une saisie.
+
+    Le I du même article porte la RETENUE de l'agent, et la contribution
+    supplémentaire qui suit le II est un autre prélèvement : ni l'un ni l'autre
+    n'entre ici.
+    """
+    serie = _serie_json("dila_legi_cnracl.json", "scripts/fetch/dila_legi_cnracl.py")
+    return {(annee, "cnracl"): taux for annee, taux in sorted(serie.items())}
+
+
+def _annees_cnracl_du_journal_officiel() -> set[tuple]:
+    try:
+        return set(source_employeur_cnracl_jo())
+    except SourceAbsente:
+        return set()
 
 
 def source_employeur_cnracl() -> dict[tuple, float]:
@@ -922,12 +975,15 @@ def source_employeur_cnracl() -> dict[tuple, float]:
     décret depuis 1947. Transcription OpenFisca des décrets et des barèmes de la
     Caisse des dépôts : niveau `haute`.
 
-    Ce que le décret programme au-delà de la transcription est servi à part, par
-    :func:`source_employeur_public_texte`, à un niveau en retrait.
+    Elle ne garde que ce que le *Journal officiel* ne rend pas — les années
+    d'avant 1993, dont les taux sont dans les décrets abrogés que celui de 1991
+    a remplacés.
     """
+    couvertes = _annees_cnracl_du_journal_officiel()
     return {
         (annee, "cnracl"): taux
         for annee, taux in sorted(_contributions_employeur("cnracl").items())
+        if (annee, "cnracl") not in couvertes
     }
 
 
@@ -1394,6 +1450,18 @@ CERTIFICATIONS = (
         unite=" trimestres",
     ),
     Certification(
+        nom="duree_assurance_requise_decrets",
+        chemin=REFERENCE / "legislation" / "duree_assurance_requise.csv",
+        cles=("generation",),
+        colonne="trimestres",
+        source=source_duree_requise_decrets,
+        origine="DILA, base LEGI, décrets pris pour l'application de la loi du "
+                "21 août 2003 et de celle du 9 novembre 2010",
+        decimales=0,
+        tolerance=0.5,
+        unite=" trimestres",
+    ),
+    Certification(
         nom="coefficient_minoration",
         chemin=REFERENCE / "legislation" / "coefficient_minoration.csv",
         cles=("generation",),
@@ -1425,6 +1493,17 @@ CERTIFICATIONS = (
         decimales=0,
         tolerance=0.5,
         unite=" trimestres",
+    ),
+    Certification(
+        nom="annees_salaire_reference",
+        chemin=REFERENCE / "legislation" / "annees_salaire_reference.csv",
+        cles=("generation",),
+        colonne="annees",
+        source=source_annees_salaire_reference,
+        origine="DILA, base LEGI, code de la sécurité sociale R. 351-29-1",
+        decimales=0,
+        tolerance=0.5,
+        unite=" années",
     ),
     Certification(
         nom="validation_trimestres",
@@ -1572,6 +1651,20 @@ CERTIFICATIONS = (
         decimales=6,
         tolerance=5e-7,
         niveau="moyenne",
+        gabarit={"nature": "appelee"},
+        # Elle ne comble que ce qu'aucune autre source ne porte : depuis que le
+        # décret est lu dans la base LEGI, la saisie n'a plus rien à ajouter.
+        complementaire=True,
+    ),
+    Certification(
+        nom="employeur_public_cnracl_journal_officiel",
+        chemin=REFERENCE / "legislation" / "contribution_employeur_public.csv",
+        cles=("annee", "regime"),
+        colonne="taux",
+        source=source_employeur_cnracl_jo,
+        origine="DILA, base LEGI, décret n° 91-613 du 28 juin 1991, article 5 II",
+        decimales=6,
+        tolerance=5e-7,
         gabarit={"nature": "appelee"},
     ),
     Certification(
