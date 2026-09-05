@@ -16699,14 +16699,14 @@
        "regime": "fonction_publique_etat"
       },
       {
-       "detail": "9,276 points × valeur de service 0.0677 € + cotisations revalorisées 23,511 € × rendement 3.89%",
-       "montant": 1542.7384449605288,
+       "detail": "12,637 points × valeur de service 0.0711 € + cotisations revalorisées 17,454 € × rendement 3.89%",
+       "montant": 1576.9042797932639,
        "regime": "rafp"
       }
      ],
      "pension_annuelle": 43148.81942829695,
      "pension_annuelle_euros_constants": 34436.69665746669,
-     "pension_hors_repartition": 1542.7384449605288,
+     "pension_hors_repartition": 1576.9042797932639,
      "pension_mensuelle": 3595.734952358079,
      "taux_remplacement": 0.5952375000000001,
      "total_contributif": 43148.81942829695

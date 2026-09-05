@@ -260,13 +260,17 @@ def test_journal_de_certification_decrit_les_series_certifiees():
         "carriere_longue": "legislation/carriere_longue.csv",
         "duree_proratisation": "legislation/duree_proratisation.csv",
         "validation_trimestres": "legislation/validation_trimestres.csv",
+        "smic_horaire": "macro/smic_horaire.csv",
         "point_indice_fonction_publique":
+            "legislation/point_indice_fonction_publique.csv",
+        "point_indice_journal_officiel":
             "legislation/point_indice_fonction_publique.csv",
         "quotients_mortalite": "mortalite/quotients_periode.csv",
         "quotients_mortalite_anciens": "mortalite/quotients_periode.csv",
         "valeurs_point": "regimes/valeurs_point.csv",
         "valeurs_point_ircantec": "regimes/valeurs_point.csv",
         "valeurs_point_cnbf": "regimes/valeurs_point.csv",
+        "valeurs_point_rafp": "regimes/valeurs_point.csv",
         "valeurs_point_cnavpl": "regimes/valeurs_point.csv",
         # L'INSEE ne comble que la fin de série : depuis que la fédération
         # Agirc-Arrco est lue directement, elle n'a plus rien à ajouter, et sa

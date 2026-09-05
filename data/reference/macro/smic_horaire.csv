@@ -13,9 +13,26 @@
 # Valeurs en francs jusqu'au barème de juillet 2001, converties en euros par
 # division par 6,55957 — conversion arithmétique, sans revalorisation.
 #
-# Transcription tierce du Journal officiel par OpenFisca-France : fiabilité
-# plafonnée à « haute », jamais « certifiee ».
-# Produit par scripts/fetch/openfisca_smic.py.
+# D'OÙ VIENNENT CES VALEURS. Des décrets qui relèvent le SMIC, LUS dans la base
+# LEGI de la DILA par `scripts/fetch/dila_legi_smic.py` : « A compter du
+# 1er juillet 1997 […] le montant du salaire minimum de croissance est porté à
+# 39,43 F de l'heure en métropole ». Niveau `certifiee` de 1997 à 2017, et les
+# vingt valeurs saisies s'y sont retrouvées à l'identique.
+#
+# TROIS PÉRIODES RESTENT AU NIVEAU `haute`, transcrites d'OpenFisca-France, et
+# chacune pour une raison qui se vérifie :
+#
+#   avant 1997  la base ne porte pas les décrets de cette période ;
+#   2002        le décret en vigueur au 1er janvier est encore en francs
+#               (43,72 F, soit 6,6651 €) alors que le SMIC opposable est de
+#               6,67 € — un arrondi fixé par un texte de conversion absent du
+#               dump. On ne l'invente pas ;
+#   depuis 2018 les décrets récents ne sont pas entrés dans la base des textes
+#               consolidés. Une année dont le décret a plus de 365 jours
+#               signale un texte manquant, l'article L. 3231-5 imposant un
+#               relèvement au moins annuel.
+#
+# Fichier écrit par scripts/verifier_donnees.py --appliquer.
 annee,smic_horaire,fiabilite
 1970,0.498508,haute
 1971,0.553390,haute
@@ -44,27 +61,27 @@ annee,smic_horaire,fiabilite
 1994,5.309799,haute
 1995,5.421087,haute
 1996,5.637565,haute
-1997,5.779342,haute
-1998,6.011065,haute
-1999,6.131499,haute
-2000,6.207724,haute
-2001,6.405908,haute
+1997,5.779342,certifiee
+1998,6.011065,certifiee
+1999,6.131499,certifiee
+2000,6.207724,certifiee
+2001,6.405908,certifiee
 2002,6.670000,haute
-2003,6.830000,haute
-2004,7.190000,haute
-2005,7.610000,haute
-2006,8.030000,haute
-2007,8.270000,haute
-2008,8.440000,haute
-2009,8.710000,haute
-2010,8.860000,haute
-2011,9.000000,haute
-2012,9.220000,haute
-2013,9.430000,haute
-2014,9.530000,haute
-2015,9.610000,haute
-2016,9.670000,haute
-2017,9.760000,haute
+2003,6.830000,certifiee
+2004,7.190000,certifiee
+2005,7.610000,certifiee
+2006,8.030000,certifiee
+2007,8.270000,certifiee
+2008,8.440000,certifiee
+2009,8.710000,certifiee
+2010,8.860000,certifiee
+2011,9.000000,certifiee
+2012,9.220000,certifiee
+2013,9.430000,certifiee
+2014,9.530000,certifiee
+2015,9.610000,certifiee
+2016,9.670000,certifiee
+2017,9.760000,certifiee
 2018,9.880000,haute
 2019,10.030000,haute
 2020,10.150000,haute

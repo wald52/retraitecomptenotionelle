@@ -438,6 +438,49 @@ def test_une_table_sans_intitule_qui_redonne_les_memes_annees_n_est_pas_une_suit
     assert module.table_de("Arrco", pages) == pages[0]
 
 
+# -- valeurs du point du RAFP, lues chez l'ERAFP -----------------------------
+
+#: Le tableau de l'ERAFP, tel que le PDF le rend : trois lignes par tranche, et
+#: une année à deux colonnes quand la valeur change en cours d'année.
+TABLEAU_RAFP = """Évolution de la valeur d'acquisition depuis 2005
+Année 2005 2006
+En euros 1 1,017
+Variation — + 1,7 %
+Évolution de la valeur de service depuis 2005
+Année 2015 Jusqu'au 31
+mars 2016
+À partir du 1er
+avril 2016 2017
+En euros 0,04465 0,04465 0,04474 0,04487
+Variation — — + 0,2 % + 0,3%
+"""
+
+
+def test_l_annee_a_deux_valeurs_est_rendue_par_la_seconde():
+    """2016 : la valeur de service change au 1er avril, celle du 31 décembre vaut."""
+    module = _charger_script("erafp_valeurs_point", "scripts", "fetch",
+                             "erafp_valeurs_point.py")
+    service, griefs = module.lire_tableau(TABLEAU_RAFP,
+                                          "Évolution de la valeur de service")
+    assert griefs == []
+    assert service[2016] == pytest.approx(0.04474)
+    assert service[2017] == pytest.approx(0.04487)
+    # La valeur d'acquisition de 2005 est un euro rond, sans décimale : elle se
+    # lit quand même.
+    acquisition, _ = module.lire_tableau(TABLEAU_RAFP,
+                                         "Évolution de la valeur d'acquisition")
+    assert acquisition[2005] == pytest.approx(1.0)
+
+
+def test_une_valeur_du_rafp_recopiee_ne_passe_pas_le_controle():
+    """C'est ainsi que l'erreur de 2021 s'est vue : + 0,4 % ne mène pas de x à x."""
+    module = _charger_script("erafp_valeurs_point", "scripts", "fetch",
+                             "erafp_valeurs_point.py")
+    recopiee = TABLEAU_RAFP.replace("En euros 1 1,017", "En euros 1 1")
+    _, griefs = module.lire_tableau(recopiee, "Évolution de la valeur d'acquisition")
+    assert any("hausse publiée" in grief for grief in griefs)
+
+
 # -- deux tables de plus, lues dans le code de la sécurité sociale ------------
 
 
@@ -471,3 +514,81 @@ def test_l_assiette_du_trimestre_se_lit_dans_l_article():
     assert module.heures_par_trimestre([("2014-03-21", texte)]) == {
         1972: 200.0, 2014: 150.0,
     }
+
+
+# -- le Journal officiel, là où il porte lui-même la valeur ------------------
+
+
+def test_le_smic_se_lit_dans_le_decret_qui_le_releve():
+    """Date d'EFFET, monnaie, métropole : trois pièges dans une phrase."""
+    module = _charger_script("dila_legi_smic", "scripts", "fetch",
+                             "dila_legi_smic.py")
+    metropole = (
+        "Décret n° 96-571 du 26 juin 1996 portant relèvement du salaire minimum "
+        "de croissance A compter du 1er juillet 1996, pour les catégories de "
+        "travailleurs intéressées par l'article L. 131-2 du code du travail, le "
+        "montant du salaire minimum de croissance est porté à 37,91 F de l'heure "
+        "en métropole, dans les départements d'outre-mer."
+    )
+    mayotte = (
+        "Décret du 20 décembre 2016 A compter du 1er janvier 2017, le montant du "
+        "salaire minimum de croissance est porté à 7,44 € de l'heure à Mayotte."
+    )
+    par_date = module.relevements([("1996-06-28", metropole), ("2016-12-22", mayotte)])
+    # La date du décret — 26 juin — ne doit pas prendre la place de son effet.
+    assert list(par_date) == [__import__("datetime").date(1996, 7, 1)]
+    assert par_date[__import__("datetime").date(1996, 7, 1)] == pytest.approx(
+        37.91 / 6.55957)
+
+
+def test_l_annee_de_la_bascule_a_l_euro_n_est_pas_certifiee():
+    """6,67 € au 1er janvier 2002 : un arrondi, pas une conversion.
+
+    Le dernier décret en vigueur est en francs — 43,72 F, soit 6,6651 € — quand
+    le SMIC opposable en 2002 est de 6,67 €. Le texte qui fixe cet arrondi n'est
+    pas dans le dump : l'année n'est pas rendue.
+    """
+    from datetime import date
+
+    module = _charger_script("dila_legi_smic", "scripts", "fetch",
+                             "dila_legi_smic.py")
+    serie = module.serie_annuelle({
+        date(2000, 7, 1): 6.405908,
+        date(2001, 7, 1): 6.665071,
+        date(2002, 7, 1): 6.83,
+    })
+    assert 2002 not in serie
+    assert serie[2003] == pytest.approx(6.83)
+
+
+def test_le_point_d_indice_gele_reconduit_sa_derniere_version():
+    """Une année sans version n'est pas un trou : le point a été gelé six ans."""
+    from datetime import date
+
+    module = _charger_script("dila_legi_point_indice", "scripts", "fetch",
+                             "dila_legi_point_indice.py")
+    serie = module.serie_annuelle({
+        date(2010, 7, 9): 5556.35,
+        date(2016, 7, 1): 5589.69,
+    })
+    assert serie[2011] == pytest.approx(55.5635)
+    assert serie[2016] == pytest.approx(55.5635)   # gel de 2010 à 2016
+    assert serie[2017] == pytest.approx(55.8969)
+
+
+def test_le_traitement_de_l_indice_100_se_lit_en_francs_puis_en_euros():
+    """« 33 990 F » puis « 5 181,75 » : le Journal officiel aère ses milliers."""
+    from datetime import date
+
+    module = _charger_script("dila_legi_point_indice", "scripts", "fetch",
+                             "dila_legi_point_indice.py")
+    versions = module.versions_datees([
+        ("2001-09-29", "Décret n° 85-1148 du 24 octobre 1985 La valeur annuelle "
+                       "du traitement afférent à l'indice 100 majoré est fixée à "
+                       "33 990 F"),
+        ("2002-01-01", "Décret n° 85-1148 du 24 octobre 1985 La valeur annuelle "
+                       "du traitement afférent à l'indice 100 majoré est fixée à "
+                       "5 181,75 "),
+    ])
+    assert versions[date(2001, 9, 29)] == pytest.approx(33990 / 6.55957)
+    assert versions[date(2002, 1, 1)] == pytest.approx(5181.75)

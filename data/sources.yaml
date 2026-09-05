@@ -740,11 +740,31 @@ institutions:
       Traité hors comptes notionnels (compartiment capitalisation).
     jeux:
       - id: erafp_parametres
-        titre: Valeurs d'acquisition et de service du point RAFP
-        url: https://www.rafp.fr/
+        titre: Valeurs d'acquisition et de service du point RAFP, 2005-2026
+        url: https://media.rafp.fr/s3fs-public/2024-02/RAFP-Evolution-valeurs-point.pdf
         acces: document
-        statut_integration: saisi
-        cible: data/reference/regimes/rafp.yaml
+        statut_integration: automatise
+        cible: data/reference/regimes/valeurs_point.csv
+        recuperation: scripts/fetch/erafp_valeurs_point.py
+        note: >-
+          « La valeur d'acquisition et la valeur de service du point RAFP sont
+          fixées chaque année par le conseil d'administration de l'ERAFP » : le
+          document le dit lui-même, et c'est ce qui en fait le producteur. Ces
+          valeurs venaient d'OpenFisca-France-Pension, transcription plafonnée
+          à `haute` ; elles passent à `certifiee` et sortent de la couverture
+          d'OpenFisca, comme celles de l'Ircantec et de l'Agirc-Arrco.
+          DEUX TROUVAILLES. La transcription répétait en 2021 la valeur
+          d'acquisition de 2020 — 1,2452 € au lieu de 1,2502 €, soit 0,4 % de
+          points achetés en trop cette année-là. Et elle s'arrêtait à 2021 quand
+          l'établissement publie jusqu'en 2026 : les années manquantes étaient
+          prolongées par les prix, alors que la valeur de service a monté de
+          5,7 % en 2023 et de 6,8 % en 2024.
+          Le contrôle est celui du document : il publie en regard de chaque
+          valeur son évolution, que le récupérateur recalcule et exige à deux
+          dixièmes de point près. C'est ainsi que l'erreur de 2021 s'est vue.
+          Une année à deux valeurs — 2016, dont la valeur de service change au
+          1er avril — est rendue par la seconde, la règle du dépôt retenant la
+          valeur en vigueur au 31 décembre.
 
   ircantec:
     nom: Ircantec
@@ -924,6 +944,54 @@ institutions:
           à 1947 et renvoie ensuite à la durée requise.
           Même coût que les autres passes LEGI : 9 Go décompressés en flux, un
           quart d'heure, une exécution par an.
+
+      - id: dila_legi_smic
+        titre: SMIC horaire, décrets de relèvement, 1997-2017
+        url: https://echanges.dila.gouv.fr/OPENDATA/LEGI/
+        acces: api
+        statut_integration: certifie
+        cible: data/reference/macro/smic_horaire.csv
+        recuperation: scripts/fetch/dila_legi_smic.py
+        note: >-
+          Le SMIC n'est pas fixé par un article de code mais par un décret
+          annuel — « A compter du 1er juillet 1997 […] le montant du salaire
+          minimum de croissance est porté à 39,43 F de l'heure en métropole » —,
+          et la base LEGI les garde. Il n'entre dans le modèle qu'à un endroit,
+          mais cet endroit décide de la décote : un trimestre s'acquiert en
+          ayant cotisé sur 150 fois le SMIC horaire depuis 2014, 200 fois avant.
+          Vingt années passent de la transcription au Journal officiel, toutes
+          identiques à la saisie. TROIS TROUS SONT MESURÉS PLUTÔT QUE COMBLÉS :
+          l'avant-1997, que la base ne porte pas ; 2002, dont l'arrondi en euros
+          (6,67 € et non la conversion 6,6651 €) vient d'un texte de conversion
+          absent ; et l'après-2017, les décrets récents n'étant pas entrés dans
+          la base des textes consolidés. Le récupérateur écarte une année dont
+          le décret a plus de 365 jours, l'article L. 3231-5 imposant un
+          relèvement au moins annuel.
+          Attention à la date : celle du décret n'est pas celle de son effet, et
+          Mayotte a ses propres décrets dans le même dump.
+
+      - id: dila_legi_point_indice
+        titre: Point d'indice de la fonction publique, 1996-2027
+        url: https://echanges.dila.gouv.fr/OPENDATA/LEGI/
+        acces: api
+        statut_integration: certifie
+        cible: data/reference/legislation/point_indice_fonction_publique.csv
+        recuperation: scripts/fetch/dila_legi_point_indice.py
+        note: >-
+          Article 3 du décret n° 85-1148 du 24 octobre 1985, dont la base garde
+          quarante-six versions datées : « La valeur annuelle du traitement […]
+          afférents à l'indice 100 majoré […] est fixée à 5 907,34 € ». Le
+          décret porte le traitement de cent points, le dépôt celui d'un seul.
+          Trente-deux années passent à `certifiee`, et la confrontation n'a
+          corrigé que des arrondis — dont celui de 2002, que le décret de
+          bascule fixe à 5 181,75 € quand la conversion des 33 990 F donne
+          5 181,74 €.
+          AVANT 1996, LA CHAÎNE EST INCOMPLÈTE et la série reste transcrite :
+          deux relèvements manquent au dump, celui du 1er novembre 1991 et celui
+          du 1er janvier 1994, tous deux pris par un décret qui en portait deux
+          d'un coup. La série qu'on en tirerait serait plate là où le point a
+          monté — fausse de 1,0 % en 1992 —, et c'est la confrontation à la
+          transcription, année par année, qui l'a établi.
 
       - id: dila_legi_msa
         titre: Valeur de service du point de la RCO agricole, 2005-2024

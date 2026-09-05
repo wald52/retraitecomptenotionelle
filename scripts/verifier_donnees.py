@@ -506,6 +506,24 @@ def source_valeurs_point_agirc_arrco_en_cours() -> dict[tuple, float]:
     }
 
 
+def source_valeurs_point_erafp() -> dict[tuple, float]:
+    """Valeurs du point du RAFP, publiées par l'ERAFP qui les fixe.
+
+    Son conseil d'administration arrête chaque année la valeur d'acquisition et
+    la valeur de service : c'est le producteur, et la transcription d'OpenFisca
+    s'efface devant lui — elle répétait d'ailleurs en 2021 la valeur
+    d'acquisition de 2020, ce qui majorait de 0,4 % les points achetés cette
+    année-là, et elle s'arrêtait cinq ans avant le tableau publié.
+    """
+    return {
+        tuple(cle.split("|")): valeur
+        for cle, valeur in sorted(
+            _serie_json("erafp_valeurs_point.json",
+                        "scripts/fetch/erafp_valeurs_point.py").items()
+        )
+    }
+
+
 def source_valeurs_point() -> dict[tuple, float]:
     """Salaires de référence, valeurs de service et taux d'appel, par régime.
 
@@ -515,15 +533,16 @@ def source_valeurs_point() -> dict[tuple, float]:
     convertit en rente à la liquidation.
 
     Ce que les producteurs publient eux-mêmes est retiré d'ici — la Caisse des
-    dépôts pour l'Ircantec, la fédération pour l'Agirc-Arrco : deux contrôles ne
-    doivent pas se disputer les mêmes lignes, et le producteur l'emporte sur la
-    transcription. Si l'un de ces fichiers manque, OpenFisca reprend sa
-    couverture — au niveau ``haute``, comme il se doit.
+    dépôts pour l'Ircantec, la fédération pour l'Agirc-Arrco, l'ERAFP pour le
+    RAFP : deux contrôles ne doivent pas se disputer les mêmes lignes, et le
+    producteur l'emporte sur la transcription. Si l'un de ces fichiers manque,
+    OpenFisca reprend sa couverture — au niveau ``haute``, comme il se doit.
     """
     valeurs = _cles_points("serie", substituees=False)
     producteurs: set[tuple] = set()
     for source in (source_valeurs_point_ircantec, source_valeurs_point_agirc_arrco,
-                   source_valeurs_point_agirc_arrco_en_cours):
+                   source_valeurs_point_agirc_arrco_en_cours,
+                   source_valeurs_point_erafp):
         try:
             producteurs |= set(source())
         except SourceAbsente:
@@ -629,10 +648,45 @@ def source_point_indice() -> dict[tuple, float]:
     mois que publie le Service des retraites de l'État.
 
     Transcription tierce du Journal officiel par OpenFisca-France : niveau
-    `haute`, jamais `certifiee`.
+    `haute`, jamais `certifiee`. Elle ne garde que ce que le *Journal officiel*
+    lui-même ne donne pas — les années d'avant 1996, dont la chaîne des versions
+    de l'article 3 du décret de 1985 est incomplète dans le dump LEGI.
     """
     serie = _serie_json("openfisca_point_indice.json",
                         "scripts/fetch/openfisca_point_indice.py")
+    try:
+        journal_officiel = set(source_point_indice_jo())
+    except SourceAbsente:
+        journal_officiel = set()
+    return {(annee,): valeur for annee, valeur in sorted(serie.items())
+            if (annee,) not in journal_officiel}
+
+
+def source_point_indice_jo() -> dict[tuple, float]:
+    """Le même point d'indice, lu dans le décret qui le fixe.
+
+    Article 3 du décret n° 85-1148 du 24 octobre 1985, dont la base LEGI garde
+    chaque version datée : « La valeur annuelle du traitement […] afférents à
+    l'indice 100 majoré […] est fixée à 5 907,34 € ». C'est le *Journal
+    officiel*, non sa transcription — et la confrontation a corrigé deux
+    arrondis, dont celui de 2002, que le décret de bascule fixe à 5 181,75 €
+    quand la conversion des 33 990 F donne 5 181,74 €.
+    """
+    serie = _serie_json("dila_legi_point_indice.json",
+                        "scripts/fetch/dila_legi_point_indice.py")
+    return {(annee,): valeur for annee, valeur in sorted(serie.items())}
+
+
+def source_smic() -> dict[tuple, float]:
+    """SMIC horaire en vigueur au 1er janvier — décrets de relèvement, base LEGI.
+
+    Le SMIC n'est pas fixé par un article de code mais par un décret annuel, et
+    c'est le *Journal officiel* qui le porte : la transcription d'OpenFisca, qui
+    tenait lieu de source, plafonnait à ``haute``. Les années dont le décret
+    manque au dump ne sont pas rendues — voir le récupérateur, qui refuse de
+    combler un trou par la valeur de l'année d'avant.
+    """
+    serie = _serie_json("dila_legi_smic.json", "scripts/fetch/dila_legi_smic.py")
     return {(annee,): valeur for annee, valeur in sorted(serie.items())}
 
 
@@ -1228,6 +1282,16 @@ CERTIFICATIONS = (
         niveau="haute",
     ),
     Certification(
+        nom="valeurs_point_rafp",
+        chemin=REFERENCE / "regimes" / "valeurs_point.csv",
+        cles=("regime", "annee", "mesure"),
+        colonne="valeur",
+        source=source_valeurs_point_erafp,
+        origine="ERAFP, évolution des valeurs du point depuis la création du RAFP",
+        decimales=6,
+        tolerance=5e-7,
+    ),
+    Certification(
         nom="valeurs_point_cnbf",
         chemin=REFERENCE / "regimes" / "valeurs_point.csv",
         cles=("regime", "annee", "mesure"),
@@ -1374,6 +1438,18 @@ CERTIFICATIONS = (
         unite=" heures",
     ),
     Certification(
+        nom="smic_horaire",
+        chemin=REFERENCE / "macro" / "smic_horaire.csv",
+        cles=("annee",),
+        colonne="smic_horaire",
+        source=source_smic,
+        origine="DILA, base LEGI, décrets portant relèvement du salaire minimum "
+                "de croissance",
+        decimales=6,
+        tolerance=5e-7,
+        unite=" €",
+    ),
+    Certification(
         nom="point_indice_fonction_publique",
         chemin=REFERENCE / "legislation" / "point_indice_fonction_publique.csv",
         cles=("annee",),
@@ -1383,6 +1459,16 @@ CERTIFICATIONS = (
         decimales=4,
         tolerance=5e-5,
         niveau="haute",
+    ),
+    Certification(
+        nom="point_indice_journal_officiel",
+        chemin=REFERENCE / "legislation" / "point_indice_fonction_publique.csv",
+        cles=("annee",),
+        colonne="valeur",
+        source=source_point_indice_jo,
+        origine="DILA, base LEGI, décret n° 85-1148 du 24 octobre 1985, article 3",
+        decimales=4,
+        tolerance=5e-5,
     ),
     Certification(
         nom="esperances_projetees",

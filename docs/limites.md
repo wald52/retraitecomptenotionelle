@@ -348,7 +348,10 @@ La page **Données** du site affiche l'état exact. En résumé :
 | Bornes de la carrière longue | 2004 et 2012 | moyenne / haute | versions abrogées des mêmes articles, transcrites |
 | Durée maximale prise en compte par la proratisation | avant 1944 à 1947 | **certifiée** | DILA, base LEGI, code de la sécurité sociale `R. 351-6` II |
 | Heures de SMIC à cotiser pour valider un trimestre | 1972 et 2014 | **certifiée** | DILA, base LEGI, code de la sécurité sociale `R. 351-9` |
-| Point d'indice de la fonction publique | 1960-2027 | haute | OpenFisca-France, `point_indice_en_euros` |
+| Point d'indice de la fonction publique | 1996-2027 | **certifiée** | DILA, base LEGI, décret n° 85-1148 du 24 octobre 1985, article 3 |
+| Point d'indice de la fonction publique | 1960-1995 | haute | OpenFisca-France, `point_indice_en_euros` — deux versions manquent au dump avant 1996 |
+| SMIC horaire | 1997-2017, sauf 2002 | **certifiée** | DILA, base LEGI, décrets portant relèvement du SMIC |
+| SMIC horaire | 1970-1996, 2002 et depuis 2018 | haute | OpenFisca-France, `smic_horaire_brut` |
 | Plafond Sécurité sociale | 2002-2025 | **certifiée** | INSEE BDM, idbank 000822494 |
 | Plafond Sécurité sociale | 1931-2001 | haute | OpenFisca-France, daté décret par décret |
 | Revalorisation des salaires portés au compte | 10 colonnes, effets 2017-2026, perceptions depuis 1930 | haute | Cnav, circulaires de revalorisation, recoupées deux à deux |
@@ -366,7 +369,8 @@ La page **Données** du site affiche l'état exact. En résumé :
 | Valeurs d'achat et de service du point, Arrco | 1999-2018 | **certifiée** | Fédération Agirc-Arrco, la même compilation |
 | Valeurs d'achat et de service du point, UNIRS | 1961-1998 | **certifiée** | Fédération Agirc-Arrco, la même compilation |
 | Valeurs du point, Arrco avant 1999 | 1949-1998 | moyenne | l'UNIRS tenant lieu d'Arrco : la valeur est certifiée, la substitution reste une décision du dépôt |
-| Valeurs d'achat et de service du point, autres | RAFP 2005-2021, RCI 2013-2023, IGRANTE et IPACTE 1947-2022 | haute | OpenFisca-France-Pension |
+| Valeurs d'acquisition et de service du point, RAFP | 2005-2026 | **certifiée** | ERAFP, dont le conseil d'administration les fixe |
+| Valeurs d'achat et de service du point, autres | RCI 2013-2023, IGRANTE et IPACTE 1947-2022 | haute | OpenFisca-France-Pension |
 | Valeurs du point, complémentaire des avocats | 2017-2026 | **certifiée** | CNBF, ses barèmes annuels |
 | Valeur du point et taux, base des professions libérales | 2021-2025 | **certifiée** | CNAVPL, ses recueils statistiques |
 | Valeur de service du point, complémentaire agricole | 2005-2024 | **certifiée** | DILA, base LEGI, code rural `D. 732-166` |
@@ -390,6 +394,9 @@ python scripts/fetch/dila_legi_msa.py          # point de la complémentaire agr
 python scripts/fetch/dila_legi_minimum_contributif.py  # minimum contributif et plafond (lent aussi)
 python scripts/fetch/dila_legi_parametres_retraite.py   # âges, durées, décotes par génération (lent aussi)
 python scripts/fetch/openfisca_point_indice.py  # point d'indice et barème du minimum garanti
+python scripts/fetch/dila_legi_point_indice.py # point d'indice, dans son décret (lent)
+python scripts/fetch/dila_legi_smic.py         # SMIC, dans ses décrets de relèvement (lent)
+python scripts/fetch/erafp_valeurs_point.py    # valeurs du point du RAFP, par l'ERAFP
 python scripts/fetch/ined_vallin_mesle.py      # quotients de mortalité d'avant 1986
 python scripts/fetch/insee_projections_mortalite.py  # espérances de vie projetées, jusqu'en 2125
 python scripts/fetch/eurostat_hicp.py          # contrôle croisé de l'inflation
@@ -498,8 +505,8 @@ pour l'Arrco reconstituée, 26,43 F pour l'UNIRS).
 **Ce qui reste hors de portée, et pourquoi.** La liste vaut recensement de ce
 qui a été cherché, pour éviter de le rechercher deux fois — et elle est tenue
 dans les deux sens : une limite qui se referme n'est pas effacée, elle est
-réécrite avec ce qui l'a levée et ce qu'elle a fini par coûter. Sur les douze
-entrées qui suivent, **huit ont été refermées par une source trouvée** et
+réécrite avec ce qui l'a levée et ce qu'elle a fini par coûter. Sur les quatorze
+entrées qui suivent, **dix ont été refermées par une source trouvée** et
 **deux par la mesure du biais** qu'elles laissent — un biais chiffré n'est plus
 une inconnue, il se retranche. Deux restent ouvertes, faute de source. Les
 phrases qui déclaraient ces limites inaccessibles sont citées telles quelles,
@@ -1021,6 +1028,63 @@ plus volontiers.
   valeurs restent des transcriptions de publications, et c'est ici le bon
   niveau. La même remarque vaut pour le minimum garanti de la fonction publique,
   dont l'article `L. 17` ne fixe qu'une référence de 2004.
+
+* *SMIC et point d'indice* — **lus dans leurs décrets, là où la base les
+  porte.** Cette page les rangeait tous deux parmi les transcriptions
+  d'OpenFisca, au motif qu'ils ne sont fixés par aucun article de code. C'est
+  vrai, et cela ne suffisait pas : le SMIC est relevé par un décret annuel, le
+  point d'indice par l'article 3 du décret du 24 octobre 1985, et la base LEGI
+  garde les uns et l'autre, datés.
+
+  > « A compter du 1er juillet 1997 […] le montant du salaire minimum de
+  > croissance est porté à 39,43 F de l'heure en métropole »
+  >
+  > « La valeur annuelle du traitement […] afférents à l'indice 100 majoré […]
+  > est fixée à 5 907,34 € »
+
+  Cinquante-deux valeurs passent ainsi de la transcription au *Journal
+  officiel*, et la confrontation n'a corrigé que deux arrondis — celui de 2002
+  pour le point d'indice, que le décret de bascule fixe à 5 181,75 € quand la
+  conversion des 33 990 F donne 5 181,74 €.
+
+  **Ce qui n'a pas été certifié l'a été délibérément**, et c'est ici le plus
+  instructif : une chaîne de décrets ne se devine pas. Trois trous sont
+  mesurés plutôt que comblés.
+
+  * *le SMIC de 2002*. Le dernier décret en vigueur au 1er janvier est en
+    francs — 43,72 F, soit 6,6651 € —, mais le SMIC opposable cette année-là
+    est de 6,67 €, arrondi fixé par un texte de conversion que le dump ne porte
+    pas. Le récupérateur écarte donc toute année dont le décret commandant est
+    encore en francs ;
+  * *le SMIC depuis 2018*. La base garde les textes consolidés, et les décrets
+    de relèvement postérieurs à celui du 1er janvier 2017 n'y sont pas entrés.
+    Une année dont le décret a plus de trois cent soixante-cinq jours signale un
+    texte absent, l'article L. 3231-5 imposant un relèvement au moins annuel :
+    elle n'est pas écrite ;
+  * *le point d'indice d'avant 1996*. Deux relèvements manquent, celui du
+    1er novembre 1991 et celui du 1er janvier 1994, tous deux pris par un décret
+    qui en portait deux d'un coup. La série qu'on en tirerait serait plate là où
+    le point a monté — fausse de 1,0 % en 1992 — et rien ne le dirait. C'est la
+    confrontation à la transcription, année par année, qui l'a établi : les deux
+    séries ne se séparent que là.
+
+* *Valeurs du point du RAFP* — **trouvées chez celui qui les fixe, avec une
+  erreur dedans.** Ces barèmes venaient d'OpenFisca. Or l'ERAFP publie le
+  tableau complet depuis la création du régime, et le document le dit
+  lui-même : « La valeur d'acquisition et la valeur de service du point RAFP
+  sont fixées chaque année par le conseil d'administration de l'ERAFP. »
+
+  La transcription **répétait en 2021 la valeur d'acquisition de 2020** —
+  1,2452 € au lieu de 1,2502 €. Une valeur d'acquisition trop basse achète trop
+  de points : les droits acquis cette année-là étaient majorés de 0,4 %.
+  L'erreur s'est vue toute seule, le tableau publiant en regard de chaque valeur
+  son évolution — et + 0,4 % ne mène pas de 1,2452 à 1,2452.
+
+  Elle s'arrêtait en outre à 2021, quand l'établissement publie jusqu'en 2026 :
+  les cinq années manquantes étaient prolongées par les prix, alors que la
+  valeur de service a monté de 5,7 % en 2023 et de 6,8 % en 2024. Le RAFP est
+  servi à part, à l'identique dans les cinq scénarios : cela ne déplace aucun
+  écart, seulement le montant affiché à un fonctionnaire.
 
 **Ce que cela veut dire concrètement.** Les carrières entamées après 1950 —
 c'est-à-dire les générations nées à partir de 1930 environ, soit la quasi-totalité

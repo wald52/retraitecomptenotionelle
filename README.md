@@ -562,15 +562,28 @@ COR pour ce qu'il **décide**.
 | Durée d'assurance requise, par génération | 1958-1975 | code de la sécurité sociale `L. 161-17-3`, base LEGI |
 | Bornes du départ pour carrière longue | depuis 2023 | code de la sécurité sociale `L. 351-1-1` et `D. 351-1-1`, base LEGI |
 | Valeurs du point de l'Agirc | 1947-2018 | Agirc-Arrco, sa compilation des valeurs de point |
+| Valeurs du point du RAFP | 2005-2026 | ERAFP, dont le conseil d'administration les fixe |
+| Point d'indice de la fonction publique | 1996-2027 | décret n° 85-1148, article 3, base LEGI |
+| SMIC horaire | 1997-2017, sauf 2002 | décrets de relèvement du SMIC, base LEGI |
 | Valeurs du point de l'Arrco, et de l'UNIRS qui en tient lieu avant 1999 | 1999-2018 et 1961-1998 | Agirc-Arrco, la même compilation |
 | Durée maximale prise en compte par la proratisation, par génération | avant 1944 à 1947 | code de la sécurité sociale `R. 351-6`, base LEGI |
 | Heures de SMIC à cotiser pour valider un trimestre | 1972 et 2014 | code de la sécurité sociale `R. 351-9`, base LEGI |
 
-Deux séries de plus sont reprises automatiquement d'**OpenFisca-France**, le
-modèle socio-fiscal de l'administration — le plafond de la Sécurité sociale
-depuis 1931, et le point d'indice de la fonction publique depuis 1960 avec le
-barème du minimum garanti. Ce sont des transcriptions du *Journal officiel* et
-des circulaires, pas des sources primaires : elles plafonnent au niveau `haute`.
+Ce qu'**OpenFisca-France** garde, ce sont les périodes que le *Journal officiel*
+lui-même ne rend pas : le plafond de la Sécurité sociale de 1931 à 2001, le
+point d'indice d'avant 1996, le SMIC d'avant 1997 et d'après 2017, le barème du
+minimum garanti. Ce sont des transcriptions, pas des sources primaires : elles
+plafonnent au niveau `haute`.
+
+**Le reste est désormais lu dans le décret qui le fixe.** Le SMIC et le point
+d'indice ne sont pas des articles de code — le premier est relevé par un décret
+annuel, le second par l'article 3 du décret du 24 octobre 1985 —, mais la base
+LEGI garde les uns et les autres, datés. Là où la chaîne des textes est
+complète, la valeur passe à `certifiee` ; là où le dump en saute un, l'année
+reste à la transcription plutôt que d'être devinée. C'est le cas de 2002 pour le
+SMIC, dont l'arrondi en euros — 6,67 € et non 6,6651 € — vient d'un texte de
+conversion absent de la base, et des années d'avant 1996 pour le point d'indice,
+dont deux relèvements manquent.
 
 **Les valeurs du point de l'Agirc et de l'Arrco en venaient aussi, et elles
 viennent désormais de la caisse qui les a décidées.** Elles pèsent, dans la
@@ -592,6 +605,9 @@ python scripts/fetch/openfisca_plafond.py       # plafond ancien
 python scripts/fetch/openfisca_cotisations.py   # taux de cotisation du RG
 python scripts/fetch/openfisca_points.py        # valeurs du point, depuis 1947
 python scripts/fetch/openfisca_point_indice.py  # point d'indice, minimum garanti
+python scripts/fetch/dila_legi_point_indice.py  # point d'indice, dans son décret (lent)
+python scripts/fetch/dila_legi_smic.py          # SMIC, dans ses décrets (lent)
+python scripts/fetch/erafp_valeurs_point.py     # valeurs du point du RAFP, par l'ERAFP
 python scripts/fetch/cdc_ircantec.py            # barèmes Ircantec, par son gestionnaire
 python scripts/fetch/cnbf_baremes.py            # valeurs du point des avocats
 python scripts/fetch/cnavpl_recueils.py         # valeur du point des libéraux

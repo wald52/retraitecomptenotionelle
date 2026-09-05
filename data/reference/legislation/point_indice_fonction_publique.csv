@@ -18,11 +18,23 @@
 # 2017 à 2022. Les liquidations ANTÉRIEURES à 2004, elles, prennent bien le
 # point de leur année : c'est à quoi sert le reste de la série.
 #
-# Valeur EN VIGUEUR AU 1er JANVIER de chaque année, reprise de la série datée
-# d'OpenFisca-France (`marche_travail/remuneration_dans_fonction_publique/
-# indicefp/point_indice_en_euros`), elle-même transcrite des décrets portant
-# majoration de la rémunération des personnels civils et militaires de l'État.
-# Transcription tierce : niveau `haute`, jamais `certifiee`.
+# Valeur EN VIGUEUR AU 1er JANVIER de chaque année.
+#
+# DEPUIS 1996 elle est LUE dans le décret qui la fixe — l'article 3 du décret
+# n° 85-1148 du 24 octobre 1985, dont la base LEGI garde chaque version datée :
+# « La valeur annuelle du traitement […] afférents à l'indice 100 majoré […] est
+# fixée à 5 907,34 € ». Le décret porte le traitement de CENT points ; le
+# fichier porte celui d'un seul. Niveau `certifiee`.
+#
+# AVANT 1996, la série reste celle d'OpenFisca-France
+# (`marche_travail/remuneration_dans_fonction_publique/indicefp/
+# point_indice_en_euros`), au niveau `haute` : la base ne garde pas toutes les
+# versions anciennes de l'article — deux relèvements manquent, celui du
+# 1er novembre 1991 et celui du 1er janvier 1994 —, et la série qu'on en
+# tirerait serait plate là où le point a monté.
+#
+# Les années sans version ne sont pas des trous : le point a été gelé de 2010 à
+# 2016, de 2017 à 2022, et il l'est depuis juillet 2023.
 #
 # Récupérée par scripts/fetch/openfisca_point_indice.py et RECONTRÔLÉE à
 # chaque exécution de scripts/verifier_donnees.py, comme les autres séries
@@ -65,35 +77,35 @@ annee,valeur,fiabilite
 1993,46.0244,haute
 1994,47.2165,haute
 1995,47.9025,haute
-1996,49.1557,haute
-1997,49.1557,haute
-1998,49.6480,haute
-1999,50.2929,haute
-2000,50.9469,haute
-2001,51.2015,haute
-2002,51.8174,haute
-2003,52.4933,haute
-2004,52.7558,haute
-2005,52.7558,haute
-2006,53.7110,haute
-2007,53.9795,haute
-2008,54.4113,haute
-2009,54.8475,haute
-2010,55.2871,haute
-2011,55.5635,haute
-2012,55.5635,haute
-2013,55.5635,haute
-2014,55.5635,haute
-2015,55.5635,haute
-2016,55.5635,haute
-2017,55.8969,haute
-2018,56.2323,haute
-2019,56.2323,haute
-2020,56.2323,haute
-2021,56.2323,haute
-2022,56.2323,haute
-2023,58.2004,haute
-2024,59.0734,haute
-2025,59.0734,haute
-2026,59.0734,haute
-2027,59.0734,haute
+1996,49.1557,certifiee
+1997,49.1557,certifiee
+1998,49.6481,certifiee
+1999,50.2929,certifiee
+2000,50.9469,certifiee
+2001,51.2015,certifiee
+2002,51.8175,certifiee
+2003,52.4933,certifiee
+2004,52.7558,certifiee
+2005,52.7558,certifiee
+2006,53.7110,certifiee
+2007,53.9795,certifiee
+2008,54.4113,certifiee
+2009,54.8475,certifiee
+2010,55.2871,certifiee
+2011,55.5635,certifiee
+2012,55.5635,certifiee
+2013,55.5635,certifiee
+2014,55.5635,certifiee
+2015,55.5635,certifiee
+2016,55.5635,certifiee
+2017,55.8969,certifiee
+2018,56.2323,certifiee
+2019,56.2323,certifiee
+2020,56.2323,certifiee
+2021,56.2323,certifiee
+2022,56.2323,certifiee
+2023,58.2004,certifiee
+2024,59.0734,certifiee
+2025,59.0734,certifiee
+2026,59.0734,certifiee
+2027,59.0734,certifiee

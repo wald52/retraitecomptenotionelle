@@ -175,11 +175,20 @@
   "point_indice_fonction_publique": {
    "ajoutees": 0,
    "corrigees": 0,
-   "empreinte": "eea496d8ddd4ee78",
-   "identiques": 68,
+   "empreinte": "aff9e1938730bd29",
+   "identiques": 36,
    "niveau": "haute",
    "source": "OpenFisca-France, point_indice_en_euros.yaml",
-   "valeurs": 68
+   "valeurs": 36
+  },
+  "point_indice_journal_officiel": {
+   "ajoutees": 0,
+   "corrigees": 2,
+   "empreinte": "e2ce048367b5e2b0",
+   "identiques": 30,
+   "niveau": "certifiee",
+   "source": "DILA, base LEGI, décret n° 85-1148 du 24 octobre 1985, article 3",
+   "valeurs": 32
   },
   "productivite": {
    "ajoutees": 0,
@@ -217,14 +226,23 @@
    "source": "INSEE BDM, idbanks 011785411 et 011793486",
    "valeurs": 76
   },
+  "smic_horaire": {
+   "ajoutees": 0,
+   "corrigees": 0,
+   "empreinte": "1e664f4810d8ce5f",
+   "identiques": 20,
+   "niveau": "certifiee",
+   "source": "DILA, base LEGI, décrets portant relèvement du salaire minimum de croissance",
+   "valeurs": 20
+  },
   "valeurs_point": {
    "ajoutees": 0,
    "corrigees": 0,
-   "empreinte": "dd31e3e1d8662aaa",
-   "identiques": 340,
+   "empreinte": "b40e79d63ac553de",
+   "identiques": 306,
    "niveau": "haute",
    "source": "OpenFisca-France-Pension, paramètres des régimes en points",
-   "valeurs": 340
+   "valeurs": 306
   },
   "valeurs_point_agirc_arrco": {
    "ajoutees": 0,
@@ -279,6 +297,15 @@
    "niveau": "certifiee",
    "source": "DILA, base LEGI, code rural D. 732-166",
    "valeurs": 20
+  },
+  "valeurs_point_rafp": {
+   "ajoutees": 0,
+   "corrigees": 0,
+   "empreinte": "105e66ec7c4bbe5d",
+   "identiques": 44,
+   "niveau": "certifiee",
+   "source": "ERAFP, évolution des valeurs du point depuis la création du RAFP",
+   "valeurs": 44
   },
   "valeurs_point_texte": {
    "ajoutees": 0,
