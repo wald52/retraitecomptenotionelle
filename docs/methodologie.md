@@ -230,8 +230,9 @@ certifié de 1950 à 2025 par `scripts/verifier_donnees.py`. Les vingt années
 aucune série d'emploi salarié ne couvre la guerre : elles reprennent la
 variation du salaire moyen, c'est-à-dire supposent l'emploi salarié constant.
 Au-delà de 2025, la projection reconduit le salaire moyen nominal, l'emploi
-salarié étant supposé constant faute d'hypothèse d'emploi long terme dont on
-puisse se réclamer.
+salarié étant supposé constant : le COR ne publie pas d'hypothèse d'emploi long
+terme dont on puisse se réclamer, et ses hypothèses de population active ont
+changé deux fois en deux ans.
 
 Sur 1941-2025 la règle vaut ×3 685, onze fois les prix : l'emploi salarié a été
 multiplié par 2,14 depuis 1950, et cette croissance s'ajoute chaque année à
@@ -306,11 +307,25 @@ la conséquence logique de la règle (`plancher_indexation`).
 ### Au-delà de 2025
 
 Les séries observées s'arrêtent en 2025. Geler la dernière valeur serait une
-hypothèse implicite et fausse. Le modèle projette donc explicitement, selon des
-scénarios inspirés de ceux du Conseil d'orientation des retraites
-(`data/reference/macro/hypotheses_projection.yaml`) : inflation 1,75 %,
-productivité réelle 0,7 % / 1,0 % / 1,3 % selon la variante. Toute année
-projetée porte la fiabilité la plus basse, qui se propage jusqu'au résultat.
+hypothèse implicite et fausse. Le modèle projette donc explicitement, selon le
+jeu de scénarios du Conseil d'orientation des retraites
+(`data/reference/macro/hypotheses_projection.yaml`) : inflation 1,75 % et
+productivité réelle **0,7 %** dans le scénario de référence, **0,4 %** et
+**1,0 %** dans les deux variantes. C'est la nomenclature que le COR retient
+depuis son rapport de juin 2025 — celui-là même qui abandonne la variante à
+1,3 %, « prenant note du ralentissement structurel de la productivité » — et
+qu'il reconduit à l'identique en juin 2026. Toute année projetée porte la
+fiabilité la plus basse, qui se propage jusqu'au résultat.
+
+Trois écarts avec la source, assumés et détaillés dans le fichier
+d'hypothèses : le COR raisonne en productivité **horaire**, le modèle en
+productivité **par tête**, seule série que l'INSEE publie de 1950 à 2025 ; le
+COR atteint sa cible **en 2040**, le modèle l'applique **dès 2026**, sans
+trajectoire de convergence ; le COR projette l'emploi, le modèle le suppose
+constant. Et l'inflation de 1,75 % est une convention reconduite des rapports
+antérieurs du COR — ce n'est pas la cible de la BCE, qui est de 2 % symétrique
+depuis 2021, et les documents publics de juin 2025 et de juin 2026 ne la
+restatent pas.
 
 ---
 
@@ -958,7 +973,7 @@ plus ce qui a été versé, mais ce qu'une réforme choisirait de reconnaître.
 
 ### Sources
 
-`data/sources.yaml` recense les soixante et un jeux de données des vingt-six
+`data/sources.yaml` recense les soixante et onze jeux de données des vingt-six
 institutions, avec pour chacun l'URL, le mode d'accès et l'état d'intégration.
 
 ### Fiabilité

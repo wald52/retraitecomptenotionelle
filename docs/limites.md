@@ -329,6 +329,7 @@ La page **Données** du site affiche l'état exact. En résumé :
 | Salaire moyen par tête | 1930-1949 | estimée | reconstitution |
 | Productivité réelle | 1950-2025 | **certifiée** | INSEE BDM, idbanks 011785223 et 011793334 |
 | Productivité réelle | 1930-1949 | estimée | reconstitution |
+| Hypothèses de projection | 2026-2100 | **saisie** | COR, rapport annuel de juin 2025, jeu reconduit en juin 2026 |
 | Espérance de vie à 0 et 60 ans | 1946-2025 | **certifiée** | INSEE BDM, quatre idbanks, annuel par sexe |
 | Espérance de vie à 65 ans | 1960-2024 | **certifiée** | OCDE `DSD_HEALTH_STAT@DF_LE` |
 | Espérance de vie à 65 ans | 1946-1959 | haute | **dérivée** des quotients INED, recalculée à chaque exécution |
@@ -392,6 +393,17 @@ python scripts/verifier_donnees.py --appliquer # aligne sur la source et certifi
 `data/brut/` n'est pas versionné : c'est `data/derive/certification.json` qui
 garde la trace du dernier recontrôle — quelle source, quel jour, combien de
 valeurs, à quel niveau, et une empreinte de la série reconstruite.
+
+**Les hypothèses de projection ne sont pas certifiables par script, et il faut
+le dire.** `verifier_donnees.py` confronte des séries à un producteur ; une
+hypothèse de long terme n'a pas de producteur, elle a un auteur. Le fichier
+`data/reference/macro/hypotheses_projection.yaml` transcrit donc le jeu du COR
+— référence 0,7 %, variantes 0,4 % et 1,0 % de croissance annuelle de la
+productivité — en nommant son millésime, et rien ne garantit qu'il suive le
+prochain rapport autrement qu'à la main. Deux réserves s'y ajoutent : le taux
+est appliqué dès 2026 quand le COR ne l'atteint qu'en 2040, et l'inflation de
+1,75 % est une convention reconduite de ses rapports antérieurs, que les
+documents publics de juin 2025 et de juin 2026 ne restatent pas.
 
 **Deux niveaux, deux exigences.** `certifiee` suppose que la source soit le
 **producteur** de la donnée : INSEE, Eurostat, OCDE. Une transcription tierce,

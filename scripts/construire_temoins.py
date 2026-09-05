@@ -43,7 +43,7 @@ BASE = {
     "primes": "0", "enfants": "0", "interruptions": "",
     "indexation": "triple_lock_inverse", "age_reference": "cliquet_legal",
     "table": "unisexe", "conversion_acquis": "reference",
-    "projection": "cor_central",
+    "projection": "cor_reference",
     "bascule": "2026", "euros": "2026",
 }
 
@@ -131,7 +131,7 @@ def _cas() -> list[dict]:
         "conversion_acquis": "liquidation", "liquidation": "70",
     }))
     cas.append(("table_par_sexe_femme", {"table": "par_sexe", "sexe": "F"}))
-    for projection in ("cor_favorable", "cor_defavorable", "stagnation"):
+    for projection in ("cor_productivite_basse", "cor_productivite_haute"):
         cas.append((f"projection_{projection}", {"projection": projection}))
     for bascule in ("1980", "2000", "2026", "2040", "2060"):
         cas.append((f"bascule_{bascule}", {"bascule": bascule, "naissance": "1990"}))

@@ -146,7 +146,7 @@ export const PARAMETRES_DEFAUT = Object.freeze({
   //: Année dans les euros de laquelle les résultats sont exprimés.
   annee_euros_constants: 2026,
   //: Scénario de projection macroéconomique au-delà de la dernière observation.
-  scenario_projection: "cor_central",
+  scenario_projection: "cor_reference",
 
   // --- Indexation -----------------------------------------------------------
   //: Le défaut est la règle d'ÉQUILIBRE, pas le triple lock inversé qui a donné

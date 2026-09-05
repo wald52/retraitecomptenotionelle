@@ -669,7 +669,9 @@ mode_age_reference     ModeAgeReference.{CLIQUET_LEGAL
 age_conversion_droits_acquis  AgeConversionDroitsAcquis.{REFERENCE | LIQUIDATION}
 part_cotisation        PartCotisation.{SALARIALE | TOTALE | TOTALE_ALIGNEE}
 table_conversion       TableConversion.{UNISEXE | PAR_SEXE}
-scenario_projection    cor_central | cor_favorable | cor_defavorable | stagnation
+scenario_projection    cor_reference | cor_productivite_basse
+                       | cor_productivite_haute   (défaut : cor_reference,
+                       scénario de référence du COR, productivité 0,7 %)
 annee_bascule          année de passage au régime unique (défaut 2026)
 annee_euros_constants  année des euros constants (défaut 2026)
 fiabilite_minimale     refuse de calculer sous un certain niveau de fiabilité

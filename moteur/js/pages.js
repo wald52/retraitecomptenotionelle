@@ -64,10 +64,9 @@ export const CONVERSIONS_ACQUIS = [
 ];
 
 export const PROJECTIONS = [
-  ["cor_central", "COR central"],
-  ["cor_favorable", "COR favorable"],
-  ["cor_defavorable", "COR défavorable"],
-  ["stagnation", "Stagnation"],
+  ["cor_reference", "COR référence — productivité 0,7 %"],
+  ["cor_productivite_basse", "COR variante basse — 0,4 %"],
+  ["cor_productivite_haute", "COR variante haute — 1,0 %"],
 ];
 
 /**
@@ -124,7 +123,7 @@ const DEFAUTS = Object.freeze({
   table: "unisexe",
   conversion_acquis: "reference",
   part_cotisation: "salariale",
-  projection: "cor_central",
+  projection: "cor_reference",
   bascule: 2026,
   euros: 2026,
   //: Vrai si la requête portait des paramètres, donc s'il faut calculer.

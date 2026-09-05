@@ -187,6 +187,26 @@ institutions:
         acces: document
         statut_integration: saisi
         cible: data/reference/regimes/*.yaml
+      - id: cor_hypotheses_projection
+        titre: >-
+          Hypothèses économiques de long terme du COR — scénario de référence et
+          variantes de productivité
+        url: https://www.cor-retraites.fr/sites/default/files/2026-06/Intro%20RA.pdf
+        acces: document
+        statut_integration: saisi
+        cible: data/reference/macro/hypotheses_projection.yaml
+        millesime: juin 2026
+        note: >-
+          Le jeu de scénarios du dépôt transcrit celui du COR : référence à
+          0,7 % de croissance annuelle de la productivité horaire du travail,
+          variantes à 0,4 % et 1,0 %. Ce jeu apparaît dans le rapport de juin
+          2025 — qui abandonne explicitement la variante à 1,3 % — et est
+          reconduit à l'identique en juin 2026. Trois écarts assumés avec la
+          source, détaillés dans le fichier cible : productivité par tête et
+          non horaire, cible atteinte dès 2026 et non en 2040, emploi salarié
+          supposé constant. L'inflation de long terme à 1,75 % est une
+          convention reconduite des rapports antérieurs : les documents publics
+          de juin 2025 et juin 2026 ne la restatent pas.
       - id: cor_cas_types
         titre: Cas types du COR (carrières de référence)
         url: https://www.cor-retraites.fr/simulateurs

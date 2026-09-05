@@ -318,7 +318,7 @@ class Parametres:
 
     #: Scénario de projection macroéconomique au-delà de la dernière observation
     #: (clé de ``data/reference/macro/hypotheses_projection.yaml``).
-    scenario_projection: str = "cor_central"
+    scenario_projection: str = "cor_reference"
 
     # --- Indexation ---------------------------------------------------------
     #: Le défaut est la règle d'ÉQUILIBRE — la croissance de l'assiette des

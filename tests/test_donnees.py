@@ -74,10 +74,13 @@ def test_annees_projetees_sont_de_fiabilite_minimale(macro):
 
 
 def test_projection_applique_le_scenario_choisi():
-    central = DonneesMacro(RACINE_DONNEES, scenario_projection="cor_central")
-    defavorable = DonneesMacro(RACINE_DONNEES, scenario_projection="cor_defavorable")
-    assert central.productivite(2050) == pytest.approx(0.010)
-    assert defavorable.productivite(2050) == pytest.approx(0.007)
+    """Les trois taux du COR : 0,4 % et 1,0 % en variante, 0,7 % en référence."""
+    reference = DonneesMacro(RACINE_DONNEES, scenario_projection="cor_reference")
+    haute = DonneesMacro(RACINE_DONNEES, scenario_projection="cor_productivite_haute")
+    basse = DonneesMacro(RACINE_DONNEES, scenario_projection="cor_productivite_basse")
+    assert reference.productivite(2050) == pytest.approx(0.007)
+    assert haute.productivite(2050) == pytest.approx(0.010)
+    assert basse.productivite(2050) == pytest.approx(0.004)
 
 
 def test_scenario_de_projection_inconnu_est_rejete():

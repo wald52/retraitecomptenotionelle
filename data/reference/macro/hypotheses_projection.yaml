@@ -7,22 +7,60 @@
 # et la productivité à 0,3 %, valeurs conjoncturelles qui écraseraient tout le
 # calcul sur quarante ans. On explicite donc les hypothèses.
 #
-# Les variantes reprennent la structure des scénarios du Conseil d'orientation
-# des retraites, qui font varier la croissance de la productivité du travail à
-# long terme. La cible d'inflation est celle de la Banque centrale européenne.
+# LE JEU DE SCÉNARIOS EST CELUI DU COR, DANS SA NOMENCLATURE ACTUELLE
+# -------------------------------------------------------------------
+# Un scénario de référence et deux variantes de productivité, telles que le
+# Conseil d'orientation des retraites les retient depuis son rapport de juin
+# 2025 : « les membres du COR ont décidé de ne plus retenir de variante de
+# productivité à 1,3 %, prenant note du ralentissement structurel de la
+# productivité. Les hypothèses de croissance annuelle de la productivité du
+# travail retenues sont maintenant de 0,4 %, 0,7 % et 1,0 % » (rapport annuel,
+# juin 2025, partie 1). Le rapport de juin 2026 reconduit exactement ce jeu :
+# référence à 0,7 %, variantes à 0,4 % et 1,0 %.
+#
+# Ce fichier retenait auparavant 0,7 / 1,0 / 1,3 % en appelant « central » le
+# 1,0 % et « défavorable » le 0,7 % : c'était la nomenclature d'avant 2024, et
+# elle nommait « défavorable » ce qui est devenu la référence. La variante de
+# stagnation à 0,3 %, ajoutée ici faute de plancher assez bas chez le COR, a
+# disparu avec l'arrivée du 0,4 % qui la rend redondante.
+#
+# TROIS ÉCARTS ASSUMÉS AVEC LE COR, QU'IL FAUT CONNAÎTRE POUR LIRE LES CHIFFRES
+# -----------------------------------------------------------------------------
+# 1. Le COR raisonne en productivité HORAIRE ; le modèle, en productivité par
+#    tête, la seule que l'INSEE publie en série longue et que `productivite.csv`
+#    certifie de 1950 à 2025. Les deux ne coïncident qu'à durée du travail
+#    constante.
+# 2. Le COR atteint sa cible PROGRESSIVEMENT — 0,7 % à partir de 2040, chômage
+#    à 7 % en 2032 ; le modèle applique le taux dès 2026, sans trajectoire de
+#    convergence. Le raccord est donc brutal : 1,77 % de croissance du salaire
+#    moyen observée en 2025, 2,45 % l'année suivante dans le scénario de
+#    référence.
+# 3. Le COR projette l'emploi et la population active ; ici l'emploi salarié est
+#    supposé CONSTANT (voir la convention de masse salariale ci-dessous).
+#
+# L'INFLATION N'EST PAS UNE CIBLE DE BANQUE CENTRALE
+# ---------------------------------------------------
+# 1,75 % est la convention de long terme que le COR reconduit de rapport en
+# rapport, et non la cible de la BCE, qui est de 2 % symétrique depuis la revue
+# stratégique de juillet 2021. Les documents publics de juin 2025 et de juin
+# 2026 ne restatent pas explicitement ce 1,75 % : il est ici conservé faute
+# d'une valeur publiée qui le remplace, et c'est le paramètre le moins solide
+# du fichier. Il pèse peu sur les comparaisons — toutes les règles d'indexation
+# du modèle sont nominales et l'affichage est en euros constants — mais il pèse
+# sur les montants affichés.
 #
 # Convention : croissance nominale du salaire moyen = productivité réelle
 # + inflation. À long terme le partage de la valeur ajoutée est supposé stable,
 # donc les salaires réels progressent au rythme de la productivité.
 #
 # Convention pour la MASSE SALARIALE : masse salariale = salaire moyen × emploi
-# salarié. Au-delà de 2025, l'emploi salarié est supposé CONSTANT — la
-# population active projetée par l'INSEE est à peu près stable après 2030, et le
-# COR ne fait pas d'hypothèse d'emploi long terme dont on pourrait se réclamer
-# ici. La masse salariale projetée croît donc au rythme du salaire moyen.
-# C'est une hypothèse neutre, et non un résultat : sur 1950-2025 l'emploi
-# salarié a été multiplié par 2,14, soit près d'un point de croissance annuelle
-# que la projection ne reconduit pas.
+# salarié. Au-delà de 2025, l'emploi salarié est supposé CONSTANT — le COR ne
+# publie pas d'hypothèse d'emploi long terme dont on pourrait se réclamer ici,
+# et ses hypothèses de population active ont changé deux fois en deux ans
+# (fécondité 1,8 et solde migratoire +70 000 en juin 2025, fécondité 1,45 et
+# +150 000 en juin 2026). C'est une hypothèse neutre, et non un résultat : sur
+# 1950-2025 l'emploi salarié a été multiplié par 2,14, soit près d'un point de
+# croissance annuelle que la projection ne reconduit pas.
 #
 # Le PIB nominal suit la même convention que la masse salariale : au-delà de
 # 2025, il croît au rythme du salaire moyen nominal. Supposer autre chose
@@ -32,41 +70,33 @@
 annee_derniere_observation: 2025
 annee_fin_projection: 2100
 
-scenario_par_defaut: cor_central
+scenario_par_defaut: cor_reference
 
 scenarios:
 
-  cor_central:
-    libelle: Scénario central — productivité 1,0 % par an
-    inflation: 0.0175
-    productivite_reelle: 0.010
-    salaire_moyen_nominal: 0.0275
-    masse_salariale_nominale: 0.0275   # emploi salarié supposé constant
-    pib_nominal: 0.0275               # partage de la valeur ajoutée stable
-
-  cor_favorable:
-    libelle: Scénario favorable — productivité 1,3 % par an
-    inflation: 0.0175
-    productivite_reelle: 0.013
-    salaire_moyen_nominal: 0.0305
-    masse_salariale_nominale: 0.0305   # emploi salarié supposé constant
-    pib_nominal: 0.0305               # partage de la valeur ajoutée stable
-
-  cor_defavorable:
-    libelle: Scénario défavorable — productivité 0,7 % par an
+  cor_reference:
+    libelle: COR référence — productivité 0,7 % par an
     inflation: 0.0175
     productivite_reelle: 0.007
     salaire_moyen_nominal: 0.0245
     masse_salariale_nominale: 0.0245   # emploi salarié supposé constant
     pib_nominal: 0.0245               # partage de la valeur ajoutée stable
 
-  stagnation:
-    libelle: Stagnation durable — productivité 0,3 % par an
+  cor_productivite_basse:
+    libelle: COR variante basse — productivité 0,4 % par an
     inflation: 0.0175
-    productivite_reelle: 0.003
-    salaire_moyen_nominal: 0.0205
-    masse_salariale_nominale: 0.0205   # emploi salarié supposé constant
-    pib_nominal: 0.0205               # partage de la valeur ajoutée stable
+    productivite_reelle: 0.004
+    salaire_moyen_nominal: 0.0215
+    masse_salariale_nominale: 0.0215   # emploi salarié supposé constant
+    pib_nominal: 0.0215               # partage de la valeur ajoutée stable
+
+  cor_productivite_haute:
+    libelle: COR variante haute — productivité 1,0 % par an
+    inflation: 0.0175
+    productivite_reelle: 0.010
+    salaire_moyen_nominal: 0.0275
+    masse_salariale_nominale: 0.0275   # emploi salarié supposé constant
+    pib_nominal: 0.0275               # partage de la valeur ajoutée stable
 
 # Le plafond de la Sécurité sociale suit la croissance du salaire moyen, ce qui
 # est la règle en vigueur (article L. 241-3 du code de la sécurité sociale).
