@@ -890,11 +890,130 @@ function resultats(contexte, saisie) {
   ${minimum}
   ${ouverture}
 </div>
+${fourchette(contexte, saisie, comparaison)}
 ${decomposition(contexte, saisie, comparaison)}
 ${contributionEmployeur(comparaison)}
 ${cascade(comparaison, saisie)}
 ${detail(contexte, comparaison)}
 `;
+}
+
+/**
+ * Les cinq scénarios, dans l'ordre où la page les affiche, avec le libellé
+ * court que la fourchette leur donne.
+ */
+const SCENARIOS_AFFICHES = [
+  ["actuel", "1. Système actuel"],
+  ["notionnel_retroactif", "2. Notionnel rétroactif"],
+  ["notionnel_prospectif", "3. Notionnel à la bascule"],
+  ["notionnel_retroactif_employeur", "4. Rétroactif, avec le patronal"],
+  ["notionnel_prospectif_employeur", "5. Bascule, avec le patronal"],
+];
+
+/**
+ * Ce que l'hypothèse de productivité pèse dans le résultat affiché.
+ *
+ * Un montant unique se lit comme une prévision. Il n'en est pas une dès qu'une
+ * année de la carrière tombe après la dernière observation : il est alors la
+ * conséquence d'un scénario, et le lecteur doit voir laquelle.
+ *
+ * Le bloc rejoue donc la même carrière sous les trois hypothèses du COR et
+ * donne l'écart. Quand la liquidation précède la dernière année observée, il
+ * n'y a rien à faire varier — et c'est la chose la plus utile qu'on puisse dire
+ * à quelqu'un qui redoute les hypothèses : son chiffre n'en contient aucune.
+ */
+function fourchette(contexte, saisie, comparaison) {
+  const macro = contexte.simulateur(saisie.parametres(contexte.base)).macro;
+  const derniereObservee = macro.derniereAnneeObservee;
+  const carriere = comparaison.carriere;
+  const cotisees = carriere.anneesCotisees;
+  const liquidation = carriere.anneeLiquidation;
+  const debut = cotisees.length ? Math.min(...cotisees) : liquidation;
+  const total = liquidation - debut + 1;
+  const projetees = Math.max(0, liquidation - Math.max(debut - 1, derniereObservee));
+
+  if (!projetees) {
+    return `
+<h2>Ce que l'hypothèse pèse</h2>
+<p class="note">Rien, ici : la carrière s'achève en ${liquidation}, et les séries
+sont observées jusqu'en ${derniereObservee}. <strong>Aucune année projetée
+n'entre dans ce calcul</strong> — les montants ci-dessus sont identiques dans
+les trois scénarios macroéconomiques, parce qu'aucun d'eux ne s'y applique.</p>`;
+  }
+
+  const montants = new Map();
+  for (const [code] of PROJECTIONS) {
+    let variante;
+    try {
+      variante = code === saisie.projection
+        ? comparaison
+        : contexte.simuler(new Saisie({ ...saisie, projection: code }));
+    } catch (erreur) {
+      continue;
+    }
+    const par_scenario = {};
+    for (const [scenario] of SCENARIOS_AFFICHES) {
+      par_scenario[scenario] = variante.enEurosConstants(
+        variante[scenario].pension_annuelle,
+      );
+    }
+    montants.set(code, par_scenario);
+  }
+
+  const basse = montants.get("cor_productivite_basse");
+  const haute = montants.get("cor_productivite_haute");
+  if (!basse || !haute) {
+    return "";
+  }
+  const retenus = montants.get(saisie.projection);
+
+  const lignes = SCENARIOS_AFFICHES.map(([scenario, libelle]) => {
+    const bas = basse[scenario];
+    const haut = haute[scenario];
+    const amplitude = bas > 0 ? haut / bas - 1 : NaN;
+    return [
+      echapper(libelle),
+      g.euros(bas / 12),
+      retenus ? g.euros(retenus[scenario] / 12) : "—",
+      g.euros(haut / 12),
+      g.pourcentage(amplitude),
+    ];
+  });
+
+  const retenu = (PROJECTIONS.find(([code]) => code === saisie.projection)
+    || [null, ""])[1];
+  const reference = comparaison.enEurosConstants(
+    comparaison.notionnel_retroactif.pension_annuelle,
+  ) / 12;
+  const ecart2 = basse.notionnel_retroactif > 0
+    ? haute.notionnel_retroactif / basse.notionnel_retroactif - 1
+    : NaN;
+
+  return `
+<h2>Ce que l'hypothèse pèse</h2>
+<p>Le compte est revalorisé chaque année de ${debut} à ${liquidation}, soit
+${total} années — dont <strong>${projetees} après ${derniereObservee}</strong>,
+la dernière année observée. Ces ${g.pourcentage(projetees / total)} du calcul ne
+reposent sur aucune mesure : elles reposent sur l'hypothèse de croissance de la
+productivité, celle que le Conseil d'orientation des retraites fixe et révise.</p>
+<p>La même carrière, rejouée sous les trois hypothèses du COR. Le scénario 2
+passe de ${g.euros(basse.notionnel_retroactif / 12)} à
+${g.euros(haute.notionnel_retroactif / 12)} par mois, soit
+<strong>${g.pourcentage(ecart2)} d'amplitude</strong> autour des
+${g.euros(reference)} affichés plus haut.</p>
+${g.tableau(
+    ["Scénario", "Productivité 0,4 %", echapper(retenu), "Productivité 1,0 %",
+      "Amplitude"],
+    lignes,
+    ["", "nombre", "nombre", "nombre", "nombre"],
+  )}
+<p class="discret">Montants mensuels bruts, en euros constants de ${saisie.euros}.
+La fourchette ne fait varier que la <strong>productivité</strong> — 0,4 %, 0,7 %
+et 1,0 % par an, le jeu que le COR retient depuis juin 2025. Elle laisse fixes
+les autres hypothèses de la projection, et n'est donc pas un intervalle de
+confiance : l'inflation y reste à 1,75 %, l'emploi salarié constant, et la
+législation inchangée. C'est une mesure de sensibilité à un paramètre, pas une
+borne sur l'avenir — l'avenir peut sortir de cette fourchette.</p>`;
 }
 
 const NATURES_PART_EMPLOYEUR = {

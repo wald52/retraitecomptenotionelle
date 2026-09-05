@@ -54,6 +54,27 @@ class DonneesMacro:
         return serie.prolongee(float(self.projection[cle]), self.projection["fin"])
 
     @cached_property
+    def derniere_annee_observee(self) -> int:
+        """Dernière année dont l'indexation ne doit rien à une hypothèse.
+
+        Déduite des séries elles-mêmes — la dernière année que les trois
+        assiettes portent au-dessus de ``estimee`` — et non lue dans le fichier
+        d'hypothèses, qui la DÉCLARE de son côté. Les deux doivent coïncider, et
+        un test le vérifie : une déclaration qui ne se contrôle pas finit par
+        mentir, et celle-ci sert à dire au lecteur du site à partir de quelle
+        année son résultat repose sur un scénario.
+        """
+        return min(
+            max(a for a in serie.annees() if serie.fiabilite(a) > Fiabilite.ESTIMEE)
+            for serie in (self.inflation, self.salaire_moyen, self.masse_salariale)
+        )
+
+    @property
+    def annee_derniere_observation_declaree(self) -> int:
+        """Ce que le fichier d'hypothèses annonce, à confronter à l'observé."""
+        return int(self._hypotheses["annee_derniere_observation"])
+
+    @cached_property
     def inflation(self) -> SerieAnnuelle:
         """Variation annuelle de l'indice des prix à la consommation."""
         serie = charger_serie_annuelle(

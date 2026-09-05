@@ -864,6 +864,7 @@ def _resultats(contexte: Contexte, saisie: Saisie) -> str:
   {minimum}
   {ouverture}
 </div>
+{_fourchette(contexte, saisie, comparaison)}
 {_decomposition(contexte, saisie, comparaison)}
 {_contribution_employeur(comparaison)}
 {_cascade(comparaison, saisie)}
@@ -876,6 +877,112 @@ NATURES_PART_EMPLOYEUR = {
     "implicite": "taux implicite reconstitué par les documents budgétaires",
     "repli": "aucune série publiée : effort du privé de la même année",
 }
+
+
+#: Les cinq scénarios, dans l'ordre où la page les affiche, avec le libellé
+#: court que la fourchette leur donne.
+SCENARIOS_AFFICHES = (
+    ("actuel", "1. Système actuel"),
+    ("notionnel_retroactif", "2. Notionnel rétroactif"),
+    ("notionnel_prospectif", "3. Notionnel à la bascule"),
+    ("notionnel_retroactif_employeur", "4. Rétroactif, avec le patronal"),
+    ("notionnel_prospectif_employeur", "5. Bascule, avec le patronal"),
+)
+
+
+def _fourchette(contexte: Contexte, saisie: Saisie,
+                comparaison: Comparaison) -> str:
+    """Ce que l'hypothèse de productivité pèse dans le résultat affiché.
+
+    Un montant unique se lit comme une prévision. Il n'en est pas une dès qu'une
+    année de la carrière tombe après la dernière observation : il est alors la
+    conséquence d'un scénario, et le lecteur doit voir laquelle.
+
+    Le bloc rejoue donc la même carrière sous les trois hypothèses du COR et
+    donne l'écart. Quand la liquidation précède la dernière année observée, il
+    n'y a rien à faire varier — et c'est la chose la plus utile qu'on puisse
+    dire à quelqu'un qui redoute les hypothèses : son chiffre n'en contient
+    aucune.
+    """
+    macro = contexte.simulateur(saisie.parametres(contexte.base)).macro
+    derniere_observee = macro.derniere_annee_observee
+    carriere = comparaison.carriere
+    debut = min(carriere.annees_cotisees, default=carriere.annee_liquidation)
+    liquidation = carriere.annee_liquidation
+    total = liquidation - debut + 1
+    projetees = max(0, liquidation - max(debut - 1, derniere_observee))
+
+    if not projetees:
+        return f"""
+<h2>Ce que l'hypothèse pèse</h2>
+<p class="note">Rien, ici : la carrière s'achève en {liquidation}, et les séries
+sont observées jusqu'en {derniere_observee}. <strong>Aucune année projetée
+n'entre dans ce calcul</strong> — les montants ci-dessus sont identiques dans
+les trois scénarios macroéconomiques, parce qu'aucun d'eux ne s'y applique.</p>"""
+
+    montants: dict[str, dict[str, float]] = {}
+    for code, _ in PROJECTIONS:
+        try:
+            variante = (comparaison if code == saisie.projection
+                        else contexte.simuler(
+                            Saisie(**{**saisie.__dict__, "projection": code})))
+        except (ErreurSaisie, DonneeInsuffisante, KeyError, ValueError):
+            continue
+        montants[code] = {
+            scenario: variante.en_euros_constants(
+                getattr(variante, scenario).pension_annuelle)
+            for scenario, _ in SCENARIOS_AFFICHES
+        }
+
+    basse = montants.get("cor_productivite_basse", {})
+    haute = montants.get("cor_productivite_haute", {})
+    if not basse or not haute:
+        return ""
+
+    lignes = []
+    for scenario, libelle in SCENARIOS_AFFICHES:
+        bas, haut = basse[scenario], haute[scenario]
+        amplitude = (haut / bas - 1.0) if bas > 0 else float("nan")
+        lignes.append([
+            escape(libelle),
+            g.euros(bas / 12),
+            g.euros(montants[saisie.projection][scenario] / 12)
+            if saisie.projection in montants else "—",
+            g.euros(haut / 12),
+            g.pourcentage(amplitude),
+        ])
+
+    retenu = dict(PROJECTIONS)[saisie.projection]
+    reference = comparaison.en_euros_constants(
+        comparaison.notionnel_retroactif.pension_annuelle) / 12
+    ecart_2 = (haute["notionnel_retroactif"] / basse["notionnel_retroactif"] - 1.0
+               if basse["notionnel_retroactif"] > 0 else float("nan"))
+
+    return f"""
+<h2>Ce que l'hypothèse pèse</h2>
+<p>Le compte est revalorisé chaque année de {debut} à {liquidation}, soit
+{total} années — dont <strong>{projetees} après {derniere_observee}</strong>,
+la dernière année observée. Ces {g.pourcentage(projetees / total)} du calcul ne
+reposent sur aucune mesure : elles reposent sur l'hypothèse de croissance de la
+productivité, celle que le Conseil d'orientation des retraites fixe et révise.</p>
+<p>La même carrière, rejouée sous les trois hypothèses du COR. Le scénario 2
+passe de {g.euros(basse["notionnel_retroactif"] / 12)} à
+{g.euros(haute["notionnel_retroactif"] / 12)} par mois, soit
+<strong>{g.pourcentage(ecart_2)} d'amplitude</strong> autour des
+{g.euros(reference)} affichés plus haut.</p>
+{g.tableau(
+    ["Scénario", "Productivité 0,4 %", escape(retenu), "Productivité 1,0 %",
+     "Amplitude"],
+    lignes,
+    ["", "nombre", "nombre", "nombre", "nombre"],
+)}
+<p class="discret">Montants mensuels bruts, en euros constants de {saisie.euros}.
+La fourchette ne fait varier que la <strong>productivité</strong> — 0,4 %, 0,7 %
+et 1,0 % par an, le jeu que le COR retient depuis juin 2025. Elle laisse fixes
+les autres hypothèses de la projection, et n'est donc pas un intervalle de
+confiance : l'inflation y reste à 1,75 %, l'emploi salarié constant, et la
+législation inchangée. C'est une mesure de sensibilité à un paramètre, pas une
+borne sur l'avenir — l'avenir peut sortir de cette fourchette.</p>"""
 
 
 def _contribution_employeur(comparaison: Comparaison) -> str:

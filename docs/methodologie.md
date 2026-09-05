@@ -317,6 +317,27 @@ depuis son rapport de juin 2025 — celui-là même qui abandonne la variante à
 qu'il reconduit à l'identique en juin 2026. Toute année projetée porte la
 fiabilité la plus basse, qui se propage jusqu'au résultat.
 
+**Le site affiche une fourchette, pas un nombre seul.** Sous les cinq scénarios,
+un bloc rejoue la même carrière sous les trois hypothèses de productivité et
+donne l'amplitude — pour une génération 2000 partant à 64 ans, la pension du
+scénario 2 va de 654 € à 822 € par mois, soit 25,7 % d'écart. Il dit aussi
+combien d'années du compte tombent après la dernière observation : 39 sur 44,
+soit 88,6 % du calcul. Quand la liquidation précède cette année-là, le bloc le
+dit et ne montre aucune fourchette — **aucune hypothèse n'entre alors dans le
+chiffre**, et c'est la chose la plus utile qu'on puisse dire à un lecteur qui
+s'en méfie.
+
+Cette fourchette n'est **pas un intervalle de confiance** : elle ne fait varier
+que la productivité, laisse l'inflation à 1,75 %, l'emploi salarié constant et
+la législation inchangée. C'est une mesure de sensibilité à un paramètre, et la
+page l'écrit — l'avenir peut sortir de la fourchette.
+
+La dernière année observée n'est pas codée en dur : elle est **déduite des
+séries**, comme la dernière que les trois assiettes portent au-dessus de
+`estimee`. Le fichier d'hypothèses la déclare aussi de son côté, et un test
+exige que les deux coïncident : une déclaration que rien ne contrôle finit par
+mentir.
+
 Trois écarts avec la source, assumés et détaillés dans le fichier
 d'hypothèses : le COR raisonne en productivité **horaire**, le modèle en
 productivité **par tête**, seule série que l'INSEE publie de 1950 à 2025 ; le

@@ -83,6 +83,18 @@ def test_projection_applique_le_scenario_choisi():
     assert basse.productivite(2050) == pytest.approx(0.004)
 
 
+def test_derniere_annee_observee_coincide_avec_la_declaration(macro):
+    """La déclaration du fichier d'hypothèses doit dire vrai.
+
+    ``annee_derniere_observation`` est écrite à la main dans
+    ``hypotheses_projection.yaml`` ; la page de résultats s'en sert pour dire au
+    lecteur à partir de quelle année son chiffre repose sur un scénario. Une
+    déclaration que rien ne contrôle finit par mentir — le jour où une série
+    gagne une année observée sans que le fichier suive.
+    """
+    assert macro.derniere_annee_observee == macro.annee_derniere_observation_declaree
+
+
 def test_scenario_de_projection_inconnu_est_rejete():
     with pytest.raises(KeyError):
         DonneesMacro(RACINE_DONNEES, scenario_projection="inexistant").productivite(2050)

@@ -69,6 +69,28 @@ export class DonneesMacro {
       ? this.revalorisationPorteeAuCompte[
         this.revalorisationPorteeAuCompte.length - 1].annee
       : null;
+
+    /**
+     * Dernière année dont l'indexation ne doit rien à une hypothèse.
+     *
+     * Déduite des séries elles-mêmes — la dernière année que les trois
+     * assiettes portent au-dessus de `estimee` — et non lue dans le fichier
+     * d'hypothèses, qui la DÉCLARE de son côté. Les deux doivent coïncider, et
+     * un test le vérifie.
+     */
+    this.derniereAnneeObservee = Math.min(
+      ...[this.inflation, this.salaire_moyen, this.masse_salariale].map(
+        (serie) => Math.max(
+          ...serie.annees.filter(
+            (_, rang) => serie.fiabilites[rang] > Fiabilite.ESTIMEE,
+          ),
+        ),
+      ),
+    );
+
+    /** Ce que le fichier d'hypothèses annonce, à confronter à l'observé. */
+    this.anneeDerniereObservationDeclaree =
+      Number(hypotheses.annee_derniere_observation);
   }
 
   /**
