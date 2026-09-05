@@ -976,6 +976,28 @@ plus ce qui a été versé, mais ce qu'une réforme choisirait de reconnaître.
 `data/sources.yaml` recense les soixante et onze jeux de données des vingt-six
 institutions, avec pour chacun l'URL, le mode d'accès et l'état d'intégration.
 
+### Quelle source l'emporte
+
+Deux institutions publient souvent le même chiffre. Quatre critères, écrits en
+tête du manifeste, disent laquelle il faut aller chercher — dans l'ordre, le
+premier qui départage tranchant :
+
+1. **le producteur prime sur le repreneur** — l'INSEE plutôt qu'un rapport qui
+   cite l'INSEE ; c'est ce critère qui plafonne à `haute` toute transcription
+   tierce, même automatisée ;
+2. **l'observé prime sur le projeté** — une projection n'entre que là où
+   l'observation manque, et au niveau `estimee` ;
+3. **le montant servi prime sur le montant calculé** — ce qu'une caisse a payé
+   l'emporte sur ce que son article de loi ferait calculer ;
+4. **le recontrôlable prime sur le saisi** — à qualité égale, `acces: api`
+   plutôt que `acces: document`.
+
+Ce n'est pas un classement d'institutions mais de natures de données : la même
+institution est primaire sur un terrain et secondaire sur l'autre. L'INSEE pour
+ce qu'il **mesure**, le COR pour ce qu'il **décide** — ses hypothèses de long
+terme, dont il est l'auteur. Jamais le COR comme intermédiaire vers une donnée
+INSEE.
+
 ### Fiabilité
 
 Aucune valeur ne circule dans le modèle sans son niveau de fiabilité :

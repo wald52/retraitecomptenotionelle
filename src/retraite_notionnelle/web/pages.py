@@ -1550,14 +1550,21 @@ au-delà de la dernière année observée, la fiabilité retombe à « estimée 
 {g.tableau(["Niveau", "Nombre", "Régimes"], regimes, ["", "nombre", ""])}
 
 <h3>Sources</h3>
-<p>Dix-neuf institutions sont recensées dans
+<p>Vingt-six institutions sont recensées dans
 <a href="{g.DEPOT}/blob/main/data/sources.yaml">data/sources.yaml</a> : INSEE,
 COR, Comité de suivi des retraites, DREES, CNAV, Service des retraites de l'État,
 Caisse des dépôts, Direction de la Sécurité sociale, Cour des comptes,
-Agirc-Arrco, Union Retraite, CCMSA, CNAVPL, CNBF, DGAFP, Direction du Budget,
-ERAFP, Ircantec, caisses des régimes spéciaux, Urssaf.</p>
+Agirc-Arrco, Assemblée nationale, Union Retraite, CCMSA, CNAVPL, CNBF, DGAFP,
+Direction du Budget, ERAFP, Ircantec, caisses des régimes spéciaux, Urssaf,
+Légifrance, INED, Eurostat, OCDE, OpenFisca-France.</p>
 <p>Chaque valeur porte son niveau de fiabilité — <code>certifiee</code>,
 <code>haute</code>, <code>moyenne</code>, <code>estimee</code> — et la fiabilité
 d'un résultat est celle de son maillon le plus faible.</p>
+<p>Quand deux institutions publient le même chiffre, quatre critères disent
+laquelle aller chercher : le <strong>producteur</strong> prime sur le repreneur,
+l'<strong>observé</strong> sur le projeté, le <strong>montant servi</strong> sur
+le montant calculé, le <strong>recontrôlable</strong> sur le saisi. Ce n'est pas
+un classement d'institutions mais de natures de données : l'INSEE pour ce qu'il
+mesure, le COR pour ce qu'il décide.</p>
 <p><a href="{g.DEPOT}/blob/main/docs/limites.md">Limites détaillées</a></p>
 """

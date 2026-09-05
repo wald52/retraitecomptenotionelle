@@ -19,8 +19,69 @@
 # Champ `idbank` : identifiant de série dans la Banque de données
 # macroéconomiques de l'INSEE, interrogeable sans clé d'accès à l'adresse
 # https://api.insee.fr/series/BDM/V1/data/SERIES_BDM/<idbank>
+#
+# QUELLE SOURCE L'EMPORTE, QUAND DEUX SE DISPUTENT UNE VALEUR
+# ============================================================
+# Le manifeste dit d'où vient chaque chiffre ; ces quatre critères disent
+# laquelle des sources disponibles il faut aller chercher. Ils s'appliquent
+# dans l'ordre, et le premier qui départage tranche. Ce n'est pas un classement
+# d'institutions : c'est un classement de NATURES de données. La même
+# institution est primaire sur un terrain et secondaire sur l'autre.
+#
+# 1. LE PRODUCTEUR PRIME SUR LE REPRENEUR.
+#    On remonte d'un cran chaque fois qu'on le peut : l'INSEE plutôt qu'un
+#    rapport qui cite l'INSEE, la caisse plutôt que la synthèse qui la
+#    transcrit. C'est le critère qui gouverne le niveau de fiabilité, et il est
+#    déjà appliqué par scripts/verifier_donnees.py : `certifiee` suppose que la
+#    source soit le producteur de la donnée. Une transcription tierce, même
+#    sourcée et reprise automatiquement, plafonne à `haute`.
+#    La raison n'est pas cosmétique : le critère dit ce qu'un lecteur saurait
+#    vérifier lui-même en remontant d'un cran.
+#
+# 2. L'OBSERVÉ PRIME SUR LE PROJETÉ.
+#    Une série mesurée bat une hypothèse, toujours, y compris quand
+#    l'hypothèse est plus récente et mieux présentée. Une projection n'entre
+#    dans data/reference/ que là où l'observation manque, et elle y entre au
+#    niveau `estimee`, qui se propage jusqu'au résultat affiché.
+#
+# 3. LE MONTANT SERVI PRIME SUR LE MONTANT CALCULÉ.
+#    Quand une caisse publie ce qu'elle a réellement payé, ce chiffre l'emporte
+#    sur toute reconstitution, fût-elle fidèle au texte. Le minimum contributif
+#    et le minimum garanti en vivent : la revalorisation légale à laquelle
+#    leurs articles renvoient a été gelée puis sous-indexée, si bien que le
+#    calcul dépasse de plusieurs points ce qui a été versé.
+#
+# 4. LE RECONTRÔLABLE PRIME SUR LE SAISI.
+#    À qualité de source égale, on préfère ce qu'un script peut reconfronter
+#    chaque année (`acces: api`) à ce qu'il faut ressaisir à la main
+#    (`acces: document`). Une saisie est juste le jour où elle est faite ; une
+#    récupération automatisée le reste.
+#
+# CE QUE LES QUATRE CRITÈRES DONNENT, EN CLAIR
+# ---------------------------------------------
+# L'INSEE pour ce qu'il MESURE — prix, salaires, productivité, comptes
+# nationaux, espérances de vie, projections de population. Le COR pour ce qu'il
+# DÉCIDE — les hypothèses de long terme, dont il est l'auteur et non le
+# repreneur, et la description consolidée des régimes que personne d'autre ne
+# publie. Jamais le COR comme intermédiaire vers une donnée INSEE : ses
+# rapports tabulent commodément les projections démographiques de l'INSEE, les
+# recopier de là ferait perdre un cran de fiabilité sans rien gagner.
+#
+# Le même raisonnement vaut ailleurs : OpenFisca est un repreneur remarquable
+# et plafonne pourtant à `haute` ; Légifrance est le producteur du droit et
+# porte donc des valeurs certifiées ; une caisse est primaire sur son propre
+# barème et secondaire sur la macroéconomie.
+#
+# QUAND LES CRITÈRES NE TRANCHENT PAS
+# ------------------------------------
+# Il reste des valeurs dont personne n'est producteur : les hypothèses de
+# projection, et les régimes anciens dont l'historique n'a jamais été publié
+# ailleurs que dans une synthèse. Elles entrent quand même — un modèle qui
+# refuserait de projeter ne calculerait rien — mais au niveau que leur nature
+# impose, `estimee` ou `moyenne`, et en nommant le millésime de la publication
+# d'où elles sortent. Le champ `note` de l'entrée sert à ça.
 
-version_manifeste: "2026-08-30b"
+version_manifeste: "2026-09-05"
 
 institutions:
 

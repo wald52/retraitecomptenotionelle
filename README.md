@@ -535,6 +535,15 @@ Une valeur n'est `certifiee` que si elle a été **confrontée à la source
 elle-même**, téléchargée depuis le producteur. Une transcription tierce, même
 sourcée et reprise automatiquement, plafonne à `haute`.
 
+Quand deux institutions publient le même chiffre, quatre critères disent
+laquelle aller chercher : le **producteur** prime sur le repreneur, l'**observé**
+sur le projeté, le **montant servi** sur le montant calculé, le **recontrôlable**
+sur le saisi. Ils sont écrits en tête de
+[`data/sources.yaml`](data/sources.yaml) et détaillés dans
+[`docs/methodologie.md`](docs/methodologie.md). Ce n'est pas un classement
+d'institutions mais de natures de données : l'INSEE pour ce qu'il **mesure**, le
+COR pour ce qu'il **décide**.
+
 | Donnée | Période certifiée | Producteur |
 |---|---|---|
 | Inflation, salaire moyen, masse salariale, productivité | 1950-2025 | INSEE, Banque de données macroéconomiques |
