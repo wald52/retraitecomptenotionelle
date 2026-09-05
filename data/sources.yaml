@@ -1070,6 +1070,27 @@ institutions:
           que le motif de lecture écarte de lui-même : ses lignes ne portent ni
           pourcentage ni limite d'âge.
 
+      - id: dila_legi_minimum_garanti
+        titre: Barème du minimum garanti de la fonction publique, 2004-2013
+        url: https://echanges.dila.gouv.fr/OPENDATA/LEGI/
+        acces: api
+        statut_integration: certifie
+        cible: data/reference/legislation/minimum_garanti.csv
+        recuperation: scripts/fetch/dila_legi_minimum_garanti.py
+        note: >-
+          Article 66 V de la loi n° 2003-775 du 21 août 2003 — le même article
+          que la décote de la fonction publique, un tableau plus bas. Il déroge
+          aux a et b de l'article L. 17 le temps de la montée en charge et porte
+          les cinq colonnes du fichier : « I : 2004 II : 59,7 % III : 217 IV :
+          3,8 points V : Vingt-cinq ans et demi VI : 0,04 point ». Cinquante
+          valeurs, toutes identiques à la transcription d'OpenFisca.
+          Le dépôt compte les points PAR TRIMESTRE et en fraction quand la loi
+          compte par année et en points de pourcentage ; la borne de la première
+          pente est écrite en toutes lettres, et parfois en demi-années.
+          LA LIGNE 1976 N'EST PAS DANS LE TABLEAU : celui-ci s'ouvre sur une
+          ligne 2003 qui décrit le droit antérieur, que le dépôt date de 1976.
+          Mêmes valeurs, autre clé — elle reste transcrite.
+
       - id: dila_legi_msa
         titre: Valeur de service du point de la RCO agricole, 2005-2024
         url: https://echanges.dila.gouv.fr/OPENDATA/LEGI/

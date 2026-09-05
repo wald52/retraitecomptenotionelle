@@ -24,8 +24,8 @@ Ce qui suit est le recensement complet de ses paramètres et de leur état.
 | Minimum contributif | ancres du code 2007 et 2023 ; montants servis 2020, 2024-2026 | **certifié** (D. 351-2-1) et transcrit |
 | Minimum contributif majoré | idem, 7 603,41 → 10 170,86 €/an | **certifié**, même article |
 | Plafond d'écrêtement du minimum | ancres 2012 et 2014 ; montants servis 2020, 2024-2026 | **certifié** (D. 173-21-0-0-1) et transcrit |
-| Minimum garanti, barème | montée en charge 2004-2013, indice 216 → 227 | OpenFisca-France-Pension, repris automatiquement |
-| Minimum garanti, référence | 997,96 €/mois au 1er janvier 2004 ; montants servis 2020, 2023-2025 | transcrit, recoupé au point d'indice |
+| Minimum garanti, barème | montée en charge 2004-2013, indice 216 → 227 | **certifié** (loi de 2003, article 66 V) ; la ligne 1976 décrit le droit antérieur et reste transcrite |
+| Minimum garanti, référence | 997,96 €/mois au 1er janvier 2004 ; montants servis 2020, 2023-2025 | transcrit ; l'ancre de 2004 est recoupée à chaque exécution au point d'indice certifié — 227 × 52,7558 = 11 975,57 € |
 | Point d'indice de la fonction publique | série datée 1960-2027 | OpenFisca-France, **recontrôlé à chaque exécution** |
 | Minimum vieillesse (ASPA) | montants servis 2007, 2010, 2016-2026 | transcrit des publications |
 | Décote de la fonction publique | article L. 14, montée en charge 2006-2020 | **certifiée** (loi de 2003, article 66 III) jusqu'à 2019 ; la ligne 2020 est la jonction avec L. 14 |
@@ -351,6 +351,7 @@ La page **Données** du site affiche l'état exact. En résumé :
 | Heures de SMIC à cotiser pour valider un trimestre | 1972 et 2014 | **certifiée** | DILA, base LEGI, code de la sécurité sociale `R. 351-9` |
 | Années retenues au salaire annuel moyen, par génération | avant 1934 à 1948 | **certifiée** | DILA, base LEGI, code de la sécurité sociale `R. 351-29-1` |
 | Décote de la fonction publique, coefficient et âge d'annulation | 2006-2019 | **certifiée** | DILA, base LEGI, loi n° 2003-775 du 21 août 2003, article 66 III |
+| Barème du minimum garanti, montée en charge | 2004-2013 | **certifiée** | DILA, base LEGI, loi n° 2003-775 du 21 août 2003, article 66 V |
 | Âge d'annulation de la décote, régime général | 1930-1955 | haute | calculé — l'âge d'ouverture certifié majoré de cinq ans, comme l'écrit `L. 351-8` ; recontrôlé à chaque exécution |
 | Point d'indice de la fonction publique | 1996-2027 | **certifiée** | DILA, base LEGI, décret n° 85-1148 du 24 octobre 1985, article 3 |
 | Point d'indice de la fonction publique | 1960-1995 | haute | OpenFisca-France, `point_indice_en_euros` — deux versions manquent au dump avant 1996 |
@@ -404,6 +405,7 @@ python scripts/fetch/dila_legi_smic.py         # SMIC, dans ses décrets de rel�
 python scripts/fetch/dila_legi_duree_requise.py # durée requise des générations 1953-1957 (lent)
 python scripts/fetch/dila_legi_cnracl.py       # contribution employeur de la CNRACL (lent)
 python scripts/fetch/dila_legi_decote_fonction_publique.py  # décote de la fonction publique (lent)
+python scripts/fetch/dila_legi_minimum_garanti.py  # barème du minimum garanti (lent)
 python scripts/fetch/erafp_valeurs_point.py    # valeurs du point du RAFP, par l'ERAFP
 python scripts/fetch/ined_vallin_mesle.py      # quotients de mortalité d'avant 1986
 python scripts/fetch/insee_projections_mortalite.py  # espérances de vie projetées, jusqu'en 2125
@@ -513,10 +515,12 @@ pour l'Arrco reconstituée, 26,43 F pour l'UNIRS).
 **Ce qui reste hors de portée, et pourquoi.** La liste vaut recensement de ce
 qui a été cherché, pour éviter de le rechercher deux fois — et elle est tenue
 dans les deux sens : une limite qui se referme n'est pas effacée, elle est
-réécrite avec ce qui l'a levée et ce qu'elle a fini par coûter. Sur les dix-sept
+réécrite avec ce qui l'a levée et ce qu'elle a fini par coûter. Sur les dix-huit
 entrées qui suivent, **douze ont été refermées par une source trouvée** et
 **deux par la mesure du biais** qu'elles laissent — un biais chiffré n'est plus
-une inconnue, il se retranche. Trois restent ouvertes, faute de source. Les
+une inconnue, il se retranche. Quatre restent ouvertes : trois faute de source,
+et une parce que la source ne suffirait pas — la ligne y mêle un nombre de la
+loi et une convention de modélisation. Les
 phrases qui déclaraient ces limites inaccessibles sont citées telles quelles,
 parce qu'une conclusion fausse tirée de prémisses vraies est ce qui se répète le
 plus volontiers.
@@ -1174,6 +1178,47 @@ plus volontiers.
   dérivée. Mais elle est désormais RECALCULÉE à chaque exécution depuis la table
   certifiée — si une réforme déplaçait l'âge d'ouverture sans que celui-ci
   suive, l'écart se verrait là plutôt que dans une pension.
+
+  **Le même article 66 porte un troisième tableau**, à son V : la montée en
+  charge du barème du MINIMUM GARANTI, de 2004 à 2013. Ses cinq colonnes sont
+  celles du fichier du dépôt — la fraction servie à quinze ans de services,
+  l'indice majoré de référence, les points gagnés par année supplémentaire, la
+  borne où la pente s'infléchit, les points au-delà :
+
+  > « I : 2004 II : 59,7 % III : 217 IV : 3,8 points V : Vingt-cinq ans et demi
+  > VI : 0,04 point »
+
+  Cinquante valeurs, toutes identiques à la transcription. La ligne 1976 du
+  dépôt, elle, n'est pas dans le tableau : celui-ci s'ouvre sur une ligne
+  « 2003 » qui décrit le droit antérieur — 60 %, indice 216, quatre points,
+  vingt-cinq ans —, que le dépôt date de 1976, année où le barème a pris cette
+  forme. Mêmes valeurs, autre clé : elle reste transcrite.
+
+  **Et la RÉFÉRENCE du minimum garanti se recoupe désormais toute seule.**
+  L'article L. 17 la définit comme le traitement de l'indice majoré 227 au
+  1er janvier 2004 ; le point d'indice de cette année-là est lu dans son décret
+  depuis la passe précédente. Les deux chemins se rejoignent au centime :
+  227 × 52,7558 = 11 975,57 €, soit les 997,96 € par mois que publie l'État. Le
+  montant reste `haute` — il est transcrit d'une publication —, mais l'écart
+  entre les deux chemins est désormais contrôlé.
+
+* *Trimestres pour enfants, et surcote parentale* — **cherchés, et ce n'est pas
+  la source qui manque.** L'article `L. 351-4` porte bien les huit trimestres de
+  majoration de durée d'assurance — quatre au titre de la maternité, quatre au
+  titre de l'éducation — et l'article `L. 351-1-2-1` portait, dans sa rédaction
+  de 2023, les 1,25 % par trimestre de la surcote parentale. Mais les lignes du
+  dépôt ne portent pas que ces nombres : elles portent aussi `beneficiaire`,
+  `enfants_minimum`, et l'attribution par défaut à la mère faute de connaître
+  l'accord des parents — des CONVENTIONS DE MODÉLISATION qu'aucun texte
+  n'écrit. Certifier la ligne parce que l'un de ses nombres est dans la loi
+  reviendrait à certifier les autres, et le niveau de fiabilité porte sur la
+  ligne entière. Elles restent donc `haute` et `moyenne`, et c'est la borne
+  basse qui a raison.
+
+  S'y ajoute, pour la surcote parentale, que la loi du 28 février 2025 a réécrit
+  l'article : il n'énonce plus un taux mais un abaissement d'un an de l'âge de
+  la surcote ordinaire. Certifier la ligne du dépôt contre une rédaction abrogée
+  serait le contraire d'une certification.
 
 * *Contribution employeur de la CNRACL d'avant 1993* — **cherchée, et la chaîne
   est trouée.** Les taux de 1993 à 2028 sont désormais lus dans l'article 5 du

@@ -201,6 +201,56 @@
    "source": "DILA, base LEGI, code de la sécurité sociale D. 351-2-1 et D. 173-21-0-0-1",
    "valeurs": 6
   },
+  "minimum_garanti_indice": {
+   "ajoutees": 0,
+   "colonne": "indice_majore",
+   "corrigees": 0,
+   "empreinte": "edcee2bbabc6d02b",
+   "identiques": 10,
+   "niveau": "certifiee",
+   "source": "DILA, base LEGI, loi n° 2003-775 du 21 août 2003, article 66 V",
+   "valeurs": 10
+  },
+  "minimum_garanti_part": {
+   "ajoutees": 0,
+   "colonne": "part_15_ans",
+   "corrigees": 0,
+   "empreinte": "c55abedf9a3ebfb5",
+   "identiques": 10,
+   "niveau": "certifiee",
+   "source": "DILA, base LEGI, loi n° 2003-775 du 21 août 2003, article 66 V",
+   "valeurs": 10
+  },
+  "minimum_garanti_points_15_30": {
+   "ajoutees": 0,
+   "colonne": "points_15_30",
+   "corrigees": 0,
+   "empreinte": "9cb988adb4af7778",
+   "identiques": 10,
+   "niveau": "certifiee",
+   "source": "DILA, base LEGI, loi n° 2003-775 du 21 août 2003, article 66 V",
+   "valeurs": 10
+  },
+  "minimum_garanti_points_30_40": {
+   "ajoutees": 0,
+   "colonne": "points_30_40",
+   "corrigees": 0,
+   "empreinte": "1bed00f6a0b7883c",
+   "identiques": 10,
+   "niveau": "certifiee",
+   "source": "DILA, base LEGI, loi n° 2003-775 du 21 août 2003, article 66 V",
+   "valeurs": 10
+  },
+  "minimum_garanti_seuil": {
+   "ajoutees": 0,
+   "colonne": "trimestres_seuil",
+   "corrigees": 0,
+   "empreinte": "ccf014eb1e42d6ef",
+   "identiques": 10,
+   "niveau": "certifiee",
+   "source": "DILA, base LEGI, loi n° 2003-775 du 21 août 2003, article 66 V",
+   "valeurs": 10
+  },
   "pib_nominal": {
    "ajoutees": 0,
    "colonne": "variation_nominale",

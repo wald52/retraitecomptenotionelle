@@ -266,6 +266,11 @@ def test_journal_de_certification_decrit_les_series_certifiees():
         "smic_horaire": "macro/smic_horaire.csv",
         "decote_fonction_publique_coefficient":
             "legislation/decote_fonction_publique.csv",
+        "minimum_garanti_indice": "legislation/minimum_garanti.csv",
+        "minimum_garanti_part": "legislation/minimum_garanti.csv",
+        "minimum_garanti_points_15_30": "legislation/minimum_garanti.csv",
+        "minimum_garanti_points_30_40": "legislation/minimum_garanti.csv",
+        "minimum_garanti_seuil": "legislation/minimum_garanti.csv",
         "decote_fonction_publique_trimestres":
             "legislation/decote_fonction_publique.csv",
         "point_indice_fonction_publique":

@@ -571,6 +571,7 @@ COR pour ce qu'il **décide**.
 | Durée d'assurance requise, générations 1953-1957 | 1953-1957 | décrets d'application des lois de 2003 et de 2010, base LEGI |
 | Contribution employeur de la CNRACL | 1993-2028 | décret n° 91-613, article 5 II, base LEGI |
 | Décote de la fonction publique, coefficient et âge d'annulation | 2006-2019 | loi n° 2003-775, article 66 III, base LEGI |
+| Barème du minimum garanti, montée en charge | 2004-2013 | loi n° 2003-775, article 66 V, base LEGI |
 | Heures de SMIC à cotiser pour valider un trimestre | 1972 et 2014 | code de la sécurité sociale `R. 351-9`, base LEGI |
 
 Ce qu'**OpenFisca-France** garde, ce sont les périodes que le *Journal officiel*
@@ -614,6 +615,7 @@ python scripts/fetch/dila_legi_smic.py          # SMIC, dans ses décrets (lent)
 python scripts/fetch/dila_legi_duree_requise.py # durée requise 1953-1957 (lent)
 python scripts/fetch/dila_legi_cnracl.py        # contribution employeur CNRACL (lent)
 python scripts/fetch/dila_legi_decote_fonction_publique.py  # décote FP (lent)
+python scripts/fetch/dila_legi_minimum_garanti.py  # barème du minimum garanti (lent)
 python scripts/fetch/erafp_valeurs_point.py     # valeurs du point du RAFP, par l'ERAFP
 python scripts/fetch/cdc_ircantec.py            # barèmes Ircantec, par son gestionnaire
 python scripts/fetch/cnbf_baremes.py            # valeurs du point des avocats

@@ -35,6 +35,12 @@
 #
 # Transcriptions de publications, non confrontées à un fichier du producteur :
 # niveau `haute`, jamais `certifiee`.
+#
+# L'ANCRE DE 2004 EST TOUTEFOIS RECONTRÔLÉE, et par deux chemins indépendants :
+# l'article L. 17 la définit comme le traitement de l'indice majoré 227 au
+# 1er janvier 2004, et le point d'indice de cette année-là est désormais lu dans
+# son décret. 227 × 52,7558 = 11 975,57 € : `scripts/verifier_donnees.py` refait
+# le calcul à chaque exécution et signale tout écart.
 annee,valeur,fiabilite
 2004,11975.570000,haute
 2020,14091.960000,haute

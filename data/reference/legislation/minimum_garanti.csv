@@ -37,9 +37,25 @@
 # `trimestres_seuil` est la borne haute de la première marche, en trimestres :
 # 100 (vingt-cinq ans) avant 2004, 120 (trente ans) à partir de 2013.
 #
-# Valeurs reprises d'OpenFisca-France-Pension, le modèle de retraites de
-# l'administration (`secteur_public/pension_civile/minimum_garanti`) :
-# transcription tierce, donc `haute`, jamais `certifiee`.
+# D'OÙ VIENNENT CES VALEURS. Du V de l'article 66 de la loi n° 2003-775 du
+# 21 août 2003, LU dans la base LEGI de la DILA par
+# `scripts/fetch/dila_legi_minimum_garanti.py`. La loi y déroge aux a et b de
+# l'article L. 17 le temps de la montée en charge, et son tableau porte les cinq
+# colonnes à la fois :
+#
+#   « I : 2004 II : 59,7 % III : 217 IV : 3,8 points V : Vingt-cinq ans et demi
+#     VI : 0,04 point »
+#
+# Niveau `certifiee` de 2004 à 2013, et les cinquante valeurs saisies s'y sont
+# retrouvées à l'identique. Le dépôt compte les points PAR TRIMESTRE et en
+# fraction quand la loi compte par année et en points de pourcentage : 3,8
+# points par an font 0,0095.
+#
+# LA LIGNE 1976 N'EST PAS DANS LE TABLEAU. Celui-ci s'ouvre sur une ligne
+# « 2003 » qui décrit le droit antérieur — 60 %, indice 216, quatre points,
+# vingt-cinq ans —, que le dépôt date de 1976, année où le barème a pris cette
+# forme. Les valeurs sont les mêmes, la clé ne l'est pas : cette ligne reste une
+# transcription d'OpenFisca-France-Pension, au niveau `haute`.
 #
 # CONDITION D'OUVERTURE. Depuis la loi du 9 novembre 2010, le minimum garanti
 # n'est dû qu'aux pensions liquidées AU TAUX PLEIN — durée requise atteinte,
@@ -47,13 +63,13 @@
 # leurs droits avant 2011 y échappent, et le touchent sans condition.
 annee,indice_majore,part_15_ans,points_15_30,points_30_40,trimestres_seuil,fiabilite
 1976,216,0.600,0.010000,0.000000,100,haute
-2004,217,0.597,0.009500,0.000100,102,haute
-2005,218,0.594,0.009000,0.000200,104,haute
-2006,219,0.591,0.008500,0.000325,106,haute
-2007,220,0.588,0.008000,0.000525,108,haute
-2008,221,0.585,0.007750,0.000550,110,haute
-2009,222,0.582,0.007500,0.000575,112,haute
-2010,223,0.579,0.007125,0.000775,114,haute
-2011,224,0.576,0.006875,0.000875,116,haute
-2012,225,0.575,0.006625,0.000950,118,haute
-2013,227,0.575,0.006250,0.001250,120,haute
+2004,217,0.597,0.009500,0.000100,102,certifiee
+2005,218,0.594,0.009000,0.000200,104,certifiee
+2006,219,0.591,0.008500,0.000325,106,certifiee
+2007,220,0.588,0.008000,0.000525,108,certifiee
+2008,221,0.585,0.007750,0.000550,110,certifiee
+2009,222,0.582,0.007500,0.000575,112,certifiee
+2010,223,0.579,0.007125,0.000775,114,certifiee
+2011,224,0.576,0.006875,0.000875,116,certifiee
+2012,225,0.575,0.006625,0.000950,118,certifiee
+2013,227,0.575,0.006250,0.001250,120,certifiee

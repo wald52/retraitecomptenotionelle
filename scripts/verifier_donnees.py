@@ -828,6 +828,50 @@ def source_decote_fp_trimestres() -> dict[tuple, float]:
     return _decote_fonction_publique("trimestres_avant_limite")
 
 
+def _minimum_garanti(mesure: str) -> dict[tuple, float]:
+    serie = _serie_json("dila_legi_minimum_garanti.json",
+                        "scripts/fetch/dila_legi_minimum_garanti.py")
+    return {
+        (cle.split("|")[1],): valeur
+        for cle, valeur in sorted(serie.items())
+        if cle.startswith(f"{mesure}|")
+    }
+
+
+def source_minimum_garanti_indice() -> dict[tuple, float]:
+    """Indice majoré de référence du minimum garanti, 2004-2013.
+
+    Article 66 V de la loi du 21 août 2003, qui déroge aux a et b de l'article
+    L. 17 du code des pensions le temps de la montée en charge. C'est le même
+    article que celui de la décote de la fonction publique, un tableau plus bas.
+    """
+    return _minimum_garanti("indice_majore")
+
+
+def source_minimum_garanti_part() -> dict[tuple, float]:
+    """Fraction du traitement de référence servie à quinze ans de services."""
+    return _minimum_garanti("part_15_ans")
+
+
+def source_minimum_garanti_points_15_30() -> dict[tuple, float]:
+    """Points gagnés par trimestre de services de quinze ans au seuil suivant."""
+    return _minimum_garanti("points_15_30")
+
+
+def source_minimum_garanti_points_30_40() -> dict[tuple, float]:
+    """Points gagnés par trimestre au-delà de ce seuil, jusqu'à quarante ans."""
+    return _minimum_garanti("points_30_40")
+
+
+def source_minimum_garanti_seuil() -> dict[tuple, float]:
+    """Borne haute de la première pente, en trimestres.
+
+    La loi l'écrit en toutes lettres et parfois en demi-années : « Vingt-cinq
+    ans et demi » fait 102 trimestres.
+    """
+    return _minimum_garanti("trimestres_seuil")
+
+
 def source_carriere_longue() -> dict[tuple, float]:
     """Âge de départ anticipé par borne d'entrée dans la vie active.
 
@@ -1598,6 +1642,61 @@ CERTIFICATIONS = (
         unite=" trimestres",
     ),
     Certification(
+        nom="minimum_garanti_indice",
+        chemin=REFERENCE / "legislation" / "minimum_garanti.csv",
+        cles=("annee",),
+        colonne="indice_majore",
+        source=source_minimum_garanti_indice,
+        origine="DILA, base LEGI, loi n° 2003-775 du 21 août 2003, article 66 V",
+        decimales=0,
+        tolerance=0.5,
+        unite="",
+    ),
+    Certification(
+        nom="minimum_garanti_part",
+        chemin=REFERENCE / "legislation" / "minimum_garanti.csv",
+        cles=("annee",),
+        colonne="part_15_ans",
+        source=source_minimum_garanti_part,
+        origine="DILA, base LEGI, loi n° 2003-775 du 21 août 2003, article 66 V",
+        decimales=3,
+        tolerance=0.0005,
+        unite="",
+    ),
+    Certification(
+        nom="minimum_garanti_points_15_30",
+        chemin=REFERENCE / "legislation" / "minimum_garanti.csv",
+        cles=("annee",),
+        colonne="points_15_30",
+        source=source_minimum_garanti_points_15_30,
+        origine="DILA, base LEGI, loi n° 2003-775 du 21 août 2003, article 66 V",
+        decimales=6,
+        tolerance=5e-07,
+        unite="",
+    ),
+    Certification(
+        nom="minimum_garanti_points_30_40",
+        chemin=REFERENCE / "legislation" / "minimum_garanti.csv",
+        cles=("annee",),
+        colonne="points_30_40",
+        source=source_minimum_garanti_points_30_40,
+        origine="DILA, base LEGI, loi n° 2003-775 du 21 août 2003, article 66 V",
+        decimales=6,
+        tolerance=5e-07,
+        unite="",
+    ),
+    Certification(
+        nom="minimum_garanti_seuil",
+        chemin=REFERENCE / "legislation" / "minimum_garanti.csv",
+        cles=("annee",),
+        colonne="trimestres_seuil",
+        source=source_minimum_garanti_seuil,
+        origine="DILA, base LEGI, loi n° 2003-775 du 21 août 2003, article 66 V",
+        decimales=0,
+        tolerance=0.5,
+        unite=" trimestres",
+    ),
+    Certification(
         nom="point_indice_fonction_publique",
         chemin=REFERENCE / "legislation" / "point_indice_fonction_publique.csv",
         cles=("annee",),
@@ -2031,6 +2130,47 @@ def controle_vraisemblance_age_annulation() -> list[str]:
     ] + ecarts
 
 
+#: L'article L. 17 du code des pensions fixe la référence du minimum garanti à
+#: « la valeur du traitement brut afférent à l'indice majoré 227 au 1er janvier
+#: 2004 ».
+INDICE_REFERENCE_MINIMUM_GARANTI = 227
+ANNEE_REFERENCE_MINIMUM_GARANTI = 2004
+
+
+def controle_vraisemblance_minimum_garanti() -> list[str]:
+    """Recalcule la référence du minimum garanti depuis le point d'indice.
+
+    L'article L. 17 la définit comme le traitement de l'indice majoré 227 au
+    1er janvier 2004, et le dépôt porte le montant que l'État publie —
+    997,96 € par mois, soit 11 975,57 € l'an. Le point d'indice de 2004 étant
+    désormais lu dans son décret, les deux chemins doivent se rejoindre :
+    227 × 52,7558 = 11 975,57.
+
+    Le montant reste `haute`, parce qu'il est transcrit d'une publication et non
+    confronté à un fichier du producteur. Mais un écart entre les deux chemins
+    signalerait qu'une des deux séries a bougé sans l'autre.
+    """
+    points = _table_reference("point_indice_fonction_publique.csv", "annee", "valeur")
+    montants = _table_reference("minimum_garanti_montants.csv", "annee", "valeur")
+    annee = float(ANNEE_REFERENCE_MINIMUM_GARANTI)
+    if annee not in points or annee not in montants:
+        return ["IGNORÉ  vraisemblance minimum garanti : ancre de 2004 absente"]
+
+    calcule = INDICE_REFERENCE_MINIMUM_GARANTI * points[annee]
+    ecart = abs(calcule - montants[annee])
+    messages = [
+        f"OK      vraisemblance minimum garanti : référence de 2004 publiée "
+        f"{montants[annee]:.2f} €, recalculée {calcule:.2f} € "
+        f"({INDICE_REFERENCE_MINIMUM_GARANTI} × {points[annee]:.4f})",
+    ]
+    if ecart > 0.01:
+        messages.append(
+            f"SUSPECT minimum garanti : les deux chemins s'écartent de "
+            f"{ecart:.2f} € — le point d'indice ou le montant publié a bougé"
+        )
+    return messages
+
+
 def controle_vraisemblance_cotisations() -> list[str]:
     """Confronte les taux du régime général saisis à ceux d'OpenFisca-France.
 
@@ -2428,6 +2568,7 @@ def main(argv: list[str] | None = None) -> int:
     messages.extend(controle_vraisemblance_prix_anciens())
     messages.extend(controle_vraisemblance_esperance_65())
     messages.extend(controle_vraisemblance_age_annulation())
+    messages.extend(controle_vraisemblance_minimum_garanti())
     messages.extend(controle_vraisemblance_plafond())
     messages.extend(controle_vraisemblance_cotisations())
     messages.extend(controle_vraisemblance_rendements())

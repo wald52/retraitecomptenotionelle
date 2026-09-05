@@ -634,3 +634,45 @@ def test_l_age_d_annulation_suit_l_age_d_ouverture(verificateur):
     messages = verificateur.controle_vraisemblance_age_annulation()
     assert messages[0].startswith("OK")
     assert not [m for m in messages if m.startswith("SUSPECT")]
+
+
+def test_le_bareme_du_minimum_garanti_se_lit_en_six_colonnes():
+    """Les points sont par ANNÉE dans la loi, par TRIMESTRE dans le dépôt."""
+    module = _charger_script("dila_legi_minimum_garanti", "scripts", "fetch",
+                             "dila_legi_minimum_garanti.py")
+    texte = (
+        "Jusqu'au 31 décembre 2013, les dispositions présentées dans le tableau "
+        "suivant sont applicables, par dérogation aux a et b de l'article L. 17 : "
+        "I : 2003 II : 60 % III : 216 IV : 4 points V : Vingt-cinq ans VI : Sans objet "
+        "I : 2004 II : 59,7 % III : 217 IV : 3,8 points V : Vingt-cinq ans et demi "
+        "VI : 0,04 point "
+        "I : 2013 II : 57,5 % III : 227 IV : 2,5 points V : Trente ans VI : 0,5 point"
+    )
+    table = module.bareme([("2004-01-01", texte)])
+    # La ligne 2003 décrit le droit antérieur : le dépôt la date de 1976 et le
+    # récupérateur ne la lit pas.
+    assert sorted(table) == [2004, 2013]
+    assert table[2004] == {
+        "part_15_ans": pytest.approx(0.597),
+        "indice_majore": 217.0,
+        "points_15_30": pytest.approx(0.0095),   # 3,8 points par an
+        "points_30_40": pytest.approx(0.0001),   # 0,04 point par an
+        "trimestres_seuil": 102.0,               # vingt-cinq ans et demi
+    }
+    assert table[2013]["trimestres_seuil"] == 120.0
+
+
+def test_les_bornes_en_toutes_lettres_du_minimum_garanti():
+    module = _charger_script("dila_legi_minimum_garanti", "scripts", "fetch",
+                             "dila_legi_minimum_garanti.py")
+    assert module.annees_en_lettres("Vingt-cinq ans") == 25.0
+    assert module.annees_en_lettres("Vingt-huit ans et demi") == 28.5
+    assert module.annees_en_lettres("Trente ans") == 30.0
+    assert module.annees_en_lettres("Sans objet") is None
+
+
+def test_la_reference_du_minimum_garanti_se_recoupe_au_point_d_indice(verificateur):
+    """227 × 52,7558 = 11 975,57 : deux chemins indépendants, même chiffre."""
+    messages = verificateur.controle_vraisemblance_minimum_garanti()
+    assert messages[0].startswith("OK")
+    assert not [m for m in messages if m.startswith("SUSPECT")]
