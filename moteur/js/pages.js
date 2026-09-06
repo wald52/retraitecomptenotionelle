@@ -12,6 +12,8 @@ import {
   AgeConversionDroitsAcquis, ModeAgeReference, ModeIndexation, PARAMETRES_DEFAUT, PartCotisation,
   TableConversion, avec, cleParametres,
 } from "./config.js";
+import { SCENARIOS, calculerCout } from "./cout.js";
+import { SYSTEMES, DepensesRetraite } from "./depenses.js";
 import { echapper, formatFixe, formatG } from "./format.js";
 import * as g from "./gabarit.js";
 import { nomFiabilite } from "./serie.js";
@@ -476,6 +478,8 @@ export class Contexte {
     this.paquet = paquet;
     this.base = base;
     this._instances = new Map();
+    this._depenses = null;
+    this._cout = null;
   }
 
   simulateur(parametres = null) {
@@ -485,6 +489,21 @@ export class Contexte {
       this._instances.set(cle, new Simulateur(this.paquet, retenus));
     }
     return this._instances.get(cle);
+  }
+
+  depenses() {
+    if (!this._depenses) {
+      this._depenses = new DepensesRetraite(this.paquet);
+    }
+    return this._depenses;
+  }
+
+  /** Le coût agrégé des cinq systèmes — une seconde de calcul, une fois. */
+  cout() {
+    if (!this._cout) {
+      this._cout = calculerCout(this.simulateur(), this.depenses());
+    }
+    return this._cout;
   }
 
   simuler(saisie) {
@@ -517,6 +536,7 @@ export class Contexte {
 export const TITRES = {
   "/": "Simuler",
   "/cas-types": "Cas types",
+  "/cout": "Coût",
   "/methode": "Méthode",
   "/donnees": "Données",
 };
@@ -529,6 +549,9 @@ export const TITRES = {
 export function rendre(contexte, chemin, parametres = null) {
   if (chemin === "/cas-types") {
     return [TITRES[chemin], casTypes(contexte)];
+  }
+  if (chemin === "/cout") {
+    return [TITRES[chemin], cout(contexte)];
   }
   if (chemin === "/methode") {
     return [TITRES[chemin], methode(contexte)];
@@ -1412,6 +1435,345 @@ restent ceux du scénario 3, et seul le flux postérieur change. À compter de l
 bascule il n'y a plus qu'un régime, dont la répartition salarié/employeur est
 celle du statut pivot privé : les écarts entre statuts s'y referment.</p>
 ${echecs}
+`;
+}
+
+// Bandes du graphique par système : les six plus lourdes gardent leur couleur,
+// le reste de la répartition est réuni, et ce qui n'en relève pas forme la
+// dernière bande. Huit bandes se lisent ; treize ne se lisent plus.
+const BANDES_COUT = [
+  ["regime_general", "var(--serie-1)"],
+  ["agirc_arrco", "var(--serie-2)"],
+  ["fonction_publique_etat", "var(--serie-3)"],
+  ["regimes_speciaux", "var(--serie-4)"],
+  ["exploitants_agricoles", "var(--serie-5)"],
+  ["professions_liberales", "var(--serie-6)"],
+];
+
+// Couleur de chacun des cinq scénarios — les mêmes que sur la page de
+// résultats, pour qu'un lecteur qui passe de l'une à l'autre les reconnaisse.
+const COULEURS_SCENARIOS = {
+  actuel: "var(--actuel)",
+  notionnel_retroactif: "var(--retroactif)",
+  notionnel_prospectif: "var(--prospectif)",
+  notionnel_retroactif_employeur: "var(--retroactif-employeur)",
+  notionnel_prospectif_employeur: "var(--prospectif-employeur)",
+};
+
+/** Un montant en millions d'euros, écrit en milliards. */
+function milliards(millions, decimales = 0) {
+  return `${g.nombre(millions / 1000, decimales)} Md €`;
+}
+
+function cout(contexte) {
+  const depenses = contexte.depenses();
+  const c = contexte.cout();
+  const annees = depenses.annees();
+  const ventilees = depenses.anneesVentilees();
+  const derniere = depenses.derniereAnnee;
+  const euros = c.anneeEuros;
+
+  const total = depenses.depense(derniere);
+  const repartition = depenses.repartition(derniere);
+  const autres = {};
+  for (const systeme of SYSTEMES) {
+    if (!systeme.repartition) {
+      autres[systeme.code] = depenses.depenseSysteme(systeme.code, derniere);
+    }
+  }
+
+  // -- ce que la dépense a été, en euros courants et constants --------------
+  const courbeConstants = new g.Serie(
+    `En euros constants de ${euros}`,
+    c.annees.map((ligne) => ligne.observeeConstants / 1000),
+    "var(--serie-1)",
+  );
+  const courbeCourants = new g.Serie(
+    "En euros courants de chaque année",
+    c.annees.map((ligne) => ligne.observee / 1000),
+    "var(--serie-2)", true,
+  );
+  const courbePib = new g.Serie(
+    "Part du produit intérieur brut",
+    c.annees.map((ligne) => ligne.partPib * 100),
+    "var(--serie-3)",
+  );
+
+  // -- ce que chaque système pèse ------------------------------------------
+  const reunies = BANDES_COUT.map(([code]) => code);
+  const bandes = BANDES_COUT.map(([code, couleur]) => new g.Serie(
+    SYSTEMES.find((s) => s.code === code).libelle,
+    ventilees.map((annee) => depenses.depenseSysteme(code, annee) / 1000),
+    couleur,
+  ));
+  bandes.push(new g.Serie(
+    "Autres régimes par répartition",
+    ventilees.map((annee) => {
+      let somme = 0;
+      for (const s of SYSTEMES) {
+        if (s.repartition && !reunies.includes(s.code)) {
+          somme += depenses.depenseSysteme(s.code, annee);
+        }
+      }
+      return somme / 1000;
+    }),
+    "var(--serie-7)",
+  ));
+  bandes.push(new g.Serie(
+    "Hors répartition obligatoire",
+    ventilees.map((annee) => {
+      let somme = 0;
+      for (const s of SYSTEMES) {
+        if (!s.repartition) somme += depenses.depenseSysteme(s.code, annee);
+      }
+      return somme / 1000;
+    }),
+    "var(--serie-9)", false, "capitalisation, dépendance, minimum vieillesse",
+  ));
+
+  const premiereVentilee = ventilees[0];
+  const duree = derniere - premiereVentilee;
+  const lignesSystemes = SYSTEMES.map((systeme) => {
+    const debut = depenses.depenseSysteme(systeme.code, premiereVentilee);
+    const fin = depenses.depenseSysteme(systeme.code, derniere);
+    const coefficient = contexte.simulateur().macro.coefficientPrix(
+      premiereVentilee, derniere,
+    );
+    const croissance = debut > 0
+      ? (fin / (debut * coefficient)) ** (1 / duree) - 1
+      : 0.0;
+    let cumul = 0;
+    for (const annee of ventilees) {
+      cumul += depenses.depenseSysteme(systeme.code, annee)
+        * contexte.simulateur().macro.coefficientPrix(annee, euros);
+    }
+    return [
+      `<span title="${echapper(systeme.glose)}">${echapper(systeme.libelle)}</span>`,
+      milliards(fin, 1),
+      g.pourcentage(fin / total, false, 1),
+      milliards(cumul, 0),
+      g.pourcentage(croissance, true, 1),
+      systeme.repartition ? "oui" : "non",
+    ];
+  });
+
+  // -- ce que les cinq systèmes auraient coûté -----------------------------
+  // Un scénario dont la courbe est exactement celle du système actuel serait
+  // tracé PAR-DESSUS elle et la ferait disparaître : le graphique montrerait
+  // alors une seule courbe en prétendant en montrer trois. On ne trace donc que
+  // les scénarios qui s'en écartent, et la légende nomme les autres.
+  const confondus = c.confondusAvecActuel();
+  const numeros = SCENARIOS
+    .filter(([scenario]) => confondus.includes(scenario))
+    .map(([, libelle]) => libelle.split(".")[0]);
+  const gloseActuel = numeros.length
+    ? `et les scénarios ${numeros.join(" et ")}, qui lui sont confondus`
+    : "";
+  const courbesScenarios = SCENARIOS
+    .filter(([scenario]) => !confondus.includes(scenario))
+    .map(([scenario, libelle]) => new g.Serie(
+      libelle,
+      c.annees.map((ligne) => ligne.coutConstants(scenario) / 1000),
+      COULEURS_SCENARIOS[scenario],
+      scenario.endsWith("_employeur"),
+      scenario === "actuel" ? gloseActuel : "",
+    ));
+  const reference = c.cumul("actuel");
+  const lignesScenarios = SCENARIOS.map(([scenario, libelle]) => {
+    const cumul = c.cumul(scenario);
+    const dernier = c.annee(derniere);
+    return [
+      echapper(libelle),
+      milliards(cumul, 0),
+      scenario !== "actuel"
+        ? g.pourcentage(cumul / reference - 1, true, 1)
+        : "réf.",
+      milliards(dernier.cout(scenario), 1),
+      g.pourcentage(dernier.partPib * dernier.rapports[scenario], false, 1),
+    ];
+  });
+
+  const decennies = [];
+  for (let debut = 1960; debut <= derniere; debut += 10) {
+    const fin = Math.min(debut + 9, derniere);
+    const lignesDecennie = c.annees.filter(
+      (l) => l.annee >= debut && l.annee <= fin,
+    );
+    if (!lignesDecennie.length) continue;
+    const moyenne = (extraire) => lignesDecennie.reduce(
+      (somme, l) => somme + extraire(l), 0,
+    ) / lignesDecennie.length;
+    decennies.push([
+      `${debut}-${fin}`,
+      milliards(lignesDecennie.reduce((s, l) => s + l.observeeConstants, 0), 0),
+      g.pourcentage(moyenne((l) => l.partPib), false, 1),
+      g.pourcentage(moyenne((l) => l.rapports.notionnel_retroactif), false, 1),
+      g.pourcentage(
+        moyenne((l) => l.rapports.notionnel_retroactif_employeur), false, 1,
+      ),
+    ]);
+  }
+
+  return `
+<h2 style="margin-top:0">Ce que la retraite a coûté</h2>
+<p class="chapeau">Le reste du site calcule des droits : ce qu'une carrière
+ouvre. Cette page porte la grandeur inverse — ce qui a été payé, année par année
+depuis ${c.premiereAnnee}, système par système — puis demande ce que les
+quatre autres systèmes auraient coûté sur la même période.</p>
+
+<div class="fiches">
+${g.fiche(`Dépense ${derniere}, risque vieillesse-survie`, milliards(total, 1))}
+${g.fiche("Dont répartition obligatoire", milliards(repartition, 1))}
+${g.fiche(`Part du PIB en ${derniere}`,
+    g.pourcentage(depenses.partPib(derniere), false, 1))}
+${g.fiche(`Cumul ${c.premiereAnnee}-${derniere}, euros de ${euros}`,
+    milliards(c.cumulObserve(), 0))}
+</div>
+
+<p>Les ${milliards(total, 1)} de ${derniere} sont le risque
+<strong>vieillesse-survie tout entier</strong> : les pensions, mais aussi le
+minimum vieillesse, l'aide sociale aux personnes âgées et la retraite
+supplémentaire par capitalisation. La <strong>répartition obligatoire</strong>
+seule en fait ${milliards(repartition, 1)} — c'est cette grandeur-là, et non le
+total, qu'il faut rapprocher des quelque 420 milliards que l'on cite d'ordinaire
+pour l'année en cours. Le reste est
+${milliards(autres.aide_sociale_locale, 1)} de dépendance,
+${milliards(autres.supplementaire, 1)} de capitalisation et
+${milliards(autres.solidarite_etat, 1)} de solidarité de l'État.</p>
+
+<h3>Soixante-six ans de dépense</h3>
+${g.graphique(
+    `Dépenses du risque vieillesse-survie de ${c.premiereAnnee} à ${derniere}, `
+    + "en milliards d'euros",
+    annees, [courbeConstants, courbeCourants], "Md €")}
+<p class="discret">Deux lectures de la même série. En euros courants, la
+dépense est multipliée par cent quatre-vingt-treize depuis
+${c.premiereAnnee} — mais les prix aussi ont été multipliés par treize.
+En euros constants, la multiplication est par quinze : c'est celle-là qui est
+réelle, et elle reste considérable.</p>
+
+${g.graphique(
+    "Part des dépenses de vieillesse-survie dans le produit intérieur brut, "
+    + `${c.premiereAnnee}-${derniere}`,
+    annees, [courbePib], "% du PIB", false, 1)}
+<p class="discret">Rapportée à la richesse produite, la dépense passe de
+${g.pourcentage(depenses.partPib(c.premiereAnnee), false, 1)} à
+${g.pourcentage(depenses.partPib(derniere), false, 1)}. La courbe monte par
+paliers — chaque crise fait un décrochage du dénominateur avant que le
+numérateur ne rattrape — et le palier des années 2020 n'a pas encore été
+refermé.</p>
+
+<h3>Système par système</h3>
+${g.graphique(
+    `Dépenses de vieillesse-survie par système, ${premiereVentilee}-${derniere}, `
+    + "en milliards d'euros courants",
+    ventilees, bandes, "Md €", true)}
+<p class="discret">La ventilation ne commence qu'en ${premiereVentilee} : de 1981
+à 1989 la DREES publie une autre nomenclature, dont les périmètres ne se
+raccordent pas à ceux-ci, et personne n'a publié le raccord. Le total, lui,
+remonte à ${c.premiereAnnee}.</p>
+
+${g.tableau(
+    ["Système", `${derniere}`, "Part", `Cumul ${premiereVentilee}-${derniere}`,
+      "Croissance réelle", "Répartition"],
+    lignesSystemes,
+    ["", "nombre", "nombre", "nombre", "nombre", ""],
+)}
+<p class="discret">Le cumul est en euros constants de ${euros} : additionner des
+euros de 1990 et de ${derniere} n'aurait aucun sens. La croissance réelle est
+celle de la dépense annuelle, déflatée, de ${premiereVentilee} à ${derniere}.
+Deux chiffres se lisent en connaissant le découpage : le régime général absorbe
+en 2020 les artisans et les commerçants, dont le régime a été adossé à la Cnav,
+et les « régimes spéciaux » de la comptabilité nationale contiennent la CNRACL,
+c'est-à-dire la fonction publique territoriale et hospitalière.</p>
+
+<h3>Ce que les cinq systèmes auraient coûté</h3>
+<p>La dépense observée n'est pas modélisée : elle est ce qu'elle est. Ce qui est
+modélisé, c'est le <strong>rapport</strong> entre ce qui a été versé et ce que
+chaque système aurait versé aux mêmes retraités — la moyenne des écarts de
+pension, pondérée par le poids de chaque génération dans la masse de l'année.
+Les poids viennent des tables de mortalité du dépôt ; les écarts, des douze cas
+types croisés avec ${c.generations.length} générations, de
+${c.generations[0]} à ${c.generations[c.generations.length - 1]}.</p>
+
+${g.graphique(
+    `Coût annuel des cinq systèmes, ${c.premiereAnnee}-${derniere}, `
+    + `en milliards d'euros constants de ${euros}`,
+    annees, courbesScenarios, `Md € ${euros}`)}
+
+${g.tableau(
+    ["Système", `Cumul ${c.premiereAnnee}-${derniere}`, "Écart",
+      `Coût ${derniere}`, `Part du PIB ${derniere}`],
+    lignesScenarios,
+    ["", "nombre", "nombre", "nombre", "nombre"],
+)}
+
+<div class="note"><strong>Les scénarios 3 et 5 coûtent exactement ce que coûte
+le système actuel, et ce n'est pas un défaut du calcul.</strong> Leur bascule est
+fixée à ${contexte.base.annee_bascule} : aucune pension servie avant cette date
+n'en est modifiée, puisque les droits déjà acquis sont conservés. Une réforme
+prospective ne fait rien économiser sur le passé — elle ne commence à compter
+qu'au premier assuré qui liquide après elle. C'est le principal résultat de
+cette page, et il est vrai de toute réforme des retraites qui respecte les
+droits acquis.</div>
+
+<p>Le scénario 2, lui, aurait coûté ${milliards(c.cumul("notionnel_retroactif"), 0)}
+au lieu de ${milliards(reference, 0)} : la retraite française aurait servi
+${g.pourcentage(1 - c.cumul("notionnel_retroactif") / reference, false, 0)}
+de moins sur soixante-six ans. Cet écart ne mesure PAS l'effet des comptes
+notionnels. Il mesure deux choses qui n'ont rien à voir avec eux : ce scénario
+ne porte au compte que la <strong>part salariale</strong> de la cotisation — le
+scénario 4, qui y ajoute la part patronale, coûte
+${milliards(c.cumul("notionnel_retroactif_employeur"), 0)}, soit
+${g.pourcentage(
+    c.cumul("notionnel_retroactif_employeur")
+    / c.cumul("notionnel_retroactif") - 1, true, 0)}
+de plus —, et il applique une <a href="${g.lien("/methode", "indexation")}">règle
+d'indexation</a> dont la page Méthode montre qu'elle domine tout le reste.</p>
+
+<h3>Décennie par décennie</h3>
+${g.tableau(
+    ["Décennie", `Dépense cumulée, euros de ${euros}`, "Part du PIB",
+      "Coût du scénario 2", "Coût du scénario 4"],
+    decennies,
+    ["", "nombre", "nombre", "nombre", "nombre"],
+)}
+<p class="discret">Les deux dernières colonnes sont en pourcentage de la dépense
+réellement engagée la même décennie. Elles remontent : plus on approche du
+présent, plus les carrières prises en compte ont été cotisées sous des règles
+proches des règles actuelles, et moins le compte notionnel s'en écarte.</p>
+
+<h3>Ce que cette page ne dit pas</h3>
+<ul class="serree">
+  <li><strong>Elle ne projette rien.</strong> La série s'arrête à ${derniere},
+  dernière année publiée par la DREES. Prolonger demanderait une pyramide des
+  âges et un taux d'emploi, c'est-à-dire un modèle de population — que ce dépôt
+  n'a pas et ne prétend pas avoir.</li>
+  <li><strong>La population est supposée stationnaire.</strong> Chaque
+  génération pèse le même effectif de départ, alors que le baby-boom en a fait
+  naître un tiers de plus. Cela déplace les poids, non les écarts qu'ils
+  pondèrent : après 1980, l'écart du scénario 2 varie de moins de trois points
+  d'une décennie à l'autre, si bien qu'aucune pondération plausible ne le
+  déplacerait beaucoup.</li>
+  <li><strong>Les douze cas types pèsent d'un poids égal.</strong> Il y a moins
+  d'agents de conduite que de salariés au salaire moyen. C'est la convention de
+  la grille des <a href="${g.lien("/cas-types")}">cas types</a>, reconduite ici
+  faute d'une pondération que quelque source fixerait.</li>
+  <li><strong>Avant 1975, la reconstitution est mince.</strong> La répartition
+  ne commence qu'en ${contexte.base.annee_debut_repartition} : les générations
+  antérieures à ${c.generations[0]} n'ont, dans ce modèle, aucune pension, et
+  plusieurs régimes n'existaient pas encore. Les premières années reposent donc
+  sur deux ou trois générations et la moitié des cas types.</li>
+  <li><strong>Le coût n'est pas le solde.</strong> Cette page dit ce qui a été
+  versé, jamais ce qui a été encaissé. Un système notionnel qui coûterait quatre
+  fois moins ne serait pas quatre fois plus « soutenable » : il servirait
+  quatre fois moins, ce qui est une autre affaire.</li>
+</ul>
+<p class="discret">Fiabilité de l'ensemble : la dépense observée est
+<strong>certifiée</strong> — recontrôlée contre l'API de la DREES à chaque
+exécution —, le rapport qui en tire les quatre contrefactuels est
+<strong>estimé</strong>, et ne peut pas être autre chose : aucune institution ne
+publie ce qu'aurait coûté un système qui n'a pas existé.</p>
 `;
 }
 

@@ -1,0 +1,93 @@
+# Produit intérieur brut en NIVEAU, prix courants, France
+# source_id: insee_bdm_pib (comptes nationaux annuels, base 2020)
+# unite: millions d'euros courants de l'année
+# fiabilite:
+#   certifiee (1949-2025) : PIB approche produit, prix courant
+#             (idbank 011779992), recontrôlé par
+#             scripts/verifier_donnees.py.
+#
+# pib_nominal.csv porte la VARIATION de la même série, qui suffit à
+# l'indexation. Rapporter une dépense au PIB demande le NIVEAU, et c'est
+# la seule raison d'être de ce fichier : il ne double pas une donnée, il
+# en lit une autre grandeur.
+#
+# Ne pas modifier les années certifiées à la main : elles seraient écrasées
+# au prochain scripts/verifier_donnees.py --appliquer.
+annee,pib_meur,fiabilite
+1949,13142,certifiee
+1950,15406,certifiee
+1951,19403,certifiee
+1952,22627,certifiee
+1953,23445,certifiee
+1954,24921,certifiee
+1955,26803,certifiee
+1956,29550,certifiee
+1957,33391,certifiee
+1958,38537,certifiee
+1959,42104,certifiee
+1960,46634,certifiee
+1961,50547,certifiee
+1962,56597,certifiee
+1963,63394,certifiee
+1964,70316,certifiee
+1965,75963,certifiee
+1966,82270,certifiee
+1967,88879,certifiee
+1968,96874,certifiee
+1969,111382,certifiee
+1970,124730,certifiee
+1971,139117,certifiee
+1972,155137,certifiee
+1973,177826,certifiee
+1974,207304,certifiee
+1975,233583,certifiee
+1976,269716,certifiee
+1977,303907,certifiee
+1978,345186,certifiee
+1979,394491,certifiee
+1980,447416,certifiee
+1981,504710,certifiee
+1982,579251,certifiee
+1983,642945,certifiee
+1984,699502,certifiee
+1985,749583,certifiee
+1986,807707,certifiee
+1987,848788,certifiee
+1988,917933,certifiee
+1989,988884,certifiee
+1990,1043975,certifiee
+1991,1082833,certifiee
+1992,1121458,certifiee
+1993,1134839,certifiee
+1994,1172960,certifiee
+1995,1213802,certifiee
+1996,1246974,certifiee
+1997,1289669,certifiee
+1998,1346318,certifiee
+1999,1395148,certifiee
+2000,1473517,certifiee
+2001,1530071,certifiee
+2002,1578330,certifiee
+2003,1622313,certifiee
+2004,1696108,certifiee
+2005,1762048,certifiee
+2006,1846021,certifiee
+2007,1937876,certifiee
+2008,1990000,certifiee
+2009,1935840,certifiee
+2010,1996075,certifiee
+2011,2062141,certifiee
+2012,2088287,certifiee
+2013,2120352,certifiee
+2014,2153733,certifiee
+2015,2201402,certifiee
+2016,2231819,certifiee
+2017,2291681,certifiee
+2018,2355363,certifiee
+2019,2432207,certifiee
+2020,2318276,certifiee
+2021,2508102,certifiee
+2022,2653997,certifiee
+2023,2833826,certifiee
+2024,2935236,certifiee
+2025,2991056,certifiee

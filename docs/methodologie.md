@@ -990,11 +990,53 @@ plus ce qui a été versé, mais ce qu'une réforme choisirait de reconnaître.
 
 ---
 
+## 8 bis. Du droit individuel au coût collectif
+
+Les huit sections qui précèdent décrivent un calcul de DROIT : ce qu'une carrière
+ouvre. La page **Coût** en tire une grandeur collective, et il faut dire
+comment, parce que le passage de l'un à l'autre est le moment où un modèle de
+carrière peut se mettre à raconter n'importe quoi.
+
+Il n'est pas franchi par une extrapolation. La dépense affichée est
+**observée** : les Comptes de la protection sociale de la DREES, risque
+vieillesse-survie, 1959-2024, certifiés contre l'API du producteur. Le modèle
+n'en calcule pas un euro. Ce qu'il calcule est le seul **rapport** entre cette
+dépense et ce que les quatre autres systèmes auraient versé aux mêmes
+retraités :
+
+```
+coût du système S en t = dépense observée en t × (masse S en t / masse actuelle en t)
+```
+
+La masse d'une année est reconstituée en croisant les douze cas types avec les
+générations de 1880 à 1970, de cinq en cinq. Chaque couple pèse le produit de
+deux choses : sa pension en euros constants, et sa probabilité d'être encore en
+vie cette année-là, lue dans les tables de mortalité du dépôt — celles qui sont
+observées depuis 1899, et non une hypothèse de survie.
+
+**Pourquoi un rapport plutôt qu'un niveau.** Le scénario 1 est l'étalon du
+modèle, et il est une approximation du droit positif : ses erreurs de niveau
+sont documentées au §3 de `limites.md`. Dans un rapport, elles figurent au
+numérateur comme au dénominateur et s'annulent en grande partie. Un niveau
+agrégé, lui, les porterait entières et s'écarterait de la dépense publiée sans
+que rien ne le signale.
+
+**Ce que la méthode suppose**, et que `limites.md` §5 bis chiffre : une
+population stationnaire, des cas types de poids égal, et une reconstitution
+mince avant 1975. Aucune de ces trois approximations ne touche le résultat
+principal de la page — l'égalité exacte des scénarios prospectifs avec le
+système actuel sur toute la période observée —, qui ne tient pas à une
+pondération mais à la définition même d'une réforme prospective : les droits
+acquis avant la bascule sont conservés, donc aucune pension déjà liquidée n'est
+modifiée.
+
+---
+
 ## 9. Les données
 
 ### Sources
 
-`data/sources.yaml` recense les soixante et onze jeux de données des vingt-six
+`data/sources.yaml` recense les quatre-vingt-trois jeux de données des vingt-six
 institutions, avec pour chacun l'URL, le mode d'accès et l'état d'intégration.
 
 ### Quelle source l'emporte

@@ -323,6 +323,26 @@ institutions:
         url: https://data.drees.solidarites-sante.gouv.fr/
         acces: api
         statut_integration: a_faire
+      - id: drees_comptes_protection_sociale
+        titre: Les comptes de la protection sociale (jeu 305, API Opendatasoft)
+        url: https://data.drees.solidarites-sante.gouv.fr/explore/dataset/305_les-comptes-de-la-protection-sociale/
+        acces: api
+        statut_integration: certifie
+        recuperation: scripts/fetch/drees_cps.py
+        cible: >-
+          data/reference/macro/depenses_retraite.csv,
+          data/reference/macro/depenses_retraite_regimes.csv
+        note: >-
+          Comptabilité nationale du social : les prestations réellement versées,
+          année par année et organisme par organisme. Le risque
+          `VIEILLESSE-SURVIE` (poste E11-2) est la seule série longue française
+          de dépenses de retraite publiée par son producteur — 1959 à 2024 sans
+          interruption pour le total, 1990 à 2024 pour la ventilation. Le
+          producteur prime sur le repreneur (critère 1) : c'est la DREES qui
+          établit ces comptes, et non le COR, qui les reprend. Les sous-postes
+          — pensions de droit direct, de droit dérivé — ne sont publiés que
+          depuis 2020 : ils servent à dire ce que contient le total, pas à le
+          remplacer.
       - id: drees_eic
         titre: Échantillon interrégimes de cotisants (EIC)
         url: https://drees.solidarites-sante.gouv.fr/sources-outils-et-enquetes/lechantillon-interregimes-de-cotisants-eic

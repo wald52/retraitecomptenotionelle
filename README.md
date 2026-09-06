@@ -92,13 +92,15 @@ Scénario                                                  Courants   Constants 
 Rien à installer, rien à lancer : une adresse à ouvrir. Le modèle et ses données
 de référence s'exécutent **dans votre navigateur**. Aucune donnée saisie ne
 quitte votre machine, puisqu'il n'y a pas de serveur de calcul. Le premier
-chargement transfère 221 Ko compressés (812 Ko bruts) et prend quelques dixièmes
+chargement transfère 249 Ko compressés (948 Ko bruts) et prend quelques dixièmes
 de seconde ; les suivants sont immédiats.
 
-Quatre pages : **Simuler** (une carrière — en un ou plusieurs métiers —, avec le détail du calcul, la
+Cinq pages : **Simuler** (une carrière — en un ou plusieurs métiers —, avec le détail du calcul, la
 décomposition de l'écart règle par règle et la cascade qui mène du scénario 1 au
 scénario 3), **Cas types** (la grille 12 carrières × 7 générations),
-**Méthode**, **Données** (l'état de fiabilité des séries).
+**Coût** (ce que la retraite a coûté depuis 1959, régime par régime, et ce que
+les cinq systèmes auraient coûté), **Méthode**, **Données** (l'état de fiabilité
+des séries).
 
 L'adresse d'une simulation contient tous ses paramètres — elle peut être citée
 ou partagée telle quelle — et chaque résultat est consultable en JSON au bas de
@@ -107,7 +109,7 @@ la page.
 <details>
 <summary>Comment la page fonctionne, et comment on sait qu'elle dit vrai</summary>
 
-`index.html` charge deux choses : `moteur/donnees.json` (533 Ko — les séries, les
+`index.html` charge deux choses : `moteur/donnees.json` (568 Ko — les séries, les
 tables de mortalité observées de 1899 à 2024, les 37 fiches de régime) et
 `moteur/js/`, un portage du modèle en JavaScript sans aucune bibliothèque. Le site est servi depuis la racine
 du dépôt, telle quelle : c'est ce que GitHub Pages publie sans aucun réglage, et
@@ -265,7 +267,7 @@ print(simulateur.simuler(carriere).tableau())
 
 ---
 
-## Trois résultats à connaître avant de lire les chiffres
+## Quatre résultats à connaître avant de lire les chiffres
 
 ### 1. La règle d'indexation domine tout le reste
 
@@ -517,6 +519,67 @@ exactement la même pension.
 
 ---
 
+### 4. Une réforme prospective ne fait rien économiser sur le passé
+
+La page **Coût** répond à la question inverse de tout le reste du site : non pas
+« que toucherait cet assuré ? », mais « qu'est-ce que tout cela a coûté ? ». Les
+dépenses viennent des Comptes de la protection sociale de la DREES, risque
+vieillesse-survie, **certifiées de 1959 à 2024** et recontrôlées contre l'API à
+chaque exécution.
+
+| | Millions d'euros |
+|---|---|
+| Dépense 2024, risque vieillesse-survie entier | **426,7 Md €** |
+| dont répartition obligatoire | **398,8 Md €** |
+| dont dépendance, capitalisation, minimum vieillesse | 27,9 Md € |
+| Part du PIB en 2024 | 14,5 % |
+| Cumul 1959-2024, en euros constants de 2026 | **14 987 Md €** |
+
+C'est la deuxième ligne — la répartition obligatoire seule — qu'il faut
+rapprocher des « quelque 420 milliards » que l'on cite d'ordinaire pour l'année
+en cours : le total publié est plus large, et la ventilation par système dit
+exactement de combien.
+
+La ventilation couvre 1990-2024 : de 1981 à 1989 la DREES publie une autre
+nomenclature, dont les périmètres ne se raccordent pas à ceux d'après. Personne
+n'ayant publié le raccord, ces neuf années restent une impasse, et le total,
+lui, les couvre.
+
+Sur cette dépense observée, le modèle applique le rapport des masses de pension
+entre systèmes — les douze cas types croisés avec dix-neuf générations, pondérés
+par la probabilité d'être en vie lue dans les tables de mortalité du dépôt :
+
+| Système | Cumul 1959-2024, euros de 2026 | Écart |
+|---|---|---|
+| 1. Système actuel | 14 987 Md € | réf. |
+| 2. Notionnel rétroactif, part salariale | 3 408 Md € | −77,3 % |
+| 3. Notionnel dès 2026, part salariale | 14 987 Md € | +0,0 % |
+| 4. Notionnel rétroactif, salariale + patronale | 6 679 Md € | −55,4 % |
+| 5. Notionnel dès 2026, salariale + patronale | 14 987 Md € | +0,0 % |
+
+**Les scénarios 3 et 5 coûtent exactement ce que coûte le système actuel**, et
+ce n'est pas un défaut du calcul : leur bascule est fixée à 2026, aucune pension
+servie avant cette date n'en est modifiée, puisque les droits acquis sont
+conservés. Une réforme prospective ne commence à compter qu'au premier assuré
+qui liquide après elle — et cela vaut de toute réforme des retraites qui
+respecte les droits acquis, pas seulement de celle-ci. Le calcul n'est d'ailleurs
+pas écrit en dur : la page teste l'égalité des courbes, et les séparerait si la
+bascule était avancée avant la dernière année observée.
+
+L'écart du scénario 2 ne mesure pas, lui non plus, l'effet des comptes
+notionnels : il mesure la part salariale seule — le scénario 4, qui ajoute la
+part patronale, coûte 96 % de plus — et la règle d'indexation, dont le résultat
+1 ci-dessus montre qu'elle domine tout.
+
+Trois limites, énoncées sur la page elle-même : la population est supposée
+**stationnaire** (le baby-boom déplacerait les poids, non les écarts qu'ils
+pondèrent), les douze cas types pèsent d'un **poids égal**, et avant 1975 la
+reconstitution repose sur deux ou trois générations. La dépense observée est
+certifiée ; ce qu'on en tire est **estimé**, et ne peut pas être autre chose —
+aucune institution ne publie le coût d'un système qui n'a pas existé.
+
+---
+
 ## Les données
 
 Vingt-six institutions sont recensées dans [`data/sources.yaml`](data/sources.yaml) :
@@ -677,7 +740,8 @@ python scripts/verifier_donnees.py --appliquer  # aligne sur la source et certif
 data/
   sources.yaml                  manifeste des sources institutionnelles
   reference/
-    macro/                      inflation, salaire moyen, productivité, plafond, projections
+    macro/                      inflation, salaire moyen, productivité, plafond, PIB,
+                                dépenses de retraite observées, projections
     mortalite/                  espérances de vie et quotients par âge observés
     regimes/                    37 fiches de régime + schéma + valeurs du point
     legislation/                âges et durées par génération, barèmes des
@@ -695,6 +759,7 @@ src/retraite_notionnelle/
   scenarios/                    système actuel, comptes notionnels
   simulateur.py                 façade et restitution
   castypes.py                   cas général
+  cout.py                       ce que chaque système a coûté, agrégé
   web/
     pages.py                    contenu des pages — sans autre dépendance que le moteur
     gabarit.py                  rendu HTML et feuille de style
@@ -702,7 +767,7 @@ src/retraite_notionnelle/
 index.html                      le site : charge les données, puis le moteur JavaScript
 .nojekyll                       servir les fichiers sans transformation
 moteur/                         ce que le navigateur charge, et rien d'autre
-  donnees.json                  séries, tables et régimes (533 Ko, produit par script)
+  donnees.json                  séries, tables et régimes (568 Ko, produit par script)
   style.css                     extraite de gabarit.py (produite par script)
   js/                           portage du modèle, sans bibliothèque ni étape de build
 
@@ -710,7 +775,7 @@ docs/
   methodologie.md               ce que le modèle calcule, et pourquoi ainsi
   limites.md                    ce qu'il ne calcule pas, et ce qui reste à certifier
 
-tests/                          243 tests Python
+tests/                          308 tests Python
   temoins/                      chiffres et pages figés depuis le modèle Python,
                                 et le relevé d'OpenFisca-France-Pension qui sert
                                 de contre-expertise au scénario 1

@@ -25,7 +25,9 @@ from ..config import (
     Parametres,
     TableConversion,
 )
+from ..cout import SCENARIOS, calculer_cout
 from ..donnees.chargement import DonneeInsuffisante, journal_certification
+from ..donnees.depenses import SYSTEMES, DepensesRetraite
 from ..simulateur import Comparaison, Simulateur
 from . import gabarit as g
 
@@ -458,12 +460,25 @@ class Contexte:
 
     base: Parametres = field(default_factory=Parametres)
     _instances: dict[Parametres, Simulateur] = field(default_factory=dict)
+    _depenses: DepensesRetraite | None = None
+    _cout: object = None
 
     def simulateur(self, parametres: Parametres | None = None) -> Simulateur:
         parametres = parametres or self.base
         if parametres not in self._instances:
             self._instances[parametres] = Simulateur(parametres)
         return self._instances[parametres]
+
+    def depenses(self) -> DepensesRetraite:
+        if self._depenses is None:
+            self._depenses = DepensesRetraite(self.base.racine_donnees)
+        return self._depenses
+
+    def cout(self):
+        """Le coût agrégé des cinq systèmes — deux secondes de calcul, une fois."""
+        if self._cout is None:
+            self._cout = calculer_cout(self.simulateur(), self.depenses())
+        return self._cout
 
     def simuler(self, saisie: Saisie) -> Comparaison:
         simulateur = self.simulateur(saisie.parametres(self.base))
@@ -492,6 +507,7 @@ class Contexte:
 TITRES = {
     "/": "Simuler",
     "/cas-types": "Cas types",
+    "/cout": "Coût",
     "/methode": "Méthode",
     "/donnees": "Données",
 }
@@ -507,6 +523,8 @@ def rendre(contexte: Contexte, chemin: str,
     """
     if chemin == "/cas-types":
         return TITRES[chemin], _cas_types(contexte)
+    if chemin == "/cout":
+        return TITRES[chemin], _cout(contexte)
     if chemin == "/methode":
         return TITRES[chemin], _methode(contexte)
     if chemin == "/donnees":
@@ -1372,6 +1390,342 @@ restent ceux du scénario 3, et seul le flux postérieur change. À compter de l
 bascule il n'y a plus qu'un régime, dont la répartition salarié/employeur est
 celle du statut pivot privé : les écarts entre statuts s'y referment.</p>
 {echecs}
+"""
+
+
+#: Bandes du graphique par système : les six plus lourdes gardent leur couleur,
+#: le reste de la répartition est réuni, et ce qui n'en relève pas forme la
+#: dernière bande. Huit bandes se lisent ; treize ne se lisent plus.
+BANDES_COUT = (
+    ("regime_general", "var(--serie-1)"),
+    ("agirc_arrco", "var(--serie-2)"),
+    ("fonction_publique_etat", "var(--serie-3)"),
+    ("regimes_speciaux", "var(--serie-4)"),
+    ("exploitants_agricoles", "var(--serie-5)"),
+    ("professions_liberales", "var(--serie-6)"),
+)
+
+#: Couleur de chacun des cinq scénarios — les mêmes que sur la page de
+#: résultats, pour qu'un lecteur qui passe de l'une à l'autre les reconnaisse.
+COULEURS_SCENARIOS = {
+    "actuel": "var(--actuel)",
+    "notionnel_retroactif": "var(--retroactif)",
+    "notionnel_prospectif": "var(--prospectif)",
+    "notionnel_retroactif_employeur": "var(--retroactif-employeur)",
+    "notionnel_prospectif_employeur": "var(--prospectif-employeur)",
+}
+
+
+def _milliards(millions: float, decimales: int = 0) -> str:
+    """Un montant en millions d'euros, écrit en milliards."""
+    return g.nombre(millions / 1000, decimales) + "\u202fMd\u202f\u20ac"
+
+
+def _cout(contexte: Contexte) -> str:
+    depenses = contexte.depenses()
+    cout = contexte.cout()
+    annees = tuple(depenses.annees())
+    ventilees = tuple(depenses.annees_ventilees())
+    derniere = depenses.derniere_annee
+    euros = cout.annee_euros
+
+    total = depenses.depense(derniere)
+    repartition = depenses.repartition(derniere)
+    autres = {code: depenses.depense_systeme(code, derniere) for code in
+              (s.code for s in SYSTEMES if not s.repartition)}
+
+    # -- ce que la dépense a été, en euros courants et constants ------------
+    courbe_constants = g.Serie(
+        f"En euros constants de {euros}",
+        tuple(ligne.observee_constants / 1000 for ligne in cout.annees),
+        "var(--serie-1)",
+    )
+    courbe_courants = g.Serie(
+        "En euros courants de chaque année",
+        tuple(ligne.observee / 1000 for ligne in cout.annees),
+        "var(--serie-2)", tirets=True,
+    )
+    courbe_pib = g.Serie(
+        "Part du produit intérieur brut",
+        tuple(ligne.part_pib * 100 for ligne in cout.annees),
+        "var(--serie-3)",
+    )
+
+    # -- ce que chaque système pèse ----------------------------------------
+    reunies = [code for code, _ in BANDES_COUT]
+    bandes = [
+        g.Serie(
+            next(s.libelle for s in SYSTEMES if s.code == code),
+            tuple(depenses.depense_systeme(code, annee) / 1000 for annee in ventilees),
+            couleur,
+        )
+        for code, couleur in BANDES_COUT
+    ]
+    bandes.append(g.Serie(
+        "Autres régimes par répartition",
+        tuple(
+            sum(depenses.depense_systeme(s.code, annee) for s in SYSTEMES
+                if s.repartition and s.code not in reunies) / 1000
+            for annee in ventilees
+        ),
+        "var(--serie-7)",
+    ))
+    bandes.append(g.Serie(
+        "Hors répartition obligatoire",
+        tuple(
+            sum(depenses.depense_systeme(s.code, annee) for s in SYSTEMES
+                if not s.repartition) / 1000
+            for annee in ventilees
+        ),
+        "var(--serie-9)",
+        glose="capitalisation, dépendance, minimum vieillesse",
+    ))
+
+    premiere_ventilee = ventilees[0]
+    duree = derniere - premiere_ventilee
+    lignes_systemes = []
+    for systeme in SYSTEMES:
+        debut = depenses.depense_systeme(systeme.code, premiere_ventilee)
+        fin = depenses.depense_systeme(systeme.code, derniere)
+        coefficient = contexte.simulateur().macro.coefficient_prix(
+            premiere_ventilee, derniere)
+        croissance = (fin / (debut * coefficient)) ** (1 / duree) - 1 if debut > 0 else 0.0
+        cumul = sum(
+            depenses.depense_systeme(systeme.code, annee)
+            * contexte.simulateur().macro.coefficient_prix(annee, euros)
+            for annee in ventilees
+        )
+        lignes_systemes.append([
+            f'<span title="{escape(systeme.glose)}">{escape(systeme.libelle)}</span>',
+            _milliards(fin, 1),
+            g.pourcentage(fin / total, decimales=1),
+            _milliards(cumul, 0),
+            g.pourcentage(croissance, signe=True, decimales=1),
+            "oui" if systeme.repartition else "non",
+        ])
+
+    # -- ce que les cinq systèmes auraient coûté ---------------------------
+    # Un scénario dont la courbe est exactement celle du système actuel serait
+    # tracé PAR-DESSUS elle et la ferait disparaître : le graphique montrerait
+    # alors une seule courbe en prétendant en montrer trois. On ne trace donc que
+    # les scénarios qui s'en écartent, et la légende nomme les autres.
+    confondus = cout.confondus_avec_actuel()
+    numeros = [libelle.split(".")[0] for scenario, libelle in SCENARIOS
+               if scenario in confondus]
+    glose_actuel = (
+        f"et les scénarios {' et '.join(numeros)}, qui lui sont confondus"
+        if numeros else ""
+    )
+    courbes_scenarios = tuple(
+        g.Serie(
+            libelle,
+            tuple(ligne.cout_constants(scenario) / 1000 for ligne in cout.annees),
+            COULEURS_SCENARIOS[scenario],
+            tirets=scenario.endswith("_employeur"),
+            glose=glose_actuel if scenario == "actuel" else "",
+        )
+        for scenario, libelle in SCENARIOS
+        if scenario not in confondus
+    )
+    reference = cout.cumul("actuel")
+    lignes_scenarios = []
+    for scenario, libelle in SCENARIOS:
+        cumul = cout.cumul(scenario)
+        dernier = cout.annee(derniere)
+        lignes_scenarios.append([
+            escape(libelle),
+            _milliards(cumul, 0),
+            g.pourcentage(cumul / reference - 1, signe=True, decimales=1)
+            if scenario != "actuel" else "réf.",
+            _milliards(dernier.cout(scenario), 1),
+            g.pourcentage(dernier.part_pib * dernier.rapports[scenario], decimales=1),
+        ])
+
+    decennies = []
+    for debut in range(1960, derniere + 1, 10):
+        fin = min(debut + 9, derniere)
+        lignes_decennie = [l for l in cout.annees if debut <= l.annee <= fin]
+        if not lignes_decennie:
+            continue
+        decennies.append([
+            f"{debut}-{fin}",
+            _milliards(sum(l.observee_constants for l in lignes_decennie), 0),
+            g.pourcentage(
+                sum(l.part_pib for l in lignes_decennie) / len(lignes_decennie),
+                decimales=1,
+            ),
+            g.pourcentage(
+                sum(l.rapports["notionnel_retroactif"] for l in lignes_decennie)
+                / len(lignes_decennie),
+                decimales=1,
+            ),
+            g.pourcentage(
+                sum(l.rapports["notionnel_retroactif_employeur"] for l in lignes_decennie)
+                / len(lignes_decennie),
+                decimales=1,
+            ),
+        ])
+
+    return f"""
+<h2 style="margin-top:0">Ce que la retraite a coûté</h2>
+<p class="chapeau">Le reste du site calcule des droits : ce qu'une carrière
+ouvre. Cette page porte la grandeur inverse — ce qui a été payé, année par année
+depuis {cout.premiere_annee}, système par système — puis demande ce que les
+quatre autres systèmes auraient coûté sur la même période.</p>
+
+<div class="fiches">
+{g.fiche(f"Dépense {derniere}, risque vieillesse-survie", _milliards(total, 1))}
+{g.fiche(f"Dont répartition obligatoire", _milliards(repartition, 1))}
+{g.fiche(f"Part du PIB en {derniere}",
+         g.pourcentage(depenses.part_pib(derniere), decimales=1))}
+{g.fiche(f"Cumul {cout.premiere_annee}-{derniere}, euros de {euros}",
+         _milliards(cout.cumul_observe(), 0))}
+</div>
+
+<p>Les {_milliards(total, 1)} de {derniere} sont le risque
+<strong>vieillesse-survie tout entier</strong> : les pensions, mais aussi le
+minimum vieillesse, l'aide sociale aux personnes âgées et la retraite
+supplémentaire par capitalisation. La <strong>répartition obligatoire</strong>
+seule en fait {_milliards(repartition, 1)} — c'est cette grandeur-là, et non le
+total, qu'il faut rapprocher des quelque 420 milliards que l'on cite d'ordinaire
+pour l'année en cours. Le reste est
+{_milliards(autres["aide_sociale_locale"], 1)} de dépendance,
+{_milliards(autres["supplementaire"], 1)} de capitalisation et
+{_milliards(autres["solidarite_etat"], 1)} de solidarité de l'État.</p>
+
+<h3>Soixante-six ans de dépense</h3>
+{g.graphique(
+    f"Dépenses du risque vieillesse-survie de {cout.premiere_annee} à {derniere}, "
+    f"en milliards d'euros",
+    annees, (courbe_constants, courbe_courants), unite="Md €")}
+<p class="discret">Deux lectures de la même série. En euros courants, la
+dépense est multipliée par cent quatre-vingt-treize depuis
+{cout.premiere_annee} — mais les prix aussi ont été multipliés par treize.
+En euros constants, la multiplication est par quinze : c'est celle-là qui est
+réelle, et elle reste considérable.</p>
+
+{g.graphique(
+    f"Part des dépenses de vieillesse-survie dans le produit intérieur brut, "
+    f"{cout.premiere_annee}-{derniere}",
+    annees, (courbe_pib,), unite="% du PIB", decimales=1)}
+<p class="discret">Rapportée à la richesse produite, la dépense passe de
+{g.pourcentage(depenses.part_pib(cout.premiere_annee), decimales=1)} à
+{g.pourcentage(depenses.part_pib(derniere), decimales=1)}. La courbe monte par
+paliers — chaque crise fait un décrochage du dénominateur avant que le
+numérateur ne rattrape — et le palier des années 2020 n'a pas encore été
+refermé.</p>
+
+<h3>Système par système</h3>
+{g.graphique(
+    f"Dépenses de vieillesse-survie par système, {premiere_ventilee}-{derniere}, "
+    f"en milliards d'euros courants",
+    ventilees, tuple(bandes), unite="Md €", empile=True)}
+<p class="discret">La ventilation ne commence qu'en {premiere_ventilee} : de 1981
+à 1989 la DREES publie une autre nomenclature, dont les périmètres ne se
+raccordent pas à ceux-ci, et personne n'a publié le raccord. Le total, lui,
+remonte à {cout.premiere_annee}.</p>
+
+{g.tableau(
+    ["Système", f"{derniere}", "Part", f"Cumul {premiere_ventilee}-{derniere}",
+     "Croissance réelle", "Répartition"],
+    lignes_systemes,
+    ["", "nombre", "nombre", "nombre", "nombre", ""],
+)}
+<p class="discret">Le cumul est en euros constants de {euros} : additionner des
+euros de 1990 et de {derniere} n'aurait aucun sens. La croissance réelle est
+celle de la dépense annuelle, déflatée, de {premiere_ventilee} à {derniere}.
+Deux chiffres se lisent en connaissant le découpage : le régime général absorbe
+en 2020 les artisans et les commerçants, dont le régime a été adossé à la Cnav,
+et les « régimes spéciaux » de la comptabilité nationale contiennent la CNRACL,
+c'est-à-dire la fonction publique territoriale et hospitalière.</p>
+
+<h3>Ce que les cinq systèmes auraient coûté</h3>
+<p>La dépense observée n'est pas modélisée : elle est ce qu'elle est. Ce qui est
+modélisé, c'est le <strong>rapport</strong> entre ce qui a été versé et ce que
+chaque système aurait versé aux mêmes retraités — la moyenne des écarts de
+pension, pondérée par le poids de chaque génération dans la masse de l'année.
+Les poids viennent des tables de mortalité du dépôt ; les écarts, des douze cas
+types croisés avec {len(cout.generations)} générations, de
+{cout.generations[0]} à {cout.generations[-1]}.</p>
+
+{g.graphique(
+    f"Coût annuel des cinq systèmes, {cout.premiere_annee}-{derniere}, "
+    f"en milliards d'euros constants de {euros}",
+    annees, courbes_scenarios, unite=f"Md € {euros}")}
+
+{g.tableau(
+    ["Système", f"Cumul {cout.premiere_annee}-{derniere}", "Écart",
+     f"Coût {derniere}", f"Part du PIB {derniere}"],
+    lignes_scenarios,
+    ["", "nombre", "nombre", "nombre", "nombre"],
+)}
+
+<div class="note"><strong>Les scénarios 3 et 5 coûtent exactement ce que coûte
+le système actuel, et ce n'est pas un défaut du calcul.</strong> Leur bascule est
+fixée à {contexte.base.annee_bascule} : aucune pension servie avant cette date
+n'en est modifiée, puisque les droits déjà acquis sont conservés. Une réforme
+prospective ne fait rien économiser sur le passé — elle ne commence à compter
+qu'au premier assuré qui liquide après elle. C'est le principal résultat de
+cette page, et il est vrai de toute réforme des retraites qui respecte les
+droits acquis.</div>
+
+<p>Le scénario 2, lui, aurait coûté {_milliards(cout.cumul("notionnel_retroactif"), 0)}
+au lieu de {_milliards(reference, 0)} : la retraite française aurait servi
+{g.pourcentage(1 - cout.cumul("notionnel_retroactif") / reference, decimales=0)}
+de moins sur soixante-six ans. Cet écart ne mesure PAS l'effet des comptes
+notionnels. Il mesure deux choses qui n'ont rien à voir avec eux : ce scénario
+ne porte au compte que la <strong>part salariale</strong> de la cotisation — le
+scénario 4, qui y ajoute la part patronale, coûte
+{_milliards(cout.cumul("notionnel_retroactif_employeur"), 0)}, soit
+{g.pourcentage(
+    cout.cumul("notionnel_retroactif_employeur")
+    / cout.cumul("notionnel_retroactif") - 1, signe=True, decimales=0)}
+de plus —, et il applique une <a href="{g.lien("/methode", "indexation")}">règle
+d'indexation</a> dont la page Méthode montre qu'elle domine tout le reste.</p>
+
+<h3>Décennie par décennie</h3>
+{g.tableau(
+    ["Décennie", f"Dépense cumulée, euros de {euros}", "Part du PIB",
+     "Coût du scénario 2", "Coût du scénario 4"],
+    decennies,
+    ["", "nombre", "nombre", "nombre", "nombre"],
+)}
+<p class="discret">Les deux dernières colonnes sont en pourcentage de la dépense
+réellement engagée la même décennie. Elles remontent : plus on approche du
+présent, plus les carrières prises en compte ont été cotisées sous des règles
+proches des règles actuelles, et moins le compte notionnel s'en écarte.</p>
+
+<h3>Ce que cette page ne dit pas</h3>
+<ul class="serree">
+  <li><strong>Elle ne projette rien.</strong> La série s'arrête à {derniere},
+  dernière année publiée par la DREES. Prolonger demanderait une pyramide des
+  âges et un taux d'emploi, c'est-à-dire un modèle de population — que ce dépôt
+  n'a pas et ne prétend pas avoir.</li>
+  <li><strong>La population est supposée stationnaire.</strong> Chaque
+  génération pèse le même effectif de départ, alors que le baby-boom en a fait
+  naître un tiers de plus. Cela déplace les poids, non les écarts qu'ils
+  pondèrent : après 1980, l'écart du scénario 2 varie de moins de trois points
+  d'une décennie à l'autre, si bien qu'aucune pondération plausible ne le
+  déplacerait beaucoup.</li>
+  <li><strong>Les douze cas types pèsent d'un poids égal.</strong> Il y a moins
+  d'agents de conduite que de salariés au salaire moyen. C'est la convention de
+  la grille des <a href="{g.lien("/cas-types")}">cas types</a>, reconduite ici
+  faute d'une pondération que quelque source fixerait.</li>
+  <li><strong>Avant 1975, la reconstitution est mince.</strong> La répartition
+  ne commence qu'en {contexte.base.annee_debut_repartition} : les générations
+  antérieures à {cout.generations[0]} n'ont, dans ce modèle, aucune pension, et
+  plusieurs régimes n'existaient pas encore. Les premières années reposent donc
+  sur deux ou trois générations et la moitié des cas types.</li>
+  <li><strong>Le coût n'est pas le solde.</strong> Cette page dit ce qui a été
+  versé, jamais ce qui a été encaissé. Un système notionnel qui coûterait quatre
+  fois moins ne serait pas quatre fois plus « soutenable » : il servirait
+  quatre fois moins, ce qui est une autre affaire.</li>
+</ul>
+<p class="discret">Fiabilité de l'ensemble : la dépense observée est
+<strong>certifiée</strong> — recontrôlée contre l'API de la DREES à chaque
+exécution —, le rapport qui en tire les quatre contrefactuels est
+<strong>estimé</strong>, et ne peut pas être autre chose : aucune institution ne
+publie ce qu'aurait coûté un système qui n'a pas existé.</p>
 """
 
 

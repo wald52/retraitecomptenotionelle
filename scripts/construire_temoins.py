@@ -329,6 +329,7 @@ def _pages(contexte: Contexte) -> dict:
         # et dire ce qui manque.
         ("accueil_metier_incomplet", "/", {**BASE, "metier2_debut": "40"}),
         ("cas_types", "/cas-types", {}),
+        ("cout", "/cout", {}),
         ("methode", "/methode", {}),
         ("donnees", "/donnees", {}),
     ]

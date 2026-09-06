@@ -44,6 +44,7 @@ from retraite_notionnelle.donnees.chargement import (  # noqa: E402
     charger_yaml,
     journal_certification,
 )
+from retraite_notionnelle.donnees.depenses import SYSTEMES  # noqa: E402
 from retraite_notionnelle.donnees.mortalite import DonneesMortalite  # noqa: E402
 from retraite_notionnelle.donnees.regimes import CatalogueRegimes  # noqa: E402
 from retraite_notionnelle.scenarios.actuel import (  # noqa: E402
@@ -65,7 +66,7 @@ STYLE = RACINE / "moteur" / "style.css"
 
 #: Version du format. À incrémenter si la structure du paquet change, pour
 #: qu'un site en cache ne lise pas un paquet qu'il ne comprend pas.
-VERSION = 6
+VERSION = 7
 
 
 def _serie(serie: SerieAnnuelle) -> dict:
@@ -117,6 +118,29 @@ def _series() -> dict:
     series["age_taux_plein_legal"] = _charger_ages(ages, "age_taux_plein_legal")
     series["age_reference"] = _charger_ages(ages, "age_reference")
 
+    return {nom: _serie(serie) for nom, serie in sorted(series.items())}
+
+
+def _depenses() -> dict:
+    """Dépenses observées : le total, sa ventilation par système, et le PIB.
+
+    Ces séries ne servent à AUCUN calcul de pension : elles ne portent que la
+    page « Coût ». Elles passent quand même par le paquet, et par les mêmes
+    chargeurs que le reste, pour la même raison que tout le reste — le site ne
+    lit jamais data/ directement.
+    """
+    macro = DONNEES / "reference" / "macro"
+    series = {
+        "total": charger_serie_annuelle(
+            macro / "depenses_retraite.csv", "depenses_meur",
+            nom="depenses_retraite"),
+        "pib_courant": charger_serie_annuelle(
+            macro / "pib_courant.csv", "pib_meur", nom="pib_courant"),
+    }
+    for systeme in SYSTEMES:
+        series[systeme.code] = charger_serie_annuelle(
+            macro / "depenses_retraite_regimes.csv", "depenses_meur",
+            nom=f"depenses_{systeme.code}", filtre={"regime": systeme.code})
     return {nom: _serie(serie) for nom, serie in sorted(series.items())}
 
 
@@ -447,6 +471,7 @@ def construire() -> bytes:
         "carriere_longue": _carriere_longue(),
         "majorations_enfants": _majorations_enfants(),
         "surcote_parentale": _surcote_parentale(),
+        "depenses": _depenses(),
         "certification": journal_certification(DONNEES),
     }
     texte = json.dumps(paquet, ensure_ascii=False, sort_keys=True,

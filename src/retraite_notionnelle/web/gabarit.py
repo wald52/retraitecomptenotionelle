@@ -28,6 +28,17 @@ FEUILLE_DE_STYLE = """
   --retroactif-employeur: #7c5a86;
   --prospectif-employeur: #35705f;
   --alerte: #8a5a00;
+  /* Palette des graphiques : neuf teintes, assez distinctes pour se suivre
+     empilées, assez proches pour ne pas jurer avec le reste de la page. */
+  --serie-1: #3f5c66;
+  --serie-2: #a2472e;
+  --serie-3: #6a6a4d;
+  --serie-4: #7c5a86;
+  --serie-5: #35705f;
+  --serie-6: #b07d2b;
+  --serie-7: #4a6f9c;
+  --serie-8: #8a6552;
+  --serie-9: #9a9186;
 }
 @media (prefers-color-scheme: dark) {
   :root {
@@ -45,6 +56,15 @@ FEUILLE_DE_STYLE = """
     --retroactif-employeur: #c39ccd;
     --prospectif-employeur: #79bda9;
     --alerte: #e0b062;
+    --serie-1: #8fb2c0;
+    --serie-2: #e08b6f;
+    --serie-3: #bcbc8e;
+    --serie-4: #c39ccd;
+    --serie-5: #79bda9;
+    --serie-6: #e0b062;
+    --serie-7: #8fabd4;
+    --serie-8: #c8a08a;
+    --serie-9: #b3aca2;
   }
 }
 * { box-sizing: border-box; }
@@ -154,6 +174,30 @@ td.nombre, th.nombre { font-variant-numeric: tabular-nums; }
   text-transform: uppercase; padding: 0.15rem 0.5rem; border-radius: 3px;
   background: var(--fond-appui); color: var(--texte-doux);
 }
+/* Graphiques : du SVG écrit à la main, dont seules les couleurs et les tailles
+   de texte sont ici. Le tracé lui-même est dans `graphique()`. */
+.graphique { margin: 1.3rem 0 1.7rem; }
+.graphique svg { display: block; width: 100%; height: auto; overflow: visible; }
+.graphique .grille { stroke: var(--trait); stroke-width: 1; }
+.graphique .axe { stroke: var(--texte-doux); stroke-width: 1; }
+.graphique .courbe {
+  fill: none; stroke-width: 2.5;
+  stroke-linejoin: round; stroke-linecap: round;
+}
+.graphique .bande { stroke: none; }
+.graphique .graduation {
+  fill: var(--texte-doux); font-family: inherit; font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+ul.legende {
+  list-style: none; margin: 0.6rem 0 0; padding: 0;
+  display: flex; flex-wrap: wrap; gap: 0.3rem 1.2rem; font-size: 0.86rem;
+}
+ul.legende li { display: flex; align-items: baseline; gap: 0.4rem; }
+.pastille {
+  display: inline-block; flex: none;
+  width: 0.7rem; height: 0.7rem; border-radius: 2px;
+}
 ul.serree { margin: 0.5rem 0; padding-left: 1.2rem; }
 ul.serree li { margin: 0.3rem 0; }
 footer {
@@ -204,6 +248,10 @@ body.calcul-en-cours main { opacity: 0.45; transition: opacity 0.2s; }
   .scenario .montant { white-space: normal; }
   .fiches { grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr)); }
   form .grille { gap: 0.9rem; }
+  /* Le SVG se réduit avec la page : ses textes, exprimés en unités du viewBox,
+     se réduiraient d'autant et deviendraient illisibles. On les grossit donc
+     dans le repère pour qu'ils gardent leur taille à l'écran. */
+  .graphique .graduation { font-size: 20px; }
 }
 """
 
@@ -212,6 +260,7 @@ DEPOT = "https://github.com/wald52/retraitecomptenotionelle"
 LIENS = (
     ("/", "Simuler"),
     ("/cas-types", "Cas types"),
+    ("/cout", "Coût"),
     ("/methode", "Méthode"),
     ("/donnees", "Données"),
 )
@@ -365,3 +414,250 @@ def fiche(etiquette: str, valeur: str) -> str:
         f'<div class="fiche"><div class="valeur">{valeur}</div>'
         f'<div class="etiquette">{escape(etiquette)}</div></div>'
     )
+
+
+# -- graphiques --------------------------------------------------------------
+#
+# Le dépôt n'a pas de bibliothèque de tracé, et n'en aura pas : le site charge
+# ses propres fichiers et rien d'autre. Les graphiques sont donc du SVG écrit à
+# la main, en deux exemplaires — ici et dans ``moteur/js/gabarit.js`` —, et
+# comparés caractère par caractère par les témoins. D'où deux règles de
+# construction qu'il ne faut pas enfreindre :
+#
+#   * toutes les coordonnées passent par ``nombre_brut``, qui arrondit comme
+#     Python le fait, pour que les deux rendus produisent la même chaîne ;
+#   * le pas des graduations est cherché par ITÉRATION sur une échelle de
+#     valeurs rondes, jamais par un logarithme, dont les deux langages ne
+#     garantissent pas le même dernier bit.
+#
+# Les couleurs sont des variables CSS : le graphique suit le thème clair ou
+# sombre sans que rien ne soit recalculé.
+
+#: Cadre de tracé, en unités du ``viewBox``. Le SVG est redimensionné par le
+#: navigateur ; ces nombres ne sont donc pas des pixels mais un repère.
+LARGEUR_TRACE = 720
+HAUTEUR_TRACE = 300
+MARGE_GAUCHE = 66
+MARGE_DROITE = 24
+MARGE_HAUT = 26
+MARGE_BAS = 28
+#: La marge de droite loge la MOITIÉ de la dernière graduation d'abscisse, qui
+#: est centrée sur elle : trop étroite, « 2024 » déborderait du viewBox.
+
+#: Nombre d'intervalles de l'axe vertical. Cinq : assez pour lire, assez peu
+#: pour ne pas encombrer, et surtout assez pour qu'un maximum de 427 tienne dans
+#: une échelle qui monte à 500 plutôt qu'à 800 — avec quatre intervalles, la
+#: moitié du cadre restait vide.
+DIVISIONS_Y = 5
+
+#: Échelle des pas de graduation admissibles, multipliée par des puissances de
+#: dix. On la parcourt du plus petit au plus grand jusqu'à couvrir la valeur
+#: maximale : aucune fonction transcendante n'intervient, donc aucun écart
+#: possible entre les deux portages.
+PAS_RONDS = (1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0)
+
+#: Écart minimal, en années, entre une décennie graduée et une borne de l'axe.
+#: Les bornes sont graduées d'office — ce sont elles qui datent la série —, et
+#: une décennie trop proche de l'une d'elles ne fait que chevaucher son
+#: étiquette. Six ans : « 2020 » et « 2024 » ne tiennent pas côte à côte sur
+#: l'écran d'un téléphone, où les textes du repère sont grossis.
+ECART_MINIMAL_GRADUATIONS = 6
+
+
+@dataclass(frozen=True)
+class Serie:
+    """Une courbe ou une bande d'un graphique."""
+
+    libelle: str
+    #: Valeurs alignées sur les abscisses passées au graphique. ``None`` marque
+    #: une année sans valeur : la courbe y est interrompue plutôt qu'inventée.
+    valeurs: tuple[float | None, ...]
+    #: Expression CSS de la couleur, en général ``var(--...)``.
+    couleur: str
+    #: Trait discontinu, pour distinguer deux courbes de même famille.
+    tirets: bool = False
+    #: Glose affichée dans la légende, sous le libellé.
+    glose: str = ""
+
+
+def nombre_brut(valeur: float, decimales: int = 1) -> str:
+    """Nombre à l'anglaise, pour un attribut SVG — jamais pour du texte lu."""
+    return f"{valeur:.{decimales}f}"
+
+
+def pas_graduation(maximum: float, divisions: int = DIVISIONS_Y) -> float:
+    """Plus petit pas rond dont ``divisions`` intervalles couvrent ``maximum``."""
+    if maximum <= 0:
+        return 1.0
+    base = 1e-9
+    while base < 1e12:
+        for facteur in PAS_RONDS:
+            pas = base * facteur
+            if pas * divisions >= maximum:
+                return pas
+        base *= 10.0
+    return base
+
+
+def _abscisse(annee: int, premiere: int, derniere: int) -> float:
+    largeur = LARGEUR_TRACE - MARGE_GAUCHE - MARGE_DROITE
+    if derniere == premiere:
+        return MARGE_GAUCHE + largeur / 2
+    return MARGE_GAUCHE + largeur * (annee - premiere) / (derniere - premiere)
+
+
+def _ordonnee(valeur: float, sommet: float) -> float:
+    hauteur = HAUTEUR_TRACE - MARGE_HAUT - MARGE_BAS
+    if sommet <= 0:
+        return HAUTEUR_TRACE - MARGE_BAS
+    return HAUTEUR_TRACE - MARGE_BAS - hauteur * valeur / sommet
+
+
+def _graduations_x(premiere: int, derniere: int) -> list[int]:
+    """Décennies comprises dans la plage, plus les deux bornes."""
+    annees = [a for a in range(premiere, derniere + 1) if a % 10 == 0]
+    if premiere not in annees:
+        annees.insert(0, premiere)
+    if derniere not in annees:
+        annees.append(derniere)
+    # Deux graduations trop proches se chevauchent : on retire la décennie
+    # voisine plutôt que la borne, qui porte l'information.
+    return [
+        a for a in annees
+        if a in (premiere, derniere)
+        or (a - premiere >= ECART_MINIMAL_GRADUATIONS
+            and derniere - a >= ECART_MINIMAL_GRADUATIONS)
+    ]
+
+
+def _chemin(serie: Serie, annees: tuple[int, ...], sommet: float) -> str:
+    """Chemin SVG d'une courbe, interrompu là où la série n'a pas de valeur."""
+    morceaux: list[str] = []
+    commence = False
+    for annee, valeur in zip(annees, serie.valeurs):
+        if valeur is None:
+            commence = False
+            continue
+        x = nombre_brut(_abscisse(annee, annees[0], annees[-1]))
+        y = nombre_brut(_ordonnee(valeur, sommet))
+        morceaux.append(f"{'M' if not commence else 'L'}{x} {y}")
+        commence = True
+    return " ".join(morceaux)
+
+
+def _bande(basses: list[float], hautes: list[float],
+           annees: tuple[int, ...], sommet: float) -> str:
+    """Chemin fermé d'une bande empilée : le dessus à l'aller, le dessous au retour."""
+    aller = [
+        f"{'M' if rang == 0 else 'L'}"
+        f"{nombre_brut(_abscisse(annee, annees[0], annees[-1]))} "
+        f"{nombre_brut(_ordonnee(haute, sommet))}"
+        for rang, (annee, haute) in enumerate(zip(annees, hautes))
+    ]
+    retour = [
+        f"L{nombre_brut(_abscisse(annee, annees[0], annees[-1]))} "
+        f"{nombre_brut(_ordonnee(basse, sommet))}"
+        for annee, basse in zip(reversed(annees), reversed(basses))
+    ]
+    return " ".join(aller + retour) + " Z"
+
+
+def _sommet(series: tuple[Serie, ...], empile: bool) -> tuple[float, float]:
+    """Sommet de l'axe vertical et pas de graduation."""
+    if empile:
+        maximum = max(
+            (sum(v for v in colonne if v is not None)
+             for colonne in zip(*(s.valeurs for s in series))),
+            default=0.0,
+        )
+    else:
+        maximum = max(
+            (v for serie in series for v in serie.valeurs if v is not None),
+            default=0.0,
+        )
+    pas = pas_graduation(maximum)
+    return pas * DIVISIONS_Y, pas
+
+
+def graphique(titre: str, annees: tuple[int, ...], series: tuple[Serie, ...],
+              unite: str = "", empile: bool = False, decimales: int = 0,
+              legende: bool = True) -> str:
+    """Graphique en courbes, ou en bandes empilées si ``empile``.
+
+    ``titre`` n'est pas affiché : il est le texte alternatif du SVG, c'est-à-dire
+    ce que lit une synthèse vocale. Ce que voit l'œil est dans la légende et
+    dans la phrase qui précède le graphique.
+    """
+    if not annees or not series:
+        return ""
+
+    sommet, pas = _sommet(series, empile)
+    gauche = nombre_brut(_abscisse(annees[0], annees[0], annees[-1]))
+    droite = nombre_brut(_abscisse(annees[-1], annees[0], annees[-1]))
+
+    lignes = []
+    for division in range(DIVISIONS_Y + 1):
+        valeur = pas * division
+        y = nombre_brut(_ordonnee(valeur, sommet))
+        lignes.append(
+            f'<line class="grille" x1="{gauche}" y1="{y}" x2="{droite}" y2="{y}"/>'
+            f'<text class="graduation" x="{nombre_brut(MARGE_GAUCHE - 6)}" y="{y}" '
+            f'dy="0.32em" text-anchor="end">{nombre(valeur, decimales)}</text>'
+        )
+    base = nombre_brut(_ordonnee(0.0, sommet))
+    for annee in _graduations_x(annees[0], annees[-1]):
+        x = nombre_brut(_abscisse(annee, annees[0], annees[-1]))
+        lignes.append(
+            f'<text class="graduation" x="{x}" '
+            f'y="{nombre_brut(HAUTEUR_TRACE - MARGE_BAS + 16)}" '
+            f'text-anchor="middle">{annee}</text>'
+        )
+
+    traces = []
+    if empile:
+        # La PREMIÈRE série est la bande du BAS : la légende se lit alors dans
+        # l'ordre du graphique, de bas en haut, et non à l'envers.
+        cumul = [0.0 for _ in annees]
+        for serie in series:
+            hautes = [
+                bas + (valeur or 0.0) for bas, valeur in zip(cumul, serie.valeurs)
+            ]
+            traces.append(
+                f'<path class="bande" fill="{serie.couleur}" '
+                f'd="{_bande(cumul, hautes, annees, sommet)}"/>'
+            )
+            cumul = hautes
+    else:
+        for serie in series:
+            tirets = ' stroke-dasharray="5 4"' if serie.tirets else ""
+            traces.append(
+                f'<path class="courbe" stroke="{serie.couleur}"{tirets} '
+                f'd="{_chemin(serie, annees, sommet)}"/>'
+            )
+
+    unite_html = (
+        f'<text class="graduation" x="{nombre_brut(MARGE_GAUCHE - 6)}" '
+        f'y="{nombre_brut(MARGE_HAUT - 10)}" text-anchor="end">{escape(unite)}</text>'
+        if unite else ""
+    )
+    legende_html = _legende(series) if legende else ""
+    return (
+        f'<figure class="graphique">'
+        f'<svg viewBox="0 0 {LARGEUR_TRACE} {HAUTEUR_TRACE}" role="img" '
+        f'aria-label="{escape(titre)}">'
+        f"{''.join(lignes)}{''.join(traces)}"
+        f'<line class="axe" x1="{gauche}" y1="{base}" x2="{droite}" y2="{base}"/>'
+        f"{unite_html}"
+        f"</svg>{legende_html}</figure>"
+    )
+
+
+def _legende(series: tuple[Serie, ...]) -> str:
+    entrees = "".join(
+        f'<li><span class="pastille" style="background:{serie.couleur}"></span>'
+        f"<span>{escape(serie.libelle)}"
+        + (f' <span class="discret">{escape(serie.glose)}</span>' if serie.glose else "")
+        + "</span></li>"
+        for serie in series
+    )
+    return f'<ul class="legende">{entrees}</ul>'

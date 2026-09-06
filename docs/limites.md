@@ -330,6 +330,10 @@ La page **Données** du site affiche l'état exact. En résumé :
 | Salaire moyen par tête | 1930-1949 | estimée | reconstitution |
 | Productivité réelle | 1950-2025 | **certifiée** | INSEE BDM, idbanks 011785223 et 011793334 |
 | Productivité réelle | 1930-1949 | estimée | reconstitution |
+| Produit intérieur brut, en niveau | 1949-2025 | **certifiée** | INSEE BDM, idbank 011779992 |
+| Dépenses de vieillesse-survie, tous régimes | 1959-2024 | **certifiée** | DREES, Comptes de la protection sociale, poste E11-2 |
+| Dépenses de vieillesse-survie, par système | 1990-2024 | **certifiée** | DREES, mêmes comptes, ventilation par organisme |
+| Dépenses de vieillesse-survie, par système | 1981-1989 | absentes | nomenclature d'alors sans raccord publié — voir §5 bis |
 | Hypothèses de projection | 2026-2100 | **saisie** | COR, rapport annuel de juin 2025, jeu reconduit en juin 2026 |
 | Espérance de vie à 0 et 60 ans | 1946-2025 | **certifiée** | INSEE BDM, quatre idbanks, annuel par sexe |
 | Espérance de vie à 65 ans | 1960-2024 | **certifiée** | OCDE `DSD_HEALTH_STAT@DF_LE` |
@@ -2043,6 +2047,17 @@ n'est plus une limite : c'est un paramètre connu du résultat.
   ajusteraient à la baisse ou à la hausse toutes les pensions du scénario 2 par
   un même facteur. Ce facteur étant commun, il déplacerait les niveaux sans
   toucher aux ÉCARTS ENTRE CARRIÈRES, qui sont l'objet du modèle.
+  La page **Coût** donne le premier terme de ce bilan — ce qui a été VERSÉ,
+  observé et certifié de 1959 à 2024 — et jamais le second. Un coût n'est pas
+  un solde : un système qui coûterait quatre fois moins servirait quatre fois
+  moins, ce qui est une autre affaire.
+
+- **La projection de la dépense.** La série de dépenses s'arrête à 2024,
+  dernière année publiée par la DREES. Le dépôt ne la prolonge pas, pour la
+  raison qui précède : projeter une masse de pensions demande une pyramide des
+  âges. Toute la page Coût est donc RÉTROSPECTIVE, et le lecteur qui y cherche
+  la trajectoire des prochaines décennies doit se tourner vers le COR, qui la
+  publie.
 
 - **Les comportements.** Les âges de liquidation sont ceux que l'utilisateur
   déclare. Or une réforme qui pénalise fortement les départs précoces conduit à
@@ -2086,6 +2101,71 @@ n'est plus une limite : c'est un paramètre connu du résultat.
 
 ---
 
+## 5 bis. Le coût agrégé : trois approximations, et ce qu'elles pèsent
+
+La page **Coût** superpose deux natures de chiffres, et il faut les séparer pour
+la lire.
+
+**La dépense observée n'est pas modélisée.** Elle vient des Comptes de la
+protection sociale de la DREES, risque vieillesse-survie, poste `E11-2`, et elle
+est **certifiée** : recontrôlée contre l'API du producteur à chaque exécution,
+1959 à 2024 pour le total, 1990 à 2024 pour la ventilation par système. Deux
+réserves de PÉRIMÈTRE, et non de fiabilité :
+
+- le risque vieillesse-survie est plus large que « les retraites » : il porte
+  aussi le minimum vieillesse, la dépendance des personnes âgées et la retraite
+  supplémentaire par capitalisation, soit 27,9 milliards sur 426,7 en 2024. La
+  ventilation permet de les retrancher, et la page affiche les deux grandeurs ;
+- la ventilation ne commence qu'en 1990. De 1981 à 1989 la DREES en publie une
+  autre, dont les périmètres ne se raccordent pas — « Régime général de la
+  Sécurité sociale » y recouvre ce qui est aujourd'hui réparti entre la Cnav et
+  d'autres organismes. Personne n'a publié le raccord : c'est une impasse
+  démontrée, et non un oubli.
+
+Le découpage lui-même est celui de la **comptabilité nationale**, par secteur
+institutionnel et non par caisse. Deux conséquences qu'il faut connaître :
+« régimes spéciaux » réunit la CNRACL — donc la fonction publique territoriale
+et hospitalière —, la SNCF, la RATP et les IEG ; et « régime général » absorbe à
+compter de 2020 les artisans et les commerçants, dont le régime a été adossé à
+la Cnav. La marche de 2020 est une réorganisation, pas une dépense nouvelle.
+
+**Le coût des quatre autres systèmes est estimé, et ne peut pas être autre
+chose.** Il est obtenu en multipliant la dépense observée par le rapport des
+masses de pension — la moyenne des écarts entre systèmes, pondérée par le poids
+de chaque génération dans la masse de l'année. Ce rapport porte trois
+approximations, énoncées sur la page :
+
+1. **La population est supposée stationnaire.** Chaque génération pèse le même
+   effectif de départ ; le baby-boom en a fait naître un tiers de plus. Cela
+   déplace les POIDS, non les écarts qu'ils pondèrent. L'ordre de grandeur de
+   l'effet se mesure : après 1980, le rapport du scénario 2 varie de moins de
+   trois points d'une décennie à l'autre (22,2 % dans les années 2000, 24,6 %
+   en 2020-2024), si bien qu'aucune pondération plausible des générations ne le
+   déplacerait de beaucoup.
+2. **Les douze cas types pèsent d'un poids égal.** Ils ne décrivent pas la
+   population active : il y a moins d'agents de conduite que de salariés au
+   salaire moyen. C'est la convention de la grille des cas types, reconduite
+   ici plutôt que remplacée par une pondération qu'aucune source ne fixerait.
+   Le sens du biais est connu : les cas types à départ très précoce — SNCF,
+   catégorie active — sont ceux que le notionnel pénalise le plus, et ils sont
+   surreprésentés. Le rapport affiché est donc plutôt un PLANCHER.
+3. **Avant 1975, la reconstitution est mince.** La répartition ne commence
+   qu'en 1941 : les générations antérieures à 1880 n'ont, dans ce modèle,
+   aucune pension, et plusieurs régimes n'existaient pas encore. Les premières
+   années reposent sur deux ou trois générations et la moitié des cas types.
+   Elles pèsent peu dans le cumul — la dépense de 1959 vaut 0,5 % de celle de
+   2024 en euros courants — mais leur rapport ne vaut pas ce que valent ceux
+   d'après 1980.
+
+**Ce qui, en revanche, n'est pas une approximation** : l'égalité des scénarios
+3 et 5 avec le système actuel sur toute la période observée. Elle est EXACTE, et
+au sens strict — le scénario prospectif recopie la pension du scénario actuel
+pour qui a liquidé avant la bascule. La page ne l'écrit pas en dur : elle teste
+l'identité des courbes année par année, et les séparerait si la bascule était
+avancée avant la dernière année publiée.
+
+---
+
 ## 6. Reproductibilité
 
 - Aucune dépendance hors PyYAML ; tous les calculs sont déterministes.
@@ -2096,7 +2176,7 @@ n'est plus une limite : c'est un paramètre connu du résultat.
   remplacer : les récupérateurs sont indépendants et lents, on ne lance
   presque jamais les dix-sept d'un coup, et réécrire le journal à partir des
   seules sources présentes ce jour-là effaçait la trace de toutes les autres.
-- 205 tests couvrent le chargement, la fiabilité, la règle de certification, la
+- 377 tests couvrent le chargement, la fiabilité, la règle de certification, la
   concordance des tables de mortalité observées avec les espérances publiées, les
   propriétés du moteur et le comportement des scénarios : `python -m pytest tests`.
   Aucun test n'accède au réseau : les sources sont simulées.

@@ -1,0 +1,96 @@
+# Dépenses du risque vieillesse-survie, tous régimes, France
+# source_id: drees_comptes_protection_sociale
+# unite: millions d'euros courants de l'année
+# fiabilite:
+#   certifiee (1959-2024) : prestations du poste E11-2 des Comptes de la
+#             protection sociale, recontrôlées par
+#             scripts/verifier_donnees.py contre l'API de la DREES.
+#
+# CE QUE CE POSTE CONTIENT, ET CE QU'IL N'EST PAS
+# ------------------------------------------------
+# C'est le risque vieillesse-survie TOUT ENTIER : pensions de droit direct
+# et de droit dérivé, mais aussi minimum vieillesse, prestations liées à la
+# dépendance des personnes âgées, retraite supplémentaire par
+# capitalisation. Il est donc PLUS LARGE que « les dépenses de retraite »
+# au sens où le Conseil d'orientation des retraites les entend, et le
+# dépasse d'environ 6 % : 426,7 milliards en 2024 contre 401,4 milliards
+# pour les seules pensions de droit direct et de droit dérivé.
+#
+# C'est pourtant lui qu'on retient, et pour une raison : il est le seul
+# niveau que la DREES publie SANS INTERRUPTION depuis 1959. Les
+# sous-postes ne le sont que depuis 2020. Un agrégat continu sur
+# soixante-six ans, dont on sait dire ce qu'il contient, vaut mieux qu'un
+# agrégat plus juste qui commence il y a cinq ans.
+#
+# depenses_retraite_regimes.csv le ventile, et cette ventilation permet
+# d'en retrancher ce qui ne relève pas de la répartition obligatoire.
+#
+# Ne pas modifier les années certifiées à la main : elles seraient écrasées
+# au prochain scripts/verifier_donnees.py --appliquer.
+annee,depenses_meur,fiabilite
+1959,2208.6,certifiee
+1960,2379.8,certifiee
+1961,2671.9,certifiee
+1962,3137.2,certifiee
+1963,3712.3,certifiee
+1964,4323.6,certifiee
+1965,4942.0,certifiee
+1966,5618.8,certifiee
+1967,6183.8,certifiee
+1968,7157.6,certifiee
+1969,8142.6,certifiee
+1970,9092.3,certifiee
+1971,10105.1,certifiee
+1972,11517.4,certifiee
+1973,13332.7,certifiee
+1974,16124.9,certifiee
+1975,20366.3,certifiee
+1976,24159.6,certifiee
+1977,28314.9,certifiee
+1978,33104.5,certifiee
+1979,38278.7,certifiee
+1980,44295.5,certifiee
+1981,52440.6,certifiee
+1982,61616.8,certifiee
+1983,68941.7,certifiee
+1984,77492.7,certifiee
+1985,85397.8,certifiee
+1986,91321.4,certifiee
+1987,95907.9,certifiee
+1988,102609.7,certifiee
+1989,109801.9,certifiee
+1990,115897.8,certifiee
+1991,123024.7,certifiee
+1992,131067.8,certifiee
+1993,138215.2,certifiee
+1994,143893.4,certifiee
+1995,150682.6,certifiee
+1996,154640.5,certifiee
+1997,161157.6,certifiee
+1998,166696.7,certifiee
+1999,172656.8,certifiee
+2000,178102.0,certifiee
+2001,185465.3,certifiee
+2002,194067.0,certifiee
+2003,202420.0,certifiee
+2004,212748.0,certifiee
+2005,223260.4,certifiee
+2006,236200.2,certifiee
+2007,249010.7,certifiee
+2008,261310.9,certifiee
+2009,272500.3,certifiee
+2010,282139.5,certifiee
+2011,293189.2,certifiee
+2012,303129.1,certifiee
+2013,312718.0,certifiee
+2014,318997.3,certifiee
+2015,324565.8,certifiee
+2016,330392.4,certifiee
+2017,336132.4,certifiee
+2018,344552.2,certifiee
+2019,351899.7,certifiee
+2020,359529.4,certifiee
+2021,365400.2,certifiee
+2022,381681.1,certifiee
+2023,400717.6,certifiee
+2024,426665.3,certifiee

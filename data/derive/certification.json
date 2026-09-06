@@ -61,6 +61,26 @@
    "source": "DILA, base LEGI, loi n° 2003-775 du 21 août 2003, article 66 III",
    "valeurs": 14
   },
+  "depenses_retraite": {
+   "ajoutees": 0,
+   "colonne": "depenses_meur",
+   "corrigees": 0,
+   "empreinte": "9f04d76baf7cce67",
+   "identiques": 66,
+   "niveau": "certifiee",
+   "source": "DREES, Comptes de la protection sociale, risque vieillesse-survie",
+   "valeurs": 66
+  },
+  "depenses_retraite_regimes": {
+   "ajoutees": 0,
+   "colonne": "depenses_meur",
+   "corrigees": 1,
+   "empreinte": "dd24a24c483059e2",
+   "identiques": 454,
+   "niveau": "certifiee",
+   "source": "DREES, Comptes de la protection sociale, risque vieillesse-survie par organisme",
+   "valeurs": 455
+  },
   "duree_assurance_requise": {
    "ajoutees": 0,
    "colonne": "trimestres",
@@ -290,6 +310,16 @@
    "niveau": "certifiee",
    "source": "DILA, base LEGI, code de la sécurité sociale, article D. 815-1",
    "valeurs": 9
+  },
+  "pib_courant": {
+   "ajoutees": 77,
+   "colonne": "pib_meur",
+   "corrigees": 0,
+   "empreinte": "209ce398e76b837a",
+   "identiques": 0,
+   "niveau": "certifiee",
+   "source": "INSEE BDM, idbank 011779992",
+   "valeurs": 77
   },
   "pib_nominal": {
    "ajoutees": 0,

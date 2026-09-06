@@ -16,6 +16,17 @@
   --retroactif-employeur: #7c5a86;
   --prospectif-employeur: #35705f;
   --alerte: #8a5a00;
+  /* Palette des graphiques : neuf teintes, assez distinctes pour se suivre
+     empilées, assez proches pour ne pas jurer avec le reste de la page. */
+  --serie-1: #3f5c66;
+  --serie-2: #a2472e;
+  --serie-3: #6a6a4d;
+  --serie-4: #7c5a86;
+  --serie-5: #35705f;
+  --serie-6: #b07d2b;
+  --serie-7: #4a6f9c;
+  --serie-8: #8a6552;
+  --serie-9: #9a9186;
 }
 @media (prefers-color-scheme: dark) {
   :root {
@@ -33,6 +44,15 @@
     --retroactif-employeur: #c39ccd;
     --prospectif-employeur: #79bda9;
     --alerte: #e0b062;
+    --serie-1: #8fb2c0;
+    --serie-2: #e08b6f;
+    --serie-3: #bcbc8e;
+    --serie-4: #c39ccd;
+    --serie-5: #79bda9;
+    --serie-6: #e0b062;
+    --serie-7: #8fabd4;
+    --serie-8: #c8a08a;
+    --serie-9: #b3aca2;
   }
 }
 * { box-sizing: border-box; }
@@ -142,6 +162,30 @@ td.nombre, th.nombre { font-variant-numeric: tabular-nums; }
   text-transform: uppercase; padding: 0.15rem 0.5rem; border-radius: 3px;
   background: var(--fond-appui); color: var(--texte-doux);
 }
+/* Graphiques : du SVG écrit à la main, dont seules les couleurs et les tailles
+   de texte sont ici. Le tracé lui-même est dans `graphique()`. */
+.graphique { margin: 1.3rem 0 1.7rem; }
+.graphique svg { display: block; width: 100%; height: auto; overflow: visible; }
+.graphique .grille { stroke: var(--trait); stroke-width: 1; }
+.graphique .axe { stroke: var(--texte-doux); stroke-width: 1; }
+.graphique .courbe {
+  fill: none; stroke-width: 2.5;
+  stroke-linejoin: round; stroke-linecap: round;
+}
+.graphique .bande { stroke: none; }
+.graphique .graduation {
+  fill: var(--texte-doux); font-family: inherit; font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+ul.legende {
+  list-style: none; margin: 0.6rem 0 0; padding: 0;
+  display: flex; flex-wrap: wrap; gap: 0.3rem 1.2rem; font-size: 0.86rem;
+}
+ul.legende li { display: flex; align-items: baseline; gap: 0.4rem; }
+.pastille {
+  display: inline-block; flex: none;
+  width: 0.7rem; height: 0.7rem; border-radius: 2px;
+}
 ul.serree { margin: 0.5rem 0; padding-left: 1.2rem; }
 ul.serree li { margin: 0.3rem 0; }
 footer {
@@ -192,4 +236,8 @@ body.calcul-en-cours main { opacity: 0.45; transition: opacity 0.2s; }
   .scenario .montant { white-space: normal; }
   .fiches { grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr)); }
   form .grille { gap: 0.9rem; }
+  /* Le SVG se réduit avec la page : ses textes, exprimés en unités du viewBox,
+     se réduiraient d'autant et deviendraient illisibles. On les grossit donc
+     dans le repère pour qu'ils gardent leur taille à l'écran. */
+  .graphique .graduation { font-size: 20px; }
 }

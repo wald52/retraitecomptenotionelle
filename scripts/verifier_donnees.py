@@ -280,6 +280,18 @@ def source_plafond() -> dict[tuple, float]:
     }
 
 
+def source_pib_courant() -> dict[tuple, float]:
+    """Produit intérieur brut en NIVEAU, prix courants, en millions d'euros.
+
+    Le dépôt certifiait déjà la variation annuelle du PIB, qui suffit à
+    l'indexation ; elle ne suffit pas à rapporter une dépense au PIB, ce qui
+    demande le niveau. C'est la même série et le même idbank : on ne la
+    récupère pas deux fois, on la lit deux fois.
+    """
+    niveaux = _observations("pib_nominal")
+    return {(periode,): valeur for periode, valeur in sorted(niveaux.items())}
+
+
 def _lire_json(nom_fichier: str, script: str) -> dict:
     chemin = BRUT / nom_fichier
     if not chemin.exists():
@@ -289,6 +301,112 @@ def _lire_json(nom_fichier: str, script: str) -> dict:
 
 def _serie_json(nom_fichier: str, script: str) -> dict[str, float]:
     return _lire_json(nom_fichier, script)["serie"]
+
+
+#: Première année où la DREES ventile le risque vieillesse-survie dans la
+#: nomenclature d'organismes encore en vigueur. De 1981 à 1989 elle en publie
+#: une autre — « Régime général de la Sécurité sociale », « Régimes spéciaux »,
+#: « Régimes de l'État et des entreprises publiques » — dont les périmètres ne
+#: se recoupent pas avec ceux de 1990 : le régime général d'alors inclut ce qui
+#: est aujourd'hui réparti entre la Cnav et d'autres organismes, et les régimes
+#: complémentaires ne sont pas encore distingués de l'Agirc et de l'Arrco.
+#: Personne n'a publié le raccord ; ces neuf années restent donc hors de la
+#: ventilation, et seul le total les couvre.
+PREMIERE_ANNEE_VENTILATION = 1990
+
+#: Regroupement des organismes des Comptes de la protection sociale en systèmes
+#: de retraite lisibles. La DREES ventile par SECTEUR INSTITUTIONNEL — c'est la
+#: logique de la comptabilité nationale, non celle des caisses —, si bien que
+#: l'Agirc et l'Arrco y sont deux lignes jusqu'en 2017 et une seule depuis, et
+#: que la CNRACL, la SNCF, la RATP et les IEG sont réunies sous « Autres régimes
+#: spéciaux ». Le regroupement ci-dessous ne fait que nommer ce découpage ; il
+#: n'en franchit aucune frontière, et n'invente donc aucun chiffre.
+#:
+#: L'ordre des entrées est celui de l'affichage : les régimes par répartition
+#: d'abord, par masse décroissante, puis ce qui n'en relève pas.
+REGIMES_CPS: tuple[tuple[str, tuple[str, ...]], ...] = (
+    ("regime_general", ("Caisse nationale d’assurance vieillesse",)),
+    ("agirc_arrco", (
+        "Association générale des institutions de retraite des cadres et "
+        "association des régimes de retraite complémentaire des salariés",
+        "Association des régimes de retraite complémentaire des salariés",
+        "Association générale des institutions de retraite des cadres",
+    )),
+    ("fonction_publique_etat", ("Régimes pour les agents de l'Etat (y compris ex-L)",)),
+    ("regimes_speciaux", ("Autres régimes spéciaux",)),
+    ("exploitants_agricoles", ("Exploitants agricoles",)),
+    ("professions_liberales", ("CNAVPL base complementaire",)),
+    ("salaries_agricoles", ("Régime des salariés agricoles",)),
+    ("ircantec", (
+        "Institution de retraite complémentaire des agents non titulaires de "
+        "l’État et des collectivités publiques",
+    )),
+    ("non_salaries_autres", ("Autres régimes non salariés",)),
+    ("repartition_autres", (
+        "Autres régimes complémentaires de salariés",
+        "Autres fonds spéciaux",
+        "Autres organismes du régime général",
+        "Caisse nationale d’assurance maladie",
+        "Caisse nationale des allocations familiales",
+        "Caisse nationale de solidarité pour l'autonomie",
+        "UNEDIC et autres régimes",
+        "ODAC",
+    )),
+    ("solidarite_etat", (
+        "Régime d'intervention sociale de l'État",
+        "Régime des crédits d'impôts de l'État",
+    )),
+    ("aide_sociale_locale", (
+        "Régime d'intervention sociale des départements",
+        "Régime d'intervention sociale des régions",
+    )),
+    ("supplementaire", (
+        "Autres regimes privés",
+        "Entreprises d'assurance - contrats collectifs",
+        "Institutions de prévoyance - contrats collectifs",
+        "Institutions de retraite supplémentaire",
+        "Mutuelles - contrats collectifs",
+        "Organismes de retraite professionnelle supplémentaire - contrats collectifs",
+        "Régime additionnel de la fonction publique",
+    )),
+)
+
+
+def _cps() -> dict:
+    return _lire_json("drees_cps.json", "scripts/fetch/drees_cps.py")
+
+
+def source_depenses_retraite() -> dict[tuple, float]:
+    """Prestations du risque vieillesse-survie, tous régimes, en millions d'euros.
+
+    C'est l'agrégat que la DREES publie sans interruption depuis 1959, et la
+    seule série longue française de dépenses de retraite qui vienne de son
+    producteur. Il est plus large que « les retraites » : il porte aussi le
+    minimum vieillesse, les prestations de dépendance des personnes âgées et la
+    retraite supplémentaire. La ventilation par régime dit de combien, et la
+    page « Coût » le montre.
+    """
+    return {(annee,): valeur for annee, valeur in sorted(_cps()["total"].items())}
+
+
+def source_depenses_retraite_regimes() -> dict[tuple, float]:
+    """Le même risque, ventilé par système, à partir de 1990.
+
+    Les organismes que la DREES distingue sont regroupés selon ``REGIMES_CPS``.
+    Le contrôle qui compte est celui de la somme : elle doit rendre le total,
+    à l'euro près, chaque année — c'est ``controle_ventilation_depenses`` qui
+    l'exerce.
+    """
+    par_systeme: dict[tuple, float] = {}
+    regimes = _cps()["regimes"]
+    for code, organismes in REGIMES_CPS:
+        for organisme in organismes:
+            for annee, valeur in regimes.get(organisme, {}).items():
+                if int(annee) < PREMIERE_ANNEE_VENTILATION:
+                    continue
+                cle = (annee, code)
+                par_systeme[cle] = par_systeme.get(cle, 0.0) + valeur
+    return dict(sorted(par_systeme.items()))
 
 
 def source_esperances() -> dict[tuple, float]:
@@ -1442,6 +1560,121 @@ CERTIFICATIONS = (
         ),
     ),
     Certification(
+        nom="pib_courant",
+        chemin=REFERENCE / "macro" / "pib_courant.csv",
+        cles=("annee",),
+        colonne="pib_meur",
+        source=source_pib_courant,
+        origine="INSEE BDM, idbank 011779992",
+        decimales=0,
+        tolerance=0.51,
+        unite=" M€",
+        entete=(
+            "# Produit intérieur brut en NIVEAU, prix courants, France",
+            "# source_id: insee_bdm_pib (comptes nationaux annuels, base 2020)",
+            "# unite: millions d'euros courants de l'année",
+            "# fiabilite:",
+            "#   certifiee (1949-2025) : PIB approche produit, prix courant",
+            "#             (idbank 011779992), recontrôlé par",
+            "#             scripts/verifier_donnees.py.",
+            "#",
+            "# pib_nominal.csv porte la VARIATION de la même série, qui suffit à",
+            "# l'indexation. Rapporter une dépense au PIB demande le NIVEAU, et c'est",
+            "# la seule raison d'être de ce fichier : il ne double pas une donnée, il",
+            "# en lit une autre grandeur.",
+            "#",
+            "# Ne pas modifier les années certifiées à la main : elles seraient écrasées",
+            "# au prochain scripts/verifier_donnees.py --appliquer.",
+        ),
+    ),
+    Certification(
+        nom="depenses_retraite",
+        chemin=REFERENCE / "macro" / "depenses_retraite.csv",
+        cles=("annee",),
+        colonne="depenses_meur",
+        source=source_depenses_retraite,
+        origine="DREES, Comptes de la protection sociale, risque vieillesse-survie",
+        decimales=1,
+        tolerance=0.051,
+        unite=" M€",
+        entete=(
+            "# Dépenses du risque vieillesse-survie, tous régimes, France",
+            "# source_id: drees_comptes_protection_sociale",
+            "# unite: millions d'euros courants de l'année",
+            "# fiabilite:",
+            "#   certifiee (1959-2024) : prestations du poste E11-2 des Comptes de la",
+            "#             protection sociale, recontrôlées par",
+            "#             scripts/verifier_donnees.py contre l'API de la DREES.",
+            "#",
+            "# CE QUE CE POSTE CONTIENT, ET CE QU'IL N'EST PAS",
+            "# ------------------------------------------------",
+            "# C'est le risque vieillesse-survie TOUT ENTIER : pensions de droit direct",
+            "# et de droit dérivé, mais aussi minimum vieillesse, prestations liées à la",
+            "# dépendance des personnes âgées, retraite supplémentaire par",
+            "# capitalisation. Il est donc PLUS LARGE que « les dépenses de retraite »",
+            "# au sens où le Conseil d'orientation des retraites les entend, et le",
+            "# dépasse d'environ 6 % : 426,7 milliards en 2024 contre 401,4 milliards",
+            "# pour les seules pensions de droit direct et de droit dérivé.",
+            "#",
+            "# C'est pourtant lui qu'on retient, et pour une raison : il est le seul",
+            "# niveau que la DREES publie SANS INTERRUPTION depuis 1959. Les",
+            "# sous-postes ne le sont que depuis 2020. Un agrégat continu sur",
+            "# soixante-six ans, dont on sait dire ce qu'il contient, vaut mieux qu'un",
+            "# agrégat plus juste qui commence il y a cinq ans.",
+            "#",
+            "# depenses_retraite_regimes.csv le ventile, et cette ventilation permet",
+            "# d'en retrancher ce qui ne relève pas de la répartition obligatoire.",
+            "#",
+            "# Ne pas modifier les années certifiées à la main : elles seraient écrasées",
+            "# au prochain scripts/verifier_donnees.py --appliquer.",
+        ),
+    ),
+    Certification(
+        nom="depenses_retraite_regimes",
+        chemin=REFERENCE / "macro" / "depenses_retraite_regimes.csv",
+        cles=("annee", "regime"),
+        colonne="depenses_meur",
+        source=source_depenses_retraite_regimes,
+        origine="DREES, Comptes de la protection sociale, risque vieillesse-survie "
+                "par organisme",
+        decimales=1,
+        tolerance=0.051,
+        unite=" M€",
+        entete=(
+            "# Dépenses du risque vieillesse-survie, ventilées par système, France",
+            "# source_id: drees_comptes_protection_sociale",
+            "# unite: millions d'euros courants de l'année",
+            "# fiabilite:",
+            "#   certifiee (1990-2024) : prestations du poste E11-2 par organisme,",
+            "#             regroupées selon REGIMES_CPS dans",
+            "#             scripts/verifier_donnees.py, qui les recontrôle contre",
+            "#             l'API de la DREES et vérifie que leur somme rend le total.",
+            "#",
+            "# POURQUOI LA VENTILATION NE COMMENCE QU'EN 1990",
+            "# -----------------------------------------------",
+            "# La DREES ventile bien le risque depuis 1981, mais dans une nomenclature",
+            "# différente — « Régime général de la Sécurité sociale », « Régimes",
+            "# spéciaux », « Régimes de l'État et des entreprises publiques » — dont",
+            "# les périmètres ne se recoupent pas avec ceux de 1990 : les",
+            "# complémentaires n'y sont pas encore séparées de l'Agirc et de l'Arrco.",
+            "# Personne n'a publié le raccord. Ces neuf années sont une impasse, et",
+            "# le total, lui, les couvre depuis 1959.",
+            "#",
+            "# LE DÉCOUPAGE EST CELUI DE LA COMPTABILITÉ NATIONALE",
+            "# ----------------------------------------------------",
+            "# La DREES ventile par SECTEUR INSTITUTIONNEL et non par caisse. Deux",
+            "# conséquences qu'il faut connaître pour lire ces chiffres :",
+            "#   * « regimes_speciaux » réunit la CNRACL, la SNCF, la RATP, les IEG et",
+            "#     les autres — la fonction publique territoriale et hospitalière y est",
+            "#     donc, et non avec l'État ;",
+            "#   * « regime_general » absorbe, à compter de 2020, les artisans et les",
+            "#     commerçants, dont le régime a été adossé à la Cnav.",
+            "#",
+            "# Ne pas modifier les années certifiées à la main : elles seraient écrasées",
+            "# au prochain scripts/verifier_donnees.py --appliquer.",
+        ),
+    ),
+    Certification(
         nom="productivite",
         chemin=REFERENCE / "macro" / "productivite.csv",
         cles=("annee",),
@@ -2141,6 +2374,52 @@ FAMILLES_AVEC_EMPLOYEUR = {
 REGIMES_SALARIES_HORS_FAMILLE = {"msa_salaries"}
 
 
+def controle_ventilation_depenses() -> list[str]:
+    """La ventilation par système doit rendre le total, année par année.
+
+    C'est le seul contrôle qui vaille sur un regroupement : il ne dit pas que
+    les libellés sont bien choisis, mais il dit qu'aucun organisme n'a été
+    oublié ni compté deux fois — et c'est exactement ce qu'un regroupement
+    écrit à la main risque.
+    """
+    messages: list[str] = []
+    total = {
+        int(l["annee"]): float(l["depenses_meur"])
+        for l in charger_csv(REFERENCE / "macro" / "depenses_retraite.csv")
+    }
+    ventile: dict[int, float] = {}
+    systemes: set[str] = set()
+    for ligne in charger_csv(REFERENCE / "macro" / "depenses_retraite_regimes.csv"):
+        annee = int(ligne["annee"])
+        ventile[annee] = ventile.get(annee, 0.0) + float(ligne["depenses_meur"])
+        systemes.add(ligne["regime"])
+
+    if not ventile:
+        return ["ABSENT  ventilation des dépenses : aucune ligne"]
+
+    # Un dixième de million d'euros par système : l'écart d'arrondi que la
+    # somme peut légitimement accumuler, et rien de plus.
+    marge = 0.1 * len(systemes)
+    for annee in sorted(ventile):
+        attendu = total.get(annee)
+        if attendu is None:
+            messages.append(
+                f"SUSPECT ventilation des dépenses {annee} : ventilée mais absente "
+                f"du total"
+            )
+        elif abs(ventile[annee] - attendu) > marge:
+            messages.append(
+                f"ÉCART   ventilation des dépenses {annee} : somme des systèmes "
+                f"{ventile[annee]:.1f} M€, total {attendu:.1f} M€"
+            )
+    annees = sorted(ventile)
+    messages.append(
+        f"OK      ventilation des dépenses : {len(systemes)} systèmes, "
+        f"{annees[0]}-{annees[-1]}, somme conforme au total"
+    )
+    return messages
+
+
 def controle_part_salariale() -> list[str]:
     """Aucune période de salariés ne doit oublier sa répartition.
 
@@ -2753,6 +3032,7 @@ def main(argv: list[str] | None = None) -> int:
 
     messages.append("")
     messages.extend(controle_coherence_interne())
+    messages.extend(controle_ventilation_depenses())
     messages.extend(controle_part_salariale())
     messages.append("")
     messages.extend(controle_vraisemblance_inflation())

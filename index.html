@@ -25,6 +25,8 @@
 <link rel="modulepreload" href="moteur/js/carriere.js">
 <link rel="modulepreload" href="moteur/js/compte.js">
 <link rel="modulepreload" href="moteur/js/conversion.js">
+<link rel="modulepreload" href="moteur/js/cout.js">
+<link rel="modulepreload" href="moteur/js/depenses.js">
 <link rel="modulepreload" href="moteur/js/fusion.js">
 <link rel="modulepreload" href="moteur/js/gabarit.js">
 <link rel="modulepreload" href="moteur/js/indexation.js">
@@ -164,6 +166,14 @@ function adresse() {
   return { chemin: chemin || "/", parametres };
 }
 
+// Ce qu'annonce l'écran d'attente des pages qui calculent longtemps : mieux
+// vaut dire ce qui prend du temps que laisser une jauge tourner sans motif.
+const MESSAGES_ATTENTE = {
+  "/cas-types": "Calcul des 12 cas types sur 7 générations…",
+  "/cout": "Calcul des 12 cas types sur 19 générations, puis de soixante-six "
+    + "années de dépense…",
+};
+
 // Les options de modélisation restent ouvertes d'une simulation à l'autre :
 // qui les a dépliées une fois y revient.
 let optionsDepliees = false;
@@ -176,9 +186,7 @@ async function afficher() {
 
   document.body.classList.add("calcul-en-cours");
   contenu.innerHTML = chargement(
-    cible.chemin === "/cas-types"
-      ? "Calcul des 12 cas types sur 7 générations…"
-      : "Calcul en cours…",
+    MESSAGES_ATTENTE[cible.chemin] || "Calcul en cours…",
   );
   // Laisse le navigateur peindre l'attente avant de bloquer sur le calcul.
   await new Promise((suite) => { setTimeout(suite, 20); });
