@@ -573,7 +573,7 @@ COR pour ce qu'il **décide**.
 | Décote de la fonction publique, coefficient et âge d'annulation | 2006-2019 | loi n° 2003-775, article 66 III, base LEGI |
 | Barème du minimum garanti, montée en charge | 2004-2013 | loi n° 2003-775, article 66 V, base LEGI |
 | Heures de SMIC à cotiser pour valider un trimestre | 1972 et 2014 | code de la sécurité sociale `R. 351-9`, base LEGI |
-| Plafond de la Sécurité sociale | 1984, 1988, 1990-1993, 1996-2001 | décrets portant fixation du plafond, base **JORF** |
+| Plafond de la Sécurité sociale | 1963, 1965-1981, 1984, 1987, 1988, 1990-1993, 1996-2001 | décrets portant fixation du plafond, base **JORF** |
 
 Ce qu'**OpenFisca-France** garde, ce sont les périodes que le *Journal officiel*
 lui-même ne rend pas : le plafond de la Sécurité sociale des années dont la
@@ -594,12 +594,13 @@ dont deux relèvements manquent.
 
 **Le plafond de la Sécurité sociale a suivi le même chemin, et par l'autre
 porte.** Il n'est pas dans LEGI, qui ne garde que les codes : il est dans le
-*Journal officiel* lui-même, dont la DILA ouvre un second dump. Douze années
-d'avant 2002 y sont lues — 1984, 1988, 1990-1993, 1996-2001 —, et elles
-confirment la transcription à l'euro près. Les autres tiennent à la rédaction
-des notices anciennes, qui ne portent pas toutes le montant du 1er janvier ;
-or le plafond était relevé deux fois l'an jusqu'en 1996, et le plafond annuel
-est la somme de ses douze mois.
+*Journal officiel* lui-même, dont la DILA ouvre un second dump. La chaîne des
+décrets y est complète depuis 1963, et **trente et une années d'avant 2002** en
+sont lues, qui confirment la transcription à l'euro près. Ce qui reste dehors
+tient à la rédaction et non à l'accès : avant 1963 le décret ne nomme pas
+l'année qu'il commande, et sept années plus récentes ou bien n'ont pas de
+notice, ou bien n'annoncent qu'un taux, ou bien laissent leur tableau en image.
+`docs/limites.md` les dit une à une.
 
 **Les valeurs du point de l'Agirc et de l'Arrco en venaient aussi, et elles
 viennent désormais de la caisse qui les a décidées.** Elles pèsent, dans la

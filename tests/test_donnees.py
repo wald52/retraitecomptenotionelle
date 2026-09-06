@@ -146,20 +146,23 @@ def test_plafond_ancien_vient_d_une_transcription_pas_du_producteur(macro):
 
     Elles viennent d'OpenFisca-France, transcription du Journal officiel :
     publiée, sourcée, reprise automatiquement — mais pas de la main du
-    producteur. 1985, 1986, 1987 et 1989 en sont : la notice du dump JORF ne
-    porte pas, pour ces années-là, le montant du 1er janvier.
+    producteur : 1962 et avant, dont le décret ne nomme pas l'année qu'il
+    commande ; 1982-1983 et 1989, dont le texte n'écrit pas le montant ;
+    1985-1986, sans notice ; 1994-1995, dont le tableau est resté en image.
     """
-    for annee in (1945, 1960, 1985, 1989):
+    for annee in (1945, 1960, 1962, 1985, 1989, 1994):
         assert macro.plafond_securite_sociale.fiabilite(annee) == Fiabilite.HAUTE, annee
 
 
 def test_plafond_ancien_certifie_la_ou_le_decret_a_ete_lu(macro):
-    """Douze années d'avant 2002 sont lues dans le Journal officiel lui-même.
+    """Trente et une années d'avant 2002 sont lues dans le Journal officiel.
 
     Le plafond n'est pas une statistique mais un décret : la base JORF de la
-    DILA en est le producteur, là où l'INSEE ne commence qu'en 2002.
+    DILA en est le producteur, là où l'INSEE ne commence qu'en 2002. La chaîne
+    y est complète depuis 1963 — avant 1982 le titre du décret porte à lui seul
+    l'année et le montant annuel.
     """
-    for annee in (1984, 1988, 1990, 1993, 1996, 2001):
+    for annee in (1963, 1969, 1981, 1984, 1987, 1988, 1990, 1993, 1996, 2001):
         assert macro.plafond_securite_sociale.fiabilite(annee) == Fiabilite.CERTIFIEE, annee
 
 

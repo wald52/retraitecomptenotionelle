@@ -358,7 +358,7 @@ La page **Données** du site affiche l'état exact. En résumé :
 | SMIC horaire | 1997-2017, sauf 2002 | **certifiée** | DILA, base LEGI, décrets portant relèvement du SMIC |
 | SMIC horaire | 1970-1996, 2002 et depuis 2018 | haute | OpenFisca-France, `smic_horaire_brut` |
 | Plafond Sécurité sociale | 2002-2025 | **certifiée** | INSEE BDM, idbank 000822494 |
-| Plafond Sécurité sociale | 1984, 1988, 1990-1993, 1996-2001 | **certifiée** | DILA, base JORF, décrets portant fixation du plafond |
+| Plafond Sécurité sociale | 1963, 1965-1981, 1984, 1987, 1988, 1990-1993, 1996-2001 | **certifiée** | DILA, base JORF, décrets portant fixation du plafond |
 | Plafond Sécurité sociale | le reste de 1931-2001 | haute | OpenFisca-France, daté décret par décret — la notice ancienne du JORF n'a pas d'écriture stable |
 | Revalorisation des salaires portés au compte | 10 colonnes, effets 2017-2026, perceptions depuis 1930 | haute | Cnav, circulaires de revalorisation, recoupées deux à deux |
 | Taux de cotisation, régime général | 1967-2026 | moyenne | OpenFisca-France, recoupé à chaque exécution |
@@ -438,10 +438,10 @@ même sourcée et reprise automatiquement, plafonne à `haute` — c'est le cas 
 années du plafond ancien dont le décret n'a pas été lu, et qui viennent
 d'OpenFisca-France. La distinction n'est pas cosmétique : elle dit ce qu'on
 saurait vérifier soi-même en remontant d'un cran. Et le plafond montre à quoi
-elle sert : sur les douze années où les deux chemins existent — la transcription
-et le *Journal officiel* —, ils donnent le même chiffre à l'euro près, ce qui
-certifie ces douze-là et rend les autres un peu moins incertaines sans les
-certifier.
+elle sert : sur les trente et une années où les deux chemins existent — la
+transcription et le *Journal officiel* —, ils donnent le même chiffre à l'euro
+près, ce qui certifie ces trente et une-là et rend les autres un peu moins
+incertaines sans les certifier.
 
 **Ce que l'automatisation a corrigé.** L'API SDMX de la Banque de données
 macroéconomiques de l'INSEE (`api.insee.fr/series/BDM/V1`) est ouverte sans clé
@@ -1229,9 +1229,9 @@ plus volontiers.
   la surcote ordinaire. Certifier la ligne du dépôt contre une rédaction abrogée
   serait le contraire d'une certification.
 
-* *Plafond de la Sécurité sociale d'avant 2002* — **cherché, et douze années
-  sur soixante et onze sont rentrées.** Cette page écrivait : « l'INSEE ne
-  publie le plafond mensuel qu'à partir de 2001 et l'Urssaf ne diffuse aucun
+* *Plafond de la Sécurité sociale d'avant 2002* — **cherché, et trente et une
+  années sur soixante et onze sont rentrées.** Cette page écrivait : « l'INSEE
+  ne publie le plafond mensuel qu'à partir de 2001 et l'Urssaf ne diffuse aucun
   historique en accès ouvert. La seule série machine des plafonds anciens est
   celle d'OpenFisca-France. » Les deux premières phrases sont vraies, la
   troisième ne l'est pas, et l'erreur est de catégorie : **le plafond n'est pas
@@ -1239,31 +1239,34 @@ plus volontiers.
   était chercher au mauvais endroit ; il est chez son producteur, le *Journal
   officiel*, dont la DILA ouvre le dump.
 
-  Les années **1984, 1988, 1990-1993 et 1996-2001** sont désormais lues dans le
-  décret qui les fixe. Elles se sont trouvées **identiques à l'euro près** à ce
-  que portait la transcription — le contrôle n'a rien corrigé, et c'est
-  précisément ce qu'on attend d'une certification qui arrive après un
-  recoupement déjà fait deux fois.
+  Les années **1963, 1965-1981, 1984, 1987, 1988, 1990-1993 et 1996-2001** sont
+  désormais lues dans le décret qui les fixe. Elles se sont trouvées
+  **identiques à l'euro près** à ce que portait la transcription — le contrôle
+  n'a rien corrigé, et c'est ce qu'on attend d'une certification qui arrive
+  après un recoupement déjà fait deux fois.
 
-  **CE QUI BLOQUE LES CINQUANTE-NEUF AUTRES, ET CE N'EST PAS L'ACCÈS.** La base
-  garde les textes d'avant 1997 par leur NOTICE, en capitales et sans accents,
-  et cette notice n'a pas eu d'écriture stable. Trois formulations ont été
-  identifiées et sont lues — « LES NOUVELLES VALEURS DU PLAFOND S'ETABLISSENT
-  DONC POUR LA PERIODE DU 01-01-1991 AU 30-06-1991 A 11340FRS », « EST FIXE A
-  8490FRS PAR MOIS […] DEPUIS LE 01-01-1984 (8110FRS PAR MOIS) », et le montant
-  de janvier entre parenthèses que seul le titre date. Les autres années ou
-  bien emploient une quatrième écriture, ou bien ne portent pas le montant du
-  1er janvier, sans lequel l'année n'est pas calculable : **le plafond était
-  semestriel jusqu'en 1996**, et douze fois la valeur de juillet serait faux
-  d'un demi-relèvement. Le récupérateur ne reconduit jamais l'année
-  précédente — ce serait écrire un gel qui n'a pas eu lieu.
+  **LA CHAÎNE DES DÉCRETS EST COMPLÈTE DEPUIS 1963** : un texte par année,
+  aucun ne manque. Ce qui reste dehors ne tient donc pas à l'accès mais à la
+  RÉDACTION, et cela se dit année par année :
 
-  Reste, pour qui reprendrait : le plafond des années 1930 à 1960 est écrit en
-  ANNUEL et non en mensuel — « LE PLAFOND ANNUEL DES REMUNERATIONS OU GAINS
-  SOUMIS A COTISATIONS DE SECURITE SOCIALE ET D'ALLOCATIONS FAMILIALES EST FIXE
-  A 11 400 FRS » —, mais la notice ne dit pas de quand il court, et le déduire
-  de la date du décret serait une inférence, non une lecture. C'est là que la
-  voie s'arrête, et c'est une question de rédaction, pas d'accès.
+  | Années | Ce qui manque |
+  |---|---|
+  | avant 1963 | le décret ne nomme pas l'année qu'il commande — « LE PLAFOND ANNUEL […] EST FIXE A 11 400 FRS », et rien d'autre. Le dater de sa publication serait une inférence, non une lecture |
+  | 1982, 1983 | le plafond y devient semestriel avant que la notice ne s'y mette : les décrets de juillet renvoient aux « SOMMES FIXEES PAR CE DECRET » sans les écrire |
+  | 1985, 1986 | la base n'en garde que le titre et les mots-clés, sans notice |
+  | 1989 | le décret de juillet n'annonce qu'un taux — « REVALORISATION DE 1,9% » — et non un montant. L'appliquer au plafond de janvier serait un calcul, et un calcul ne se certifie pas |
+  | 1994, 1995 | l'article renvoie à une image : « Vous pouvez consulter le tableau dans le JO no 0301 du 29/12/94 Page 18669 a 18670 » |
+
+  **ET UN PIÈGE, QUI A ÉTÉ MESURÉ AVANT D'ÊTRE ÉVITÉ.** Le titre des décrets
+  d'avant 1982 porte le montant ANNUEL et l'année : « PORTANT FIXATION POUR
+  L'ANNEE 1969 DU PLAFOND DES COTISATIONS DE SECURITE SOCIALE A 16 320 FRS ».
+  Une autre écriture lui ressemble et ne dit pas la même chose — « A COMPTER DU
+  01-01-1982 […] (GAIN OU REMUNERATION ANNUEL : 79 080 FRS) » —, car un décret
+  de juin 1982 a relevé le plafond au 1er juillet : lire les deux de la même
+  façon donne 1982 à **−3,6 %**. La distinction est dans le texte, et le
+  récupérateur la respecte ; il refuse en outre un titre annuel pour toute année
+  dont un relèvement en cours d'année a été lu, pour ne pas dépendre d'une date
+  charnière supposée.
 
 * *Contribution employeur de la SNCF* — **localisée, pas encore lue.** Le taux
   du fichier est la somme de deux composantes que le décret n° 2007-1056 du

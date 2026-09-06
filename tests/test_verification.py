@@ -716,7 +716,7 @@ def test_la_notice_ancienne_du_plafond_porte_ses_deux_semestres():
         "POUR LA PERIODE DU 01-01-1991 AU 30-06-1991 A 11340FRS ET POUR LA "
         "PERIODE DU 01-07-1991 AU 31-12-1991 A 11620FRS PAR MOIS."
     )
-    par_date, griefs = module.montants_dates([notice])
+    par_date, _, griefs = module.montants_dates([notice])
     assert griefs == []
     assert par_date[datetime.date(1991, 1, 1)] == pytest.approx(11340 / 6.55957)
     assert par_date[datetime.date(1991, 7, 1)] == pytest.approx(11620 / 6.55957)
@@ -729,14 +729,14 @@ def test_le_plafond_annuel_est_la_somme_de_ses_douze_mois():
         datetime.date(1991, 1, 1): 1728.77,
         datetime.date(1991, 7, 1): 1771.46,
     }
-    serie = module.serie_annuelle(par_date)
+    serie = module.serie_annuelle(par_date, set())
     assert serie[1991] == pytest.approx(6 * 1728.77 + 6 * 1771.46)
 
 
 def test_une_annee_sans_texte_n_est_pas_reconduite():
     """Le plafond a monté chaque année : un report écrirait un gel inexistant."""
     module = _plafond()
-    serie = module.serie_annuelle({datetime.date(1984, 7, 1): 1294.29})
+    serie = module.serie_annuelle({datetime.date(1984, 7, 1): 1294.29}, set())
     assert serie == {}
 
 
@@ -748,7 +748,7 @@ def test_le_taux_annonce_par_la_notice_est_refait():
         "PERIODE DU 01-01-1991 AU 30-06-1991 A 11340FRS ET POUR LA PERIODE DU "
         "01-07-1991 AU 31-12-1991 A 12500FRS PAR MOIS."
     )
-    _, griefs = module.montants_dates([faux])
+    _, _, griefs = module.montants_dates([faux])
     assert [g for g in griefs if "taux annoncé" in g]
 
 
@@ -759,7 +759,7 @@ def test_les_autres_plafonds_du_journal_officiel_sont_ecartes():
         "SECURITE SOCIALE. A COMPTER DU 01-01-1991,LE PLAFOND DE LA "
         "PARTICIPATION FORFAITAIRE SUSVISEE EST FIXE A 933FRS."
     )
-    par_date, griefs = module.montants_dates([intrus])
+    par_date, _, griefs = module.montants_dates([intrus])
     assert par_date == {} and griefs == []
 
 
@@ -774,7 +774,7 @@ def test_l_article_premier_du_plafond_se_date_lui_meme():
         "mois ; 650 F si les rémunérations ou gains sont versés par jour, pour "
         "les rémunérations ou gains versés du 1er janvier au 31 décembre 1998."
     )
-    par_date, griefs = module.montants_dates([article])
+    par_date, _, griefs = module.montants_dates([article])
     assert griefs == []
     assert par_date == {datetime.date(1998, 1, 1): pytest.approx(14090 / 6.55957)}
 
@@ -787,10 +787,10 @@ def test_l_arrete_moderne_du_plafond_porte_son_annee_dans_son_titre():
         "la sécurité sociale sont les suivantes : - valeur mensuelle : "
         "3 864 euros ; - valeur journalière : 213 euros."
     )
-    par_date, griefs = module.montants_dates([arrete])
+    par_date, _, griefs = module.montants_dates([arrete])
     assert griefs == []
     assert par_date == {datetime.date(2024, 1, 1): 3864.0}
-    assert module.serie_annuelle(par_date)[2024] == pytest.approx(46368.0)
+    assert module.serie_annuelle(par_date, {2024})[2024] == pytest.approx(46368.0)
 
 
 def test_les_anciens_francs_du_plafond_passent_par_la_division_par_cent():
@@ -813,7 +813,7 @@ def test_la_notice_des_annees_1980_rappelle_janvier_entre_parentheses():
         "8490FRS PAR MOIS ,SOIT UNE AUGMENTATION DE 4,69% PAR RAPPORT AU "
         "PLAFOND EN VIGUEUR DEPUIS LE 01-01-1984 (8110FRS PAR MOIS)."
     )
-    par_date, griefs = module.montants_dates([notice])
+    par_date, _, griefs = module.montants_dates([notice])
     assert griefs == []
     assert par_date[datetime.date(1984, 1, 1)] == pytest.approx(8110 / 6.55957)
     assert par_date[datetime.date(1984, 7, 1)] == pytest.approx(8490 / 6.55957)
@@ -829,9 +829,99 @@ def test_le_titre_date_la_parenthese_quand_le_corps_ne_le_fait_pas():
         "A COMPTER DU 01-07-1988,LE PLAFOND EST FIXE A 10110FRS PAR MOIS,"
         "VALEUR OBTENUE PAR MAJORATION DE 1,60% DE LA VALEUR AU 01-01-1988."
     )
-    par_date, griefs = module.montants_dates([notice])
+    par_date, _, griefs = module.montants_dates([notice])
     # Le contrôle doit retenir 1,60 %, le taux de juillet, et non les 3,32 %
     # de janvier, qui se rapportent à l'année précédente.
     assert griefs == []
     assert par_date[datetime.date(1988, 1, 1)] == pytest.approx(9950 / 6.55957)
     assert par_date[datetime.date(1988, 7, 1)] == pytest.approx(10110 / 6.55957)
+
+
+def test_le_titre_d_avant_1982_porte_l_annee_et_le_montant_annuel():
+    """« POUR L'ANNEE 1969 DU PLAFOND […] A 16 320 FRS » — trois séparateurs."""
+    module = _plafond()
+    titres = [
+        "Décret n°68-1186 du 30 décembre 1968 PORTANT FIXATION POUR L'ANNEE "
+        "1969 DU PLAFOND DES COTISATIONS DE SECURITE SOCIALE A 16 320 FRS",
+        "Décret n°71-1109 PORTANT FIXATION POUR L'ANNEE 1972 DU PLAFOND DES "
+        "COTISATIONS DE SECURITE SOCIALE (21 960 FRS)",
+        "Décret n°79-1136 FIXATION POUR L'ANNEE 1980 DU PLAFOND DES COTISATIONS "
+        "DE SECURITE SOCIALE : 60 120 FRS",
+    ]
+    annuels, griefs = module.annuels_du_titre(titres)
+    assert griefs == []
+    assert annuels[1969] == pytest.approx(16320 / 6.55957)
+    assert annuels[1972] == pytest.approx(21960 / 6.55957)
+    assert annuels[1980] == pytest.approx(60120 / 6.55957)
+
+
+def test_a_compter_du_1er_janvier_n_est_pas_pour_l_annee():
+    """Le piège de 1982 : le décret de décembre 1981 ne commande pas l'année.
+
+    Un décret de juin 1982 a relevé le plafond au 1er juillet ; lire le montant
+    annuel du 1er janvier comme celui de l'année donnerait 1982 à −3,6 %.
+    """
+    module = _plafond()
+    titre = (
+        "Décret n°81-1164 du 30 décembre 1981 PORTANT FIXATION A COMPTER DU "
+        "01-01-1982, DU PLAFOND DES COTISATIONS DE SECURITE SOCIALE "
+        "(GAIN OU REMUNERATION ANNUEL : 79 080 FRS)"
+    )
+    assert module.annuels_du_titre([titre]) == ({}, [])
+
+
+def test_un_titre_annuel_cede_devant_un_relevement_en_cours_d_annee():
+    """La règle ne repose pas sur une date charnière supposée, mais sur ce qui est lu."""
+    module = _plafond()
+    serie, griefs = module.fusionner(
+        {}, {1982: 12055.0}, {datetime.date(1982, 7, 1): 1100.0})
+    assert serie == {}
+    assert [g for g in griefs if "titre annuel écarté" in g]
+
+
+def test_les_deux_lectures_se_contredisent_sans_se_recouvrir():
+    """Si le titre et les mois disaient deux choses, l'année serait refusée."""
+    module = _plafond()
+    serie, griefs = module.fusionner({1969: 2487.9}, {1969: 2999.0}, {})
+    assert serie == {1969: 2487.9}
+    assert [g for g in griefs if "le titre annuel dit" in g]
+
+
+def test_la_notice_de_1987_ecrit_janvier_en_toutes_lettres():
+    """« LA VALEUR DU NOUVEAU PLAFOND EST DE 9630FRS PAR MOIS », sans parenthèse."""
+    module = _plafond()
+    notice = (
+        "PORTANT FIXATION A COMPTER DU 01-01-1987 ET DU 01-07-1987 DU PLAFOND "
+        "DE LA SECURITE SOCIALE. LE TAUX D'AUGMENTATION DE 4,4% CORRESPOND A "
+        "L'EVOLUTION DU SALAIRE MOYEN (4,5%). LA VALEUR DU NOUVEAU PLAFOND EST "
+        "DE 9630FRS PAR MOIS. A COMPTER DU 01-07-1987 IL SERA DE 9840FRS PAR "
+        "MOIS,VALEUR OBTENUE PAR MAJORATION DE 2,18% DE LA VALEUR AU 01-01-1987."
+    )
+    par_date, _, griefs = module.montants_dates([notice])
+    assert griefs == []
+    assert par_date[datetime.date(1987, 1, 1)] == pytest.approx(9630 / 6.55957)
+    assert par_date[datetime.date(1987, 7, 1)] == pytest.approx(9840 / 6.55957)
+
+
+def test_janvier_seul_ne_fait_pas_une_annee_sans_mention_expresse():
+    """1989 : janvier est lisible, juillet n'annonce qu'un taux.
+
+    De 1982 à 1996 un second décret relevait le plafond au 1er juillet. Étendre
+    janvier aux douze mois sous-estimerait l'année de tout ce relèvement — sauf
+    si le texte déclare lui-même couvrir l'année entière.
+    """
+    module = _plafond()
+    janvier = {datetime.date(1989, 1, 1): 1576.32}
+    assert module.serie_annuelle(janvier, set()) == {}
+    assert module.serie_annuelle(janvier, {1989})[1989] == pytest.approx(12 * 1576.32)
+
+
+def test_l_annee_entiere_se_lit_dans_le_texte_qui_la_declare():
+    """« POUR LA PERIODE DU 01-01-1997 AU 31-12-1997 », « du 1er janvier au 31 décembre 1998 »."""
+    module = _plafond()
+    _, entieres, _ = module.montants_dates([
+        "LES NOUVELLES VALEURS DU PLAFOND POUR LA PERIODE DU 01-01-1997 AU "
+        "31-12-1997, EN APPLIQUANT AU PLAFOND MENSUEL MOYEN DE 1996 LE TAUX.",
+        "pour les rémunérations ou gains versés du 1er janvier au 31 décembre 1998.",
+    ])
+    assert entieres == {1997, 1998}

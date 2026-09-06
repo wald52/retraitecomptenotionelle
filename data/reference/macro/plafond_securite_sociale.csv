@@ -1,6 +1,6 @@
 # Plafond annuel de la Sécurité sociale (PASS)
-# source_id: insee_bdm (2002-2025), jorf_plafond_securite_sociale (1984-2001,
-#            douze années), openfisca_plafond (le reste de 1931-2001)
+# source_id: insee_bdm (2002-2025), jorf_plafond_securite_sociale (1963-2001,
+#            trente et une années), openfisca_plafond (le reste de 1931-2001)
 # unite: euros courants de l'année. Les valeurs antérieures à 2002 sont les
 #        plafonds en francs convertis au taux officiel 6,55957 FRF/EUR — et,
 #        avant 1960, au passage aux nouveaux francs (÷100). Conversion
@@ -9,12 +9,13 @@
 #   certifiee (2002-2025) : plafond mensuel publié par l'INSEE (idbank
 #             000822494) multiplié par douze, après vérification que les douze
 #             mois de l'année portent bien la même valeur.
-#   certifiee (1984, 1988, 1990-1993, 1996-2001) : le décret qui fixe le
-#             plafond, lu dans la base JORF de la DILA — le Journal officiel
-#             lui-même, et non plus sa transcription. Douze années, dont les
-#             valeurs se sont trouvées identiques à l'euro près à celles
-#             d'OpenFisca : c'est la transcription qui s'en trouve corroborée,
-#             pas seulement la certification qui s'en trouve acquise.
+#   certifiee (1963, 1965-1981, 1984, 1987, 1988, 1990-1993, 1996-2001) : le
+#             décret qui fixe le plafond, lu dans la base JORF de la DILA — le
+#             Journal officiel lui-même, et non plus sa transcription. Trente et
+#             une années, dont les valeurs se sont trouvées identiques à l'euro
+#             près à celles d'OpenFisca : c'est la transcription qui s'en trouve
+#             corroborée, pas seulement la certification qui s'en trouve
+#             acquise.
 #   haute     (le reste de 1931-2001) : plafonds datés décret par décret dans
 #             OpenFisca-France, transcription du Journal officiel maintenue par
 #             l'administration. Transcription tierce et non source primaire :
@@ -24,13 +25,18 @@
 #             saisies dans ce dépôt sur 1997-2001.
 #   estimee   (2026) : plafond projeté, non encore publié en série annuelle.
 #
-# POURQUOI DOUZE ANNÉES ET NON SOIXANTE ET ONZE. La base JORF garde les textes
-# anciens par leur NOTICE, en capitales et sans accents, et cette notice n'a pas
-# eu d'écriture stable : « LES NOUVELLES VALEURS DU PLAFOND S'ETABLISSENT DONC
-# POUR LA PERIODE DU 01-01-1991 AU 30-06-1991 A 11340FRS », mais aussi
-# « (PLAFOND: 9950FRS PAR MOIS) », ou rien du tout. Le récupérateur lit les
-# écritures qu'il connaît et ne rend que les années dont il a lu le texte : une
-# année reconduite depuis la précédente écrirait un gel qui n'a pas eu lieu, le
+# POURQUOI TRENTE ET UNE ANNÉES ET NON SOIXANTE ET ONZE. La chaîne des décrets
+# est complète depuis 1963 — un texte par année, aucun ne manque —, mais la base
+# JORF garde les plus anciens par leur seule NOTICE, en capitales et sans
+# accents, et cette notice n'a pas eu d'écriture stable. Le récupérateur lit les
+# quatre écritures qu'il connaît ; ce qui reste dehors est documenté année par
+# année dans scripts/fetch/jorf_plafond_securite_sociale.py, et tient soit à une
+# notice absente (1985, 1986), soit à un montant que le texte ne porte pas
+# (1982, 1983, 1989), soit à un tableau resté en image (1994, 1995), soit à un
+# décret qui ne nomme pas l'année qu'il commande (avant 1963).
+#
+# Le récupérateur ne rend que les années dont il a lu le texte : une année
+# reconduite depuis la précédente écrirait un gel qui n'a pas eu lieu, le
 # plafond ayant été relevé chaque année sans exception.
 #
 # Les années à plusieurs revalorisations sont calculées au prorata des mois
@@ -81,31 +87,31 @@ annee,pass_eur,fiabilite
 1960,1043,haute
 1961,1235,haute
 1962,1464,haute
-1963,1592,haute
+1963,1592,certifiee
 1964,1738,haute
-1965,1866,haute
-1966,1976,haute
-1967,2086,haute
-1968,2195,haute
-1969,2488,haute
-1970,2744,haute
-1971,3018,haute
-1972,3348,haute
-1973,3732,haute
-1974,4244,haute
-1975,5031,haute
-1976,5781,haute
-1977,6604,haute
-1978,7318,haute
-1979,8177,haute
-1980,9165,haute
-1981,10482,haute
+1965,1866,certifiee
+1966,1976,certifiee
+1967,2086,certifiee
+1968,2195,certifiee
+1969,2488,certifiee
+1970,2744,certifiee
+1971,3018,certifiee
+1972,3348,certifiee
+1973,3732,certifiee
+1974,4244,certifiee
+1975,5031,certifiee
+1976,5781,certifiee
+1977,6604,certifiee
+1978,7318,certifiee
+1979,8177,certifiee
+1980,9165,certifiee
+1981,10482,certifiee
 1982,12504,haute
 1983,13977,haute
 1984,15184,certifiee
 1985,16272,haute
 1986,17105,haute
-1987,17809,haute
+1987,17809,certifiee
 1988,18349,certifiee
 1989,19099,haute
 1990,19977,certifiee

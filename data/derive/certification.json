@@ -275,21 +275,21 @@
    "ajoutees": 0,
    "colonne": "pass_eur",
    "corrigees": 0,
-   "empreinte": "b7c0e7e3d4eec39d",
-   "identiques": 59,
+   "empreinte": "7cf0228bbbe60ce6",
+   "identiques": 40,
    "niveau": "haute",
    "source": "OpenFisca-France, plafond_securite_sociale_annuel.yaml",
-   "valeurs": 59
+   "valeurs": 40
   },
   "plafond_journal_officiel": {
    "ajoutees": 0,
    "colonne": "pass_eur",
    "corrigees": 0,
-   "empreinte": "611db05d1ae5831e",
-   "identiques": 12,
+   "empreinte": "70f5ac6a99c4053f",
+   "identiques": 31,
    "niveau": "certifiee",
    "source": "DILA, base JORF, décrets portant fixation du plafond de la sécurité sociale",
-   "valeurs": 12
+   "valeurs": 31
   },
   "point_indice_fonction_publique": {
    "ajoutees": 0,

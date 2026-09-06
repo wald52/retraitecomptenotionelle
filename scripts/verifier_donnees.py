@@ -958,8 +958,10 @@ def source_plafond_journal_officiel() -> dict[tuple, float]:
     et l'emporte pour cette période ; celles d'avant venaient d'OpenFisca, une
     transcription tierce plafonnée à ``haute``.
 
-    Le récupérateur ne rend que les années dont il a lu le texte — jamais une
-    année reconduite : voir sa documentation.
+    La chaîne des décrets est complète depuis 1963, mais leur RÉDACTION ne l'est
+    pas : le récupérateur ne rend que les années dont il a lu le montant, jamais
+    une année reconduite ni une année calculée à partir d'un taux. Sa
+    documentation les recense une à une.
     """
     serie = _serie_json("jorf_plafond_securite_sociale.json",
                         "scripts/fetch/jorf_plafond_securite_sociale.py")

@@ -1111,7 +1111,7 @@ institutions:
           n° 2026-78 du 11 février 2026 a fixé 0,3919 € pour 2025.
 
       - id: jorf_plafond_securite_sociale
-        titre: Plafond de la Sécurité sociale, décrets de fixation, 1984-2025
+        titre: Plafond de la Sécurité sociale, décrets de fixation, 1963-2025
         url: https://echanges.dila.gouv.fr/OPENDATA/JORF/
         acces: api
         statut_integration: certifie
@@ -1122,22 +1122,30 @@ institutions:
           les diffuseurs de séries — l'INSEE ne le publie qu'à partir de 2001,
           l'Urssaf pas du tout — était chercher au mauvais endroit. Il est dans
           le JOURNAL OFFICIEL, dont la DILA ouvre un dump distinct de LEGI :
-          1,7 Go, une demi-heure de lecture en flux. Douze années d'avant 2002 y
-          sont lues et passent de la transcription au producteur — 1984, 1988,
-          1990-1993, 1996-2001 —, toutes identiques à l'euro près à ce que
-          portait OpenFisca, ce qui corrobore la transcription autant que cela
-          certifie ces douze-là.
-          TROIS ÉCRITURES POUR UNE MÊME GRANDEUR, et elles se suivent dans le
-          temps : la NOTICE en capitales avant 1997, l'ARTICLE 1er en texte
-          intégral de 1997 à 2002, l'ARRÊTÉ à deux valeurs depuis 2003. Le
-          récupérateur lit les trois et refait le taux que la notice annonce.
-          CE QUI RESTE HORS DE PORTÉE : les années dont la notice n'a pas
-          d'écriture connue, ou ne porte pas le montant du 1er janvier. Le
-          plafond était SEMESTRIEL jusqu'en 1996 — le plafond annuel est la
-          somme de ses douze mois, et douze fois la valeur de juillet serait
-          faux d'un demi-relèvement. Le récupérateur ne reconduit jamais l'année
-          précédente. Les années 1930-1960 écrivent d'ailleurs un plafond
-          ANNUEL, mais sans dire de quand il court.
+          1,7 Go, une demi-heure de lecture en flux. La chaîne des décrets y est
+          COMPLÈTE DEPUIS 1963 — un texte par année, aucun ne manque — et trente
+          et une années d'avant 2002 en sont lues, qui passent de la
+          transcription au producteur : 1963, 1965-1981, 1984, 1987, 1988,
+          1990-1993, 1996-2001. Toutes identiques à l'euro près à ce que portait
+          OpenFisca, ce qui corrobore la transcription autant que cela certifie
+          ces trente et une-là.
+          QUATRE ÉCRITURES POUR UNE MÊME GRANDEUR, et elles se suivent dans le
+          temps : le TITRE seul avant 1982 — « PORTANT FIXATION POUR L'ANNEE
+          1969 DU PLAFOND DES COTISATIONS DE SECURITE SOCIALE A 16 320 FRS » —,
+          la NOTICE en capitales de 1982 à 1996, l'ARTICLE 1er en texte intégral
+          de 1997 à 2002, l'ARRÊTÉ à deux valeurs depuis 2003. Le récupérateur
+          lit les quatre et refait le taux que la notice annonce.
+          LE PIÈGE : « POUR L'ANNEE 1969 » vaut pour l'année, « A COMPTER DU
+          01-01-1982 » ne vaut que jusqu'au relèvement suivant, et le plafond
+          est devenu SEMESTRIEL en 1982. Confondre les deux donne 1982 à −3,6 %.
+          De même, janvier seul ne fait pas une année à moins que le texte ne
+          déclare la couvrir : sinon il faut un second montant lu dans l'année.
+          Le récupérateur ne reconduit jamais l'année précédente.
+          CE QUI RESTE HORS DE PORTÉE tient à la rédaction, non à l'accès, et
+          docs/limites.md le dit année par année : avant 1963 le décret ne nomme
+          pas l'année qu'il commande ; 1982-1983 et 1989 n'écrivent pas leur
+          montant ; 1985-1986 n'ont pas de notice ; 1994-1995 laissent leur
+          tableau en image.
 
       - id: dila_opendata
         titre: Bases ouvertes de la DILA — JORF et LEGI
