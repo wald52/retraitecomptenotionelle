@@ -1108,16 +1108,50 @@ def source_employeur_cnracl() -> dict[tuple, float]:
     }
 
 
+def source_employeur_sncf_textes() -> dict[tuple, float]:
+    """Contribution employeur de la SNCF, lue dans ses deux textes.
+
+    T1 est arrêté chaque année et publié au *Journal officiel* ; T2 est au IV de
+    l'article 2 du décret n° 2007-1056, que la base LEGI garde daté. Leur somme
+    est ce que l'entreprise verse, et elle n'est lisible que là où ses deux
+    termes le sont — c'est-à-dire de 2007 à 2011, le décret cessant ensuite de
+    chiffrer T2 pour le faire évoluer par formule.
+
+    Le T1 retenu est le DÉFINITIF de l'année, arrêté l'exercice une fois connu,
+    non le provisionnel appelé en décembre : les deux diffèrent de six dixièmes
+    de point en 2018.
+    """
+    serie = _serie_json("sncf_contribution_employeur.json",
+                        "scripts/fetch/sncf_contribution_employeur.py")
+    return {
+        (cle.split("|")[1], "sncf"): taux
+        for cle, taux in sorted(serie.items())
+        if cle.startswith("taux|")
+    }
+
+
+def _annees_sncf_des_textes() -> set[tuple]:
+    try:
+        return set(source_employeur_sncf_textes())
+    except SourceAbsente:
+        return set()
+
+
 def source_employeur_sncf() -> dict[tuple, float]:
     """Contribution employeur de la SNCF, T1 + T2, 2007-2018.
 
     T1 est calée sur ce que coûteraient les mêmes salariés au régime général et
     aux complémentaires du privé ; T2 finance les droits spécifiques du régime
     et son déséquilibre démographique. Leur somme est ce que l'entreprise verse.
+
+    Transcription OpenFisca : elle ne garde que les années dont les textes ne
+    portent pas les deux composantes.
     """
+    couvertes = _annees_sncf_des_textes()
     return {
         (annee, "sncf"): taux
         for annee, taux in sorted(_contributions_employeur("sncf").items())
+        if (annee, "sncf") not in couvertes
     }
 
 
@@ -1907,6 +1941,21 @@ CERTIFICATIONS = (
         decimales=6,
         tolerance=5e-7,
         niveau="haute",
+        gabarit={"nature": "appelee"},
+    ),
+    # Comme pour la CNRACL : la transcription s'efface devant les années que
+    # les textes portent, pour que le journal de certification dise ce que le
+    # fichier contient et non ce qu'il aurait contenu.
+    Certification(
+        nom="employeur_public_sncf_textes",
+        chemin=REFERENCE / "legislation" / "contribution_employeur_public.csv",
+        cles=("annee", "regime"),
+        colonne="taux",
+        source=source_employeur_sncf_textes,
+        origine="DILA, arrêtés annuels du taux T1 (base JORF) et décret "
+                "n° 2007-1056 du 28 juin 2007, article 2 IV (base LEGI)",
+        decimales=6,
+        tolerance=5e-7,
         gabarit={"nature": "appelee"},
     ),
 )

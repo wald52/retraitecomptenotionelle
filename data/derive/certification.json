@@ -135,11 +135,21 @@
    "ajoutees": 0,
    "colonne": "taux",
    "corrigees": 0,
-   "empreinte": "c1d8e81d6f45f365",
-   "identiques": 12,
+   "empreinte": "dc7b277485df7db5",
+   "identiques": 7,
    "niveau": "haute",
    "source": "OpenFisca-France, arrêtés annuels fixant les composantes T1 et T2",
-   "valeurs": 12
+   "valeurs": 7
+  },
+  "employeur_public_sncf_textes": {
+   "ajoutees": 0,
+   "colonne": "taux",
+   "corrigees": 0,
+   "empreinte": "1cd4a73db65abbc8",
+   "identiques": 5,
+   "niveau": "certifiee",
+   "source": "DILA, arrêtés annuels du taux T1 (base JORF) et décret n° 2007-1056 du 28 juin 2007, article 2 IV (base LEGI)",
+   "valeurs": 5
   },
   "esperance_65_derivee": {
    "ajoutees": 0,

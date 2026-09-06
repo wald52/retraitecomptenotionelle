@@ -1,5 +1,6 @@
 # Contribution EMPLOYEUR des régimes publics et spéciaux, par année
 # source_id: sre_historique_taux, dila_legi_cnracl,
+#            sncf_contribution_employeur,
 #            openfisca_contribution_employeur_public
 # unite: fraction de l'assiette de la retenue pour pension (traitement
 #        indiciaire brut et NBI ; les primes en sont exclues, elles relèvent
@@ -26,9 +27,26 @@
 #                          […] est fixé à 31,65 % ». `certifiee`, montée en
 #                          charge 2026-2028 comprise — elle est au Journal
 #                          officiel, pas dans une projection.
+#   SNCF, 2007-2011        somme des composantes T1 et T2, chacune lue dans
+#                          son texte : T1 dans l'arrêté annuel que publie le
+#                          Journal officiel — « le taux T1 définitif […] est
+#                          fixé à 23,81 % pour l'année 2022 » —, T2 au IV de
+#                          l'article 2 du décret n° 2007-1056, dans la base
+#                          LEGI. `certifiee`.
 #   CNRACL avant 1993,     transcription d'OpenFisca-France — `haute`. Les taux
 #   État 1995-2005,        d'avant 1993 sont dans les décrets abrogés que
-#   SNCF 2007-2018         celui de 1991 a remplacés.
+#   SNCF 2012-2018         celui de 1991 a remplacés.
+#
+# POURQUOI LA SNCF S'ARRÊTE À 2011. Le taux T1 est lu de 2007 à 2022, mais la
+# SOMME n'est lisible que là où ses deux termes le sont, et le décret ne chiffre
+# T2 que jusqu'en 2011 : « Après le 31 décembre 2011, le taux T2 évolue au
+# 1er janvier de chaque année comme le rapport […] ». Un taux qui évolue par
+# renvoi n'est écrit nulle part, et le calculer serait le reconstituer.
+#
+# LA CONVENTION DE DATE DE LA SNCF. Chaque arrêté porte deux taux T1 : le
+# DÉFINITIF de l'année écoulée et le PROVISIONNEL de l'année qui vient. Le taux
+# d'une année est le définitif — celui qui est dû, arrêté une fois l'exercice
+# connu. Les deux diffèrent : 23,87 % et 23,25 % pour 2018.
 #
 # nature :
 #   appelee    : taux effectivement appelé, fixé par décret ou par arrêté
@@ -140,19 +158,19 @@ annee,regime,taux,nature,fiabilite
 2006,fonction_publique_etat,0.499000,appelee,certifiee
 2007,cnracl,0.273000,appelee,certifiee
 2007,fonction_publique_etat,0.507400,appelee,certifiee
-2007,sncf,0.344800,appelee,haute
+2007,sncf,0.344800,appelee,certifiee
 2008,cnracl,0.273000,appelee,certifiee
 2008,fonction_publique_etat,0.557100,appelee,certifiee
-2008,sncf,0.348300,appelee,haute
+2008,sncf,0.348300,appelee,certifiee
 2009,cnracl,0.273000,appelee,certifiee
 2009,fonction_publique_etat,0.601400,appelee,certifiee
-2009,sncf,0.350600,appelee,haute
+2009,sncf,0.350600,appelee,certifiee
 2010,cnracl,0.273000,appelee,certifiee
 2010,fonction_publique_etat,0.621400,appelee,certifiee
-2010,sncf,0.348900,appelee,haute
+2010,sncf,0.348900,appelee,certifiee
 2011,cnracl,0.273000,appelee,certifiee
 2011,fonction_publique_etat,0.653900,appelee,certifiee
-2011,sncf,0.337200,appelee,haute
+2011,sncf,0.337200,appelee,certifiee
 2012,cnracl,0.273000,appelee,certifiee
 2012,fonction_publique_etat,0.685900,appelee,certifiee
 2012,sncf,0.341700,appelee,haute

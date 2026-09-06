@@ -1147,6 +1147,35 @@ institutions:
           montant ; 1985-1986 n'ont pas de notice ; 1994-1995 laissent leur
           tableau en image.
 
+      - id: sncf_contribution_employeur
+        titre: Contribution employeur de la SNCF, composantes T1 et T2, 2007-2022
+        url: https://echanges.dila.gouv.fr/OPENDATA/
+        acces: api
+        statut_integration: certifie
+        cible: data/reference/legislation/contribution_employeur_public.csv
+        recuperation: scripts/fetch/sncf_contribution_employeur.py
+        note: >-
+          La seule grandeur du dépôt dont les deux termes sont dans deux textes
+          de nature différente, et qui demande donc les DEUX dumps de la DILA :
+          2,8 Go, une heure. L'article 2 du décret n° 2007-1056 du 28 juin 2007
+          définit le taux comme « la somme de deux composantes, ci-après
+          désignées T1 et T2 ». T1 est arrêté chaque année et publié au JORF ;
+          T2 est au IV du même article, que LEGI garde daté.
+          LA CONVENTION DE DATE : chaque arrêté porte le taux T1 DÉFINITIF de
+          l'année écoulée et le PROVISIONNEL de l'année qui vient. Le taux d'une
+          année est le définitif — 23,87 % et non 23,25 % pour 2018, soit six
+          dixièmes de point d'écart, et c'est le provisionnel qu'OpenFisca avait
+          retenu. Les deux sont récupérés, seul le premier compose la somme.
+          CE QUI LIMITE À CINQ ANNÉES : T1 est lu de 2007 à 2022, mais le décret
+          ne chiffre T2 que jusqu'en 2011 et le fait ensuite évoluer par renvoi
+          — « comme le rapport […] entre le montant des cotisations d'assurance
+          vieillesse assis sur le montant maximum des rémunérations ». Un taux
+          qui évolue par formule n'est écrit nulle part. La somme n'est donc
+          rendue que là où ses deux termes sont lus.
+          UN PIÈGE : l'arrêté fondateur du 6 mai 2008, seul à porter l'année
+          2007, écrit « le taux définitif T1 » quand tous les autres écrivent
+          « le taux T1 définitif ».
+
       - id: dila_opendata
         titre: Bases ouvertes de la DILA — JORF et LEGI
         url: https://echanges.dila.gouv.fr/OPENDATA/

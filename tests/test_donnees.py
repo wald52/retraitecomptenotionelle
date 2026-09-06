@@ -320,6 +320,8 @@ def test_journal_de_certification_decrit_les_series_certifiees():
             "legislation/contribution_employeur_public.csv",
         "employeur_public_sncf":
             "legislation/contribution_employeur_public.csv",
+        "employeur_public_sncf_textes":
+            "legislation/contribution_employeur_public.csv",
         "employeur_public_texte":
             "legislation/contribution_employeur_public.csv",
     }

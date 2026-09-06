@@ -574,6 +574,7 @@ COR pour ce qu'il **décide**.
 | Barème du minimum garanti, montée en charge | 2004-2013 | loi n° 2003-775, article 66 V, base LEGI |
 | Heures de SMIC à cotiser pour valider un trimestre | 1972 et 2014 | code de la sécurité sociale `R. 351-9`, base LEGI |
 | Plafond de la Sécurité sociale | 1963, 1965-1981, 1984, 1987, 1988, 1990-1993, 1996-2001 | décrets portant fixation du plafond, base **JORF** |
+| Contribution employeur de la SNCF (T1 + T2) | 2007-2011 | arrêtés annuels du taux T1 (**JORF**) et décret n° 2007-1056, article 2 IV (LEGI) |
 
 Ce qu'**OpenFisca-France** garde, ce sont les périodes que le *Journal officiel*
 lui-même ne rend pas : le plafond de la Sécurité sociale des années dont la
@@ -630,6 +631,7 @@ python scripts/fetch/dila_legi_decote_fonction_publique.py  # décote FP (lent)
 python scripts/fetch/dila_legi_minimum_garanti.py  # barème du minimum garanti (lent)
 python scripts/fetch/erafp_valeurs_point.py     # valeurs du point du RAFP, par l'ERAFP
 python scripts/fetch/jorf_plafond_securite_sociale.py  # plafond ancien, dans son décret (1,7 Go)
+python scripts/fetch/sncf_contribution_employeur.py  # contribution SNCF, deux dumps (2,8 Go)
 python scripts/fetch/cdc_ircantec.py            # barèmes Ircantec, par son gestionnaire
 python scripts/fetch/cnbf_baremes.py            # valeurs du point des avocats
 python scripts/fetch/cnavpl_recueils.py         # valeur du point des libéraux

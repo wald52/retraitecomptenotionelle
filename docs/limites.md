@@ -370,7 +370,8 @@ La page **Données** du site affiche l'état exact. En résumé :
 | Contribution employeur, État (implicite) | 1995-2005 | haute | OpenFisca-France, jaune « pensions » du PLF 2011 |
 | Contribution employeur, CNRACL | 1993-2028 | **certifiée** | DILA, base LEGI, décret n° 91-613 du 28 juin 1991, article 5 II |
 | Contribution employeur, CNRACL | 1948-1992 | haute | OpenFisca-France, décrets abrogés et barèmes de la Caisse des dépôts |
-| Contribution employeur, SNCF (T1 + T2) | 2007-2018 | haute | OpenFisca-France, arrêtés annuels |
+| Contribution employeur, SNCF (T1 + T2) | 2007-2011 | **certifiée** | DILA, arrêtés annuels du taux T1 (base JORF) et décret n° 2007-1056, article 2 IV (base LEGI) |
+| Contribution employeur, SNCF (T1 + T2) | 2012-2018 | haute | OpenFisca-France — le décret cesse de chiffrer T2 après 2011 et le fait évoluer par formule |
 | Valeurs d'achat et de service du point, Ircantec | 1971-2021 | **certifiée** | Caisse des dépôts, qui gère le régime |
 | Valeurs d'achat et de service du point, Agirc | 1947-2018 | **certifiée** | Fédération Agirc-Arrco, sa compilation des valeurs de point |
 | Valeurs d'achat et de service du point, Arrco | 1999-2018 | **certifiée** | Fédération Agirc-Arrco, la même compilation |
@@ -409,6 +410,7 @@ python scripts/fetch/dila_legi_decote_fonction_publique.py  # décote de la fonc
 python scripts/fetch/dila_legi_minimum_garanti.py  # barème du minimum garanti (lent)
 python scripts/fetch/erafp_valeurs_point.py    # valeurs du point du RAFP, par l'ERAFP
 python scripts/fetch/jorf_plafond_securite_sociale.py  # plafond ancien, dans son décret (1,7 Go)
+python scripts/fetch/sncf_contribution_employeur.py  # contribution SNCF, deux dumps (2,8 Go)
 python scripts/fetch/ined_vallin_mesle.py      # quotients de mortalité d'avant 1986
 python scripts/fetch/insee_projections_mortalite.py  # espérances de vie projetées, jusqu'en 2125
 python scripts/fetch/eurostat_hicp.py          # contrôle croisé de l'inflation
@@ -525,11 +527,15 @@ dans les deux sens : une limite qui se referme n'est pas effacée, elle est
 réécrite avec ce qui l'a levée et ce qu'elle a fini par coûter. Sur les vingt
 entrées qui suivent, **douze ont été refermées par une source trouvée**, **deux
 par la mesure du biais** qu'elles laissent — un biais chiffré n'est plus une
-inconnue, il se retranche — et **une à moitié**, le plafond ancien, dont douze
-années sur soixante et onze sont désormais lues dans leur décret. Cinq restent
-ouvertes : trois faute de source, une parce que la source ne suffirait pas — la
-ligne y mêle un nombre de la loi et une convention de modélisation —, et une
-dont la source est localisée mais pas encore lue. Les
+inconnue, il se retranche — et **deux à moitié** : le plafond ancien, dont
+trente et une années sur soixante et onze sont désormais lues dans leur décret,
+et la contribution de la SNCF, dont cinq années sur douze le sont. Ces
+demi-fermetures se ressemblent : la source a été trouvée et lue, et ce qui reste
+tient à la RÉDACTION des textes — un décret qui ne nomme pas l'année qu'il
+commande, un taux que le décret fait évoluer par renvoi au lieu de l'écrire.
+Quatre restent ouvertes : trois faute de source, et une parce que la source ne
+suffirait pas — la ligne y mêle un nombre de la loi et une convention de
+modélisation. Les
 phrases qui déclaraient ces limites inaccessibles sont citées telles quelles,
 parce qu'une conclusion fausse tirée de prémisses vraies est ce qui se répète le
 plus volontiers.
@@ -1268,17 +1274,48 @@ plus volontiers.
   dont un relèvement en cours d'année a été lu, pour ne pas dépendre d'une date
   charnière supposée.
 
-* *Contribution employeur de la SNCF* — **localisée, pas encore lue.** Le taux
-  du fichier est la somme de deux composantes que le décret n° 2007-1056 du
-  28 juin 2007 définit à son article 2 : **T1**, arrêté chaque année — « le taux
-  T1 définitif […] est fixé à 23,81 % pour l'année 2022 » —, et **T2**, fixé
-  par le IV du même article, « 13,85 % à partir du 1er mai 2017 ». Les arrêtés
-  T1 sont dans le dump JORF, de 2009 à 2024 ; les valeurs de T2 sont dans les
-  versions de l'article, dans LEGI. Deux sources, deux passes, une somme à
-  faire et une distinction à respecter — le taux d'une année est le DÉFINITIF,
-  publié l'année suivante, non le provisionnel publié en décembre. Douze lignes
-  y gagneraient leur certification et cinq années s'y ajouteraient ; le travail
-  est écrit ici plutôt que fait, faute d'avoir tranché la convention de date.
+* *Contribution employeur de la SNCF* — **lue, et la moitié en est
+  certifiable.** Cette page écrivait : « Douze lignes y gagneraient leur
+  certification et cinq années s'y ajouteraient ; le travail est écrit ici
+  plutôt que fait, faute d'avoir tranché la convention de date. » Le travail a
+  été fait, la convention tranchée, et le compte était optimiste — voici
+  pourquoi, et c'est instructif.
+
+  Le taux est la somme de deux composantes que l'article 2 du **décret
+  n° 2007-1056 du 28 juin 2007** définit. Chacune est dans un texte différent,
+  et les deux ont été lues :
+
+  * **T1** est arrêté chaque année et publié au *Journal officiel* — « le taux
+    T1 définitif […] est fixé à 23,81 % pour l'année 2022 ». Dix-huit arrêtés,
+    de 2008 à 2023, donnent **T1 de 2007 à 2022** ;
+  * **T2** est au IV du même article, dont la base LEGI garde seize versions
+    datées.
+
+  **LA CONVENTION DE DATE, ET C'ÉTAIT ELLE QUI BLOQUAIT.** Chaque arrêté porte
+  DEUX taux T1 : le définitif de l'année écoulée et le provisionnel de l'année
+  qui vient. Le taux d'une année est le définitif — celui qui est dû, arrêté une
+  fois l'exercice connu. Ce n'est pas un détail : 23,87 % et 23,25 % pour 2018,
+  six dixièmes de point, et c'est le provisionnel que la transcription
+  d'OpenFisca avait retenu pour cette année-là.
+
+  **CE QUI LIMITE À CINQ ANNÉES, ET CE N'EST PAS T1.** La somme n'est lisible
+  que là où ses deux termes le sont, et le décret ne chiffre T2 que jusqu'en
+  2011 : « Après le 31 décembre 2011, le taux T2 évolue au 1er janvier de chaque
+  année comme le rapport […] entre le montant des cotisations d'assurance
+  vieillesse assis sur le montant maximum des rémunérations […] ». **Un taux qui
+  évolue par renvoi n'est écrit nulle part** ; le calculer serait le
+  reconstituer, non le lire, et une reconstitution ne se certifie pas. La
+  réécriture de 2017 — « A partir du 1er mai 2017, le taux T2 est fixé à
+  13,85 % » — ne rouvre pas la série : elle donne une valeur à une date, que la
+  même formule fait dériver dès le 1er janvier suivant.
+
+  **2007-2011 se certifient donc**, et les cinq valeurs se sont trouvées
+  identiques au centième de point à la transcription. 2012-2018 restent `haute`,
+  et l'on sait exactement ce qui manque : non pas une source, mais un texte qui
+  chiffre T2. Un piège au passage — l'arrêté fondateur du 6 mai 2008, le seul à
+  porter l'année 2007, écrit « le taux définitif T1 » quand tous les autres
+  écrivent « le taux T1 définitif ». Ne lire que la rédaction moderne coûtait la
+  première année de la série.
 
 * *Contribution employeur de la CNRACL d'avant 1993* — **cherchée, et la chaîne
   est trouée.** Les taux de 1993 à 2028 sont désormais lus dans l'article 5 du

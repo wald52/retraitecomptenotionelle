@@ -925,3 +925,93 @@ def test_l_annee_entiere_se_lit_dans_le_texte_qui_la_declare():
         "pour les rémunérations ou gains versés du 1er janvier au 31 décembre 1998.",
     ])
     assert entieres == {1997, 1998}
+
+
+def _sncf():
+    return _charger_script("sncf_contribution_employeur", "scripts", "fetch",
+                           "sncf_contribution_employeur.py")
+
+
+def test_l_arrete_de_la_sncf_porte_deux_taux_et_le_definitif_gagne():
+    """Chaque arrêté fixe le définitif de l'année écoulée et le provisionnel de
+    l'année qui vient. Le taux d'une année est le premier."""
+    module = _sncf()
+    arrete = (
+        "Arrêté du 6 décembre 2023 fixant les composantes, définitive pour 2022 "
+        "et provisionnelle pour 2023, du taux de la cotisation de la Société "
+        "nationale des chemins de fer français. En application du II de "
+        "l'article 2 du décret du 28 juin 2007 susvisé, le taux T1 définitif de "
+        "la cotisation à la charge de la Société nationale des chemins de fer "
+        "français au régime de retraite du personnel de la Société nationale "
+        "des chemins de fer français est fixé à 23,81 % pour l'année 2022. "
+        "En application du II de l'article 2 du même décret, le taux T1 "
+        "provisionnel de la cotisation à la charge de la Société nationale des "
+        "chemins de fer français est fixé à 23,54 % pour l'année 2023."
+    )
+    definitif, provisionnel, griefs = module.composantes_t1([arrete])
+    assert griefs == []
+    assert definitif == {2022: 23.81}
+    assert provisionnel == {2023: 23.54}
+
+
+def test_l_arrete_fondateur_de_la_sncf_ecrit_les_mots_dans_l_autre_ordre():
+    """« le taux définitif T1 » et non « le taux T1 définitif ».
+
+    L'arrêté du 6 mai 2008 est le seul à porter l'année 2007 : ne lire que la
+    rédaction moderne coûtait la première année de la série.
+    """
+    module = _sncf()
+    arrete = (
+        "Arrêté du 6 mai 2008 fixant les composantes T1 définitive pour 2007 et "
+        "provisionnelle pour 2008 du taux de la cotisation de la Société "
+        "nationale des chemins de fer français. En application du II de "
+        "l'article 2 du décret n° 2007-1056 du 28 juin 2007, le taux définitif "
+        "T1 de la cotisation à la charge de la Société nationale des chemins de "
+        "fer français est fixé à 22,52 % pour l'année 2007."
+    )
+    definitif, _, griefs = module.composantes_t1([arrete])
+    assert griefs == [] and definitif == {2007: 22.52}
+
+
+def test_un_taux_definitif_est_arrete_apres_coup():
+    """Un définitif que son propre arrêté daterait de l'année même est mal lu."""
+    module = _sncf()
+    faux = (
+        "Arrêté du 6 mai 2008 fixant les composantes. Le taux T1 définitif de la "
+        "cotisation est fixé à 22,52 % pour l'année 2008."
+    )
+    definitif, _, griefs = module.composantes_t1([faux])
+    assert definitif == {}
+    assert [g for g in griefs if "antérieur ou contemporain" in g]
+
+
+def test_le_taux_t2_de_la_sncf_s_arrete_ou_le_decret_cesse_de_le_chiffrer():
+    """« Après le 31 décembre 2011, le taux T2 évolue […] comme le rapport ».
+
+    Un taux qui évolue par renvoi n'est écrit nulle part : le récupérateur ne
+    lit que les années que le décret énumère.
+    """
+    module = _sncf()
+    article = (
+        "IV. - Le taux T2 est fixé à : - 11,96 % pour l'année 2007 ; - 12, 27 % "
+        "pour l'année 2008 ; - 12,62 % pour l'année 2009 ; - 12,73 % pour "
+        "l'année 2010 ; - 11,26 % pour l'année 2011. Après le 31 décembre 2011, "
+        "le taux T2 évolue au 1er janvier de chaque année comme le rapport, pour "
+        "un salarié non cadre, entre le montant des cotisations."
+    )
+    table, griefs = module.composante_t2([article])
+    assert griefs == []
+    assert table == {2007: 11.96, 2008: 12.27, 2009: 12.62,
+                     2010: 12.73, 2011: 11.26}
+
+
+def test_la_valeur_de_2017_du_taux_t2_ne_rouvre_pas_la_serie():
+    """« A partir du 1er mai 2017, le taux T2 est fixé à 13,85 % » : une valeur
+    à une date, que la même formule fait dériver dès le 1er janvier suivant."""
+    module = _sncf()
+    article = (
+        "IV.-A partir du 1er mai 2017, le taux T2 est fixé à 13,85 %. Le taux T2 "
+        "évolue au 1er janvier de chaque année comme le rapport entre le montant "
+        "des cotisations d'assurance vieillesse."
+    )
+    assert module.composante_t2([article]) == ({}, [])
