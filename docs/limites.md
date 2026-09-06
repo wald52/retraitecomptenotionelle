@@ -342,10 +342,13 @@ La page **Données** du site affiche l'état exact. En résumé :
 | Minimum contributif et plafond d'écrêtement | ancres de 2007 à 2014 | **certifiée** | DILA, base LEGI, code de la sécurité sociale |
 | Minimum vieillesse (ASPA) | ancres 2006, 2009-2012, 2014, 2018-2020 | **certifiée** | DILA, base LEGI, code de la sécurité sociale `D. 815-1` |
 | Minimum vieillesse (ASPA) | ancres 2007, 2016, 2017, depuis 2021 | haute / moyenne | publications — l'article n'est pas réécrit à chaque revalorisation |
+| Minimum garanti, traitement de référence | 2004 et année courante | **certifiée** | Service des retraites de l'État, sa page du minimum garanti |
+| Minimum garanti, traitement de référence | ancres intermédiaires | haute | non publiées : la page ne porte que l'ancre et l'année courante |
 | Âge d'ouverture des droits par génération | 1900-1975 | **certifiée** | DILA, base LEGI, code de la sécurité sociale `D. 161-2-1-9` |
 | Durée d'assurance requise par génération | 1958-1975 | **certifiée** | DILA, base LEGI, code de la sécurité sociale `L. 161-17-3` |
 | Durée d'assurance requise par génération | 1953-1957 | **certifiée** | DILA, base LEGI, décrets d'application des lois de 2003 et de 2010 |
-| Durée d'assurance requise par génération | 1934-1952 | haute | lois de 1993 et de 2003, dont les tableaux ne sont pas des textes consolidés |
+| Durée d'assurance requise par génération | 1934-1942 | **certifiée** | DILA, base LEGI, code de la sécurité sociale `R. 351-45` II |
+| Durée d'assurance requise par génération | 1943-1952 | haute | 160 vient de la règle générale, non d'un alinéa qui les nomme ; les 161-164 sont dans des décrets absents de la base |
 | Coefficient de minoration par génération | 1900-1975 | **certifiée** | DILA, base LEGI, code de la sécurité sociale `R. 351-27` |
 | Bornes de la carrière longue | 2023- | **certifiée** | DILA, base LEGI, `L. 351-1-1` et `D. 351-1-1` |
 | Bornes de la carrière longue | 2004 et 2012 | moyenne / haute | versions abrogées des mêmes articles, transcrites |
@@ -415,6 +418,7 @@ python scripts/fetch/erafp_valeurs_point.py    # valeurs du point du RAFP, par l
 python scripts/fetch/jorf_plafond_securite_sociale.py  # plafond ancien, dans son décret (1,7 Go)
 python scripts/fetch/sncf_contribution_employeur.py  # contribution SNCF, deux dumps (2,8 Go)
 python scripts/fetch/dila_legi_minimum_vieillesse.py  # montant de l'ASPA, dans le code (lent)
+python scripts/fetch/sre_minimum_garanti.py     # référence du minimum garanti, par le service qui la sert
 python scripts/fetch/ined_vallin_mesle.py      # quotients de mortalité d'avant 1986
 python scripts/fetch/insee_projections_mortalite.py  # espérances de vie projetées, jusqu'en 2125
 python scripts/fetch/eurostat_hicp.py          # contrôle croisé de l'inflation
@@ -529,7 +533,7 @@ pour l'Arrco reconstituée, 26,43 F pour l'UNIRS).
 qui a été cherché, pour éviter de le rechercher deux fois — et elle est tenue
 dans les deux sens : une limite qui se referme n'est pas effacée, elle est
 réécrite avec ce qui l'a levée et ce qu'elle a fini par coûter. Sur les
-vingt et une entrées qui suivent, **douze ont été refermées par une source trouvée**, **deux
+vingt-trois entrées qui suivent, **douze ont été refermées par une source trouvée**, **deux
 par la mesure du biais** qu'elles laissent — un biais chiffré n'est plus une
 inconnue, il se retranche — et **quatre à moitié** : le plafond ancien, dont
 trente et une années sur soixante et onze sont désormais lues dans leur décret ;
@@ -540,9 +544,15 @@ et ce qui reste tient à la RÉDACTION des textes ou aux LACUNES de la base — 
 décret qui ne nomme pas l'année qu'il commande, un taux que le décret fait
 évoluer par renvoi au lieu de l'écrire, un article qu'on ne réécrit pas à chaque
 revalorisation, une version qui a avalé un décret perdu.
-Quatre restent ouvertes : trois faute de source, et une parce que la source ne
-suffirait pas — la ligne y mêle un nombre de la loi et une convention de
-modélisation. Les
+Deux de plus sont refermées par la mesure, et dans l'autre sens : la table de
+revalorisation des salaires et les valeurs du point du RCI ont été cherchées au
+*Journal officiel* et n'y sont pas — la première parce que l'arrêté ne fixe
+qu'un coefficient annuel quand la caisse seule publie la table cumulée, la
+seconde parce que le règlement du régime renvoie la fixation à son conseil
+d'administration. Une impasse démontrée vaut une impasse fermée : on ne la
+rouvrira pas. Deux restent ouvertes : une faute de source, et une parce que la
+source ne suffirait pas — la ligne y mêle un nombre de la loi et une convention
+de modélisation. Les
 phrases qui déclaraient ces limites inaccessibles sont citées telles quelles,
 parce qu'une conclusion fausse tirée de prémisses vraies est ce qui se répète le
 plus volontiers.
@@ -1280,6 +1290,40 @@ plus volontiers.
   récupérateur la respecte ; il refuse en outre un titre annuel pour toute année
   dont un relèvement en cours d'année a été lu, pour ne pas dépendre d'une date
   charnière supposée.
+
+* *Revalorisation des salaires portés au compte* — **cherchée au Journal
+  officiel, et elle n'y est pas.** C'est le plus gros bloc non certifié du dépôt
+  — 876 valeurs, dix colonnes de coefficients — et il tient à une distinction
+  qu'il valait la peine de vérifier plutôt que de supposer. Le modèle lit ces
+  coefficients dans la CIRCULAIRE de la Cnav, qui « transcrit l'arrêté et
+  l'instruction interministérielle qu'elle cite » : une transcription plafonne à
+  `haute`. Restait à savoir si l'arrêté, lui, publiait la même table.
+
+  **Il ne la publie pas.** Six cent soixante-treize textes du dump JORF portant
+  les mots « revalorisation des salaires », « coefficient de revalorisation » ou
+  « servant de base au calcul des pensions » ont été lus : **aucun ne porte plus
+  de trois couples (année, coefficient)**, et ces trois-là sont des coefficients
+  de revalorisation de PENSIONS d'autres régimes. Les arrêtés anciens — « 19 avril
+  1950, REVALORISATION DES SALAIRES ENTRANT EN COMPTE DANS LE CALCUL DES
+  PENSIONS » — ne sont dans la base que par leur titre.
+
+  La raison est structurelle et non documentaire : **l'arrêté fixe UN coefficient
+  annuel**, applicable à tous les salaires déjà portés au compte ; la table
+  cumulée par année de perception en est le produit, et c'est la caisse qui la
+  calcule, l'arrondit à trois décimales et la publie. Reconstruire la table
+  depuis les coefficients annuels ne redonnerait pas la table publiée — le dépôt
+  a déjà mesuré cette dérive entre ses propres colonnes. Ces 876 valeurs
+  resteront `haute` tant que la circulaire sera le seul document à porter la
+  table, et ce n'est pas une lacune de la recherche.
+
+* *Valeurs du point du RCI* — **cherchée, et aucun texte ne la porte.** Le
+  règlement du régime est pourtant dans la base : l'arrêté du 9 février 2012 qui
+  l'approuve y figure avec ses versions, jusqu'à celle du 1er janvier 2025. Il
+  parle bien de « la valeur de service de ces points » et de « la valeur du
+  point cotisé RCO artisan au 31 décembre 2012 » — mais il ne les chiffre pas :
+  il en renvoie la fixation au conseil d'administration. La question de doctrine
+  que cette page laissait ouverte se referme donc d'elle-même : il n'y a pas de
+  texte à préférer aux circulaires, ces vingt-deux valeurs restent `haute`.
 
 * *Contribution employeur de la SNCF* — **lue, et la moitié en est
   certifiable.** Cette page écrivait : « Douze lignes y gagneraient leur

@@ -1,6 +1,7 @@
 # Durée d'assurance requise pour le taux plein, PAR GÉNÉRATION
 # ------------------------------------------------------------
-# source_id: dila_legi_parametres_retraite, legifrance_textes
+# source_id: dila_legi_parametres_retraite, dila_legi_duree_requise,
+#            legifrance_textes
 #
 # La durée requise est indexée sur l'ANNÉE DE NAISSANCE, jamais sur l'année de
 # liquidation : deux assurés qui liquident le même jour n'ont pas la même
@@ -9,7 +10,24 @@
 # 160 trimestres à raison d'un trimestre par génération, de 1934 à 1943.
 #
 # Étapes législatives reprises ici :
-#   - loi du 22 juillet 1993 : générations 1934-1943, 150 -> 160
+#   - loi du 22 juillet 1993 : générations 1934-1943, 150 -> 160. Sa table est
+#     CODIFIÉE, à l'article R. 351-45 II — une disposition transitoire abrogée
+#     en 2009 que la base LEGI garde —, et les générations 1934-1942 en sont
+#     donc lues : `certifiee`.
+#
+#     CE QUE L'ARTICLE DIT DE PLUS. Son II ne vaut que pour les « pensions
+#     prenant effet avant le 1er janvier 2003 » ; son I porte 160 trimestres
+#     au-delà, « quelle que soit la date de naissance ». Ce fichier indexe la
+#     durée sur la seule génération, comme le fait le droit depuis 1993 : les
+#     deux lectures ne se séparent que pour un assuré de ces générations qui
+#     aurait liquidé après 2002, donc à plus de soixante ans quand l'âge légal
+#     en était soixante. C'est écrit parce que l'écart existe, non parce qu'il
+#     pèse.
+#
+#     Les générations 1943 à 1952 restent `haute` : 160 trimestres leur vient
+#     de la règle générale et non d'un alinéa qui les nomme, et les 161 à 164
+#     de 1949-1952 sont dans des décrets que la base n'expose pas — cherchés,
+#     et absents.
 #   - loi du 21 août 2003 (Fillon) : générations 1949-1952, 161 -> 164
 #   - loi du 9 novembre 2010 et décrets de montée en charge : 1953-1957
 #   - loi du 20 janvier 2014 (Touraine) : 1958 et suivantes, cible 172
@@ -46,15 +64,15 @@
 # Avant la génération 1934, la durée requise ne dépendait pas de la génération :
 # elle est alors lue dans la fiche du régime, à l'année de liquidation.
 generation,trimestres,fiabilite
-1934,151,haute
-1935,152,haute
-1936,153,haute
-1937,154,haute
-1938,155,haute
-1939,156,haute
-1940,157,haute
-1941,158,haute
-1942,159,haute
+1934,151,certifiee
+1935,152,certifiee
+1936,153,certifiee
+1937,154,certifiee
+1938,155,certifiee
+1939,156,certifiee
+1940,157,certifiee
+1941,158,certifiee
+1942,159,certifiee
 1943,160,haute
 1944,160,haute
 1945,160,haute

@@ -71,6 +71,16 @@
    "source": "DILA, base LEGI, code de la sécurité sociale L. 161-17-3",
    "valeurs": 19
   },
+  "duree_assurance_requise_1993": {
+   "ajoutees": 0,
+   "colonne": "trimestres",
+   "corrigees": 0,
+   "empreinte": "7401db09a3911535",
+   "identiques": 9,
+   "niveau": "certifiee",
+   "source": "DILA, base LEGI, code de la sécurité sociale R. 351-45 II",
+   "valeurs": 9
+  },
   "duree_assurance_requise_decrets": {
    "ajoutees": 0,
    "colonne": "trimestres",
@@ -250,6 +260,16 @@
    "niveau": "certifiee",
    "source": "DILA, base LEGI, loi n° 2003-775 du 21 août 2003, article 66 V",
    "valeurs": 10
+  },
+  "minimum_garanti_reference": {
+   "ajoutees": 0,
+   "colonne": "valeur",
+   "corrigees": 0,
+   "empreinte": "7b499a87b120f1f1",
+   "identiques": 2,
+   "niveau": "certifiee",
+   "source": "Service des retraites de l'État, page du minimum garanti",
+   "valeurs": 2
   },
   "minimum_garanti_seuil": {
    "ajoutees": 0,

@@ -1190,6 +1190,29 @@ institutions:
           2007, écrit « le taux définitif T1 » quand tous les autres écrivent
           « le taux T1 définitif ».
 
+      - id: sre_minimum_garanti
+        titre: Traitement de référence du minimum garanti, 2004 et année courante
+        url: https://retraitesdeletat.gouv.fr/actif/le-calcul-de-ma-retraite/le-minimum-garanti
+        acces: page
+        statut_integration: certifie
+        cible: data/reference/legislation/minimum_garanti_montants.csv
+        recuperation: scripts/fetch/sre_minimum_garanti.py
+        note: >-
+          Le Service des retraites de l'État liquide et paie ces pensions : sa
+          page du minimum garanti n'est pas une transcription du barème, c'est le
+          barème opposé à l'assuré. Elle porte les deux bornes de la chaîne que
+          l'article L. 17 décrit — l'ancre du 1er janvier 2004, « 997,96 € par
+          mois ou 11 975,57 € par an », et le montant courant qui se date
+          lui-même, « 16 396,19 € […] revalorisé au 01/01/2026 ».
+          L'ancre de 2004 a désormais TROIS chemins indépendants : le produit
+          227 × 52,7558 € que le vérificateur refait, la publication dont elle
+          était transcrite, et cette page. Les trois donnent le même centime.
+          CE QUE LA PAGE NE DONNE PAS : les années intermédiaires, qui restent
+          transcrites. Une exécution par an en ajoute une.
+          Une source scrutée peut changer de rédaction : le récupérateur lève
+          PageIllisible plutôt que d'écrire une série muette, et contrôle que le
+          mensuel annoncé soit bien l'annuel divisé par douze.
+
       - id: dila_legi_minimum_vieillesse
         titre: Montant de l'ASPA, code de la sécurité sociale D. 815-1, 2006-2020
         url: https://echanges.dila.gouv.fr/OPENDATA/LEGI/

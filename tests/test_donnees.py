@@ -267,6 +267,7 @@ def test_journal_de_certification_decrit_les_series_certifiees():
         "plafond_ancien": "macro/plafond_securite_sociale.csv",
         "plafond_journal_officiel": "macro/plafond_securite_sociale.csv",
         "minimum_vieillesse": "legislation/minimum_vieillesse.csv",
+        "minimum_garanti_reference": "legislation/minimum_garanti_montants.csv",
         "esperances_vie": "mortalite/esperances_vie.csv",
         "esperance_65_derivee": "mortalite/esperances_vie.csv",
         "esperances_projetees": "mortalite/esperances_vie.csv",
@@ -274,6 +275,8 @@ def test_journal_de_certification_decrit_les_series_certifiees():
         "age_ouverture_requis": "legislation/age_ouverture_requis.csv",
         "duree_assurance_requise": "legislation/duree_assurance_requise.csv",
         "duree_assurance_requise_decrets":
+            "legislation/duree_assurance_requise.csv",
+        "duree_assurance_requise_1993":
             "legislation/duree_assurance_requise.csv",
         "coefficient_minoration": "legislation/coefficient_minoration.csv",
         "carriere_longue": "legislation/carriere_longue.csv",

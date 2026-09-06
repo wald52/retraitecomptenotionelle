@@ -1,6 +1,7 @@
 # Minimum garanti — traitement de référence de l'indice majoré 227
 # ------------------------------------------------------------------
-# source_id: legifrance_textes, sre_rapport_annuel
+# source_id: sre_minimum_garanti (2004 et l'année courante),
+#            legifrance_textes, sre_rapport_annuel
 #
 # C'est le montant PLEIN du minimum garanti, celui que sert une carrière de
 # quarante ans de services. Le barème de `minimum_garanti.csv` en tire tous les
@@ -33,8 +34,22 @@
 #   2024  1 325,01 €/mois — montant publié au 1er janvier 2024.
 #   2025  1 354,16 €/mois — montant publié au 1er janvier 2025.
 #
-# Transcriptions de publications, non confrontées à un fichier du producteur :
-# niveau `haute`, jamais `certifiee`.
+# DEUX ANCRES SONT DÉSORMAIS LUES CHEZ CELUI QUI SERT LA PENSION. Le Service
+# des retraites de l'État publie, sur sa page du minimum garanti, les deux
+# bornes de la chaîne : l'ancre de 2004 — « 997,96 € par mois ou 11 975,57 €
+# par an » — et le montant courant, qui se date lui-même — « 16 396,19 €
+# (montant du traitement indiciaire brut annuel de l'indice majoré 227
+# revalorisé au 01/01/2026) ». Ce n'est pas une transcription du barème, c'est
+# le barème opposé à l'assuré : ces deux-là sont `certifiee`.
+#
+# Les années INTERMÉDIAIRES ne sont pas publiées — la page ne porte que l'ancre
+# et l'année courante — et restent des transcriptions de publications, non
+# confrontées à un fichier du producteur : niveau `haute`.
+#
+# L'ANCRE DE 2004 A MAINTENANT TROIS CHEMINS INDÉPENDANTS : le produit
+# 227 × 52,7558 € que le vérificateur refait à chaque exécution, la publication
+# dont elle était transcrite, et la page du service. Les trois donnent le même
+# centime.
 #
 # L'ANCRE DE 2004 EST TOUTEFOIS RECONTRÔLÉE, et par deux chemins indépendants :
 # l'article L. 17 la définit comme le traitement de l'indice majoré 227 au
@@ -42,8 +57,9 @@
 # son décret. 227 × 52,7558 = 11 975,57 € : `scripts/verifier_donnees.py` refait
 # le calcul à chaque exécution et signale tout écart.
 annee,valeur,fiabilite
-2004,11975.570000,haute
+2004,11975.570000,certifiee
 2020,14091.960000,haute
 2023,14979.960000,haute
 2024,15900.120000,haute
 2025,16249.920000,haute
+2026,16396.190000,certifiee

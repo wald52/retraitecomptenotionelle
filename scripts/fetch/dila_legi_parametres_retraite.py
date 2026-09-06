@@ -87,6 +87,7 @@ ARTICLES = {
     "R351-6": "sécurité sociale",
     "R351-9": "sécurité sociale",
     "R351-29-1": "sécurité sociale",
+    "R351-45": "sécurité sociale",
 }
 
 #: Nombres écrits en lettres, tels que le Journal officiel les emploie pour les
@@ -309,6 +310,47 @@ def duree_requise(versions: list[tuple[str, str]]) -> dict[int, float]:
             if trouve:
                 alineas.append((float(trouve.group(1)), alinea))
         return table_par_generation(alineas)
+    return _par_version(versions, lire)
+
+
+#: « 151 trimestres pour l'assuré né en 1934 ; 152 trimestres pour l'assuré né
+#: en 1935 » — la montée en charge de la loi du 22 juillet 1993, au II de
+#: l'article R. 351-45. L'article est abrogé depuis 2009 ; la base le garde.
+DUREE_1993 = re.compile(
+    r"(\d{3})\s*trimestres\s*pour\s*l['’]assur[ée]\s*n[ée]\s*en\s*(19[34]\d)",
+    re.I)
+
+#: Générations que ce II couvre. Il s'ouvre sur « l'assuré né AVANT le
+#: 1er janvier 1934 », que le motif ci-dessus n'attrape pas — et c'est voulu :
+#: le dépôt tient la table à partir de 1934.
+GENERATIONS_1993 = (1934, 1942)
+
+
+def duree_requise_1993(versions: list[tuple[str, str]]) -> dict[int, float]:
+    """Durée requise des générations 1934-1942 — R. 351-45 II.
+
+    `docs/limites.md` tenait ces générations pour hors de portée : « leur montée
+    en charge vient de la loi du 22 juillet 1993 et de la loi du 21 août 2003,
+    dont les tableaux ne sont pas des textes consolidés séparés ». La seconde
+    moitié est vraie et la conclusion fausse : le tableau de 1993 n'est pas un
+    texte séparé, il est CODIFIÉ — à l'article R. 351-45, une disposition
+    transitoire que la base garde bien qu'elle soit abrogée depuis 2009.
+
+    **CE QUE L'ARTICLE DIT DE PLUS QUE LE DÉPÔT.** Son II ne s'applique qu'aux
+    « pensions prenant effet avant le 1er janvier 2003 » ; son I porte 160
+    trimestres au-delà de cette date, « quelle que soit la date de naissance ».
+    Le dépôt, lui, indexe la durée sur la seule génération. Les deux lectures ne
+    se séparent que pour un assuré de ces générations qui aurait liquidé après
+    2002 — donc à plus de soixante ans, à une époque où l'âge légal en était
+    soixante. C'est écrit ici parce que l'écart existe, non parce qu'il pèse.
+    """
+    def lire(texte: str) -> dict[int, float]:
+        table: dict[int, float] = {}
+        for trimestres, generation in DUREE_1993.findall(texte):
+            annee = int(generation)
+            if GENERATIONS_1993[0] <= annee <= GENERATIONS_1993[1]:
+                table[annee] = float(trimestres)
+        return table
     return _par_version(versions, lire)
 
 
@@ -541,6 +583,10 @@ for bloc in iter(lambda: sys.stdin.buffer.read(1 << 20), b""):
 """
 
 
+class TransfertIncomplet(RuntimeError):
+    """Le dump n'a pas été téléchargé en entier."""
+
+
 def dernier_dump() -> str:
     with urllib.request.urlopen(RACINE, timeout=120) as reponse:
         page = reponse.read().decode("utf-8", errors="replace")
@@ -577,6 +623,13 @@ def depouiller(url: str) -> dict[str, list[tuple[str, str]]]:
             trouvees[article].append((debut, ligne))
         article = None
     filtre.wait()
+    # Un transfert coupé ne se voit pas dans ce qui a été lu : le dépouillement
+    # rend moins de versions, et les garde-fous les trouvent bonnes — un dump à
+    # moitié lu n'a pas de trou, il a une fin prématurée.
+    if lecture.wait() != 0:
+        raise TransfertIncomplet(
+            f"curl s'est interrompu (code {lecture.returncode}) : le dump n'a "
+            "pas été lu en entier")
     return trouvees
 
 
@@ -589,7 +642,11 @@ def main() -> int:
 
     print(f"Dump    {url}")
     print("Lecture en flux d'environ 9 Go décompressés : comptez un quart d'heure.\n")
-    versions = depouiller(url)
+    try:
+        versions = depouiller(url)
+    except TransfertIncomplet as erreur:
+        print(f"\nÉCHEC   {erreur}", file=sys.stderr)
+        return 1
     for article, trouvees in versions.items():
         print(f"  {article:12} {len(trouvees):3} version(s) au {ARTICLES[article]}")
     if not all(versions.values()):
@@ -599,6 +656,7 @@ def main() -> int:
     tables = {
         "age_ouverture": age_ouverture(versions["D161-2-1-9"]),
         "duree_requise": duree_requise(versions["L161-17-3"]),
+        "duree_requise_1993": duree_requise_1993(versions["R351-45"]),
         "coefficient_minoration": coefficient_minoration(versions["R351-27"]),
         "carriere_longue": carriere_longue(versions["D351-1-1"]),
         "duree_proratisation": duree_proratisation(versions["R351-6"]),
@@ -622,6 +680,16 @@ def main() -> int:
             and min(coefficients.values()) == 0.0125):
         print(f"\nÉCHEC   coefficients invraisemblables : "
               f"{sorted(set(coefficients.values()))}", file=sys.stderr)
+        return 1
+
+    # La montée en charge de 1993 : un trimestre par génération, de 151 à 159.
+    # Une table qui ne serait pas cette suite-là est lue de travers.
+    montee = tables["duree_requise_1993"]
+    attendue = {annee: 151.0 + annee - 1934
+                for annee in range(GENERATIONS_1993[0], GENERATIONS_1993[1] + 1)}
+    if montee != attendue:
+        print(f"\nÉCHEC   montée en charge de 1993 invraisemblable : "
+              f"{sorted(montee.items())}", file=sys.stderr)
         return 1
 
     proratisation = tables["duree_proratisation"]
@@ -657,6 +725,7 @@ def main() -> int:
             "serie": {
                 f"{nom}|{cle}": valeur
                 for nom in ("age_ouverture", "duree_requise",
+                            "duree_requise_1993",
                             "coefficient_minoration", "duree_proratisation",
                             "heures_par_trimestre", "annees_salaire_reference")
                 for cle, valeur in tables[nom].items()
@@ -673,6 +742,8 @@ def main() -> int:
     print(f"Coefficient minoration {len(coefficients)} segments, "
           f"{max(coefficients.values()):.3%} -> {min(coefficients.values()):.3%}")
     print(f"Carrière longue        {len(tables['carriere_longue'])} portes")
+    print(f"Montée en charge 1993  {len(montee)} générations, "
+          f"{min(montee.values()):g} -> {max(montee.values()):g} trimestres")
     print(f"Durée proratisation    {len(proratisation)} segments, "
           f"{min(proratisation.values()):g} -> {max(proratisation.values()):g} "
           f"trimestres")

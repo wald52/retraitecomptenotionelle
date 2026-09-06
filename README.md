@@ -572,6 +572,8 @@ COR pour ce qu'il **décide**.
 | Contribution employeur de la CNRACL | 1993-2028 | décret n° 91-613, article 5 II, base LEGI |
 | Contribution employeur de la CNRACL | 1984-1988 | décret n° 47-1846 du 19 septembre 1947, article 3, base LEGI |
 | Montant du minimum vieillesse (ASPA) | ancres 2006-2020 | code de la sécurité sociale `D. 815-1`, base LEGI |
+| Durée d'assurance requise, générations 1934-1942 | 1934-1942 | code de la sécurité sociale `R. 351-45` II, base LEGI |
+| Minimum garanti, traitement de référence | 2004 et année courante | Service des retraites de l'État |
 | Décote de la fonction publique, coefficient et âge d'annulation | 2006-2019 | loi n° 2003-775, article 66 III, base LEGI |
 | Barème du minimum garanti, montée en charge | 2004-2013 | loi n° 2003-775, article 66 V, base LEGI |
 | Heures de SMIC à cotiser pour valider un trimestre | 1972 et 2014 | code de la sécurité sociale `R. 351-9`, base LEGI |
@@ -635,6 +637,7 @@ python scripts/fetch/erafp_valeurs_point.py     # valeurs du point du RAFP, par 
 python scripts/fetch/jorf_plafond_securite_sociale.py  # plafond ancien, dans son décret (1,7 Go)
 python scripts/fetch/sncf_contribution_employeur.py  # contribution SNCF, deux dumps (2,8 Go)
 python scripts/fetch/dila_legi_minimum_vieillesse.py  # montant de l'ASPA, dans le code (lent)
+python scripts/fetch/sre_minimum_garanti.py     # référence du minimum garanti, par le service qui la sert
 python scripts/fetch/cdc_ircantec.py            # barèmes Ircantec, par son gestionnaire
 python scripts/fetch/cnbf_baremes.py            # valeurs du point des avocats
 python scripts/fetch/cnavpl_recueils.py         # valeur du point des libéraux

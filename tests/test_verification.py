@@ -1145,10 +1145,66 @@ def test_un_transfert_coupe_ne_passe_pas_pour_une_lecture_complete():
     récupérateurs de la DILA vérifient donc le code de sortie de `curl`.
     """
     for nom in ("dila_legi_cnracl", "dila_legi_minimum_vieillesse",
-                "jorf_plafond_securite_sociale", "sncf_contribution_employeur"):
+                "jorf_plafond_securite_sociale", "sncf_contribution_employeur",
+                "dila_legi_parametres_retraite"):
         module = _charger_script(nom, "scripts", "fetch", f"{nom}.py")
         source = (Path(__file__).resolve().parents[1] / "scripts" / "fetch"
                   / f"{nom}.py").read_text(encoding="utf-8")
         assert issubclass(module.TransfertIncomplet, RuntimeError), nom
         assert "if lecture.wait() != 0:" in source, nom
         assert "except TransfertIncomplet" in source, nom
+
+
+def test_la_montee_en_charge_de_1993_est_codifiee():
+    """R. 351-45 II porte la table que `docs/limites.md` croyait hors de portée."""
+    module = _charger_script("dila_legi_parametres_retraite", "scripts", "fetch",
+                             "dila_legi_parametres_retraite.py")
+    article = (
+        "I. - La durée d'assurance et de périodes reconnues équivalentes de 160 "
+        "trimestres mentionnée au 1° de l'article R. 351-27 est applicable aux "
+        "pensions prenant effet postérieurement au 31 décembre 2002, quelle que "
+        "soit la date de naissance de l'assuré. II. - En ce qui concerne les "
+        "pensions prenant effet avant le 1er janvier 2003, la durée d'assurance "
+        "est de : 150 trimestres pour l'assuré né avant le 1er janvier 1934 ; "
+        "151 trimestres pour l'assuré né en 1934 ; 152 trimestres pour l'assuré "
+        "né en 1935 ; 159 trimestres pour l'assuré né en 1942."
+    )
+    table = module.duree_requise_1993([("1995-05-10", article)])
+    # « né AVANT le 1er janvier 1934 » n'est pas « né en 1934 » : le premier
+    # nombre de l'article ne doit pas se ranger sous la génération 1934.
+    assert table == {1934: 151.0, 1935: 152.0, 1942: 159.0}
+
+
+def _sre_mg():
+    return _charger_script("sre_minimum_garanti", "scripts", "fetch",
+                           "sre_minimum_garanti.py")
+
+
+def test_le_service_publie_les_deux_bornes_du_minimum_garanti():
+    """L'ancre de 2004 et le montant courant, que la page date elle-même."""
+    module = _sre_mg()
+    page = (
+        "Le montant du minimum garanti est calculé sur la base : du traitement "
+        "indiciaire brut au 1er janvier 2004 de l'indice majoré 227 (997,96 € "
+        "par mois ou 11 975,57 € par an), revalorisé depuis cette date. Exemple "
+        "pour 30 années de services : 16 396,19 € (montant du traitement "
+        "indiciaire brut annuel de l'indice majoré 227 revalorisé au 01/01/2026) "
+        "x 95 % = 15 576,38 €"
+    )
+    assert module.montants(page) == {2004: 11975.57, 2026: 16396.19}
+
+
+def test_une_ancre_qui_se_contredit_est_refusee():
+    """Le mensuel est l'arrondi de l'annuel divisé par douze ; sinon, mal lu."""
+    module = _sre_mg()
+    page = ("du traitement indiciaire brut au 1er janvier 2004 de l'indice "
+            "majoré 227 (997,96 € par mois ou 13 000,00 € par an), revalorisé")
+    with pytest.raises(module.PageIllisible):
+        module.montants(page)
+
+
+def test_une_page_reecrite_ne_passe_pas_en_silence():
+    """Une source scrutée peut changer de rédaction : elle doit alors échouer."""
+    module = _sre_mg()
+    with pytest.raises(module.PageIllisible):
+        module.montants("Le minimum garanti est calculé selon un barème.")

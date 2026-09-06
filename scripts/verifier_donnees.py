@@ -740,6 +740,22 @@ def source_duree_requise() -> dict[tuple, float]:
     return _table_legi("duree_requise")
 
 
+def source_duree_requise_1993() -> dict[tuple, float]:
+    """Durée requise des générations 1934-1942 — R. 351-45 II.
+
+    `docs/limites.md` tenait ces générations pour hors de portée : « leur montée
+    en charge vient de la loi du 22 juillet 1993 […], dont les tableaux ne sont
+    pas des textes consolidés séparés ». Vrai, et sans portée : le tableau n'est
+    pas un texte séparé, il est CODIFIÉ — à l'article R. 351-45, une disposition
+    transitoire abrogée en 2009 que la base garde.
+
+    L'article scope sa table aux pensions prenant effet avant 2003 ; le dépôt
+    l'indexe sur la seule génération. L'écart n'existe que pour un assuré de ces
+    générations liquidant après 2002, et le récupérateur le documente.
+    """
+    return _table_legi("duree_requise_1993")
+
+
 def source_duree_requise_decrets() -> dict[tuple, float]:
     """Durée requise des générations 1953 à 1957, dans leurs décrets.
 
@@ -963,6 +979,25 @@ def source_minimum_vieillesse() -> dict[tuple, float]:
     """
     serie = _serie_json("dila_legi_minimum_vieillesse.json",
                         "scripts/fetch/dila_legi_minimum_vieillesse.py")
+    return {(annee,): valeur for annee, valeur in sorted(serie.items())}
+
+
+def source_minimum_garanti_reference() -> dict[tuple, float]:
+    """Traitement de référence du minimum garanti, par le service qui le sert.
+
+    L'article L. 17 le définit comme le traitement de l'indice majoré 227 au
+    1er janvier 2004, revalorisé comme les pensions. Le Service des retraites de
+    l'État publie les deux bornes de cette chaîne — l'ancre et le montant
+    courant, daté —, et c'est lui qui liquide : ce n'est pas une transcription
+    du barème, c'est le barème opposé à l'assuré.
+
+    L'ancre de 2004 se trouve ainsi confirmée par un TROISIÈME chemin, après le
+    produit 227 × point d'indice que ``controle_vraisemblance_minimum_garanti``
+    refait déjà. Les années intermédiaires ne sont pas publiées et restent
+    transcrites.
+    """
+    serie = _serie_json("sre_minimum_garanti.json",
+                        "scripts/fetch/sre_minimum_garanti.py")
     return {(annee,): valeur for annee, valeur in sorted(serie.items())}
 
 
@@ -1443,6 +1478,17 @@ CERTIFICATIONS = (
     # s'efface devant les années que celle-ci porte. Voir sa documentation —
     # c'est le journal de certification, non le fichier, qui l'exigeait.
     Certification(
+        nom="minimum_garanti_reference",
+        chemin=REFERENCE / "legislation" / "minimum_garanti_montants.csv",
+        cles=("annee",),
+        colonne="valeur",
+        source=source_minimum_garanti_reference,
+        origine="Service des retraites de l'État, page du minimum garanti",
+        decimales=6,
+        tolerance=5e-7,
+        unite=" €",
+    ),
+    Certification(
         nom="minimum_vieillesse",
         chemin=REFERENCE / "legislation" / "minimum_vieillesse.csv",
         cles=("annee",),
@@ -1667,6 +1713,17 @@ CERTIFICATIONS = (
         source=source_duree_requise_decrets,
         origine="DILA, base LEGI, décrets pris pour l'application de la loi du "
                 "21 août 2003 et de celle du 9 novembre 2010",
+        decimales=0,
+        tolerance=0.5,
+        unite=" trimestres",
+    ),
+    Certification(
+        nom="duree_assurance_requise_1993",
+        chemin=REFERENCE / "legislation" / "duree_assurance_requise.csv",
+        cles=("generation",),
+        colonne="trimestres",
+        source=source_duree_requise_1993,
+        origine="DILA, base LEGI, code de la sécurité sociale R. 351-45 II",
         decimales=0,
         tolerance=0.5,
         unite=" trimestres",
