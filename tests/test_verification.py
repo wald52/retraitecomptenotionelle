@@ -1015,3 +1015,140 @@ def test_la_valeur_de_2017_du_taux_t2_ne_rouvre_pas_la_serie():
         "des cotisations d'assurance vieillesse."
     )
     assert module.composante_t2([article]) == ({}, [])
+
+
+def _cnracl():
+    return _charger_script("dila_legi_cnracl", "scripts", "fetch",
+                           "dila_legi_cnracl.py")
+
+
+def _version(debut, fin, taux):
+    """Une version datée de l'article 3 du décret de 1947, telle que le dump la rend."""
+    return (debut, fin,
+            f"LEGIARTI000000000 LEGI Article 3 MODIFIE {debut} {fin} AUTONOME "
+            "Décret n° 47-1846 du 19 septembre 1947 portant règlement "
+            "d'administration publique pour la constitution de la caisse "
+            "nationale de retraites. Les collectivités versent en même temps à "
+            f"la caisse nationale de retraites leur contribution, qui est fixée à "
+            f"{taux} p. 100 des rémunérations soumises à retenue.")
+
+
+def test_la_contiguite_des_versions_n_est_pas_leur_completude():
+    """Un décret perdu ne laisse pas de trou : la version qu'il aurait coupée court.
+
+    La base le dit d'elle-même — le décret de 1983 y figure et déclare remplacer
+    13 p. 100, quand la version qu'il coupe se lit 18 p. 100.
+    """
+    module = _cnracl()
+    versions = [
+        _version("1977-01-01", "1983-01-25", "18"),
+        _version("1983-01-25", "1983-12-31", "11,20"),
+        ("1983-01-25", "1984-01-01",
+         "LEGIARTI000000001 LEGI Article 1 ABROGE 1983-01-25 1984-01-01 "
+         "AUTONOME Décret n°83-36 du 24 janvier 1983 modifiant le taux de la "
+         "contribution des collectivités. Au deuxième alinéa du 1 de "
+         "l'article 3 du décret du 19 septembre 1947 modifié susvisé, le taux "
+         "de 13 p. 100 est remplacé par le taux de 11,20 p. 100."),
+    ]
+    serie, dits = module.serie_de_1947(versions)
+    assert 1978 not in serie and 1982 not in serie
+    assert [d for d in dits if "un texte intermédiaire manque" in d]
+
+
+def test_une_version_trop_longue_a_avale_un_decret():
+    """Quinze ans sans modification, sur un taux qui bouge tous les deux ans."""
+    module = _cnracl()
+    serie, dits = module.serie_de_1947([_version("1962-01-01", "1977-01-01", "19,6")])
+    assert serie == {}
+    assert [d for d in dits if "avalé un décret" in d]
+
+
+def test_les_annees_dont_la_chaine_est_sure_sont_rendues():
+    """1984 à 1988 : versions courtes, datées au jour, que rien ne contredit."""
+    module = _cnracl()
+    versions = [
+        _version("1984-01-01", "1984-12-22", "10,20"),
+        _version("1984-12-22", "1987-01-01", "10,20"),
+        _version("1987-01-01", "1987-12-31", "15,2"),
+        _version("1987-12-31", "1989-01-03", "18,2"),
+    ]
+    serie, dits = module.serie_de_1947(versions)
+    # Aucune version n'est écartée ; seule 1989 l'est, la chaîne s'arrêtant là.
+    assert not [d for d in dits if "version du" in d]
+    assert serie == {1984: 0.102, 1985: 0.102, 1986: 0.102, 1987: 0.152, 1988: 0.182}
+
+
+def test_un_trou_dans_la_chaine_interdit_son_annee():
+    """Après le 3 janvier 1989, la base ne reprend qu'en février 1991."""
+    module = _cnracl()
+    versions = [
+        _version("1987-12-31", "1989-01-03", "18,2"),
+        _version("1991-02-13", "1991-09-24", "21,30"),
+    ]
+    serie, _ = module.serie_de_1947(versions)
+    assert 1988 in serie
+    assert 1989 not in serie and 1990 not in serie and 1991 not in serie
+
+
+def _aspa():
+    return _charger_script("dila_legi_minimum_vieillesse", "scripts", "fetch",
+                           "dila_legi_minimum_vieillesse.py")
+
+
+def test_l_aspa_se_lit_en_montant_annuel_date():
+    """« 9 998,40 euros par an à compter du 1er avril 2018 », et les suivants."""
+    module = _aspa()
+    article = (
+        "Le montant annuel de l'allocation de solidarité aux personnes âgées est "
+        "fixé : a) Pour les personnes seules, ou lorsque seul un des conjoints en "
+        "bénéficie, à 9 998,40 euros par an à compter du 1er avril 2018, à "
+        "10 418,40 euros par an à compter du 1er janvier 2019 et à 10 838,40 euros "
+        "par an à compter du 1er janvier 2020 ; b) Lorsque les deux conjoints en "
+        "bénéficient, à 15 522,54 euros par an à compter du 1er avril 2018."
+    )
+    par_date, griefs = module.montants_dates([article])
+    assert griefs == []
+    assert module.ancres(par_date) == {2018: 9998.40, 2019: 10418.40, 2020: 10838.40}
+
+
+def test_le_bareme_du_couple_n_est_pas_celui_d_une_personne_seule():
+    """Le b) de l'article ne doit pas déborder sur le a) : le modèle ne simule
+    qu'un individu, et le plafond d'un couple n'est pas le double."""
+    module = _aspa()
+    article = (
+        "allocation de solidarité aux personnes âgées est fixé : a) Pour les "
+        "personnes seules à 9 600 euros par an à compter du 1er octobre 2014 ; "
+        "b) Lorsque les deux conjoints en bénéficient, à 14 904 euros par an à "
+        "compter du 1er octobre 2014."
+    )
+    par_date, _ = module.montants_dates([article])
+    assert par_date == {datetime.date(2014, 10, 1): 9600.0}
+
+
+def test_l_aspa_lit_l_annuel_du_texte_et_non_douze_fois_le_mensuel():
+    """8 507,49 € par an, et non 708,95 × 12 = 8 507,40 €."""
+    module = _aspa()
+    article = (
+        "allocation de solidarité aux personnes âgées est fixé : a) Pour les "
+        "personnes seules, à : 8 507, 49 € par an à compter du 1er avril 2010 ;"
+    )
+    par_date, griefs = module.montants_dates([article])
+    assert griefs == []
+    assert par_date == {datetime.date(2010, 4, 1): 8507.49}
+
+
+def test_un_transfert_coupe_ne_passe_pas_pour_une_lecture_complete():
+    """Un dump à moitié lu n'a pas de trou : il a une fin prématurée.
+
+    Les contrôles de continuité trouvent une telle série bonne — elle est
+    simplement plus courte. C'est arrivé, et rien ne l'avait dit ; les quatre
+    récupérateurs de la DILA vérifient donc le code de sortie de `curl`.
+    """
+    for nom in ("dila_legi_cnracl", "dila_legi_minimum_vieillesse",
+                "jorf_plafond_securite_sociale", "sncf_contribution_employeur"):
+        module = _charger_script(nom, "scripts", "fetch", f"{nom}.py")
+        source = (Path(__file__).resolve().parents[1] / "scripts" / "fetch"
+                  / f"{nom}.py").read_text(encoding="utf-8")
+        assert issubclass(module.TransfertIncomplet, RuntimeError), nom
+        assert "if lecture.wait() != 0:" in source, nom
+        assert "except TransfertIncomplet" in source, nom

@@ -95,21 +95,21 @@
    "ajoutees": 0,
    "colonne": "taux",
    "corrigees": 0,
-   "empreinte": "838ceb5b99cc8a78",
-   "identiques": 45,
+   "empreinte": "9061fd34656bebfc",
+   "identiques": 40,
    "niveau": "haute",
    "source": "OpenFisca-France, décrets CNRACL et barèmes de la Caisse des dépôts",
-   "valeurs": 45
+   "valeurs": 40
   },
   "employeur_public_cnracl_journal_officiel": {
    "ajoutees": 0,
    "colonne": "taux",
    "corrigees": 0,
-   "empreinte": "f431b3a995a8cd30",
-   "identiques": 36,
+   "empreinte": "acd0d99a25bca141",
+   "identiques": 41,
    "niveau": "certifiee",
-   "source": "DILA, base LEGI, décret n° 91-613 du 28 juin 1991, article 5 II",
-   "valeurs": 36
+   "source": "DILA, base LEGI, décret n° 91-613 du 28 juin 1991, article 5 II, et décret n° 47-1846 du 19 septembre 1947, article 3",
+   "valeurs": 41
   },
   "employeur_public_etat": {
    "ajoutees": 0,
@@ -260,6 +260,16 @@
    "niveau": "certifiee",
    "source": "DILA, base LEGI, loi n° 2003-775 du 21 août 2003, article 66 V",
    "valeurs": 10
+  },
+  "minimum_vieillesse": {
+   "ajoutees": 0,
+   "colonne": "valeur",
+   "corrigees": 0,
+   "empreinte": "8d5c6c86331ea261",
+   "identiques": 9,
+   "niveau": "certifiee",
+   "source": "DILA, base LEGI, code de la sécurité sociale, article D. 815-1",
+   "valeurs": 9
   },
   "pib_nominal": {
    "ajoutees": 0,

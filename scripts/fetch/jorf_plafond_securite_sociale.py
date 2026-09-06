@@ -265,6 +265,10 @@ for bloc in iter(lambda: sys.stdin.buffer.read(1 << 20), b""):
 """
 
 
+class TransfertIncomplet(RuntimeError):
+    """Le dump n'a pas été téléchargé en entier."""
+
+
 def dernier_dump() -> str:
     with urllib.request.urlopen(RACINE, timeout=120) as reponse:
         page = reponse.read().decode("utf-8", errors="replace")
@@ -474,7 +478,15 @@ def depouiller(url: str) -> list[str]:
     )
     detar.stdout.close()
     sortie, _ = filtre.communicate()
-    lecture.wait()
+    # Un transfert coupé ne se voit pas dans ce qui a été lu : le dépouillement
+    # rend une série plus courte, et les contrôles de continuité la trouvent
+    # bonne — un dump à moitié lu n'a pas de trou, il a une fin prématurée.
+    # C'est arrivé, et rien ne l'avait dit.
+    if lecture.wait() != 0:
+        raise TransfertIncomplet(
+            f"curl s'est interrompu (code {lecture.returncode}) : le dump n'a "
+            "pas été lu en entier, et la série qu'on en tirerait serait muette "
+            "sur ce qui manque")
     return [bloc.strip() for bloc in sortie.split("@@@\n")[1:] if bloc.strip()]
 
 
@@ -487,7 +499,11 @@ def main() -> int:
 
     print(f"Dump      {url.rsplit('/', 1)[-1]}")
     print("Lecture en flux d'environ 12 Go décompressés : comptez une demi-heure.\n")
-    textes = depouiller(url)
+    try:
+        textes = depouiller(url)
+    except TransfertIncomplet as erreur:
+        print(f"ÉCHEC   {erreur}", file=sys.stderr)
+        return 1
     par_date, entieres, griefs = montants_dates(textes)
     for grief in griefs:
         print(f"ÉCHEC   {grief}", file=sys.stderr)

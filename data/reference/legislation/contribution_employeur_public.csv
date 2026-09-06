@@ -21,6 +21,12 @@
 #
 #   État, 2006-2026        fiche « Historique des taux de cotisations » du
 #                          Service des retraites de l'État — `certifiee`.
+#   CNRACL, 1984-1988      article 3 du décret n° 47-1846 du 19 septembre 1947,
+#                          celui que les décrets abrogés MODIFIAIENT — un décret
+#                          modificatif ne porte pas le taux, il porte un
+#                          remplacement. `certifiee`, et seulement pour les
+#                          années dont la chaîne des versions est sûre : voir
+#                          scripts/fetch/dila_legi_cnracl.py.
 #   CNRACL, 1993-2028      article 5 II du décret n° 91-613 du 28 juin 1991,
 #                          LU dans la base LEGI (`dila_legi_cnracl.py`) :
 #                          « Le taux de la contribution sur les traitements
@@ -33,9 +39,18 @@
 #                          fixé à 23,81 % pour l'année 2022 » —, T2 au IV de
 #                          l'article 2 du décret n° 2007-1056, dans la base
 #                          LEGI. `certifiee`.
-#   CNRACL avant 1993,     transcription d'OpenFisca-France — `haute`. Les taux
-#   État 1995-2005,        d'avant 1993 sont dans les décrets abrogés que
-#   SNCF 2012-2018         celui de 1991 a remplacés.
+#   CNRACL hors 1984-1988, transcription d'OpenFisca-France — `haute`.
+#   État 1995-2005,
+#   SNCF 2012-2018
+#
+# POURQUOI LA CNRACL S'ARRÊTE À CINQ ANNÉES AVANT 1993. La contiguïté des
+# versions n'est pas leur complétude : quand un décret modificatif manque à la
+# base, la version qu'il aurait coupée court sans coupure et la chaîne paraît
+# pleine. La base le démontre elle-même — le décret n° 83-36 du 24 janvier 1983
+# y figure et dit remplacer « 13 p. 100 », alors que la version qu'il modifie se
+# lit « 18 p. 100 ». Le récupérateur écarte donc toute version qu'un décret
+# contredit, et toute version qui a couru plus de quatre ans sur un taux que le
+# pouvoir réglementaire a bougé tous les un à trois ans.
 #
 # POURQUOI LA SNCF S'ARRÊTE À 2011. Le taux T1 est lu de 2007 à 2022, mais la
 # SOMME n'est lisible que là où ses deux termes le sont, et le décret ne chiffre
@@ -121,11 +136,11 @@ annee,regime,taux,nature,fiabilite
 1981,cnracl,0.130000,appelee,haute
 1982,cnracl,0.130000,appelee,haute
 1983,cnracl,0.125000,appelee,haute
-1984,cnracl,0.102000,appelee,haute
-1985,cnracl,0.102000,appelee,haute
-1986,cnracl,0.102000,appelee,haute
-1987,cnracl,0.152000,appelee,haute
-1988,cnracl,0.182000,appelee,haute
+1984,cnracl,0.102000,appelee,certifiee
+1985,cnracl,0.102000,appelee,certifiee
+1986,cnracl,0.102000,appelee,certifiee
+1987,cnracl,0.152000,appelee,certifiee
+1988,cnracl,0.182000,appelee,certifiee
 1989,cnracl,0.197000,appelee,haute
 1990,cnracl,0.197000,appelee,haute
 1991,cnracl,0.197000,appelee,haute

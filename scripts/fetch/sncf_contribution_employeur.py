@@ -150,6 +150,10 @@ for bloc in iter(lambda: sys.stdin.buffer.read(1 << 20), b""):
 """
 
 
+class TransfertIncomplet(RuntimeError):
+    """Le dump n'a pas été téléchargé en entier."""
+
+
 def dernier_dump(racine: str, prefixe: str) -> str:
     with urllib.request.urlopen(racine, timeout=120) as reponse:
         page = reponse.read().decode("utf-8", errors="replace")
@@ -231,7 +235,15 @@ def depouiller(url: str, filtre: str) -> list[str]:
     )
     detar.stdout.close()
     sortie, _ = sonde.communicate()
-    lecture.wait()
+    # Un transfert coupé ne se voit pas dans ce qui a été lu : le dépouillement
+    # rend une série plus courte, et les contrôles de continuité la trouvent
+    # bonne — un dump à moitié lu n'a pas de trou, il a une fin prématurée.
+    # C'est arrivé, et rien ne l'avait dit.
+    if lecture.wait() != 0:
+        raise TransfertIncomplet(
+            f"curl s'est interrompu (code {lecture.returncode}) : le dump n'a "
+            "pas été lu en entier, et la série qu'on en tirerait serait muette "
+            "sur ce qui manque")
     return [re.sub(r"\s+", " ", bloc).strip()
             for bloc in sortie.split("@@@\n")[1:] if bloc.strip()]
 
@@ -246,12 +258,21 @@ def main() -> int:
 
     print(f"Dump JORF {url_jorf.rsplit('/', 1)[-1]}")
     print("Arrêtés annuels du taux T1 : comptez une demi-heure.\n")
-    definitif, provisionnel, griefs = composantes_t1(
-        depouiller(url_jorf, FILTRE_JORF))
+    try:
+        textes_jorf = depouiller(url_jorf, FILTRE_JORF)
+    except TransfertIncomplet as erreur:
+        print(f"ÉCHEC   {erreur}", file=sys.stderr)
+        return 1
+    definitif, provisionnel, griefs = composantes_t1(textes_jorf)
 
     print(f"Dump LEGI {url_legi.rsplit('/', 1)[-1]}")
     print("Article 2 IV du décret de 2007 : autant.\n")
-    t2, autres = composante_t2(depouiller(url_legi, FILTRE_LEGI))
+    try:
+        textes_legi = depouiller(url_legi, FILTRE_LEGI)
+    except TransfertIncomplet as erreur:
+        print(f"ÉCHEC   {erreur}", file=sys.stderr)
+        return 1
+    t2, autres = composante_t2(textes_legi)
     griefs += autres
 
     for annee in sorted(set(definitif) & set(provisionnel)):

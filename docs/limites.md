@@ -340,6 +340,8 @@ La page **Données** du site affiche l'état exact. En résumé :
 | Quotients de mortalité par âge | 1986-1997, 95 à 104 ans | **certifiée** | INED, là où Eurostat s'arrête |
 | Quotients de mortalité par âge | après 1997, au-delà de 94 ans | absents | calibration paramétrique, dont le biais est mesuré |
 | Minimum contributif et plafond d'écrêtement | ancres de 2007 à 2014 | **certifiée** | DILA, base LEGI, code de la sécurité sociale |
+| Minimum vieillesse (ASPA) | ancres 2006, 2009-2012, 2014, 2018-2020 | **certifiée** | DILA, base LEGI, code de la sécurité sociale `D. 815-1` |
+| Minimum vieillesse (ASPA) | ancres 2007, 2016, 2017, depuis 2021 | haute / moyenne | publications — l'article n'est pas réécrit à chaque revalorisation |
 | Âge d'ouverture des droits par génération | 1900-1975 | **certifiée** | DILA, base LEGI, code de la sécurité sociale `D. 161-2-1-9` |
 | Durée d'assurance requise par génération | 1958-1975 | **certifiée** | DILA, base LEGI, code de la sécurité sociale `L. 161-17-3` |
 | Durée d'assurance requise par génération | 1953-1957 | **certifiée** | DILA, base LEGI, décrets d'application des lois de 2003 et de 2010 |
@@ -369,7 +371,8 @@ La page **Données** du site affiche l'état exact. En résumé :
 | Contribution employeur, État | 2006-2026 | **certifiée** | Service des retraites de l'État, fiche « Historique des taux de cotisations » |
 | Contribution employeur, État (implicite) | 1995-2005 | haute | OpenFisca-France, jaune « pensions » du PLF 2011 |
 | Contribution employeur, CNRACL | 1993-2028 | **certifiée** | DILA, base LEGI, décret n° 91-613 du 28 juin 1991, article 5 II |
-| Contribution employeur, CNRACL | 1948-1992 | haute | OpenFisca-France, décrets abrogés et barèmes de la Caisse des dépôts |
+| Contribution employeur, CNRACL | 1984-1988 | **certifiée** | DILA, base LEGI, décret n° 47-1846 du 19 septembre 1947, article 3 |
+| Contribution employeur, CNRACL | 1948-1983, 1989-1992 | haute | OpenFisca-France — la chaîne des versions de l'article 3 est trouée, et la base le démontre |
 | Contribution employeur, SNCF (T1 + T2) | 2007-2011 | **certifiée** | DILA, arrêtés annuels du taux T1 (base JORF) et décret n° 2007-1056, article 2 IV (base LEGI) |
 | Contribution employeur, SNCF (T1 + T2) | 2012-2018 | haute | OpenFisca-France — le décret cesse de chiffrer T2 après 2011 et le fait évoluer par formule |
 | Valeurs d'achat et de service du point, Ircantec | 1971-2021 | **certifiée** | Caisse des dépôts, qui gère le régime |
@@ -411,6 +414,7 @@ python scripts/fetch/dila_legi_minimum_garanti.py  # barème du minimum garanti 
 python scripts/fetch/erafp_valeurs_point.py    # valeurs du point du RAFP, par l'ERAFP
 python scripts/fetch/jorf_plafond_securite_sociale.py  # plafond ancien, dans son décret (1,7 Go)
 python scripts/fetch/sncf_contribution_employeur.py  # contribution SNCF, deux dumps (2,8 Go)
+python scripts/fetch/dila_legi_minimum_vieillesse.py  # montant de l'ASPA, dans le code (lent)
 python scripts/fetch/ined_vallin_mesle.py      # quotients de mortalité d'avant 1986
 python scripts/fetch/insee_projections_mortalite.py  # espérances de vie projetées, jusqu'en 2125
 python scripts/fetch/eurostat_hicp.py          # contrôle croisé de l'inflation
@@ -524,15 +528,18 @@ pour l'Arrco reconstituée, 26,43 F pour l'UNIRS).
 **Ce qui reste hors de portée, et pourquoi.** La liste vaut recensement de ce
 qui a été cherché, pour éviter de le rechercher deux fois — et elle est tenue
 dans les deux sens : une limite qui se referme n'est pas effacée, elle est
-réécrite avec ce qui l'a levée et ce qu'elle a fini par coûter. Sur les vingt
-entrées qui suivent, **douze ont été refermées par une source trouvée**, **deux
+réécrite avec ce qui l'a levée et ce qu'elle a fini par coûter. Sur les
+vingt et une entrées qui suivent, **douze ont été refermées par une source trouvée**, **deux
 par la mesure du biais** qu'elles laissent — un biais chiffré n'est plus une
-inconnue, il se retranche — et **deux à moitié** : le plafond ancien, dont
-trente et une années sur soixante et onze sont désormais lues dans leur décret,
-et la contribution de la SNCF, dont cinq années sur douze le sont. Ces
-demi-fermetures se ressemblent : la source a été trouvée et lue, et ce qui reste
-tient à la RÉDACTION des textes — un décret qui ne nomme pas l'année qu'il
-commande, un taux que le décret fait évoluer par renvoi au lieu de l'écrire.
+inconnue, il se retranche — et **quatre à moitié** : le plafond ancien, dont
+trente et une années sur soixante et onze sont désormais lues dans leur décret ;
+la contribution de la SNCF, cinq années sur douze ; celle de la CNRACL d'avant
+1993, cinq sur quarante-cinq ; et le minimum vieillesse, neuf ancres sur
+quatorze. Ces demi-fermetures se ressemblent : la source a été trouvée et lue,
+et ce qui reste tient à la RÉDACTION des textes ou aux LACUNES de la base — un
+décret qui ne nomme pas l'année qu'il commande, un taux que le décret fait
+évoluer par renvoi au lieu de l'écrire, un article qu'on ne réécrit pas à chaque
+revalorisation, une version qui a avalé un décret perdu.
 Quatre restent ouvertes : trois faute de source, et une parce que la source ne
 suffirait pas — la ligne y mêle un nombre de la loi et une convention de
 modélisation. Les
@@ -1317,22 +1324,53 @@ plus volontiers.
   écrivent « le taux T1 définitif ». Ne lire que la rédaction moderne coûtait la
   première année de la série.
 
-* *Contribution employeur de la CNRACL d'avant 1993* — **cherchée, et la chaîne
-  est trouée.** Les taux de 1993 à 2028 sont désormais lus dans l'article 5 du
-  décret de 1991. Ceux d'avant sont dans les décrets que ce dernier a remplacés,
-  et la base ne les garde pas tous : sur les six textes que l'article consolidé
-  cite en note — 83-36, 83-1193, 84-1157, 86-1381, 87-1118, 88-1249, 91-159 —,
-  un seul porte encore sa phrase, celui du 24 janvier 1983 :
+* *Contribution employeur de la CNRACL d'avant 1993* — **cherchée au mauvais
+  endroit, puis trouvée, et la chaîne reste trouée là où la base l'est.** Cette
+  page écrivait : « ceux d'avant sont dans les décrets que ce dernier a
+  remplacés, et la base ne les garde pas tous : sur les six textes que l'article
+  consolidé cite en note, un seul porte encore sa phrase. » La prémisse était
+  vraie et le raisonnement faux, d'une faute qu'il vaut la peine de nommer :
+  **un décret modificatif ne porte pas le taux, il porte un REMPLACEMENT.** Le
+  taux, lui, est dans l'article modifié — l'**article 3 du décret n° 47-1846 du
+  19 septembre 1947** —, dont la base garde quinze versions datées au jour.
 
-  > « Au deuxième alinéa du 1 de l'article 3 du décret du 19 septembre 1947
-  > modifié susvisé, le taux de 13 p. 100 est remplacé par le taux de
-  > 11,20 p. 100. »
+  **MAIS LA CONTIGUÏTÉ N'EST PAS LA COMPLÉTUDE**, et c'est la vraie leçon.
+  Quand un décret manque à la base, la version qu'il aurait coupée court sans
+  coupure : la chaîne paraît pleine et saute une valeur, sans que rien ne le
+  dise. Ce n'est pas une conjecture — la base se contredit elle-même : le décret
+  n° 83-36 du 24 janvier 1983 y figure et déclare remplacer « 13 p. 100 », quand
+  la version qu'il modifie se lit « 18 p. 100 ». Entre 1977 et 1983, un décret a
+  fait passer le taux de 18 à 13 % et la base ne l'a pas gardé.
 
-  Reconstituer la série d'un taux à l'autre suppose la chaîne entière : il
-  manque un maillon et la série est plate là où le taux a bougé, sans que rien
-  ne le dise. C'est exactement ce qui a fait renoncer au point d'indice d'avant
-  1996, et la même mesure s'applique — ces quarante-cinq années restent
-  transcrites d'OpenFisca, au niveau `haute`.
+  Deux garde-fous en découlent, et aucun ne repose sur une date supposée : la
+  **contradiction** — une version qu'un décret modificatif dément est refusée
+  avec toute sa période — et la **longévité** — une version de plus de quatre
+  ans est refusée, ce taux ayant bougé tous les un à trois ans sur toute la
+  période documentée. La version de 1962 à 1977, quinze ans sur un seul chiffre,
+  tombe par le second ; celle de 1977 à 1983 par les deux.
+
+  Il en reste **1984 à 1988**, cinq années aux versions courtes que rien ne
+  contredit, et qui se sont trouvées identiques au centième de point à la
+  transcription. Les quarante autres restent `haute` — non plus faute de source,
+  mais parce que la base est trouée, et l'on sait désormais où.
+
+* *Montant du minimum vieillesse* — **il était dans le code, et personne n'y
+  avait regardé.** Ces montants venaient d'une saisie sur Légifrance
+  (`source_id: legifrance_textes`), c'est-à-dire d'une lecture humaine et non
+  d'un fichier confronté au producteur. Or l'**article D. 815-1 du code de la
+  sécurité sociale** les porte, datés, et la base LEGI en garde les versions :
+  neuf ancres, de 2006 à 2020, dont cinq que le dépôt n'avait pas.
+
+  **Et la lecture a corrigé un chiffre.** Le dépôt portait le montant MENSUEL
+  maximal multiplié par douze — 708,95 × 12 = 8 507,40 € pour 2010 —, quand
+  l'article fixe **8 507,49 € par an**, dont le mensuel arrondi se déduit. Neuf
+  centimes, et le sens de la dérivation rétabli : le texte fixe l'annuel.
+
+  Ce que l'article tait reste `haute`, et il en tait la moitié : il n'est pas
+  réécrit à chaque revalorisation. Sa version d'octobre 2014 tient jusqu'en
+  avril 2018 sur un seul montant, alors que l'allocation a monté en 2016 et en
+  2017 ; et il s'arrête en 2020. Les ancres de 2007, 2016, 2017 et d'après 2020
+  disent donc ce que le code ne dit pas.
 
 **Ce que cela veut dire concrètement.** Les carrières entamées après 1950 —
 c'est-à-dire les générations nées à partir de 1930 environ, soit la quasi-totalité

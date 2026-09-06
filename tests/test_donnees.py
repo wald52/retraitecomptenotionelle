@@ -266,6 +266,7 @@ def test_journal_de_certification_decrit_les_series_certifiees():
         "plafond": "macro/plafond_securite_sociale.csv",
         "plafond_ancien": "macro/plafond_securite_sociale.csv",
         "plafond_journal_officiel": "macro/plafond_securite_sociale.csv",
+        "minimum_vieillesse": "legislation/minimum_vieillesse.csv",
         "esperances_vie": "mortalite/esperances_vie.csv",
         "esperance_65_derivee": "mortalite/esperances_vie.csv",
         "esperances_projetees": "mortalite/esperances_vie.csv",

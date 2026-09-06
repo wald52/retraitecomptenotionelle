@@ -1023,7 +1023,7 @@ institutions:
           pas des textes consolidés séparés.
 
       - id: dila_legi_cnracl
-        titre: Contribution employeur de la CNRACL, 1993-2028
+        titre: Contribution employeur de la CNRACL, 1984-1988 et 1993-2028
         url: https://echanges.dila.gouv.fr/OPENDATA/LEGI/
         acces: api
         statut_integration: certifie
@@ -1049,6 +1049,20 @@ institutions:
           le 1er mars sans autre date vaut donc pour l'année entière.
           Les taux d'avant 1993 sont dans les décrets abrogés que celui de 1991
           a remplacés, et restent transcrits.
+          L'AVANT-1993 EST DANS L'ARTICLE QU'ON MODIFIAIT. Un décret modificatif
+          ne porte pas le taux, il porte un remplacement — « le taux de 13 p. 100
+          est remplacé par le taux de 11,20 p. 100 » ; le taux est dans l'article
+          3 du décret n° 47-1846 du 19 septembre 1947, dont la base garde quinze
+          versions datées au jour. MAIS LA CONTIGUÏTÉ N'EST PAS LA COMPLÉTUDE :
+          quand un décret manque à la base, la version qu'il aurait coupée court
+          sans coupure et la chaîne paraît pleine. La base le démontre —
+          le décret n° 83-36 du 24 janvier 1983 y figure et dit remplacer
+          13 p. 100, quand la version qu'il modifie se lit 18 p. 100. D'où deux
+          garde-fous : une version qu'un décret contredit est refusée, et une
+          version de plus de quatre ans aussi. Il en reste 1984-1988.
+          Les décrets modificatifs nomment celui de 1947 par sa DATE et non par
+          son numéro : chercher le seul numéro perdait le contrôle même qui rend
+          la lacune démontrable.
 
       - id: dila_legi_decote_fonction_publique
         titre: Décote de la fonction publique, montée en charge 2006-2019
@@ -1175,6 +1189,28 @@ institutions:
           UN PIÈGE : l'arrêté fondateur du 6 mai 2008, seul à porter l'année
           2007, écrit « le taux définitif T1 » quand tous les autres écrivent
           « le taux T1 définitif ».
+
+      - id: dila_legi_minimum_vieillesse
+        titre: Montant de l'ASPA, code de la sécurité sociale D. 815-1, 2006-2020
+        url: https://echanges.dila.gouv.fr/OPENDATA/LEGI/
+        acces: api
+        statut_integration: certifie
+        cible: data/reference/legislation/minimum_vieillesse.csv
+        recuperation: scripts/fetch/dila_legi_minimum_vieillesse.py
+        note: >-
+          Ces montants venaient d'une saisie sur Légifrance — une lecture
+          humaine, non un fichier confronté au producteur. L'article D. 815-1 les
+          porte, datés, et la base garde ses versions : neuf ancres de 2006 à
+          2020, dont cinq que le dépôt n'avait pas.
+          LA LECTURE A CORRIGÉ UN CHIFFRE : le dépôt portait le montant MENSUEL
+          maximal multiplié par douze — 708,95 × 12 = 8 507,40 € pour 2010 —,
+          quand l'article fixe 8 507,49 € PAR AN, dont le mensuel arrondi se
+          déduit. Neuf centimes, et le sens de la dérivation rétabli.
+          CE QUE L'ARTICLE TAIT, et il en tait la moitié : il n'est pas réécrit à
+          chaque revalorisation. Sa version d'octobre 2014 tient jusqu'en avril
+          2018 sur un seul montant alors que l'allocation a monté en 2016 et en
+          2017, et il s'arrête en 2020. Le b) de l'article porte le barème du
+          COUPLE, que le modèle ne connaît pas : seul le a) est lu.
 
       - id: dila_opendata
         titre: Bases ouvertes de la DILA — JORF et LEGI

@@ -949,6 +949,23 @@ def source_valeurs_point_texte() -> dict[tuple, float]:
             for cle, valeur in sorted(charge["complements"].items())}
 
 
+def source_minimum_vieillesse() -> dict[tuple, float]:
+    """Montant de l'ASPA, lu dans l'article D. 815-1 du code.
+
+    Le dépôt le tenait d'une saisie sur Légifrance. L'article le porte, daté, et
+    la base LEGI en garde les versions — mais il n'est pas réécrit à chaque
+    revalorisation : il s'arrête en 2020 et saute 2013 et 2015-2017. Les ancres
+    que le dépôt tient d'ailleurs comblent ce qu'il tait, au niveau ``haute``.
+
+    Le montant lu est l'ANNUEL que le texte fixe, non douze fois le mensuel
+    arrondi : neuf centimes séparent les deux en 2010, et c'est le texte qui
+    dit lequel est la grandeur.
+    """
+    serie = _serie_json("dila_legi_minimum_vieillesse.json",
+                        "scripts/fetch/dila_legi_minimum_vieillesse.py")
+    return {(annee,): valeur for annee, valeur in sorted(serie.items())}
+
+
 def source_plafond_journal_officiel() -> dict[tuple, float]:
     """Plafond de la Sécurité sociale d'avant 2002, dans les décrets qui le fixent.
 
@@ -1076,6 +1093,12 @@ def source_employeur_cnracl_jo() -> dict[tuple, float]:
     Le I du même article porte la RETENUE de l'agent, et la contribution
     supplémentaire qui suit le II est un autre prélèvement : ni l'un ni l'autre
     n'entre ici.
+
+    Elle couvre aussi 1984-1988. L'avant-1993 n'était pas hors de portée : il
+    était cherché dans les décrets modificatifs — qui ne portent qu'un
+    remplacement — au lieu de l'article 3 du décret de 1947, qu'ils modifiaient
+    et dont la base garde les versions datées. Le récupérateur n'en rend que les
+    années dont la chaîne est sûre ; voir sa documentation.
     """
     serie = _serie_json("dila_legi_cnracl.json", "scripts/fetch/dila_legi_cnracl.py")
     return {(annee, "cnracl"): taux for annee, taux in sorted(serie.items())}
@@ -1419,6 +1442,17 @@ CERTIFICATIONS = (
     # Les deux se partagent l'avant-2002 sans se recouvrir : `plafond_ancien`
     # s'efface devant les années que celle-ci porte. Voir sa documentation —
     # c'est le journal de certification, non le fichier, qui l'exigeait.
+    Certification(
+        nom="minimum_vieillesse",
+        chemin=REFERENCE / "legislation" / "minimum_vieillesse.csv",
+        cles=("annee",),
+        colonne="valeur",
+        source=source_minimum_vieillesse,
+        origine="DILA, base LEGI, code de la sécurité sociale, article D. 815-1",
+        decimales=6,
+        tolerance=5e-7,
+        unite=" €",
+    ),
     Certification(
         nom="plafond_journal_officiel",
         chemin=REFERENCE / "macro" / "plafond_securite_sociale.csv",
@@ -1914,7 +1948,8 @@ CERTIFICATIONS = (
         cles=("annee", "regime"),
         colonne="taux",
         source=source_employeur_cnracl_jo,
-        origine="DILA, base LEGI, décret n° 91-613 du 28 juin 1991, article 5 II",
+        origine="DILA, base LEGI, décret n° 91-613 du 28 juin 1991, article 5 II, "
+                "et décret n° 47-1846 du 19 septembre 1947, article 3",
         decimales=6,
         tolerance=5e-7,
         gabarit={"nature": "appelee"},

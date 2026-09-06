@@ -1,6 +1,7 @@
 # Minimum vieillesse — allocation de solidarité aux personnes âgées (ASPA)
 # --------------------------------------------------------------------------
-# source_id: legifrance_textes, drees_panorama_retraites
+# source_id: dila_legi_minimum_vieillesse (2006-2020), legifrance_textes,
+#            drees_panorama_retraites
 #
 # Le dernier plancher du système actuel, et le seul qui ne suppose aucune
 # cotisation : une allocation DIFFÉRENTIELLE qui porte les ressources d'une
@@ -40,15 +41,37 @@
 # vieillesse a été relevé bien plus vite que les prix dans les années 1960 et
 # 1970, où il constituait l'essentiel de la politique de la vieillesse.
 #
-# Transcriptions de publications : niveau `haute`, jamais `certifiee`.
+# D'OÙ VIENNENT CES MONTANTS. Neuf ancres — 2006, 2009 à 2012, 2014, et 2018 à
+# 2020 — sont lues dans l'**article D. 815-1 du code de la sécurité sociale**,
+# dont la base LEGI garde les versions datées : « le montant annuel de
+# l'allocation de solidarité aux personnes âgées est fixé : a) Pour les
+# personnes seules […] à 9 998,40 euros par an à compter du 1er avril 2018 ».
+# Elles sont `certifiee`.
+#
+# CE QUE L'ARTICLE TAIT, ET IL EN TAIT LA MOITIÉ. Il n'est pas réécrit à chaque
+# revalorisation : il s'arrête en 2020, et sa version d'octobre 2014 tient
+# jusqu'en avril 2018 sur un seul montant alors que l'allocation a monté
+# entre-temps. Les ancres de 2007, 2016, 2017 et d'après 2020 viennent donc
+# d'ailleurs et restent `haute` — transcriptions de publications, jamais
+# `certifiee`.
+#
+# LE MONTANT EST ANNUEL, ET CELA A CORRIGÉ UNE VALEUR. Le dépôt portait le
+# mensuel maximal multiplié par douze — 708,95 × 12 = 8 507,40 € pour 2010 ;
+# l'article fixe 8 507,49 € par an, dont le mensuel arrondi se déduit. Neuf
+# centimes, mais dans le bon sens : le texte fixe l'annuel.
 annee,valeur,fiabilite
+2006,7323.480000,certifiee
 2007,7455.240000,moyenne
-2010,8507.400000,haute
+2009,8125.590000,certifiee
+2010,8507.490000,certifiee
+2011,8907.340000,certifiee
+2012,9325.980000,certifiee
+2014,9600.000000,certifiee
 2016,9609.600000,haute
 2017,9638.400000,haute
-2018,9998.400000,haute
-2019,10418.400000,haute
-2020,10838.400000,haute
+2018,9998.400000,certifiee
+2019,10418.400000,certifiee
+2020,10838.400000,certifiee
 2021,10881.720000,haute
 2022,11001.360000,haute
 2023,11532.960000,haute
