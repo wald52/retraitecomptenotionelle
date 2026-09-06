@@ -949,18 +949,51 @@ def source_valeurs_point_texte() -> dict[tuple, float]:
             for cle, valeur in sorted(charge["complements"].items())}
 
 
+def source_plafond_journal_officiel() -> dict[tuple, float]:
+    """Plafond de la Sécurité sociale d'avant 2002, dans les décrets qui le fixent.
+
+    Le plafond n'est pas une statistique, c'est un décret : le *Journal
+    officiel* en est le producteur, et la base JORF de la DILA le porte. Les
+    années 2002 et suivantes viennent de l'INSEE, qui publie le plafond mensuel
+    et l'emporte pour cette période ; celles d'avant venaient d'OpenFisca, une
+    transcription tierce plafonnée à ``haute``.
+
+    Le récupérateur ne rend que les années dont il a lu le texte — jamais une
+    année reconduite : voir sa documentation.
+    """
+    serie = _serie_json("jorf_plafond_securite_sociale.json",
+                        "scripts/fetch/jorf_plafond_securite_sociale.py")
+    return {
+        (annee,): round(valeur)
+        for annee, valeur in sorted(serie.items())
+        if int(annee) < 2002
+    }
+
+
 def source_plafond_ancien() -> dict[tuple, float]:
     """Plafond de la Sécurité sociale d'avant 2002, par OpenFisca-France.
 
     Bornée à 2001 : au-delà, le plafond publié par l'INSEE est une source
     primaire, qui l'emporte. Les années 2002-2026 servent de contrôle croisé
     entre les deux, sans être versées ici.
+
+    Elle s'efface AUSSI devant le *Journal officiel*, pour les années qu'il
+    porte. Non que l'appliquer d'abord et laisser la certification l'écraser
+    ensuite donnerait un autre fichier — l'ordre de la liste suffirait —, mais
+    parce que le JOURNAL DE CERTIFICATION consignerait alors soixante et onze
+    valeurs versées au niveau ``haute`` quand le fichier n'en porterait que
+    cinquante-neuf. Une trace qui décrit autre chose que ce qui a été écrit ne
+    vaut rien, et c'est un test qui l'a dit.
     """
     serie = _serie_json("openfisca_plafond.json", "scripts/fetch/openfisca_plafond.py")
+    try:
+        lues = set(source_plafond_journal_officiel())
+    except SourceAbsente:
+        lues = set()
     return {
         (annee,): round(valeur)
         for annee, valeur in sorted(serie.items())
-        if int(annee) < 2002
+        if int(annee) < 2002 and (annee,) not in lues
     }
 
 
@@ -1346,6 +1379,21 @@ CERTIFICATIONS = (
         tolerance=0.5,
         unite=" €",
         niveau="haute",
+    ),
+    # Les deux se partagent l'avant-2002 sans se recouvrir : `plafond_ancien`
+    # s'efface devant les années que celle-ci porte. Voir sa documentation —
+    # c'est le journal de certification, non le fichier, qui l'exigeait.
+    Certification(
+        nom="plafond_journal_officiel",
+        chemin=REFERENCE / "macro" / "plafond_securite_sociale.csv",
+        cles=("annee",),
+        colonne="pass_eur",
+        source=source_plafond_journal_officiel,
+        origine="DILA, base JORF, décrets portant fixation du plafond de la "
+                "sécurité sociale",
+        decimales=0,
+        tolerance=0.5,
+        unite=" €",
     ),
     Certification(
         nom="esperances_vie",

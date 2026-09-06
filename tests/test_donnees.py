@@ -142,13 +142,25 @@ def test_plafond_certifie_sur_la_periode_publiee_par_l_insee(macro):
 
 
 def test_plafond_ancien_vient_d_une_transcription_pas_du_producteur(macro):
-    """Le plafond d'avant 2002 vaut « haute », jamais « certifiee ».
+    """Les années d'avant 2002 dont le décret n'a pas été lu valent « haute ».
 
-    Il vient d'OpenFisca-France, transcription du Journal officiel : publiée,
-    sourcée, reprise automatiquement — mais pas de la main du producteur.
+    Elles viennent d'OpenFisca-France, transcription du Journal officiel :
+    publiée, sourcée, reprise automatiquement — mais pas de la main du
+    producteur. 1985, 1986, 1987 et 1989 en sont : la notice du dump JORF ne
+    porte pas, pour ces années-là, le montant du 1er janvier.
     """
-    for annee in (1945, 1960, 1985, 2001):
+    for annee in (1945, 1960, 1985, 1989):
         assert macro.plafond_securite_sociale.fiabilite(annee) == Fiabilite.HAUTE, annee
+
+
+def test_plafond_ancien_certifie_la_ou_le_decret_a_ete_lu(macro):
+    """Douze années d'avant 2002 sont lues dans le Journal officiel lui-même.
+
+    Le plafond n'est pas une statistique mais un décret : la base JORF de la
+    DILA en est le producteur, là où l'INSEE ne commence qu'en 2002.
+    """
+    for annee in (1984, 1988, 1990, 1993, 1996, 2001):
+        assert macro.plafond_securite_sociale.fiabilite(annee) == Fiabilite.CERTIFIEE, annee
 
 
 def test_plafond_est_strictement_croissant(macro):
@@ -250,6 +262,7 @@ def test_journal_de_certification_decrit_les_series_certifiees():
         "productivite": "macro/productivite.csv",
         "plafond": "macro/plafond_securite_sociale.csv",
         "plafond_ancien": "macro/plafond_securite_sociale.csv",
+        "plafond_journal_officiel": "macro/plafond_securite_sociale.csv",
         "esperances_vie": "mortalite/esperances_vie.csv",
         "esperance_65_derivee": "mortalite/esperances_vie.csv",
         "esperances_projetees": "mortalite/esperances_vie.csv",

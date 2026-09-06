@@ -1,5 +1,6 @@
 # Plafond annuel de la Sécurité sociale (PASS)
-# source_id: insee_bdm (2002-2025), openfisca_plafond (1931-2001)
+# source_id: insee_bdm (2002-2025), jorf_plafond_securite_sociale (1984-2001,
+#            douze années), openfisca_plafond (le reste de 1931-2001)
 # unite: euros courants de l'année. Les valeurs antérieures à 2002 sont les
 #        plafonds en francs convertis au taux officiel 6,55957 FRF/EUR — et,
 #        avant 1960, au passage aux nouveaux francs (÷100). Conversion
@@ -8,7 +9,13 @@
 #   certifiee (2002-2025) : plafond mensuel publié par l'INSEE (idbank
 #             000822494) multiplié par douze, après vérification que les douze
 #             mois de l'année portent bien la même valeur.
-#   haute     (1931-2001) : plafonds datés décret par décret dans
+#   certifiee (1984, 1988, 1990-1993, 1996-2001) : le décret qui fixe le
+#             plafond, lu dans la base JORF de la DILA — le Journal officiel
+#             lui-même, et non plus sa transcription. Douze années, dont les
+#             valeurs se sont trouvées identiques à l'euro près à celles
+#             d'OpenFisca : c'est la transcription qui s'en trouve corroborée,
+#             pas seulement la certification qui s'en trouve acquise.
+#   haute     (le reste de 1931-2001) : plafonds datés décret par décret dans
 #             OpenFisca-France, transcription du Journal officiel maintenue par
 #             l'administration. Transcription tierce et non source primaire :
 #             d'où « haute » et non « certifiee ». Deux recoupements la
@@ -17,9 +24,22 @@
 #             saisies dans ce dépôt sur 1997-2001.
 #   estimee   (2026) : plafond projeté, non encore publié en série annuelle.
 #
-# Les années à plusieurs revalorisations (1944, 1951, 1960, 1961) sont calculées
-# au prorata des mois d'application, ce qui est la définition même du plafond
-# annuel : la somme des plafonds mensuels.
+# POURQUOI DOUZE ANNÉES ET NON SOIXANTE ET ONZE. La base JORF garde les textes
+# anciens par leur NOTICE, en capitales et sans accents, et cette notice n'a pas
+# eu d'écriture stable : « LES NOUVELLES VALEURS DU PLAFOND S'ETABLISSENT DONC
+# POUR LA PERIODE DU 01-01-1991 AU 30-06-1991 A 11340FRS », mais aussi
+# « (PLAFOND: 9950FRS PAR MOIS) », ou rien du tout. Le récupérateur lit les
+# écritures qu'il connaît et ne rend que les années dont il a lu le texte : une
+# année reconduite depuis la précédente écrirait un gel qui n'a pas eu lieu, le
+# plafond ayant été relevé chaque année sans exception.
+#
+# Les années à plusieurs revalorisations sont calculées au prorata des mois
+# d'application, ce qui est la définition même du plafond annuel : la somme des
+# plafonds mensuels. Le plafond a été relevé DEUX FOIS L'AN, au 1er janvier et
+# au 1er juillet, jusqu'en 1996 — la lecture du Journal officiel le montre
+# année par année. La série d'OpenFisca porte déjà l'annuel et n'expose ce
+# détail que pour 1944, 1951, 1960 et 1961 ; les deux chemins se rejoignent
+# néanmoins à l'euro près sur les douze années lues des deux côtés.
 #
 # CORRECTION DE 2026-08 : les valeurs 1968-2001 étaient décalées d'un an — le
 # plafond inscrit à l'année N était celui de N-1. Le recoupement avec
@@ -82,24 +102,24 @@ annee,pass_eur,fiabilite
 1981,10482,haute
 1982,12504,haute
 1983,13977,haute
-1984,15184,haute
+1984,15184,certifiee
 1985,16272,haute
 1986,17105,haute
 1987,17809,haute
-1988,18349,haute
+1988,18349,certifiee
 1989,19099,haute
-1990,19977,haute
-1991,21001,haute
-1992,21971,haute
-1993,22840,haute
+1990,19977,certifiee
+1991,21001,certifiee
+1992,21971,certifiee
+1993,22840,certifiee
 1994,23343,haute
 1995,23773,haute
-1996,24578,haute
-1997,25099,haute
-1998,25776,haute
-1999,26471,haute
-2000,26892,haute
-2001,27349,haute
+1996,24578,certifiee
+1997,25099,certifiee
+1998,25776,certifiee
+1999,26471,certifiee
+2000,26892,certifiee
+2001,27349,certifiee
 2002,28224,certifiee
 2003,29184,certifiee
 2004,29712,certifiee

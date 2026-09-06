@@ -358,7 +358,8 @@ La page **Données** du site affiche l'état exact. En résumé :
 | SMIC horaire | 1997-2017, sauf 2002 | **certifiée** | DILA, base LEGI, décrets portant relèvement du SMIC |
 | SMIC horaire | 1970-1996, 2002 et depuis 2018 | haute | OpenFisca-France, `smic_horaire_brut` |
 | Plafond Sécurité sociale | 2002-2025 | **certifiée** | INSEE BDM, idbank 000822494 |
-| Plafond Sécurité sociale | 1931-2001 | haute | OpenFisca-France, daté décret par décret |
+| Plafond Sécurité sociale | 1984, 1988, 1990-1993, 1996-2001 | **certifiée** | DILA, base JORF, décrets portant fixation du plafond |
+| Plafond Sécurité sociale | le reste de 1931-2001 | haute | OpenFisca-France, daté décret par décret — la notice ancienne du JORF n'a pas d'écriture stable |
 | Revalorisation des salaires portés au compte | 10 colonnes, effets 2017-2026, perceptions depuis 1930 | haute | Cnav, circulaires de revalorisation, recoupées deux à deux |
 | Taux de cotisation, régime général | 1967-2026 | moyenne | OpenFisca-France, recoupé à chaque exécution |
 | Taux de cotisation, complémentaires du privé | Arrco 1962-2018, Agirc 1981-2018, Agirc-Arrco 2019- | moyenne | OpenFisca-France, taux effectifs par tranche, recoupés à chaque exécution |
@@ -407,6 +408,7 @@ python scripts/fetch/dila_legi_cnracl.py       # contribution employeur de la CN
 python scripts/fetch/dila_legi_decote_fonction_publique.py  # décote de la fonction publique (lent)
 python scripts/fetch/dila_legi_minimum_garanti.py  # barème du minimum garanti (lent)
 python scripts/fetch/erafp_valeurs_point.py    # valeurs du point du RAFP, par l'ERAFP
+python scripts/fetch/jorf_plafond_securite_sociale.py  # plafond ancien, dans son décret (1,7 Go)
 python scripts/fetch/ined_vallin_mesle.py      # quotients de mortalité d'avant 1986
 python scripts/fetch/insee_projections_mortalite.py  # espérances de vie projetées, jusqu'en 2125
 python scripts/fetch/eurostat_hicp.py          # contrôle croisé de l'inflation
@@ -432,9 +434,14 @@ documents publics de juin 2025 et de juin 2026 ne restatent pas.
 
 **Deux niveaux, deux exigences.** `certifiee` suppose que la source soit le
 **producteur** de la donnée : INSEE, Eurostat, OCDE. Une transcription tierce,
-même sourcée et reprise automatiquement, plafonne à `haute` — c'est le cas du
-plafond ancien, qui vient d'OpenFisca-France. La distinction n'est pas
-cosmétique : elle dit ce qu'on saurait vérifier soi-même en remontant d'un cran.
+même sourcée et reprise automatiquement, plafonne à `haute` — c'est le cas des
+années du plafond ancien dont le décret n'a pas été lu, et qui viennent
+d'OpenFisca-France. La distinction n'est pas cosmétique : elle dit ce qu'on
+saurait vérifier soi-même en remontant d'un cran. Et le plafond montre à quoi
+elle sert : sur les douze années où les deux chemins existent — la transcription
+et le *Journal officiel* —, ils donnent le même chiffre à l'euro près, ce qui
+certifie ces douze-là et rend les autres un peu moins incertaines sans les
+certifier.
 
 **Ce que l'automatisation a corrigé.** L'API SDMX de la Banque de données
 macroéconomiques de l'INSEE (`api.insee.fr/series/BDM/V1`) est ouverte sans clé
@@ -515,13 +522,14 @@ pour l'Arrco reconstituée, 26,43 F pour l'UNIRS).
 **Ce qui reste hors de portée, et pourquoi.** La liste vaut recensement de ce
 qui a été cherché, pour éviter de le rechercher deux fois — et elle est tenue
 dans les deux sens : une limite qui se referme n'est pas effacée, elle est
-réécrite avec ce qui l'a levée et ce qu'elle a fini par coûter. Sur les dix-neuf
-entrées qui suivent, **douze ont été refermées par une source trouvée** et
-**deux par la mesure du biais** qu'elles laissent — un biais chiffré n'est plus
-une inconnue, il se retranche. Cinq restent ouvertes : trois faute de source,
-une parce que la source ne suffirait pas — la ligne y mêle un nombre de la loi
-et une convention de modélisation —, et une dont la source est localisée mais
-pas encore lue. Les
+réécrite avec ce qui l'a levée et ce qu'elle a fini par coûter. Sur les vingt
+entrées qui suivent, **douze ont été refermées par une source trouvée**, **deux
+par la mesure du biais** qu'elles laissent — un biais chiffré n'est plus une
+inconnue, il se retranche — et **une à moitié**, le plafond ancien, dont douze
+années sur soixante et onze sont désormais lues dans leur décret. Cinq restent
+ouvertes : trois faute de source, une parce que la source ne suffirait pas — la
+ligne y mêle un nombre de la loi et une convention de modélisation —, et une
+dont la source est localisée mais pas encore lue. Les
 phrases qui déclaraient ces limites inaccessibles sont citées telles quelles,
 parce qu'une conclusion fausse tirée de prémisses vraies est ce qui se répète le
 plus volontiers.
@@ -1220,6 +1228,42 @@ plus volontiers.
   l'article : il n'énonce plus un taux mais un abaissement d'un an de l'âge de
   la surcote ordinaire. Certifier la ligne du dépôt contre une rédaction abrogée
   serait le contraire d'une certification.
+
+* *Plafond de la Sécurité sociale d'avant 2002* — **cherché, et douze années
+  sur soixante et onze sont rentrées.** Cette page écrivait : « l'INSEE ne
+  publie le plafond mensuel qu'à partir de 2001 et l'Urssaf ne diffuse aucun
+  historique en accès ouvert. La seule série machine des plafonds anciens est
+  celle d'OpenFisca-France. » Les deux premières phrases sont vraies, la
+  troisième ne l'est pas, et l'erreur est de catégorie : **le plafond n'est pas
+  une statistique, c'est un décret.** Le chercher chez les diffuseurs de séries
+  était chercher au mauvais endroit ; il est chez son producteur, le *Journal
+  officiel*, dont la DILA ouvre le dump.
+
+  Les années **1984, 1988, 1990-1993 et 1996-2001** sont désormais lues dans le
+  décret qui les fixe. Elles se sont trouvées **identiques à l'euro près** à ce
+  que portait la transcription — le contrôle n'a rien corrigé, et c'est
+  précisément ce qu'on attend d'une certification qui arrive après un
+  recoupement déjà fait deux fois.
+
+  **CE QUI BLOQUE LES CINQUANTE-NEUF AUTRES, ET CE N'EST PAS L'ACCÈS.** La base
+  garde les textes d'avant 1997 par leur NOTICE, en capitales et sans accents,
+  et cette notice n'a pas eu d'écriture stable. Trois formulations ont été
+  identifiées et sont lues — « LES NOUVELLES VALEURS DU PLAFOND S'ETABLISSENT
+  DONC POUR LA PERIODE DU 01-01-1991 AU 30-06-1991 A 11340FRS », « EST FIXE A
+  8490FRS PAR MOIS […] DEPUIS LE 01-01-1984 (8110FRS PAR MOIS) », et le montant
+  de janvier entre parenthèses que seul le titre date. Les autres années ou
+  bien emploient une quatrième écriture, ou bien ne portent pas le montant du
+  1er janvier, sans lequel l'année n'est pas calculable : **le plafond était
+  semestriel jusqu'en 1996**, et douze fois la valeur de juillet serait faux
+  d'un demi-relèvement. Le récupérateur ne reconduit jamais l'année
+  précédente — ce serait écrire un gel qui n'a pas eu lieu.
+
+  Reste, pour qui reprendrait : le plafond des années 1930 à 1960 est écrit en
+  ANNUEL et non en mensuel — « LE PLAFOND ANNUEL DES REMUNERATIONS OU GAINS
+  SOUMIS A COTISATIONS DE SECURITE SOCIALE ET D'ALLOCATIONS FAMILIALES EST FIXE
+  A 11 400 FRS » —, mais la notice ne dit pas de quand il court, et le déduire
+  de la date du décret serait une inférence, non une lecture. C'est là que la
+  voie s'arrête, et c'est une question de rédaction, pas d'accès.
 
 * *Contribution employeur de la SNCF* — **localisée, pas encore lue.** Le taux
   du fichier est la somme de deux composantes que le décret n° 2007-1056 du

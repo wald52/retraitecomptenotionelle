@@ -573,12 +573,14 @@ COR pour ce qu'il **décide**.
 | Décote de la fonction publique, coefficient et âge d'annulation | 2006-2019 | loi n° 2003-775, article 66 III, base LEGI |
 | Barème du minimum garanti, montée en charge | 2004-2013 | loi n° 2003-775, article 66 V, base LEGI |
 | Heures de SMIC à cotiser pour valider un trimestre | 1972 et 2014 | code de la sécurité sociale `R. 351-9`, base LEGI |
+| Plafond de la Sécurité sociale | 1984, 1988, 1990-1993, 1996-2001 | décrets portant fixation du plafond, base **JORF** |
 
 Ce qu'**OpenFisca-France** garde, ce sont les périodes que le *Journal officiel*
-lui-même ne rend pas : le plafond de la Sécurité sociale de 1931 à 2001, le
-point d'indice d'avant 1996, le SMIC d'avant 1997 et d'après 2017, le barème du
-minimum garanti. Ce sont des transcriptions, pas des sources primaires : elles
-plafonnent au niveau `haute`.
+lui-même ne rend pas : le plafond de la Sécurité sociale des années dont la
+notice ancienne ne porte pas le montant de janvier, le point d'indice d'avant
+1996, le SMIC d'avant 1997 et d'après 2017, le barème du minimum garanti. Ce
+sont des transcriptions, pas des sources primaires : elles plafonnent au niveau
+`haute`.
 
 **Le reste est désormais lu dans le décret qui le fixe.** Le SMIC et le point
 d'indice ne sont pas des articles de code — le premier est relevé par un décret
@@ -589,6 +591,15 @@ reste à la transcription plutôt que d'être devinée. C'est le cas de 2002 pou
 SMIC, dont l'arrondi en euros — 6,67 € et non 6,6651 € — vient d'un texte de
 conversion absent de la base, et des années d'avant 1996 pour le point d'indice,
 dont deux relèvements manquent.
+
+**Le plafond de la Sécurité sociale a suivi le même chemin, et par l'autre
+porte.** Il n'est pas dans LEGI, qui ne garde que les codes : il est dans le
+*Journal officiel* lui-même, dont la DILA ouvre un second dump. Douze années
+d'avant 2002 y sont lues — 1984, 1988, 1990-1993, 1996-2001 —, et elles
+confirment la transcription à l'euro près. Les autres tiennent à la rédaction
+des notices anciennes, qui ne portent pas toutes le montant du 1er janvier ;
+or le plafond était relevé deux fois l'an jusqu'en 1996, et le plafond annuel
+est la somme de ses douze mois.
 
 **Les valeurs du point de l'Agirc et de l'Arrco en venaient aussi, et elles
 viennent désormais de la caisse qui les a décidées.** Elles pèsent, dans la
@@ -617,6 +628,7 @@ python scripts/fetch/dila_legi_cnracl.py        # contribution employeur CNRACL 
 python scripts/fetch/dila_legi_decote_fonction_publique.py  # décote FP (lent)
 python scripts/fetch/dila_legi_minimum_garanti.py  # barème du minimum garanti (lent)
 python scripts/fetch/erafp_valeurs_point.py     # valeurs du point du RAFP, par l'ERAFP
+python scripts/fetch/jorf_plafond_securite_sociale.py  # plafond ancien, dans son décret (1,7 Go)
 python scripts/fetch/cdc_ircantec.py            # barèmes Ircantec, par son gestionnaire
 python scripts/fetch/cnbf_baremes.py            # valeurs du point des avocats
 python scripts/fetch/cnavpl_recueils.py         # valeur du point des libéraux

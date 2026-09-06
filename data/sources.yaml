@@ -1110,6 +1110,35 @@ institutions:
           il datait de juillet 2025 et s'arrêtait à 2024, alors que le décret
           n° 2026-78 du 11 février 2026 a fixé 0,3919 € pour 2025.
 
+      - id: jorf_plafond_securite_sociale
+        titre: Plafond de la Sécurité sociale, décrets de fixation, 1984-2025
+        url: https://echanges.dila.gouv.fr/OPENDATA/JORF/
+        acces: api
+        statut_integration: certifie
+        cible: data/reference/macro/plafond_securite_sociale.csv
+        recuperation: scripts/fetch/jorf_plafond_securite_sociale.py
+        note: >-
+          Le plafond n'est pas une statistique mais un décret : le chercher chez
+          les diffuseurs de séries — l'INSEE ne le publie qu'à partir de 2001,
+          l'Urssaf pas du tout — était chercher au mauvais endroit. Il est dans
+          le JOURNAL OFFICIEL, dont la DILA ouvre un dump distinct de LEGI :
+          1,7 Go, une demi-heure de lecture en flux. Douze années d'avant 2002 y
+          sont lues et passent de la transcription au producteur — 1984, 1988,
+          1990-1993, 1996-2001 —, toutes identiques à l'euro près à ce que
+          portait OpenFisca, ce qui corrobore la transcription autant que cela
+          certifie ces douze-là.
+          TROIS ÉCRITURES POUR UNE MÊME GRANDEUR, et elles se suivent dans le
+          temps : la NOTICE en capitales avant 1997, l'ARTICLE 1er en texte
+          intégral de 1997 à 2002, l'ARRÊTÉ à deux valeurs depuis 2003. Le
+          récupérateur lit les trois et refait le taux que la notice annonce.
+          CE QUI RESTE HORS DE PORTÉE : les années dont la notice n'a pas
+          d'écriture connue, ou ne porte pas le montant du 1er janvier. Le
+          plafond était SEMESTRIEL jusqu'en 1996 — le plafond annuel est la
+          somme de ses douze mois, et douze fois la valeur de juillet serait
+          faux d'un demi-relèvement. Le récupérateur ne reconduit jamais l'année
+          précédente. Les années 1930-1960 écrivent d'ailleurs un plafond
+          ANNUEL, mais sans dire de quand il court.
+
       - id: dila_opendata
         titre: Bases ouvertes de la DILA — JORF et LEGI
         url: https://echanges.dila.gouv.fr/OPENDATA/

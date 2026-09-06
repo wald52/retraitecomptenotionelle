@@ -1,5 +1,5 @@
 {
- "certifie_le": "2026-09-05",
+ "certifie_le": "2026-09-06",
  "series": {
   "age_ouverture_requis": {
    "ajoutees": 0,
@@ -275,11 +275,21 @@
    "ajoutees": 0,
    "colonne": "pass_eur",
    "corrigees": 0,
-   "empreinte": "e2958be9531f7b78",
-   "identiques": 71,
+   "empreinte": "b7c0e7e3d4eec39d",
+   "identiques": 59,
    "niveau": "haute",
    "source": "OpenFisca-France, plafond_securite_sociale_annuel.yaml",
-   "valeurs": 71
+   "valeurs": 59
+  },
+  "plafond_journal_officiel": {
+   "ajoutees": 0,
+   "colonne": "pass_eur",
+   "corrigees": 0,
+   "empreinte": "611db05d1ae5831e",
+   "identiques": 12,
+   "niveau": "certifiee",
+   "source": "DILA, base JORF, décrets portant fixation du plafond de la sécurité sociale",
+   "valeurs": 12
   },
   "point_indice_fonction_publique": {
    "ajoutees": 0,

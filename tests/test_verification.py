@@ -9,6 +9,7 @@ niveau ``certifiee``.
 from __future__ import annotations
 
 import csv
+import datetime
 import importlib.util
 import json
 import sys
@@ -190,14 +191,35 @@ def test_transcription_tierce_ne_peut_pas_etre_certifiee(verificateur):
         assert par_nom[nom].niveau == "certifiee", nom
 
 
-def test_plafond_ancien_s_arrete_ou_l_insee_commence(verificateur, monkeypatch):
-    """Deux sources sur un même fichier ne doivent pas se marcher dessus."""
-    monkeypatch.setattr(
-        verificateur, "_serie_json",
-        lambda *args: {"1999": 26471.2, "2001": 27349.4, "2002": 28224.0, "2010": 34620.0},
-    )
-    serie = verificateur.source_plafond_ancien()
-    assert set(serie) == {("1999",), ("2001",)}
+def test_plafond_ancien_s_efface_devant_l_insee_et_le_journal_officiel(
+        verificateur, monkeypatch):
+    """Trois sources sur un même fichier ne doivent pas se marcher dessus.
+
+    L'INSEE tient 2002 et au-delà ; le *Journal officiel* tient les années dont
+    le décret a été lu ; OpenFisca ne garde que le reste. Le partage n'est pas
+    cosmétique : c'est lui qui rend le journal de certification vrai.
+    """
+    series = {
+        "openfisca_plafond.json": {
+            "1999": 26471.2, "2001": 27349.4, "2002": 28224.0, "2010": 34620.0,
+        },
+        "jorf_plafond_securite_sociale.json": {"2001": 27349.4, "2010": 34620.0},
+    }
+    monkeypatch.setattr(verificateur, "_serie_json",
+                        lambda nom, *args: series[nom])
+    assert set(verificateur.source_plafond_ancien()) == {("1999",)}
+    assert set(verificateur.source_plafond_journal_officiel()) == {("2001",)}
+
+
+def test_le_plafond_ancien_survit_a_l_absence_du_journal_officiel(
+        verificateur, monkeypatch):
+    """Le dump JORF est long à lire : sans lui, la transcription tient tout."""
+    def _serie(nom, *args):
+        if nom == "jorf_plafond_securite_sociale.json":
+            raise verificateur.SourceAbsente(nom)
+        return {"1999": 26471.2, "2001": 27349.4, "2002": 28224.0}
+    monkeypatch.setattr(verificateur, "_serie_json", _serie)
+    assert set(verificateur.source_plafond_ancien()) == {("1999",), ("2001",)}
 
 
 def test_prorata_du_plafond_sur_une_annee_a_deux_decrets():
@@ -676,3 +698,140 @@ def test_la_reference_du_minimum_garanti_se_recoupe_au_point_d_indice(verificate
     messages = verificateur.controle_vraisemblance_minimum_garanti()
     assert messages[0].startswith("OK")
     assert not [m for m in messages if m.startswith("SUSPECT")]
+
+
+def _plafond():
+    return _charger_script("jorf_plafond_securite_sociale", "scripts", "fetch",
+                           "jorf_plafond_securite_sociale.py")
+
+
+def test_la_notice_ancienne_du_plafond_porte_ses_deux_semestres():
+    """« POUR LA PERIODE DU 01-01-1991 AU 30-06-1991 A 11340FRS ET […] »"""
+    module = _plafond()
+    notice = (
+        "TAUX D'AUGMENTATION DE 5% AU 01-01-1991. LE PLAFOND AU 01-07-1991,EST "
+        "FIXE EN APPLIQUANT AU PLAFOND EN VIGUEUR AU 01-01-1991,UN TAUX DE "
+        "REVALORISATION EGAL A LA MOITIE DU TAUX RETENU A CETTE DERNIERE "
+        "DATE,SOIT 2,5%. LES NOUVELLES VALEURS DU PLAFOND S'ETABLISSENT DONC "
+        "POUR LA PERIODE DU 01-01-1991 AU 30-06-1991 A 11340FRS ET POUR LA "
+        "PERIODE DU 01-07-1991 AU 31-12-1991 A 11620FRS PAR MOIS."
+    )
+    par_date, griefs = module.montants_dates([notice])
+    assert griefs == []
+    assert par_date[datetime.date(1991, 1, 1)] == pytest.approx(11340 / 6.55957)
+    assert par_date[datetime.date(1991, 7, 1)] == pytest.approx(11620 / 6.55957)
+
+
+def test_le_plafond_annuel_est_la_somme_de_ses_douze_mois():
+    """Le plafond a été semestriel : douze fois janvier serait faux."""
+    module = _plafond()
+    par_date = {
+        datetime.date(1991, 1, 1): 1728.77,
+        datetime.date(1991, 7, 1): 1771.46,
+    }
+    serie = module.serie_annuelle(par_date)
+    assert serie[1991] == pytest.approx(6 * 1728.77 + 6 * 1771.46)
+
+
+def test_une_annee_sans_texte_n_est_pas_reconduite():
+    """Le plafond a monté chaque année : un report écrirait un gel inexistant."""
+    module = _plafond()
+    serie = module.serie_annuelle({datetime.date(1984, 7, 1): 1294.29})
+    assert serie == {}
+
+
+def test_le_taux_annonce_par_la_notice_est_refait():
+    """La notice écrit sa hausse : un montant qui ne la respecte pas est refusé."""
+    module = _plafond()
+    faux = (
+        "SOIT 2,5%. LES NOUVELLES VALEURS DU PLAFOND S'ETABLISSENT DONC POUR LA "
+        "PERIODE DU 01-01-1991 AU 30-06-1991 A 11340FRS ET POUR LA PERIODE DU "
+        "01-07-1991 AU 31-12-1991 A 12500FRS PAR MOIS."
+    )
+    _, griefs = module.montants_dates([faux])
+    assert [g for g in griefs if "taux annoncé" in g]
+
+
+def test_les_autres_plafonds_du_journal_officiel_sont_ecartes():
+    """« LE PLAFOND DE LA PARTICIPATION FORFAITAIRE […] EST FIXE A 933FRS »."""
+    module = _plafond()
+    intrus = (
+        "SECURITE SOCIALE. A COMPTER DU 01-01-1991,LE PLAFOND DE LA "
+        "PARTICIPATION FORFAITAIRE SUSVISEE EST FIXE A 933FRS."
+    )
+    par_date, griefs = module.montants_dates([intrus])
+    assert par_date == {} and griefs == []
+
+
+def test_l_article_premier_du_plafond_se_date_lui_meme():
+    """« 14 090 F […] versés du 1er janvier au 31 décembre 1998 »."""
+    module = _plafond()
+    article = (
+        "Art. 1er. - Les cotisations dues dans la limite du plafond de la "
+        "sécurité sociale sont calculées jusqu'à concurrence des sommes "
+        "suivantes : 42 270 F si les rémunérations ou gains sont versés par "
+        "trimestre ; 14 090 F si les rémunérations ou gains sont versés par "
+        "mois ; 650 F si les rémunérations ou gains sont versés par jour, pour "
+        "les rémunérations ou gains versés du 1er janvier au 31 décembre 1998."
+    )
+    par_date, griefs = module.montants_dates([article])
+    assert griefs == []
+    assert par_date == {datetime.date(1998, 1, 1): pytest.approx(14090 / 6.55957)}
+
+
+def test_l_arrete_moderne_du_plafond_porte_son_annee_dans_son_titre():
+    module = _plafond()
+    arrete = (
+        "Arrêté du 19 décembre 2023 portant fixation du plafond de la sécurité "
+        "sociale pour 2024 Les valeurs mensuelle et journalière du plafond de "
+        "la sécurité sociale sont les suivantes : - valeur mensuelle : "
+        "3 864 euros ; - valeur journalière : 213 euros."
+    )
+    par_date, griefs = module.montants_dates([arrete])
+    assert griefs == []
+    assert par_date == {datetime.date(2024, 1, 1): 3864.0}
+    assert module.serie_annuelle(par_date)[2024] == pytest.approx(46368.0)
+
+
+def test_les_anciens_francs_du_plafond_passent_par_la_division_par_cent():
+    """Avant 1960, le Journal officiel compte en anciens francs."""
+    module = _plafond()
+    assert module._en_euros(600000, datetime.date(1957, 1, 1)) == pytest.approx(
+        600000 / 100 / 6.55957)
+    assert module._en_euros(11340, datetime.date(1991, 1, 1)) == pytest.approx(
+        11340 / 6.55957)
+    assert module._en_euros(3864, datetime.date(2024, 1, 1)) == 3864.0
+
+
+def test_la_notice_des_annees_1980_rappelle_janvier_entre_parentheses():
+    """« EST FIXE A 8490FRS […] DEPUIS LE 01-01-1984 (8110FRS PAR MOIS) »."""
+    module = _plafond()
+    notice = (
+        "PORTANT FIXATION,A COMPTER DU 01-07-1984,DU PLAFOND DES COTISATIONS DE "
+        "SECURITE SOCIALE. LE PLAFOND DE SECURITE SOCIALE APPLICABLE AUX "
+        "REMUNERATIONS OU GAINS VERSES A PARTIR DU 01-07-1984 EST FIXE A "
+        "8490FRS PAR MOIS ,SOIT UNE AUGMENTATION DE 4,69% PAR RAPPORT AU "
+        "PLAFOND EN VIGUEUR DEPUIS LE 01-01-1984 (8110FRS PAR MOIS)."
+    )
+    par_date, griefs = module.montants_dates([notice])
+    assert griefs == []
+    assert par_date[datetime.date(1984, 1, 1)] == pytest.approx(8110 / 6.55957)
+    assert par_date[datetime.date(1984, 7, 1)] == pytest.approx(8490 / 6.55957)
+
+
+def test_le_titre_date_la_parenthese_quand_le_corps_ne_le_fait_pas():
+    """« FIXATION A COMPTER DU 01-01-1988 ET DU 01-07-1988 […] (PLAFOND: 9950FRS) »."""
+    module = _plafond()
+    notice = (
+        "PORTANT FIXATION A COMPTER DU 01-01-1988 ET DU 01-07-1988 DU PLAFOND "
+        "DE LA SECURITE SOCIALE. LE TAUX D'AUGMENTATION DE 3,32% CORRESPOND A "
+        "L'EVOLUTION DU SALAIRE MOYEN (3,3%) (PLAFOND: 9950FRS PAR MOIS). "
+        "A COMPTER DU 01-07-1988,LE PLAFOND EST FIXE A 10110FRS PAR MOIS,"
+        "VALEUR OBTENUE PAR MAJORATION DE 1,60% DE LA VALEUR AU 01-01-1988."
+    )
+    par_date, griefs = module.montants_dates([notice])
+    # Le contrôle doit retenir 1,60 %, le taux de juillet, et non les 3,32 %
+    # de janvier, qui se rapportent à l'année précédente.
+    assert griefs == []
+    assert par_date[datetime.date(1988, 1, 1)] == pytest.approx(9950 / 6.55957)
+    assert par_date[datetime.date(1988, 7, 1)] == pytest.approx(10110 / 6.55957)
