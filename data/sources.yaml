@@ -1235,6 +1235,23 @@ institutions:
           2017, et il s'arrête en 2020. Le b) de l'article porte le barème du
           COUPLE, que le modèle ne connaît pas : seul le a) est lu.
 
+      - id: dila_kali
+        titre: KALI — conventions collectives, essayée pour le taux d'appel de l'Agirc
+        url: https://echanges.dila.gouv.fr/OPENDATA/KALI/
+        acces: fichier
+        statut_integration: sans_objet
+        note: >-
+          Troisième base de la DILA essayée par ce dépôt, et la plus légère :
+          173 Mo, deux minutes, 7 632 textes retenus. Elle a été dépouillée pour
+          le TAUX D'APPEL DE L'AGIRC, que la convention collective nationale du
+          14 mars 1947 fixe par avenants. RÉSULTAT NÉGATIF, et la raison est
+          instructive : cette convention n'est pas dans KALI. Ce n'est pas une
+          convention de branche déposée mais un accord national
+          interprofessionnel ; la base n'en garde que l'accord de 1986 sur ses
+          « seuils d'accès ». 1 754 textes la citent, aucun n'est elle.
+          À retenir avant d'y revenir : KALI porte les conventions de BRANCHE,
+          pas les accords interprofessionnels que gèrent leurs signataires.
+
       - id: dila_opendata
         titre: Bases ouvertes de la DILA — JORF et LEGI
         url: https://echanges.dila.gouv.fr/OPENDATA/

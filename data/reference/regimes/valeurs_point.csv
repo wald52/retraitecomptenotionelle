@@ -19,7 +19,17 @@
 #               Agirc-Arrco pour l'Agirc, l'Arrco, l'UNIRS et le régime unifié,
 #               la Caisse des dépôts pour l'Ircantec, la CNBF pour les avocats,
 #               la CNAVPL pour les libéraux, le code rural pour la MSA
-#   haute     : transcription OpenFisca du texte de la circulaire
+#   haute     : transcription OpenFisca du texte de la circulaire. Le TAUX
+#               D'APPEL DE L'AGIRC (1948-1995) en est, et le restera : il est
+#               fixé par les avenants d'une convention collective que ses
+#               signataires publient eux-mêmes, et qui n'entre au Journal
+#               officiel que le jour où l'État l'étend — une procédure qui ne
+#               commence qu'aux années 2000. Cherché dans la compilation de la
+#               fédération, sur son site, dans la base KALI des conventions
+#               collectives et dans le JORF : voir docs/limites.md.
+#               Le dépôt arrête la série en 1995 à 1,25 et la prolonge en
+#               escalier ; le Journal officiel confirme ce chiffre pour 2008 et
+#               pour les exercices 2011 à 2015.
 #   moyenne   : valeurs de l'UNIRS tenant lieu de point Arrco avant son
 #               unification de 1999 — la valeur est celle du producteur, mais
 #               la SUBSTITUTION est une décision du dépôt, qu'aucune source ne

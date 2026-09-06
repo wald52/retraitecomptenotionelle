@@ -63,6 +63,14 @@
 # d'une année est le définitif — celui qui est dû, arrêté une fois l'exercice
 # connu. Les deux diffèrent : 23,87 % et 23,25 % pour 2018.
 #
+# POURQUOI LE TAUX IMPLICITE DE L'ÉTAT NE SE CERTIFIERA PAS. Ces onze taux sont
+# une RECONSTITUTION faite a posteriori par l'annexe « pensions » au projet de
+# loi de finances pour 2011 : leur producteur est la direction du Budget, et
+# elle seule. Son site répond 403 aux requêtes automatisées, et les deux
+# documents qui reprennent la série — le rapport de la Cour des comptes de 2016,
+# celui du Sénat de 2012 — sont des tiers, dont une transcription ne monterait
+# pas au-dessus de `haute`. Voir docs/limites.md.
+#
 # nature :
 #   appelee    : taux effectivement appelé, fixé par décret ou par arrêté
 #   implicite  : taux RECONSTITUÉ a posteriori. L'État n'appelait aucune

@@ -372,7 +372,7 @@ La page **Données** du site affiche l'état exact. En résumé :
 | Répartition salarié/employeur, régime général | 1968-2026 | haute | OpenFisca-France, recoupée à chaque exécution |
 | Répartition salarié/employeur, autres régimes de salariés | toutes | moyenne / estimée | OpenFisca et textes ; règle 40-60 pour les complémentaires |
 | Contribution employeur, État | 2006-2026 | **certifiée** | Service des retraites de l'État, fiche « Historique des taux de cotisations » |
-| Contribution employeur, État (implicite) | 1995-2005 | haute | OpenFisca-France, jaune « pensions » du PLF 2011 |
+| Contribution employeur, État (implicite) | 1995-2005 | haute | OpenFisca-France, jaune « pensions » du PLF 2011 — reconstitution dont le producteur refuse les requêtes automatisées |
 | Contribution employeur, CNRACL | 1993-2028 | **certifiée** | DILA, base LEGI, décret n° 91-613 du 28 juin 1991, article 5 II |
 | Contribution employeur, CNRACL | 1984-1988 | **certifiée** | DILA, base LEGI, décret n° 47-1846 du 19 septembre 1947, article 3 |
 | Contribution employeur, CNRACL | 1948-1983, 1989-1992 | haute | OpenFisca-France — la chaîne des versions de l'article 3 est trouée, et la base le démontre |
@@ -533,7 +533,7 @@ pour l'Arrco reconstituée, 26,43 F pour l'UNIRS).
 qui a été cherché, pour éviter de le rechercher deux fois — et elle est tenue
 dans les deux sens : une limite qui se referme n'est pas effacée, elle est
 réécrite avec ce qui l'a levée et ce qu'elle a fini par coûter. Sur les
-vingt-trois entrées qui suivent, **douze ont été refermées par une source trouvée**, **deux
+vingt-cinq entrées qui suivent, **douze ont été refermées par une source trouvée**, **deux
 par la mesure du biais** qu'elles laissent — un biais chiffré n'est plus une
 inconnue, il se retranche — et **quatre à moitié** : le plafond ancien, dont
 trente et une années sur soixante et onze sont désormais lues dans leur décret ;
@@ -549,10 +549,16 @@ revalorisation des salaires et les valeurs du point du RCI ont été cherchées 
 *Journal officiel* et n'y sont pas — la première parce que l'arrêté ne fixe
 qu'un coefficient annuel quand la caisse seule publie la table cumulée, la
 seconde parce que le règlement du régime renvoie la fixation à son conseil
-d'administration. Une impasse démontrée vaut une impasse fermée : on ne la
-rouvrira pas. Deux restent ouvertes : une faute de source, et une parce que la
-source ne suffirait pas — la ligne y mêle un nombre de la loi et une convention
-de modélisation. Les
+d'administration. Deux autres se ferment de la même façon : le taux d'appel de
+l'Agirc, cherché par quatre portes — la compilation de la fédération, son site,
+la base KALI des conventions collectives, le *Journal officiel* — et qui n'est
+derrière aucune, parce qu'une convention collective ne paraît au *JO* que le
+jour où l'État l'étend ; et le taux implicite de l'État, dont le seul producteur
+refuse les requêtes automatisées et dont les reprises disponibles sont des
+tiers. Une impasse démontrée vaut une impasse fermée : on ne les rouvrira pas.
+**Il n'en reste qu'une** — la ligne qui mêle un nombre de la loi et une
+convention de modélisation, et que la source ne suffirait donc pas à certifier.
+Les
 phrases qui déclaraient ces limites inaccessibles sont citées telles quelles,
 parce qu'une conclusion fausse tirée de prémisses vraies est ce qui se répète le
 plus volontiers.
@@ -1290,6 +1296,55 @@ plus volontiers.
   récupérateur la respecte ; il refuse en outre un titre annuel pour toute année
   dont un relèvement en cours d'année a été lu, pour ne pas dépendre d'une date
   charnière supposée.
+
+* *Taux d'appel de l'Agirc, 1948-1995* — **cherché par quatre portes, et il
+  n'est derrière aucune.** Le taux d'appel est l'écart entre ce qui est prélevé
+  et ce qui ouvre des droits : cotiser 125 € n'en acquiert que 100. Quarante-huit
+  valeurs en dépendent, et elles venaient d'OpenFisca.
+
+  | Porte | Ce qu'on y a trouvé |
+  |---|---|
+  | La compilation historique de la fédération | Lue page par page : soixante pages de valeurs de service et de salaires de référence, et rien d'autre. Le mot « appel » y paraît sept fois, toutes dans « rappel » |
+  | Le site de la fédération | Un antibot rejette son API de médias ; seule l'adresse connue du PDF répond. On ne peut pas énumérer ce qu'il publie |
+  | **KALI**, la base des conventions collectives de la DILA | 173 Mo, 7 632 textes lus. La convention du 14 mars 1947 n'y est PAS : ce n'est pas une convention de branche déposée mais un accord national interprofessionnel, et la base n'en garde que l'accord de 1986 sur ses *seuils d'accès*. 1 754 textes la citent ; aucun n'est elle |
+  | Le **JORF** | 1 219 textes lus. Les avis d'extension des accords « fixant le pourcentage d'appel » existent bien — mais à partir des années 2000 seulement, la procédure des articles L. 911-3 et L. 911-4 étant ce qui les y amène. Avant 1995, le seul taux d'appel trouvé est celui de l'**accord national interprofessionnel du 8 décembre 1961** — 110 % pour les exercices 1979 à 1982 —, c'est-à-dire l'Arrco, un autre régime |
+
+  **La raison est de nature, non de recherche.** Ce taux est fixé par les
+  avenants d'une convention collective que ses signataires publient eux-mêmes ;
+  il n'entre au *Journal officiel* que le jour où l'État l'étend, et cette
+  procédure est récente. Ces quarante-huit valeurs resteront `haute`.
+
+  **Une chose en est tout de même sortie.** Le dépôt arrête la série en 1995 à
+  1,25 et la prolonge en escalier ; le *Journal officiel* confirme ce chiffre —
+  « le pourcentage d'appel […] est maintenu à 125 % pour l'année 2008 », « il
+  maintient le pourcentage d'appel des cotisations pour les exercices 2011 à
+  2015 inclus à 125 % ». Ce que le modèle extrapolait est désormais recoupé.
+
+* *Taux implicite de l'État, 1995-2005* — **fermée, et pas par le réseau.**
+  Ces onze taux sont une RECONSTITUTION : l'État n'appelait aucune cotisation
+  avant 2006, les pensions étaient payées sur crédits budgétaires, et l'annexe
+  « pensions » au projet de loi de finances pour 2011 en a simulé un a
+  posteriori. Le producteur de cette reconstitution est donc la direction du
+  Budget, et elle seule.
+
+  Quatre portes ont été essayées. `budget.gouv.fr`, le site du producteur,
+  **répond 403 aux requêtes automatisées** — trois fois sur trois, et l'on ne
+  cherche pas à forcer un refus. Son miroir `performance-publique.budget.gouv.fr`
+  n'est pas joignable depuis l'environnement où ce dépôt est construit ; c'est
+  une limite de la machine, pas de la source, et elle est notée comme telle.
+  La base **RAPPORTS_PUBLICS** de la DILA — 19 558 rapports indexés — ne porte
+  aucun jaune budgétaire : les jaunes sont des annexes au projet de loi de
+  finances transmises au Parlement, pas des rapports publics, et les trois
+  titres qui contiennent le mot « jaune » parlent de gilets et d'un mur.
+  `data.gouv.fr` ne connaît pas le compte d'affectation spéciale « Pensions ».
+
+  **Et surtout : une porte ouverte n'aurait pas suffi.** Les deux documents qui
+  reprennent cette série sont dans l'index de la DILA — le rapport de la Cour
+  des comptes de 2016 et celui de la commission des finances du Sénat de 2012 —
+  et ce sont des TIERS. Une transcription de transcription ne monte pas au-dessus
+  de `haute`, quel que soit le réseau. C'est ce qui referme l'entrée : il ne
+  s'agit plus d'un accès à trouver mais d'une source qui, seule, certifierait,
+  et qui ne se laisse pas lire par un script.
 
 * *Revalorisation des salaires portés au compte* — **cherchée au Journal
   officiel, et elle n'y est pas.** C'est le plus gros bloc non certifié du dépôt
